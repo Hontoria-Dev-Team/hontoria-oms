@@ -1,0 +1,21 @@
+.titleLogo {
+    display: flex;
+    align-items: center;
+    font-size: 2em;
+}
+
+.titleLogo>img {
+    height: 2em;
+}
+
+.box {
+    border-radius: 1em;
+    padding: 1em;
+    background: white;
+}
+
+.gradientBorder {
+    border-radius: 1em;
+    padding: 0.1em;
+    background: var(--gradient);
+}
