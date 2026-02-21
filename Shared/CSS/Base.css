@@ -45,3 +45,17 @@ input[type=submit] {
     font-weight: bolder;
     font-size: 1em;
 }
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}

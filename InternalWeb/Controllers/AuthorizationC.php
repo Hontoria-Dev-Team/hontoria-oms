@@ -16,37 +16,31 @@ class AuthorizationC {
     public function login() {
         $username = trim($_POST['name'] ?? '');
         $password = $_POST['password'] ?? '';
+        $user = $this->staffModel->findByUsername($username);
         $error = null;
 
-        if (empty($username) || empty($password)) {
-            $error = 'Username and password are required.';
-        } else {
-            $user = $this->staffModel->findByUsername($username);
+        if ($user) {
+            if (password_verify($password, $user['passwordHash'])) {
+                if ($user['isActive'] == 1) {
 
-            if ($user) {
-                if (password_verify($password, $user['passwordHash'])) {
+                    session_start();
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['full_name'] = trim($user['firstName'] . ' ' . $user['lastName']);
+                    $_SESSION['logged_in'] = true;
 
-                    if ($user['isActive'] == 1) {
+                    $this->staffModel->updateLastLogin($user['id']);
 
-                        session_start();
-                        $_SESSION['user_id'] = $user['id'];
-                        $_SESSION['username'] = $user['username'];
-                        $_SESSION['full_name'] = trim($user['firstName'] . ' ' . $user['lastName']);
-                        $_SESSION['logged_in'] = true;
-
-                        $this->staffModel->updateLastLogin($user['id']);
-
-                        header('Location: index.php?page=dashboard');
-                        exit;
-                    } else {
-                        $error = 'Account is deactivated. Contact administrator.';
-                    }
+                    header('Location: index.php?page=dashboard');
+                    exit;
                 } else {
-                    $error = 'Invalid username or password.';
+                    $error = 'Account is deactivated. Contact administrator.';
                 }
             } else {
                 $error = 'Invalid username or password.';
             }
+        } else {
+            $error = 'Invalid username or password.';
         }
 
         $pageTitle = "Internal Login";
