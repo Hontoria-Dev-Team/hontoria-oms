@@ -6,7 +6,6 @@ class StaffM {
         $this->pdo = $pdo;
     }
 
-    // Find staff by username
     public function findByUsername($username) {
         $query = "SELECT id, username, passwordHash, firstName, middleName, lastName, phone, isActive, lastLoginAt
                   FROM users
@@ -20,7 +19,6 @@ class StaffM {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // Update last login timestamp
     public function updateLastLogin($userId) {
         $query = "UPDATE users SET lastLoginAt = NOW() WHERE id = :id";
         $stmt = $this->pdo->prepare($query);

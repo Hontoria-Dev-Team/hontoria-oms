@@ -1,10 +1,10 @@
 <?php
 class AuthorizationC {
-    private $userModel;
+    private $staffModel;
 
     public function __construct($pdo) {
         require_once __DIR__ . '/../Models/StaffM.php';
-        $this->userModel = new StaffM($pdo);
+        $this->staffModel = new StaffM($pdo);
     }
 
     public function showPage() {
@@ -21,7 +21,7 @@ class AuthorizationC {
         if (empty($username) || empty($password)) {
             $error = 'Username and password are required.';
         } else {
-            $user = $this->userModel->findByUsername($username);
+            $user = $this->staffModel->findByUsername($username);
 
             if ($user) {
                 if (password_verify($password, $user['passwordHash'])) {
@@ -34,7 +34,7 @@ class AuthorizationC {
                         $_SESSION['full_name'] = trim($user['firstName'] . ' ' . $user['lastName']);
                         $_SESSION['logged_in'] = true;
 
-                        $this->userModel->updateLastLogin($user['id']);
+                        $this->staffModel->updateLastLogin($user['id']);
 
                         header('Location: index.php?page=dashboard');
                         exit;
