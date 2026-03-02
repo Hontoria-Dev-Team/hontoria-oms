@@ -1,75 +1,70 @@
 <?php
-
-
 /**
  * Hontoria Printing Services - Homepage View
- * OOP Implementation with SOLID Principles
+ * Direct HTML rendering using component classes
  */
 
-// Initialize configuration (Singleton)
+// Initialize configuration
 $config = \Config::getInstance();
 
-// Create page builder (Dependency Inversion)
-$page = new \PageBuilder();
+// Get configuration data
+$siteName = $config->get('site.name');
+$logoPath = $config->get('site.logoPath');
+$fbLink = $config->get('site.fbLink');
+$address = $config->get('site.address');
+$navItems = $config->get('navigation');
 
-// Set page metadata
-$page->setMeta([
-    'title' => $config->get('site.name')
+// Initialize components to get their rendered HTML
+$headerComponent = new \HeaderComponent([
+    'logoPath' => $logoPath,
+    'fbLink' => $fbLink,
+    'navItems' => $navItems
 ]);
 
-// Add CSS
-$page->addCSS('/public/css/home.css');
+$heroComponent = new \HeroComponent([
+    'fbLink' => $fbLink,
+    'slides' => []
+]);
 
-// Build page from components (Open/Closed Principle - easy to add/remove)
-$page
-    // Header with navigation
-    ->addComponent(new \HeaderComponent([
-        'logoPath' => $config->get('site.logoPath'),
-        'fbLink' => $config->get('site.fbLink'),
-        'navItems' => $config->get('navigation')
-    ]))
-    
-    // Main content wrapper start
-    ->addComponent(new class extends \Component {
-        public function render(): string {
-            return '<main>';
-        }
-    })
-    
-    // Hero section with carousel
-    ->addComponent(new \HeroComponent([
-        'fbLink' => $config->get('site.fbLink'),
-        'slides' => [] // Empty = use defaults, or pass custom slides
-    ]))
-    
-    // Services preview
-    ->addComponent(new \ServicesPreviewComponent([
-        'services' => [] // Empty = use defaults
-    ]))
-    
-    // Why choose us
-    ->addComponent(new \WhyUsComponent([
-        'items' => [] // Empty = use defaults
-    ]))
-    
-    // Main content wrapper end
-    ->addComponent(new class extends \Component {
-        public function render(): string {
-            return '</main>';
-        }
-    })
-    
-    // Footer
-    ->addComponent(new \FooterComponent([
-        'logoPath' => $config->get('site.logoPath'),
-        'fbLink' => $config->get('site.fbLink'),
-        'address' => $config->get('site.address'),
-        'navLinks' => $config->get('navigation')
-    ]));
+$servicesComponent = new \ServicesPreviewComponent([
+    'services' => []
+]);
 
-// Add JavaScript
-$page->addJS('/public/js/home.js');
+$whyUsComponent = new \WhyUsComponent([
+    'items' => []
+]);
 
-// Render and output the complete page
-echo $page->build();
+$footerComponent = new \FooterComponent([
+    'logoPath' => $logoPath,
+    'fbLink' => $fbLink,
+    'address' => $address,
+    'navLinks' => $navItems
+]);
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title><?php echo htmlspecialchars($siteName); ?></title>
+    <link rel="icon" type="image/jpeg" href="<?php echo htmlspecialchars($logoPath); ?>"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" href="<?php echo htmlspecialchars($config->get('paths.css')); ?>"/>
+</head>
+<body>
+
+<?php echo $headerComponent->render(); ?>
+
+<main>
+    <?php echo $heroComponent->render(); ?>
+    <?php echo $servicesComponent->render(); ?>
+    <?php echo $whyUsComponent->render(); ?>
+</main>
+
+<?php echo $footerComponent->render(); ?>
+
+<script src="<?php echo htmlspecialchars($config->get('paths.js')); ?>"></script>
+
+</body>
+</html>
