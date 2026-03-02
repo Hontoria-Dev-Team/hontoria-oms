@@ -8,36 +8,49 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Define base paths - we are in public/ folder
-define('BASE_PATH', dirname(__DIR__));  // Go up one level to public_website
+// Define base paths
+define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/app');
-define('PUBLIC_PATH', __DIR__);  // Current directory (public)
+define('PUBLIC_PATH', __DIR__);
 define('VIEWS_PATH', BASE_PATH . '/views');
 
-// Debug: Show paths (remove this after fixing)
-echo "<!-- DEBUG INFO:\n";
+// Debug: Show paths
+echo "<!-- DEBUG:\n";
 echo "BASE_PATH: " . BASE_PATH . "\n";
-echo "PUBLIC_PATH: " . PUBLIC_PATH . "\n";
 echo "APP_PATH: " . APP_PATH . "\n";
-echo "CSS file exists: " . (file_exists(PUBLIC_PATH . '/css/home.css') ? 'YES' : 'NO') . "\n";
-echo "JS file exists: " . (file_exists(PUBLIC_PATH . '/js/home.js') ? 'YES' : 'NO') . "\n";
-echo "Logo exists: " . (file_exists(PUBLIC_PATH . '/img/logo.jpg') ? 'YES' : 'NO') . "\n";
 echo "-->\n";
 
-// Autoloader - loads classes from components and controllers
+// Autoloader - loads classes from multiple locations
 spl_autoload_register(function ($class) {
     $paths = [
+        // Shared components (used by all pages)
         APP_PATH . '/components/home_components/' . $class . '.php',
+        // Services components
+        APP_PATH . '/components/services_components/' . $class . '.php',
+        // Profile components
+        APP_PATH . '/components/profile_components/' . $class . '.php',
+        // About components
+        APP_PATH . '/components/aboutus_components/' . $class . '.php',
+        // Controllers
         APP_PATH . '/controllers/' . $class . '.php',
+        // Models
         APP_PATH . '/models/' . $class . '.php',
     ];
     
     foreach ($paths as $file) {
         if (file_exists($file)) {
             require_once $file;
+            echo "<!-- Loaded: $class from $file -->\n";
             return;
         }
     }
+    
+    // Class not found - show error
+    echo "<!-- ERROR: Could not find class '$class' in any of these paths:\n";
+    foreach ($paths as $p) {
+        echo "  - $p (exists: " . (file_exists($p) ? 'YES' : 'NO') . ")\n";
+    }
+    echo "-->\n";
 });
 
 // Simple routing based on 'page' parameter
@@ -46,12 +59,21 @@ $page = $_GET['page'] ?? 'home';
 // Route to appropriate controller
 switch ($page) {
     case 'home':
-        $controller = new \HomeController();
-        $controller->index();
+        if (class_exists('HomeController')) {
+            $controller = new \HomeController();
+            $controller->index();
+        } else {
+            die('ERROR: HomeController class not found!');
+        }
         break;
         
     case 'services':
-        echo '<h1>Services page coming soon!</h1><a href="?page=home">Back to Home</a>';
+        if (class_exists('ServicesController')) {
+            $controller = new \ServicesController();
+            $controller->index();
+        } else {
+            die('ERROR: ServicesController class not found! Check if file exists at: ' . APP_PATH . '/controllers/ServicesController.php');
+        }
         break;
         
     case 'profile':
