@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Heat Press Process - Order #3124</title>
+    <link rel="stylesheet" href="../../../assets/css/employee.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-logo" aria-label="Hontoria logo">
+            <img
+              src="../../../assets/images/whitehontoria-removebg-preview.png"
+              alt="Hontoria"
+            />
+          </div>
+          <div class="brand-title">HontoriaOMS</div>
+        </div>
+
+        <nav class="nav" aria-label="Employee navigation">
+          <a href="../../../employee/dashboard.html" class="nav-item">
+            <i class="fa-solid fa-border-all"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="../../../employee/tasks/my-task.html" class="nav-item active">
+            <i class="fa-solid fa-list-check"></i>
+            <span>My Tasks</span>
+          </a>
+          <a href="../../../employee/tasks/available-task.html" class="nav-item">
+            <i class="fa-regular fa-clipboard"></i>
+            <span>Available T.</span>
+          </a>
+          <a href="../../../employee/inventory.html" class="nav-item">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Inventory</span>
+          </a>
+          <a href="../../../employee/analytics.html" class="nav-item">
+            <i class="fa-solid fa-chart-simple"></i>
+            <span>Analytics</span>
+          </a>
+          <a href="../../../employee/archive.html" class="nav-item">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Archive</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="../../../employee/employee-settings.html" class="employee-badge">
+            <i class="fa-regular fa-user"></i>
+            <span>Employee</span>
+          </a>
+        </div>
+      </aside>
+
+      <main class="main order-detail-main">
+        <header class="page-header">
+          <a
+            href="../../../employee/tasks/my-task.html"
+            class="back-link"
+            aria-label="Back to my tasks"
+          >
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Back</span>
+          </a>
+          <h1>Heat Press Process</h1>
+        </header>
+
+        <section class="order-detail" aria-label="Order details">
+          <article class="order-header-card">
+            <div class="order-header-main">
+              <h2>Order #3124</h2>
+              <div class="order-header-meta">
+                <div>Type: Sublimation</div>
+                <div>Class: Jersey</div>
+                <div>Customer: Machina</div>
+              </div>
+            </div>
+            <div class="order-header-chips">
+              <span class="chip chip-success">Group Chat Approved</span>
+              <span class="chip chip-success">Variable List Approved</span>
+              <span class="chip chip-success">Design Approved</span>
+            </div>
+          </article>
+
+          <section
+            class="order-status-row"
+            aria-label="Order task statuses"
+          >
+            <button class="status-card status-done" type="button">
+              <div class="status-title">Designing</div>
+              <div class="status-sub">Completed</div>
+            </button>
+            <button class="status-card status-done" type="button">
+              <div class="status-title">Printing</div>
+              <div class="status-sub">Completed</div>
+            </button>
+            <button class="status-card status-active" type="button">
+              <div class="status-title">Heat Press</div>
+              <div class="status-sub">On Process</div>
+            </button>
+            <button class="status-card status-neutral" type="button">
+              <div class="status-title">Sewing</div>
+            </button>
+          </section>
+
+          <section class="order-info-row" aria-label="Order info">
+            <article class="order-info-card">
+              <h3>Sizes &amp; Quantities</h3>
+              <div class="sizes-list">
+                <div class="size-item">
+                  <span class="size-pill">Size: Small</span>
+                  <span class="size-qty">20 pcs</span>
+                </div>
+                <div class="size-item">
+                  <span class="size-pill">Size: Medium</span>
+                  <span class="size-qty">5 pcs</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="order-info-card order-price-card">
+              <h3>Order Price</h3>
+              <div class="order-price-value">₱3,500.00</div>
+            </article>
+
+            <article class="order-info-card order-due-card">
+              <h3>Due Date</h3>
+              <div class="order-due-row">
+                <input
+                  type="text"
+                  value="13 / 02 / 2026"
+                  aria-label="Due date"
+                />
+                <button
+                  type="button"
+                  class="icon-button"
+                  aria-label="Edit due date"
+                >
+                  <i class="fa-regular fa-calendar"></i>
+                </button>
+              </div>
+            </article>
+          </section>
+
+          <article class="order-employees-card">
+            <h3>Employees Assigned</h3>
+            <div class="employees-assigned-list">
+              <div class="employee-assigned-row">
+                <input
+                  type="text"
+                  value="Kym"
+                  aria-label="Employee name"
+                />
+                <input
+                  type="text"
+                  value="Heat Press"
+                  aria-label="Task"
+                />
+                <button
+                  type="button"
+                  class="icon-button"
+                  aria-label="Mark complete"
+                >
+                  <i class="fa-solid fa-check"></i>
+                </button>
+                <button
+                  type="button"
+                  class="icon-button"
+                  aria-label="Remove employee"
+                >
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <div class="order-actions">
+            <a
+              href="sewing-process.html"
+              class="btn btn-secondary"
+            >
+              Partially Complete Task
+            </a>
+            <a
+              href="sewing-process.html"
+              class="btn btn-primary"
+            >
+              Complete Task
+            </a>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
+

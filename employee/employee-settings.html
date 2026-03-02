@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Settings - HontoriaOMS</title>
+    <link rel="stylesheet" href="../assets/css/employee.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-logo" aria-label="Hontoria logo">
+            <img
+              src="../assets/images/whitehontoria-removebg-preview.png"
+              alt="Hontoria"
+            />
+          </div>
+          <div class="brand-title">HontoriaOMS</div>
+        </div>
+
+        <nav class="nav" aria-label="Employee navigation">
+          <a href="dashboard.html" class="nav-item">
+            <i class="fa-solid fa-border-all"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="my-tasks.html" class="nav-item">
+            <i class="fa-solid fa-list-check"></i>
+            <span>My Tasks</span>
+          </a>
+          <a href="tasks/available-task.html" class="nav-item">
+            <i class="fa-regular fa-clipboard"></i>
+            <span>Available T.</span>
+          </a>
+          <a href="inventory.html" class="nav-item">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Inventory</span>
+          </a>
+          <a href="analytics.html" class="nav-item">
+            <i class="fa-solid fa-chart-simple"></i>
+            <span>Analytics</span>
+          </a>
+          <a href="archive.html" class="nav-item">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Archive</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="employee-settings.html" class="employee-badge">
+            <i class="fa-regular fa-user"></i>
+            <span>Employee</span>
+          </a>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="page-header">
+          <h1>Employee Settings</h1>
+        </header>
+
+        <section class="settings-section" aria-label="Account settings">
+          <article class="settings-card settings-password-card">
+            <h2>Change Password</h2>
+            <form>
+              <div class="form-group">
+                <label for="current-password">Current Password</label>
+                <input
+                  id="current-password"
+                  type="password"
+                  placeholder="Enter current password"
+                />
+              </div>
+              <div class="form-group">
+                <label for="new-password">New Password</label>
+                <input
+                  id="new-password"
+                  type="password"
+                  placeholder="Enter new password"
+                />
+              </div>
+              <div class="form-group">
+                <label for="confirm-password">Confirm New Password</label>
+                <input
+                  id="confirm-password"
+                  type="password"
+                  placeholder="Re‑enter new password"
+                />
+              </div>
+              <div class="settings-actions">
+                <button type="button" class="btn btn-primary">
+                  Update Password
+                </button>
+              </div>
+            </form>
+          </article>
+
+          <article class="settings-card settings-logout-card">
+            <h2>Logout</h2>
+            <div class="settings-actions">
+              <button type="button" class="btn btn-danger">
+                Log Out
+              </button>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
+

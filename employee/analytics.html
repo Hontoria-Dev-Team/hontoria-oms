@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analytics - HontoriaOMS</title>
+    <link rel="stylesheet" href="../assets/css/employee.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-logo" aria-label="Hontoria logo">
+            <img
+              src="../assets/images/whitehontoria-removebg-preview.png"
+              alt="Hontoria"
+            />
+          </div>
+          <div class="brand-title">HontoriaOMS</div>
+        </div>
+
+        <nav class="nav" aria-label="Employee navigation">
+          <a href="dashboard.html" class="nav-item">
+            <i class="fa-solid fa-border-all"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="my-tasks.html" class="nav-item">
+            <i class="fa-solid fa-list-check"></i>
+            <span>My Tasks</span>
+          </a>
+          <a href="tasks/available-task.html" class="nav-item">
+            <i class="fa-regular fa-clipboard"></i>
+            <span>Available T.</span>
+          </a>
+          <a href="inventory.html" class="nav-item">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Inventory</span>
+          </a>
+          <a href="analytics.html" class="nav-item active">
+            <i class="fa-solid fa-chart-simple"></i>
+            <span>Analytics</span>
+          </a>
+          <a href="archive.html" class="nav-item">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Archive</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="employee-settings.html" class="employee-badge">
+            <i class="fa-regular fa-user"></i>
+            <span>Employee</span>
+          </a>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="page-header">
+          <h1>Analytics</h1>
+
+          <div class="header-filters">
+            <button class="btn-filter active" type="button">This Week</button>
+            <button class="btn-filter" type="button">This Month</button>
+          </div>
+        </header>
+
+        <section class="analytics-metrics" aria-label="Key metrics">
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="fa-solid fa-peso-sign"></i>
+            </div>
+            <div class="metric-main">
+              <div class="metric-label">Total Revenue</div>
+              <div class="metric-value">₱125,430</div>
+            </div>
+            <div class="metric-trend up">
+              <span>+12.5%</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="fa-solid fa-clipboard-check"></i>
+            </div>
+            <div class="metric-main">
+              <div class="metric-label">Active Orders</div>
+              <div class="metric-value">24</div>
+            </div>
+            <div class="metric-trend neutral">
+              <span>+3</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div class="metric-main">
+              <div class="metric-label">Completed Today</div>
+              <div class="metric-value">8</div>
+            </div>
+            <div class="metric-trend down">
+              <span>-2</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon">
+              <i class="fa-solid fa-clock"></i>
+            </div>
+            <div class="metric-main">
+              <div class="metric-label">Avg. Completion Time</div>
+              <div class="metric-value">4.2 days</div>
+            </div>
+            <div class="metric-trend up">
+              <span>-0.5 days</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="analytics-recent" aria-label="Recent orders">
+          <div class="card analytics-recent-card">
+            <div class="analytics-recent-header">
+              <h2>Recent Orders</h2>
+            </div>
+
+            <div class="recent-list">
+              <article class="recent-item">
+                <div class="recent-main">
+                  <div class="recent-title">Order #3140</div>
+                  <div class="recent-meta">Machina · Sublimation</div>
+                  <div class="recent-progress-label">Progress</div>
+                  <div class="progress-track">
+                    <div class="progress-bar" style="width: 25%"></div>
+                  </div>
+                </div>
+                <div class="recent-side">
+                  <div class="recent-status">Designing</div>
+                  <div class="recent-percent">25%</div>
+                </div>
+              </article>
+
+              <article class="recent-item">
+                <div class="recent-main">
+                  <div class="recent-title">Order #3139</div>
+                  <div class="recent-meta">Santos · Screen Print</div>
+                  <div class="recent-progress-label">Progress</div>
+                  <div class="progress-track">
+                    <div class="progress-bar" style="width: 50%"></div>
+                  </div>
+                </div>
+                <div class="recent-side">
+                  <div class="recent-status">Printing</div>
+                  <div class="recent-percent">50%</div>
+                </div>
+              </article>
+
+              <article class="recent-item">
+                <div class="recent-main">
+                  <div class="recent-title">Order #3138</div>
+                  <div class="recent-meta">Garcia · Embroidery</div>
+                  <div class="recent-progress-label">Progress</div>
+                  <div class="progress-track">
+                    <div class="progress-bar" style="width: 75%"></div>
+                  </div>
+                </div>
+                <div class="recent-side">
+                  <div class="recent-status">Sewing</div>
+                  <div class="recent-percent">75%</div>
+                </div>
+              </article>
+
+              <article class="recent-item">
+                <div class="recent-main">
+                  <div class="recent-title">Order #3137</div>
+                  <div class="recent-meta">Reyes · Sublimation</div>
+                  <div class="recent-progress-label">Progress</div>
+                  <div class="progress-track">
+                    <div class="progress-bar" style="width: 90%"></div>
+                  </div>
+                </div>
+                <div class="recent-side">
+                  <div class="recent-status">Verification</div>
+                  <div class="recent-percent">90%</div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
+

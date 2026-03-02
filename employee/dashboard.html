@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Dashboard - HontoriaOMS</title>
+    <link rel="stylesheet" href="../assets/css/employee.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-logo" aria-label="Hontoria logo">
+            <img
+              src="../assets/images/whitehontoria-removebg-preview.png"
+              alt="Hontoria"
+            />
+          </div>
+          <div class="brand-title">HontoriaOMS</div>
+        </div>
+
+        <nav class="nav" aria-label="Employee navigation">
+          <a href="dashboard.html" class="nav-item active">
+            <i class="fa-solid fa-border-all"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="tasks/my-task.html" class="nav-item">
+            <i class="fa-solid fa-list-check"></i>
+            <span>My Tasks</span>
+          </a>
+          <a href="tasks/available-task.html" class="nav-item">
+            <i class="fa-regular fa-clipboard"></i>
+            <span>Available T.</span>
+          </a>
+          <a href="inventory.html" class="nav-item">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Inventory</span>
+          </a>
+          <a href="analytics.html" class="nav-item">
+            <i class="fa-solid fa-chart-simple"></i>
+            <span>Analytics</span>
+          </a>
+          <a href="archive.html" class="nav-item">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Archive</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="employee-settings.html" class="employee-badge">
+            <i class="fa-regular fa-user"></i>
+            <span>Employee</span>
+          </a>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="page-header">
+          <h1>Dashboard</h1>
+          <!-- Free/Assigned toggle intentionally removed -->
+        </header>
+
+        <section class="grid" aria-label="Top dashboard panels">
+          <div class="card">
+            <div class="card-title">
+              <a href="tasks/my-task.html">My Tasks</a>
+            </div>
+
+            <div class="order-list">
+            <a href="../modules/production/employee/designing-process.html" class="order-card-link">
+                <div class="order-card">
+                  <div class="order-top">
+                    <div class="order-no">
+                      <span>Order #3123</span>
+                      <i class="fa-solid fa-circle-info"></i>
+                    </div>
+                  </div>
+                  <div class="order-meta">
+                    <span>₱3,500.00</span>
+                    <span>13/02/2026</span>
+                  </div>
+                  <div class="order-details">
+                    <div>Task: Sublimation</div>
+                    <div>Class: Jersey</div>
+                    <div>Customer: Machina</div>
+                  </div>
+                  <div class="pill">Task: Designing</div>
+                </div>
+              </a>
+
+              <a href="../modules/production/employee/printing-process.html" class="order-card-link">
+                <div class="order-card">
+                  <div class="order-top">
+                    <div class="order-no">
+                      <span>Order #3124</span>
+                      <i class="fa-solid fa-circle-info"></i>
+                    </div>
+                  </div>
+                  <div class="order-meta">
+                    <span>₱2,800.00</span>
+                    <span>15/02/2026</span>
+                  </div>
+                  <div class="order-details">
+                    <div>Task: Sublimation</div>
+                    <div>Class: T-Shirt</div>
+                    <div>Customer: Santos</div>
+                  </div>
+                  <div class="pill">Task: Sublimation</div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">
+              <a href="tasks/available-task.html">Available Tasks</a>
+            </div>
+
+            <div class="available-list">
+              <div class="available-item">
+                <div class="left">
+                  <div class="title">Order #3131</div>
+                  <div class="subtitle">Designing · Hoodie · Dela Torre</div>
+                </div>
+                <button class="btn-dark" type="button">Assign to me</button>
+              </div>
+
+              <div class="available-item">
+                <div class="left">
+                  <div class="title">Order #3128</div>
+                  <div class="subtitle">Sublimation · Jersey · Bautista</div>
+                </div>
+                <button class="btn-dark" type="button">Assign to me</button>
+              </div>
+
+              <div class="available-item">
+                <div class="left">
+                  <div class="title">Order #3126</div>
+                  <div class="subtitle">Sewing · T-Shirt · Lim</div>
+                </div>
+                <button class="btn-dark" type="button">Assign to me</button>
+              </div>
+
+              <div class="available-item">
+                <div class="left">
+                  <div class="title">Order #3125</div>
+                  <div class="subtitle">Pressing · Polo · Garcia</div>
+                </div>
+                <button class="btn-dark" type="button">Assign to me</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid-2" aria-label="Bottom dashboard panels">
+          <div class="card">
+            <div class="card-title">Status List</div>
+
+            <div class="status-list">
+              <div class="status-row status-ongoing">
+                <span>Ongoing Orders</span>
+                <span class="count">2</span>
+              </div>
+              <div class="status-row status-pending">
+                <span>Pending Verification</span>
+                <span class="count">3</span>
+              </div>
+              <div class="status-row status-overdue">
+                <span>Overdue</span>
+                <span class="count">1 <i class="fa-solid fa-circle-exclamation"></i></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Miscellaneous Tasks</div>
+            <div class="notes-subtitle">Internal Notes &amp; Updates</div>
+
+            <div class="notes">
+              <div class="note">
+                <strong>Admin:</strong> “Please finish Order #3118, client is
+                following up.”
+              </div>
+              <div class="note"><strong>Kym:</strong> “uploading layout”</div>
+              <div class="note">
+                <strong>Aljon:</strong> “cleaning layout sublimation”
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="actions">
+          <a class="btn btn-secondary" href="tasks/available-task.html">View All Orders</a>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

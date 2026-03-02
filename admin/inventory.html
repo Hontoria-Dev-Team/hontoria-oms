@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory - HontoriaOMS</title>
+    <link rel="stylesheet" href="../assets/css/employee.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-logo" aria-label="Hontoria logo">
+            <img
+              src="../assets/images/whitehontoria-removebg-preview.png"
+              alt="Hontoria"
+            />
+          </div>
+          <div class="brand-title">HontoriaOMS</div>
+        </div>
+
+        <nav class="nav" aria-label="Admin navigation">
+          <a href="dashboard.html" class="nav-item">
+            <i class="fa-solid fa-border-all"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="orders.html" class="nav-item">
+            <i class="fa-solid fa-clipboard-list"></i>
+            <span>Orders</span>
+          </a>
+          <a href="staff.html" class="nav-item">
+            <i class="fa-solid fa-users"></i>
+            <span>Staff</span>
+          </a>
+          <a href="inventory.html" class="nav-item active">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Inventory</span>
+          </a>
+          <a href="analytics.html" class="nav-item">
+            <i class="fa-solid fa-chart-simple"></i>
+            <span>Analytics</span>
+          </a>
+          <a href="archive.html" class="nav-item">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Archive</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="admin-settings.html" class="employee-badge">
+            <i class="fa-regular fa-user"></i>
+            <span>Admin</span>
+          </a>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="page-header">
+          <h1>Inventory</h1>
+        </header>
+
+        <section class="inventory-section" aria-label="Inventory list">
+          <div class="inventory-card">
+            <div class="inventory-toolbar">
+              <div class="inventory-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input
+                  type="text"
+                  placeholder="Search"
+                  aria-label="Search inventory"
+                />
+              </div>
+
+              <div class="inventory-toolbar-actions">
+                <button class="btn btn-light" type="button">
+                  <i class="fa-solid fa-sliders"></i>
+                  <span>Filter</span>
+                </button>
+                <button class="btn btn-secondary" type="button">
+                  Update Stock
+                </button>
+                <button class="btn btn-primary" type="button">
+                  Log Transaction
+                </button>
+              </div>
+            </div>
+
+            <div class="inventory-table-wrapper">
+              <table class="inventory-table">
+                <thead>
+                  <tr>
+                    <th>Item Name</th>
+                    <th>Category</th>
+                    <th>Current Quantity</th>
+                    <th>Minimum Threshold</th>
+                    <th>Last Updated</th>
+                    <th class="col-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="low-stock-row">
+                    <td>Black Ink</td>
+                    <td>
+                      <span class="category-pill">Ink</span>
+                    </td>
+                    <td class="qty-low">15</td>
+                    <td>100</td>
+                    <td>12/02/2026</td>
+                    <td class="col-actions">
+                      <button
+                        type="button"
+                        class="icon-button"
+                        aria-label="Edit Black Ink"
+                      >
+                        <i class="fa-regular fa-pen-to-square"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="low-stock-row">
+                    <td>Turquoise Roll</td>
+                    <td>
+                      <span class="category-pill">Fabric</span>
+                    </td>
+                    <td class="qty-low">25</td>
+                    <td>50</td>
+                    <td>10/02/2026</td>
+                    <td class="col-actions">
+                      <button
+                        type="button"
+                        class="icon-button"
+                        aria-label="Edit Turquoise Roll"
+                      >
+                        <i class="fa-regular fa-pen-to-square"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="low-stock-row">
+                    <td>Light Trail Roll</td>
+                    <td>
+                      <span class="category-pill">Fabric</span>
+                    </td>
+                    <td class="qty-low">30</td>
+                    <td>40</td>
+                    <td>11/02/2026</td>
+                    <td class="col-actions">
+                      <button
+                        type="button"
+                        class="icon-button"
+                        aria-label="Edit Light Trail Roll"
+                      >
+                        <i class="fa-regular fa-pen-to-square"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>White Jersey</td>
+                    <td>
+                      <span class="category-pill">Fabric</span>
+                    </td>
+                    <td class="qty-ok">120</td>
+                    <td>50</td>
+                    <td>13/02/2026</td>
+                    <td class="col-actions">
+                      <button
+                        type="button"
+                        class="icon-button"
+                        aria-label="Edit White Jersey"
+                      >
+                        <i class="fa-regular fa-pen-to-square"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Transfer Paper</td>
+                    <td>
+                      <span class="category-pill category-paper">Paper</span>
+                    </td>
+                    <td class="qty-ok">200</td>
+                    <td>100</td>
+                    <td>13/02/2026</td>
+                    <td class="col-actions">
+                      <button
+                        type="button"
+                        class="icon-button"
+                        aria-label="Edit Transfer Paper"
+                      >
+                        <i class="fa-regular fa-pen-to-square"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
+
