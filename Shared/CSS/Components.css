@@ -1,7 +1,8 @@
 .titleLogo {
     display: flex;
     align-items: center;
-    font-size: 2em;
+    font-size: 1.5em;
+    align-self: center;
 }
 
 .titleLogo>img {
@@ -9,15 +10,22 @@
 }
 
 .box {
-    border-radius: 1em;
     padding: 1em;
     background: white;
 }
 
-.gradientBorder {
-    border-radius: 1em;
+.gradientBorderDiag {
     padding: 0.1em;
-    background: var(--gradient);
+    background: var(--gradientDiag);
+}
+
+.gradientBorderVert {
+    padding: 0.1em;
+    background: var(--gradientVert);
+}
+
+.roundedBorder {
+    border-radius: 1rem;
 }
 
 .errorMessage {
@@ -30,4 +38,57 @@
     border-radius: 1rem;
     top: 1rem;
     animation: fadeOut 5s forwards;
+}
+
+#sidebar {
+    background: var(--dark);
+    color: var(--white);
+    font-size: 0.8em;
+    padding: 1em;
+    height: 101%;
+    margin: -0.1em 0 -0.1em -0.1em;
+}
+
+#sidebar>nav {
+    flex: 1;
+    padding: 1em 0;
+    margin: 0.5em 0;
+    border-top: 0.1em solid var(--redTrans);
+    border-bottom: 0.1em solid var(--redTrans);
+}
+
+#sidebar>nav>a {
+    padding: 0.7em;
+    border-radius: 1em;
+    transition: all ease-in-out 0.1s;
+}
+
+#sidebar>nav>a:hover {
+    background: var(--whiteFaded);
+}
+
+#sidebar a.active {
+    background: var(--whiteTrans);
+    pointer-events: none;
+}
+
+.iconLink {
+    display: flex;
+}
+
+.iconLink>img {
+    height: 1.3em;
+    width: 1.3em;
+    filter: invert(1);
+}
+
+#sidebarFooter {
+    padding: 0.7em;
+    border-radius: 1em;
+    background: var(--redFaded);
+    transition: all ease-in-out 0.1s;
+}
+
+#sidebarFooter:hover {
+    background: var(--redTrans);
 }

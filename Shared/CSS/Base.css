@@ -11,17 +11,23 @@ html {
 }
 
 :root {
-    --white: #ffeeee;
+    --white: #fffafa;
+    --whiteTrans: #fffafa31;
+    --whiteFaded: #fffafa17;
     --dark: #220000;
     --gray: #eeeeee;
     --red: #f52402;
-    --gradient: linear-gradient(to left, #F20505, #FFB611);
+    --redTrans: #f522022f;
+    --redFaded: #f5220217;
+    --gradientDiag: linear-gradient(to left, #F20505, #FFB611);
+    --gradientVert: linear-gradient(to top, #F20505, #FFB611);
 }
 
 body {
     min-height: 100vh;
     overflow-x: hidden;
     background-color: var(--gray);
+    color: var(--);
 }
 
 hr {
@@ -40,10 +46,15 @@ input[type=password] {
 
 input[type=submit] {
     height: 2rem;
-    background: var(--gradient);
+    background: var(--gradientDiag);
     color: var(--white);
     font-weight: bolder;
     font-size: 1em;
+}
+
+a {
+    color: var(--white);
+    text-decoration: none;
 }
 
 @keyframes fadeOut {

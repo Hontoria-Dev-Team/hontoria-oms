@@ -5,6 +5,18 @@
     align-items: center;
 }
 
+.asideLayout {
+    display: flex;
+}
+
+.asideLayout>aside {
+    flex: 1;
+}
+
+.asideLayout>main {
+    flex: 6;
+}
+
 .columnLayout {
     display: flex;
     flex-direction: column;
@@ -28,4 +40,9 @@
 
 .leftStart {
     align-self: baseline;
+}
+
+.centerRowLayout {
+    display: flex;
+    align-items: center;
 }

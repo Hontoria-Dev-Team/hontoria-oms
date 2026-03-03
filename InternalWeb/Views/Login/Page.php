@@ -14,11 +14,9 @@
         </div>
     <?php endif; ?>
 
-    <h1 class="titleLogo">
-        <img src="../../Shared/Img/Logo.png" alt="logo"> Hontoria OMS
-    </h1>
-    <div class="gradientBorder">
-        <section id="loginBox" class="centerColumnLayout box">
+    <div class="gradientBorderDiag roundedBorder">
+        <section id="loginBox" class="centerColumnLayout box roundedBorder">
+            <?php include("../Views/.Components/TitleLogo.php"); ?>
             <h3>Login to your account</h3>
             <hr>
             <form method="POST" action="index.php?page=login&action=authenticate" class="centerColumnLayout minGap fullWidth">
