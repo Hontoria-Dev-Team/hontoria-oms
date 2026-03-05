@@ -82,10 +82,9 @@ class ServicesController {
      */
     private function getNavigation(): array {
         return [
-            ['label' => 'HOME', 'url' => '?page=home', 'active' => false],
+            ['label' => 'HOME',     'url' => '?page=home',     'active' => false],
             ['label' => 'SERVICES', 'url' => '?page=services', 'active' => true],
-            ['label' => 'PROFILE', 'url' => '?page=profile', 'active' => false],
-            ['label' => 'ABOUT US', 'url' => '?page=about', 'active' => false]
+            ['label' => 'ABOUT US', 'url' => '?page=about',    'active' => false]
         ];
     }
 }

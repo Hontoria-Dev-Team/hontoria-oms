@@ -6,12 +6,12 @@ require_once __DIR__ . '/Component.php';
  * Renders navigation, logo, and order bar
  */
 class HeaderComponent extends \Component {
-    
+
     public function render(): string {
         $logoPath = $this->get('logoPath', 'logo.jpg');
         $fbLink = $this->get('fbLink', 'https://www.facebook.com/jhong.hontoria.3');
         $navItems = $this->get('navItems', []);
-        
+
         ob_start();
         ?>
         <header class="header" id="header">
@@ -32,10 +32,8 @@ class HeaderComponent extends \Component {
         ob_start();
         ?>
         <div class="logo">
-            <div class="logo-icon">
-                <img src="<?php echo $this->escape($logoPath); ?>" alt="Hontoria Logo" class="logo-img"
-                     onerror="this.style.display='none';this.parentNode.innerHTML='<i class=\'fas fa-print\'></i>'"/>
-            </div>
+            <img src="<?php echo $this->escape($logoPath); ?>" alt="Hontoria Logo" class="logo-img"
+                 onerror="this.style.display='none'"/>
             <div class="logo-text">
                 <span class="logo-name">HONTORIA</span>
                 <span class="logo-sub">PRINTING SERVICES</span>
@@ -51,8 +49,8 @@ class HeaderComponent extends \Component {
         <nav class="nav-desktop">
             <?php foreach ($navItems as $i => $item): ?>
                 <?php if ($i > 0): ?><span class="nav-sep">|</span><?php endif; ?>
-                <a href="<?php echo $this->escape($item['url']); ?>" 
-                   class="nav-link <?php echo $item['active'] ? 'active' : ''; ?>">
+                <a href="<?php echo $this->escape($item['url']); ?>"
+                    class="nav-link <?php echo $item['active'] ? 'active' : ''; ?>">
                     <?php echo $this->escape($item['label']); ?>
                 </a>
             <?php endforeach; ?>
