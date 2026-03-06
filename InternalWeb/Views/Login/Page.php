@@ -14,8 +14,8 @@
         </div>
     <?php endif; ?>
 
-    <div class="gradientBorderDiag roundedBorder">
-        <section id="loginBox" class="centerColumnLayout box roundedBorder">
+    <div class="gradientBorderDiag roundedMid">
+        <section id="loginBox" class="centerColumnLayout box roundedMid">
             <?php include("../Views/.Components/TitleLogo.php"); ?>
             <h3>Login to your account</h3>
             <hr>

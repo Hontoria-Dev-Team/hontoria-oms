@@ -6,7 +6,7 @@ class StaffM {
         $this->pdo = $pdo;
     }
 
-    public function findByUsername($username) {
+    public function findSingleStaff($username) {
         $query = "SELECT id, username, passwordHash, firstName, middleName, lastName, phone, isActive, lastLoginAt
                   FROM users
                   WHERE username = :username
@@ -19,10 +19,73 @@ class StaffM {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function authenticate($username, $password) {
+        $user = $this->findSingleStaff($username);
+
+        if (!$user) {
+            return false;
+        }
+
+        if (!password_verify($password, $user['passwordHash'])) {
+            return false;
+        }
+
+        $this->updateLastLogin($user['id']);
+        return $user;
+    }
+
+    public function getAllStaff() {
+        $query = "SELECT username, firstName, middleName, lastName, isActive, isOnline FROM users";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function updateLastLogin($userId) {
         $query = "UPDATE users SET lastLoginAt = NOW() WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $userId);
         return $stmt->execute();
+    }
+
+    public function updateOnlineStatus($userId) {
+        $query = "UPDATE users SET isOnline = !isOnline WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $userId);
+        return $stmt->execute();
+    }
+
+    public function getfilteredStaff($search, $status) {
+        $params = [];
+
+        $where = "(CONCAT(firstName,' ',middleName,' ',lastName) LIKE :name1 OR " .
+            "CONCAT(firstName,' ',middleName,' ',lastName) LIKE :name2)";
+        $params['name1'] = $search . '%';
+        $params['name2'] = '%' . $search . '%';
+
+        if ($status !== '') {
+            switch ($status) {
+                case 'active':
+                    $where .= ' AND isActive = 1 AND isOnline = 1';
+                    break;
+                case 'idle':
+                    $where .= ' AND isActive = 0 AND isOnline = 1';
+                    break;
+                case 'offline':
+                    $where .= ' AND isOnline = 0';
+                    break;
+            }
+        }
+
+        $sql = "SELECT username, firstName, middleName, lastName, isActive, isOnline
+            FROM users
+            WHERE {$where}";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

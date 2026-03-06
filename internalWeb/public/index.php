@@ -10,7 +10,7 @@ $action = $_GET['action'] ?? 'show';
 
 $controller = new AuthorizationC($pdo);
 
-$protectedPages = ['dashboard'];
+$protectedPages = ['dashboard', 'staff'];
 
 if (in_array($page, $protectedPages)) {
     AuthorizationMid::check();
@@ -26,7 +26,7 @@ switch ($page) {
         if ($action === 'authenticate') {
             $controller->login();
         } else {
-            $controller->showPage();
+            $controller->showLogin();
         }
         break;
 
@@ -38,7 +38,19 @@ switch ($page) {
         require_once __DIR__ . '/../Views/Dashboard/Page.php';
         break;
 
+    case 'staff':
+        if ($action === 'filter') {
+            $search = $_GET['search'] ?? '';
+            $status = $_GET['status'] ?? '';
+            $controller->filterStaff($search, $status);
+        } else if ($action === 'create') {
+            require_once __DIR__ . '/../Views/Staff/CreateAccount.php';
+        } else {
+            $controller->showStaff();
+        }
+        break;
+
     default:
-        $controller->showPage();
+        $controller->showLogin();
         break;
 }

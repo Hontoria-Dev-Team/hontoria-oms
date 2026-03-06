@@ -7,40 +7,51 @@ class AuthorizationC {
         $this->staffModel = new StaffM($pdo);
     }
 
-    public function showPage() {
+    public function showLogin() {
+        $page = "login";
         $pageTitle = "Internal Login";
         $error = null;
         require __DIR__ . '/../Views/Login/Page.php';
     }
 
+    public function showStaff() {
+        $page = "staff";
+        $search = "";
+        $status = "";
+        $pageTitle = "Staff Panel - Hontoria OMS";
+        $staffList = $this->staffModel->getAllStaff();
+        $error = null;
+        require __DIR__ . '/../Views/Staff/Page.php';
+    }
+
+    public function filterStaff($search, $status) {
+        $page = "staff";
+        $pageTitle = "Staff Panel - Hontoria OMS";
+        $staffList = $this->staffModel->getfilteredStaff($search, $status);
+        $error = null;
+        require __DIR__ . '/../Views/Staff/Page.php';
+    }
+
     public function login() {
         $username = trim($_POST['name'] ?? '');
         $password = $_POST['password'] ?? '';
-        $user = $this->staffModel->findByUsername($username);
+
+        $user = $this->staffModel->authenticate($username, $password);
         $error = null;
 
         if ($user) {
-            if (password_verify($password, $user['passwordHash'])) {
-                if ($user['isActive'] == 1) {
+            $this->staffModel->updateOnlineStatus($user['id']);
 
-                    session_start();
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['username'] = $user['username'];
-                    $_SESSION['full_name'] = trim($user['firstName'] . ' ' . $user['lastName']);
-                    $_SESSION['logged_in'] = true;
+            session_start();
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['username'] = $user['username'];
+            $_SESSION['full_name'] = $user['firstName'] . ' ' . $user['lastName'];
+            $_SESSION['logged_in'] = true;
 
-                    $this->staffModel->updateLastLogin($user['id']);
-
-                    header('Location: index.php?page=dashboard');
-                    exit;
-                } else {
-                    $error = 'Account is deactivated. Contact administrator.';
-                }
-            } else {
-                $error = 'Invalid username or password.';
-            }
+            header('Location: index.php?page=dashboard');
+            exit;
         } else {
-            $error = 'Invalid username or password.';
+            $error = "Invalid username or password.";
         }
 
         $pageTitle = "Internal Login";
@@ -48,9 +59,12 @@ class AuthorizationC {
     }
 
     public function logout() {
+        $this->staffModel->updateOnlineStatus($_SESSION['user_id']);
         session_start();
         session_destroy();
         header('Location: index.php?page=login');
         exit;
     }
+
+    // public function
 }

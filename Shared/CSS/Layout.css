@@ -22,6 +22,12 @@
     flex-direction: column;
 }
 
+.centerHoriColumnLayout {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
 .minGap {
     gap: 0.5em;
 }
@@ -38,11 +44,85 @@
     width: 100%;
 }
 
+.leftAlign {
+    align-items: baseline;
+}
+
 .leftStart {
     align-self: baseline;
+}
+
+.centerStart {
+    align-self: center;
 }
 
 .centerRowLayout {
     display: flex;
     align-items: center;
+}
+
+.rowLayout {
+    display: flex;
+}
+
+.flexStretch {
+    align-items: stretch;
+}
+
+.minPadding {
+    padding: 0.3rem 0.5rem;
+}
+
+.midPadding {
+    padding: 1em 2em;
+}
+
+.flexMin {
+    flex: 1;
+}
+
+.flexMid {
+    flex: 3;
+}
+
+.flexMax {
+    flex: 6;
+}
+
+.gridMidLayout {
+    display: grid;
+}
+
+.scrollable {
+    overflow-y: scroll;
+}
+
+.fixedScreen {
+    overflow: hidden;
+}
+
+.midWidth {
+    width: 10rem;
+}
+
+.minHeight {
+    height: 5rem;
+}
+
+.midHeight {
+    height: 10rem;
+}
+
+.gridFlexMid {
+    display: flex;
+    flex-wrap: wrap;
+    flex: auto;
+}
+
+.gridFlexMid>* {
+    width: 32.5%;
+}
+
+.flexStatic {
+    flex-grow: 0;
 }
