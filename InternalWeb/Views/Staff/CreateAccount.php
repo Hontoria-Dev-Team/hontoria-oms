@@ -11,22 +11,9 @@
     <?php include("../Views/.Components/SideBar.php"); ?>
     <main class="columnLayout leftAlign midGap midPadding flexStretch">
         <h1 class="titleLogo minGap">
-            <img src="../../Shared/Img/PeopleIcon.png" alt="People"> Staff Panel
+            <img src="../../Shared/Img/PeopleIcon.png" alt="People"> Staff Creation
         </h1>
     </main>
 </body>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const staffElements = document.querySelectorAll('.staffElement');
-        const selectedNameEl = document.getElementById('selectedStaffName');
-
-        staffElements.forEach(function(el) {
-            el.addEventListener('click', function() {
-                const fullName = el.querySelector('h5').textContent.trim();
-                selectedNameEl.textContent = fullName;
-            });
-        });
-    });
-</script>
 
 </html>
