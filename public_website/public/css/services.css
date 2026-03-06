@@ -36,8 +36,9 @@ img{display:block;max-width:100%}
 .header{position:sticky;top:0;z-index:900;background:var(--y);border-bottom:3px solid var(--dk);box-shadow:0 2px 12px rgba(0,0,0,0.15)}
 .header-inner{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:var(--hh);gap:20px}
 .logo{display:flex;align-items:center;gap:12px;flex-shrink:0}
-.logo-icon{width:52px;height:52px;border-radius:50%;overflow:hidden;border:2.5px solid var(--dk);display:flex;align-items:center;justify-content:center;background:var(--dk);color:var(--y);font-size:20px;flex-shrink:0}
-.logo-img{width:52px;height:52px;object-fit:contain;border-radius:50%;display:block}
+/* CHANGED: background set to var(--y) yellow to match header */
+.logo-icon{width:52px;height:52px;border-radius:50%;overflow:hidden;border:2.5px solid #1A0800;display:flex;align-items:center;justify-content:center;background:#FFD000 !important;color:#CC1A00;font-size:20px;flex-shrink:0}
+.logo-img{width:52px;height:52px;object-fit:contain;border-radius:50%;display:block;background:#FFD000 !important;mix-blend-mode:multiply;border:2.5px solid #1A0800}
 .logo-text{display:flex;flex-direction:column;line-height:1.1}
 .logo-name{font-weight:900;font-size:20px;letter-spacing:-0.3px;color:var(--dk)}
 .logo-sub{font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--red);text-transform:uppercase}
@@ -143,7 +144,7 @@ img{display:block;max-width:100%}
 }
 .sb-item:hover{color:var(--red);background:rgba(204,26,0,0.06)}
 
-/* ── Active highlight for sidebar filter selections ── */
+/* Active highlight for sidebar filter selections */
 .sb-active,
 .sb-item.sb-active{
   color:var(--red) !important;
