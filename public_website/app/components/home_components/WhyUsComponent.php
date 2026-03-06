@@ -18,7 +18,7 @@ class WhyUsComponent extends \Component {
         <section class="why-us">
             <div class="why-bg"></div>
             <div class="why-content">
-                <div class="section-header light">
+                <div class="section-header dark">
                     <p class="section-eyebrow">WHY HONTORIA?</p>
                     <h2 class="section-title">Built on Trust &amp; Quality</h2>
                     <div class="section-line"></div>
