@@ -96,5 +96,6 @@
         });
     });
 </script>
+<script src="../.JS/AutoRefresher.js"></script>
 
 </html>

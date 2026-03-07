@@ -19,7 +19,7 @@ class AuthorizationC {
         $search = "";
         $status = "";
         $pageTitle = "Staff Panel - Hontoria OMS";
-        $staffList = $this->staffModel->getAllStaff();
+        $staffList = $this->staffModel->getStaffList();
         $error = null;
         require __DIR__ . '/../Views/Staff/Page.php';
     }

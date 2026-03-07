@@ -34,27 +34,21 @@ class StaffM {
         return $user;
     }
 
-    public function getAllStaff() {
-        $query = "SELECT username, firstName, middleName, lastName, isActive, isOnline FROM users";
+    public function getStaffList() {
+        $query = "SELECT username, firstName, middleName, lastName, isActive, isOnline
+                  FROM users
+                  ORDER BY
+                  CASE
+                      WHEN isActive = 1 AND isOnline = 1 THEN 1
+                      WHEN isActive = 0 AND isOnline = 1 THEN 2
+                      ELSE 3
+                  END,
+                  firstName, lastName";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function updateLastLogin($userId) {
-        $query = "UPDATE users SET lastLoginAt = NOW() WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $userId);
-        return $stmt->execute();
-    }
-
-    public function updateOnlineStatus($userId) {
-        $query = "UPDATE users SET isOnline = !isOnline WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $userId);
-        return $stmt->execute();
     }
 
     public function getfilteredStaff($search, $status) {
@@ -81,12 +75,33 @@ class StaffM {
 
         $sql = "SELECT username, firstName, middleName, lastName, isActive, isOnline
             FROM users
-            WHERE {$where}";
+            WHERE {$where}
+            ORDER BY
+                CASE
+                    WHEN isActive = 1 AND isOnline = 1 THEN 1
+                    WHEN isActive = 0 AND isOnline = 1 THEN 2
+                    ELSE 3
+                END,
+                firstName, lastName";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function updateLastLogin($userId) {
+        $query = "UPDATE users SET lastLoginAt = NOW() WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $userId);
+        return $stmt->execute();
+    }
+
+    public function updateOnlineStatus($userId) {
+        $query = "UPDATE users SET isOnline = !isOnline WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $userId);
+        return $stmt->execute();
     }
 
     public function insertAccount($username, $firstName, $middleName, $lastName, $phoneNumber, $emailAddress) {
