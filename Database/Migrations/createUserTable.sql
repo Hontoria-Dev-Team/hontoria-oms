@@ -4,7 +4,7 @@ CREATE TABLE users (
     email VARCHAR(100) NOT NULL UNIQUE,
     passwordHash VARCHAR(255) NOT NULL,
     firstName VARCHAR(100) NOT NULL,
-    middleName VARCHAR(100) NOT NULL,
+    middleName VARCHAR(100) NULL,
     lastName VARCHAR(100) NOT NULL,
     phone VARCHAR(20),
     isActive BOOLEAN DEFAULT FALSE,

@@ -52,10 +52,31 @@ class AuthorizationC {
             exit;
         } else {
             $error = "Invalid username or password.";
+            $pageTitle = "Internal Login";
+            require __DIR__ . '/../Views/Login/Page.php';
         }
+    }
 
-        $pageTitle = "Internal Login";
-        require __DIR__ . '/../Views/Login/Page.php';
+    public function createAccount() {
+        $username = strtolower(trim($_POST['username'] ?? ''));
+        $firstName = ucwords(strtolower(trim($_POST['firstName'] ?? '')));
+        $middleName = ucwords(strtolower(trim($_POST['middleName'] ?? '')));
+        $lastName = ucwords(strtolower(trim($_POST['lastName'] ?? '')));
+        $phoneNum = $_POST['phoneNum'] ?? '';
+        $emailAddress = $_POST['emailAddress'] ?? '';
+
+        $creation = $this->staffModel->insertAccount($username, $firstName, $middleName, $lastName, $phoneNum, $emailAddress);
+        $error = null;
+
+        if ($creation) {
+            header('Location: index.php?page=staff');
+        } else {
+            $page = 'staff';
+            $lastPage = 'staff';
+            $pageTitle = 'Account Creation - Hontoria OMS';
+            $error = "Username already exists.";
+            require __DIR__ . '/../Views/Staff/CreateAccount.php';
+        }
     }
 
     public function logout() {

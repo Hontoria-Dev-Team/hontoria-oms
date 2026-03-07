@@ -8,12 +8,7 @@
 </head>
 
 <body class="centerColumnLayout midGap">
-    <?php if (isset($error) && $error): ?>
-        <div class="errorMessage centerColumnLayout">
-            <h3>Error: <?php echo htmlspecialchars($error); ?></h3>
-        </div>
-    <?php endif; ?>
-
+    <?php include("../Views/.Components/ErrorBox.php"); ?>
     <div class="gradientBorderDiag roundedMid">
         <section id="loginBox" class="centerColumnLayout box roundedMid">
             <?php include("../Views/.Components/TitleLogo.php"); ?>

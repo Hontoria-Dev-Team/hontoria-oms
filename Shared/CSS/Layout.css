@@ -89,10 +89,6 @@
     flex: 6;
 }
 
-.gridMidLayout {
-    display: grid;
-}
-
 .scrollable {
     overflow-y: scroll;
 }
@@ -125,4 +121,16 @@
 
 .flexStatic {
     flex-grow: 0;
+}
+
+.inputBox {
+    width: 30rem;
+}
+
+.centerHoriSelf {
+    margin: 0 auto;
+}
+
+.triItemLayout>* {
+    width: 32.5%;
 }

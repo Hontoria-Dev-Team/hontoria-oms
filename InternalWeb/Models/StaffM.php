@@ -88,4 +88,23 @@ class StaffM {
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function insertAccount($username, $firstName, $middleName, $lastName, $phoneNumber, $emailAddress) {
+        $user = $this->findSingleStaff($username);
+
+        if ($user) {
+            return false;
+        }
+
+        $query = "INSERT INTO users (username, email, passwordHash, firstName, middleName, lastName, phone) VALUES
+            (:username, :email, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', :firstName, :middleName, :lastName, :phoneNumber);";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':username', $username);
+        $stmt->bindParam(':firstName', $firstName);
+        $stmt->bindParam(':middleName', $middleName);
+        $stmt->bindParam(':lastName', $lastName);
+        $stmt->bindParam(':phoneNumber', $phoneNumber);
+        $stmt->bindParam(':email', $emailAddress);
+        return $stmt->execute();
+    }
 }

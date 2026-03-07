@@ -46,6 +46,8 @@ label {
 input[type=text],
 input[type=password],
 input[type=search],
+input[type=tel],
+input[type=email],
 input[type=button],
 input[type=submit],
 select {
