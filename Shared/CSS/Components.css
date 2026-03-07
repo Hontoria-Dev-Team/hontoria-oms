@@ -46,6 +46,7 @@
     border-radius: 1rem;
     top: 1rem;
     animation: fadeOut 5s forwards;
+    align-self: center;
 }
 
 #sidebar {
@@ -100,8 +101,17 @@
     transition: all ease-in-out 0.1s;
 }
 
+#sidebarFooter.active {
+    background: var(--redTrans) !important;
+}
+
 #sidebarFooter:hover {
     background: var(--redTrans);
+}
+
+#sidebarFooter.active:hover {
+    background: var(--redTrans) !important;
+    transform: scale(1.02);
 }
 
 .iconInput {
@@ -120,6 +130,12 @@
 
 .importantInput {
     background: var(--dark) !important;
+    color: var(--white);
+    font-weight: 900;
+}
+
+.criticalInput {
+    background: var(--red) !important;
     color: var(--white);
     font-weight: 900;
 }

@@ -5,7 +5,8 @@
 }
 
 html {
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+        sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-size: 22px;
     line-height: 1.6;
     color: var(--dark);
@@ -19,7 +20,7 @@ html {
     --darkGray: #997979;
     --lightGray: #f7f7f7;
     --gray: #eeeeee;
-    --red: #f52402;
+    --red: #d3290d;
     --redTrans: #f522022f;
     --redFaded: #f5220217;
     --yellow: #FFB611;

@@ -7,13 +7,26 @@ class StaffM {
     }
 
     public function findSingleStaff($username) {
-        $query = "SELECT id, username, passwordHash, firstName, middleName, lastName, phone, isActive, lastLoginAt
+        $query = "SELECT id, username, email, passwordHash, firstName, middleName, lastName, phone, isActive, lastLoginAt
                   FROM users
                   WHERE username = :username
                   LIMIT 1";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':username', $username);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getAccount($id) {
+        $query = "SELECT username, email, passwordHash, firstName, middleName, lastName, phone, isActive, lastLoginAt
+                  FROM users
+                  WHERE id = :id
+                  LIMIT 1";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -30,7 +43,6 @@ class StaffM {
             return false;
         }
 
-        $this->updateLastLogin($user['id']);
         return $user;
     }
 
@@ -97,10 +109,11 @@ class StaffM {
         return $stmt->execute();
     }
 
-    public function updateOnlineStatus($userId) {
-        $query = "UPDATE users SET isOnline = !isOnline WHERE id = :id";
+    public function updateOnlineStatus($userId, $status) {
+        $query = "UPDATE users SET isOnline = :onlineStatus WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $userId);
+        $stmt->bindParam(':onlineStatus', $status);
         return $stmt->execute();
     }
 
@@ -120,6 +133,39 @@ class StaffM {
         $stmt->bindParam(':lastName', $lastName);
         $stmt->bindParam(':phoneNumber', $phoneNumber);
         $stmt->bindParam(':email', $emailAddress);
+        return $stmt->execute();
+    }
+
+    public function updateUsername($id, $username) {
+        $user = $this->findSingleStaff($username);
+
+        if ($user) {
+            return false;
+        }
+
+        $user = $this->getAccount($id);
+        $query = "UPDATE users SET username = :username WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':username', $username);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
+    public function updateContacts($id, $phoneNumber, $email) {
+        $query = "UPDATE users SET phone = :phone, email = :email WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':phone', $phoneNumber);
+        $stmt->bindParam(':email', $email);
+        return $stmt->execute();
+    }
+
+    public function updatePassword($id, $password) {
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $query = "UPDATE users SET passwordHash = :passwordHash WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':passwordHash', $hash);
         return $stmt->execute();
     }
 }

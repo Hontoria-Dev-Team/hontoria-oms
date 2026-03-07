@@ -12,8 +12,8 @@
                 <span>Staff</span>
             </a>
         </nav>
-        <div id="sidebarFooter">
-            <a href="admin-settings.html" class="iconLink centerRowLayout minGap">
+        <div id="sidebarFooter" class="<?= ($page === 'account') ? 'active' : '' ?>">
+            <a href="index.php?page=account" class="iconLink centerRowLayout minGap">
                 <img src="../../Shared/Img/PersonIcon.png" alt="Person">
                 <span class="capitalFirst"><?= $_SESSION['username'] ?></span>
             </a>

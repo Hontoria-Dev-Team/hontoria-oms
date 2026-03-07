@@ -56,7 +56,24 @@ switch ($page) {
         }
         break;
 
+    case 'account':
+        $pageTitle = 'Account Panel - Hontoria OMS';
+        if ($action === 'rename') {
+            $controller->setUsername();
+        } else if ($action === 'updateContacts') {
+            $controller->setContacts();
+        } else if ($action === 'changePassword') {
+            $controller->setPassword();
+        } else {
+            require_once __DIR__ . '/../Views/Account/Page.php';
+        }
+        break;
+
     default:
         $controller->showLogin();
         break;
+}
+
+if ($page !== 'login') {
+    $controller->keepOnline();
 }

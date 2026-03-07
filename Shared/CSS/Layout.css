@@ -97,6 +97,10 @@
     overflow: hidden;
 }
 
+.minWidth {
+    width: 5rem;
+}
+
 .midWidth {
     width: 10rem;
 }
@@ -133,4 +137,8 @@
 
 .triItemLayout>* {
     width: 32.5%;
+}
+
+.marginMicro {
+    margin: 0.25rem;
 }

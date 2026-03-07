@@ -40,14 +40,17 @@ class AuthorizationC {
         $error = null;
 
         if ($user) {
-            $this->staffModel->updateOnlineStatus($user['id']);
+            $this->staffModel->updateOnlineStatus($user['id'], true);
 
             session_start();
-            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
+            $_SESSION['phoneNumber'] = $user['phone'];
+            $_SESSION['email'] = $user['email'];
             $_SESSION['full_name'] = $user['firstName'] . ' ' . $user['lastName'];
             $_SESSION['logged_in'] = true;
 
+            $this->staffModel->updateLastLogin($user['id']);
             header('Location: index.php?page=dashboard');
             exit;
         } else {
@@ -58,12 +61,12 @@ class AuthorizationC {
     }
 
     public function createAccount() {
-        $username = strtolower(trim($_POST['username'] ?? ''));
-        $firstName = ucwords(strtolower(trim($_POST['firstName'] ?? '')));
+        $username = strtolower(trim($_POST['username']));
+        $firstName = ucwords(strtolower(trim($_POST['firstName'])));
         $middleName = ucwords(strtolower(trim($_POST['middleName'] ?? '')));
-        $lastName = ucwords(strtolower(trim($_POST['lastName'] ?? '')));
-        $phoneNum = $_POST['phoneNum'] ?? '';
-        $emailAddress = $_POST['emailAddress'] ?? '';
+        $lastName = ucwords(strtolower(trim($_POST['lastName'])));
+        $phoneNum = $_POST['phoneNum'];
+        $emailAddress = $_POST['emailAddress'];
 
         $creation = $this->staffModel->insertAccount($username, $firstName, $middleName, $lastName, $phoneNum, $emailAddress);
         $error = null;
@@ -79,13 +82,73 @@ class AuthorizationC {
         }
     }
 
+    public function setUsername() {
+        $username = strtolower(trim($_POST['username'] ?? ''));
+
+        $update = $this->staffModel->updateUsername($_SESSION['id'], $username);
+        $error = null;
+
+        if ($update) {
+            $_SESSION['username'] = $username;
+            header('Location: index.php?page=account');
+        } else {
+            $page = 'account';
+            $pageTitle = 'Account Panel - Hontoria OMS';
+            $error = "Username already exists.";
+            require __DIR__ . '/../Views/Account/Page.php';
+        }
+    }
+
+    public function setContacts() {
+        $postPhone = $_POST['phoneNum'] ?? null;
+        $postEmail = $_POST['emailAddress'] ?? null;
+
+        $phoneNum = (!empty($postPhone)) ? $postPhone : $_SESSION['phoneNumber'];
+        $emailAddress = (!empty($postEmail)) ? $postEmail : $_SESSION['email'];
+
+        $this->staffModel->updateContacts($_SESSION['id'], $phoneNum, $emailAddress);
+
+        $_SESSION['phoneNumber'] = $phoneNum;
+        $_SESSION['email'] = $emailAddress;
+        header('Location: index.php?page=account');
+    }
+
+    public function setPassword() {
+        $passCurrent = $_POST['passwordCurrent'];
+        $passNew = $_POST['passwordNew'];
+        $passRetype = $_POST['passwordRetype'];
+
+        $user = $this->staffModel->authenticate($_SESSION['username'], $passCurrent);
+
+        if (!$user) {
+            $page = 'account';
+            $pageTitle = 'Account Panel - Hontoria OMS';
+            $error = "Incorrect Password.";
+            require __DIR__ . '/../Views/Account/Page.php';
+            return;
+        }
+
+        if ($passNew !== $passRetype) {
+            $page = 'account';
+            $pageTitle = 'Account Panel - Hontoria OMS';
+            $error = "New And Retyped Password Mismatch.";
+            require __DIR__ . '/../Views/Account/Page.php';
+            return;
+        }
+
+        $this->staffModel->updatePassword($_SESSION['id'], $passNew);
+        header('Location: index.php?page=account');
+    }
+
     public function logout() {
-        $this->staffModel->updateOnlineStatus($_SESSION['user_id']);
+        $this->staffModel->updateOnlineStatus($_SESSION['id'], false);
         session_start();
         session_destroy();
         header('Location: index.php?page=login');
         exit;
     }
 
-    // public function
+    public function keepOnline() {
+        $this->staffModel->updateOnlineStatus($_SESSION['id'], true);
+    }
 }
