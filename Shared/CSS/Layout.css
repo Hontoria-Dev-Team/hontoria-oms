@@ -105,12 +105,20 @@
     width: 10rem;
 }
 
+.maxWidth {
+    width: 20rem;
+}
+
 .minHeight {
     height: 5rem;
 }
 
 .midHeight {
     height: 10rem;
+}
+
+.maxHeight {
+    height: 20rem;
 }
 
 .gridFlexMid {

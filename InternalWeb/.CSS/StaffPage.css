@@ -52,3 +52,25 @@
 div:has(#createButton) {
     position: relative;
 }
+
+#deleteConfirmation {
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+}
+
+#deleteConfirmation>div {
+    z-index: 3;
+}
+
+#confirmationBackground {
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+    background: var(--darkTrans);
+    z-index: 2;
+}
+
+#confirmationText {
+    text-align: center;
+}

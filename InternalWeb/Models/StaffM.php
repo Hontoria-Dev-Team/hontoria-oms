@@ -47,7 +47,7 @@ class StaffM {
     }
 
     public function getStaffList() {
-        $query = "SELECT username, firstName, middleName, lastName, isActive, isOnline
+        $query = "SELECT id, username, firstName, middleName, lastName, isActive, isOnline
                   FROM users
                   ORDER BY
                   CASE
@@ -85,7 +85,7 @@ class StaffM {
             }
         }
 
-        $sql = "SELECT username, firstName, middleName, lastName, isActive, isOnline
+        $sql = "SELECT id, username, firstName, middleName, lastName, isActive, isOnline
             FROM users
             WHERE {$where}
             ORDER BY
@@ -136,6 +136,13 @@ class StaffM {
         return $stmt->execute();
     }
 
+    public function removeAccount($id) {
+        $query = "DELETE FROM users WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
     public function updateUsername($id, $username) {
         $user = $this->findSingleStaff($username);
 
@@ -167,5 +174,32 @@ class StaffM {
         $stmt->bindParam(':id', $id);
         $stmt->bindParam(':passwordHash', $hash);
         return $stmt->execute();
+    }
+
+    public function getUserPermissions($id) {
+        $query = "SELECT perms.name
+                  FROM permissions perms
+                  JOIN userPermissions userPerms ON perms.id = userPerms.permissionID
+                  WHERE userPerms.userID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+    }
+
+    public function grantPermissions($id, $permissions) {
+        $query = "DELETE FROM userPermissions WHERE userID = :id;";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        foreach ($permissions as $permission) {
+            $query = "INSERT INTO userPermissions (userID, permissionID) VALUES (:id, :permission);";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':permission', $permission);
+            $stmt->execute();
+        }
     }
 }

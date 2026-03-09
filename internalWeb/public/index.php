@@ -13,7 +13,7 @@ $controller = new AuthorizationC($pdo);
 $protectedPages = ['dashboard', 'staff'];
 
 if (in_array($page, $protectedPages)) {
-    AuthorizationMid::check();
+    AuthorizationMid::check($page);
 }
 
 switch ($page) {
@@ -44,13 +44,17 @@ switch ($page) {
         if ($action === 'filter') {
             $search = $_GET['search'] ?? '';
             $status = $_GET['status'] ?? '';
-            $controller->filterStaff($search, $status);
+            $controller->showStaff($search, $status);
+        } else if ($action === 'updatePermissions') {
+            $controller->updatePermissions();
         } else if ($action === 'create') {
             $lastPage = 'staff';
             $pageTitle = 'Account Creation - Hontoria OMS';
             require_once __DIR__ . '/../Views/Staff/CreateAccount.php';
         } else if ($action === 'createFinal') {
             $controller->createAccount();
+        } else if ($action === 'delete') {
+            $controller->deleteAccount();
         } else {
             $controller->showStaff();
         }
@@ -70,7 +74,7 @@ switch ($page) {
         break;
 
     default:
-        $controller->showLogin();
+        require_once __DIR__ . '/../Views/.Misc/ErrorPage.php';
         break;
 }
 

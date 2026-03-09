@@ -17,6 +17,7 @@ html {
     --whiteTrans: #fffafa31;
     --whiteFaded: #fffafa17;
     --dark: #220000;
+    --darkTrans: #22000046;
     --darkGray: #997979;
     --lightGray: #f7f7f7;
     --gray: #eeeeee;
@@ -59,13 +60,11 @@ select {
     border: 0.1em solid var(--darkGray);
 }
 
-/* input[type=submit] {
-    height: 2rem;
-    background: var(--gradientDiag);
-    color: var(--white);
-    font-weight: bolder;
-    font-size: 1em;
-} */
+input[type=checkbox] {
+    height: 1.5em;
+    width: 1.5em;
+    accent-color: var(--red);
+}
 
 input[type=button],
 input[type=submit],

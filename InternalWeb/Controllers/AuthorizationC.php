@@ -14,20 +14,22 @@ class AuthorizationC {
         require __DIR__ . '/../Views/Login/Page.php';
     }
 
-    public function showStaff() {
+    public function showStaff($search = '', $status = '') {
         $page = "staff";
-        $search = "";
-        $status = "";
         $pageTitle = "Staff Panel - Hontoria OMS";
-        $staffList = $this->staffModel->getStaffList();
-        $error = null;
-        require __DIR__ . '/../Views/Staff/Page.php';
-    }
 
-    public function filterStaff($search, $status) {
-        $page = "staff";
-        $pageTitle = "Staff Panel - Hontoria OMS";
-        $staffList = $this->staffModel->getfilteredStaff($search, $status);
+        if ($search !== '' || $status !== '') {
+            $staffList = $this->staffModel->getfilteredStaff($search, $status);
+        } else {
+            $staffList = $this->staffModel->getStaffList();
+        }
+
+        foreach ($staffList as &$staff) {
+            $perms = $this->staffModel->getUserPermissions($staff['id']);
+            $staff['canManageStaff'] = in_array('canManageStaff', $perms) ? 1 : 0;
+        }
+        unset($staff);
+
         $error = null;
         require __DIR__ . '/../Views/Staff/Page.php';
     }
@@ -42,7 +44,7 @@ class AuthorizationC {
         if ($user) {
             $this->staffModel->updateOnlineStatus($user['id'], true);
 
-            session_start();
+            session_regenerate_id(true);
             $_SESSION['id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['phoneNumber'] = $user['phone'];
@@ -50,6 +52,7 @@ class AuthorizationC {
             $_SESSION['full_name'] = $user['firstName'] . ' ' . $user['lastName'];
             $_SESSION['logged_in'] = true;
 
+            $this->getPermissions();
             $this->staffModel->updateLastLogin($user['id']);
             header('Location: index.php?page=dashboard');
             exit;
@@ -58,6 +61,25 @@ class AuthorizationC {
             $pageTitle = "Internal Login";
             require __DIR__ . '/../Views/Login/Page.php';
         }
+    }
+
+    public function getPermissions() {
+        $permissions = $this->staffModel->getUserPermissions($_SESSION['id']);
+        $_SESSION['permissions'] = $permissions;
+    }
+
+    public function updatePermissions() {
+        if (in_array('canManageStaff', $_SESSION['permissions'])) {
+            $id = $_POST['selectedID'];
+            $permissions = [];
+
+            if (isset($_POST['canManageStaff'])) {
+                $permissions[] = $_POST['canManageStaff'];
+            }
+
+            $this->staffModel->grantPermissions($id, $permissions);
+        }
+        $this->showStaff();
     }
 
     public function createAccount() {
@@ -80,6 +102,14 @@ class AuthorizationC {
             $error = "Username already exists.";
             require __DIR__ . '/../Views/Staff/CreateAccount.php';
         }
+    }
+
+    public function deleteAccount() {
+        if (in_array('canManageStaff', $_SESSION['permissions'])) {
+            $id = $_POST['deletedID'];
+            $this->staffModel->removeAccount($id);
+        }
+        $this->showStaff();
     }
 
     public function setUsername() {
