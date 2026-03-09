@@ -1,4 +1,34 @@
 #loginBox {
     height: 60vh;
-    width: 30vw;
+    width: 45vw;
+    overflow: hidden;
+}
+
+#loginBox>div>h3 {
+    color: var(--white);
+    width: 90%;
+    text-align: center;
+}
+
+#loginBox hr {
+    width: 90%;
+}
+
+#loginBox>section {
+    border-radius: 0 1rem 1rem 0;
+    position: relative;
+}
+
+#loginBox>section>* {
+    z-index: 2;
+    padding: 0 1rem;
+}
+
+#loginBox>section>.box {
+    height: 150%;
+    width: 150%;
+    position: absolute;
+    z-index: 1;
+    transform: skewX(-3deg);
+    left: 0;
 }

@@ -9,10 +9,13 @@
 
 <body class="centerColumnLayout midGap">
     <?php include("../Views/.Components/ErrorBox.php"); ?>
-    <div class="gradientBorderDiag roundedMid">
-        <section id="loginBox" class="centerColumnLayout box roundedMid">
+    <div id="loginBox" class="gradientBorderDiag roundedMid centerRowLayout">
+        <div class="flexMin centerColumnLayout">
+            <h3>Welcome Employee, please login to your account</h3>
+        </div>
+        <section class="centerColumnLayout flexMin">
             <?php include("../Views/.Components/TitleLogo.php"); ?>
-            <h3>Login to your account</h3>
+            <h3>Input credentials below</h3>
             <hr>
             <form method="POST" action="index.php?page=login&action=authenticate" class="centerColumnLayout minGap fullWidth">
                 <div class="fullWidth columnLayout">
@@ -23,8 +26,9 @@
                     <label for="password" class="leftStart">Password</label>
                     <input type="password" name="password" required="true">
                 </div>
-                <input type="submit" name="submit" value="Login" class="fullWidth">
+                <input type="submit" name="submit" value="Login" class="fullWidth importantInput">
             </form>
+            <div class="box"></div>
         </section>
     </div>
 </body>
