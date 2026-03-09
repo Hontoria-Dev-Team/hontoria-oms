@@ -2,14 +2,18 @@
 require_once __DIR__ . '/Component.php';
 
 /**
- * Header Component
- * Renders navigation, logo, and order bar
+ * HeaderComponent.php
+ * Location: app/components/reusable_components/HeaderComponent.php
+ *
+ * Shared across all pages (Home, Services, About Us).
+ * Styles live in: public/css/shared.css
+ * Scripts live in: public/js/shared.js
  */
 class HeaderComponent extends \Component {
 
     public function render(): string {
         $logoPath = $this->get('logoPath', 'logo.jpg');
-        $fbLink = $this->get('fbLink', 'https://www.facebook.com/jhong.hontoria.3');
+        $fbLink   = $this->get('fbLink',   'https://www.facebook.com/jhong.hontoria.3');
         $navItems = $this->get('navItems', []);
 
         ob_start();
@@ -50,7 +54,7 @@ class HeaderComponent extends \Component {
             <?php foreach ($navItems as $i => $item): ?>
                 <?php if ($i > 0): ?><span class="nav-sep">|</span><?php endif; ?>
                 <a href="<?php echo $this->escape($item['url']); ?>"
-                    class="nav-link <?php echo $item['active'] ? 'active' : ''; ?>">
+                   class="nav-link <?php echo $item['active'] ? 'active' : ''; ?>">
                     <?php echo $this->escape($item['label']); ?>
                 </a>
             <?php endforeach; ?>
@@ -63,7 +67,6 @@ class HeaderComponent extends \Component {
         ob_start();
         ?>
         <div class="header-right">
-            <!-- LOG IN button removed as per client request -->
             <button class="hamburger" id="hamburger" aria-label="Open menu">
                 <span></span><span></span><span></span>
             </button>
@@ -98,7 +101,6 @@ class HeaderComponent extends \Component {
                     <?php echo $this->escape($item['label']); ?>
                 </a>
             <?php endforeach; ?>
-            <!-- LOG IN removed from mobile nav as well -->
         </div>
         <?php
         return ob_get_clean();

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/Component.php';
+require_once __DIR__ . '/../reusable_components/Component.php';
 
 /**
  * Hero Component

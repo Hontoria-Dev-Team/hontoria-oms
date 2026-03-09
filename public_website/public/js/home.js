@@ -1,31 +1,10 @@
 // =============================================
 //  HONTORIA PRINTING SERVICES — home.js
+//  Home-specific JS only.
+//  Mobile nav is handled by shared.js (loaded before this file).
 // =============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-
-  // ---- MOBILE NAV TOGGLE ----
-  const hamburger = document.getElementById('hamburger');
-  const mobileNav = document.getElementById('mobileNav');
-  const closeNav  = document.getElementById('closeNav');
-  const overlay   = document.getElementById('overlay');
-
-  function openMenu() {
-    mobileNav.classList.add('open');
-    overlay.classList.add('show');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeMenu() {
-    mobileNav.classList.remove('open');
-    overlay.classList.remove('show');
-    document.body.style.overflow = '';
-  }
-  hamburger?.addEventListener('click', openMenu);
-  closeNav?.addEventListener('click', closeMenu);
-  overlay?.addEventListener('click', closeMenu);
-  document.querySelectorAll('.mob-link').forEach(link => {
-    link.addEventListener('click', closeMenu);
-  });
 
   // ---- STICKY HEADER SHADOW ----
   const header = document.getElementById('header');
@@ -53,9 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', onScroll);
 
   // ---- SCROLL REVEAL ----
-  const revealEls = document.querySelectorAll(
-    '.service-card, .why-item, .section-header'
-  );
+  const revealEls = document.querySelectorAll('.service-card, .why-item, .section-header');
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
