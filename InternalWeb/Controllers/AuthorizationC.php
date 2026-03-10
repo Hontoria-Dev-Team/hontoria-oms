@@ -24,6 +24,11 @@ class AuthorizationC {
             $staffList = $this->staffModel->getStaffList();
         }
 
+        $currentUserId = $_SESSION['id'];
+        $staffList = array_filter($staffList, function ($staff) use ($currentUserId) {
+            return $staff['id'] !== $currentUserId;
+        });
+
         foreach ($staffList as &$staff) {
             $perms = $this->staffModel->getUserPermissions($staff['id']);
             $staff['canManageStaff'] = in_array('canManageStaff', $perms) ? 1 : 0;

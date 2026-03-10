@@ -1,0 +1,56 @@
+#servicesList {
+    max-height: 35.5rem;
+}
+
+.serviceElement {
+    border: 0.1rem solid var(--red);
+}
+
+.serviceElement.active {
+    border-color: var(--yellow) !important;
+}
+
+.serviceElement .statusButton,
+#changeConfirmation input[type=submit] {
+    background: var(--red);
+    color: var(--white);
+    font-weight: 900;
+    border: none;
+}
+
+.serviceElement.active .statusButton,
+#changeConfirmation input[type=submit].active {
+    background: var(--yellow) !important;
+}
+
+.serviceImage {
+    background: var(--gray);
+    height: 55%;
+}
+
+#servicesList h2>span {
+    color: var(--darkGray);
+    font-size: 0.6rem;
+}
+
+#changeConfirmation {
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+}
+
+#changeConfirmation>div {
+    z-index: 3;
+}
+
+#confirmationBackground {
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+    background: var(--darkTrans);
+    z-index: 2;
+}
+
+#confirmationText {
+    text-align: center;
+}

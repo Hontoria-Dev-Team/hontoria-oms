@@ -49,7 +49,7 @@
                             $status = $staff['isOnline'] ? ($staff['isActive'] ? 'Active' : 'Idle') : 'Offline';
                             $statusClass = $staff['isOnline'] ? ($staff['isActive'] ? 'active' : 'idle') : '';
                             ?>
-                            <div class="midBox minHeight minPadding roundedMin rowLayout minGap flexStatic staffElement <?= $statusClass ?>"
+                            <div class="minHeight minPadding roundedMin rowLayout minGap flexStatic staffElement <?= $statusClass ?>"
                                 data-id="<?= $staff['id'] ?>" data-name="<?= htmlspecialchars($fullName) ?>" data-can-manage-staff="<?= $staff['canManageStaff'] ?>">
                                 <div style="background: var(--gray);" class="flexMid roundedMin centerColumnLayout">
                                     <img src="../../Shared/Img/PersonIcon.png" alt="Person">
@@ -148,7 +148,7 @@
 
     // Delete employee confirmation and logic script
     document.getElementById('deleteButton').addEventListener('click', function() {
-        text.innerHTML = " Are you sure to delete the account of:<br>" + name + "?";
+        text.innerHTML = "Are you sure to delete the account of:<br>" + name + "?";
 
         idDeleted.value = id;
 

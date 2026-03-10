@@ -125,6 +125,8 @@
     display: flex;
     flex-wrap: wrap;
     flex: auto;
+    height: unset;
+    flex-grow: 0;
 }
 
 .gridFlexMid>* {

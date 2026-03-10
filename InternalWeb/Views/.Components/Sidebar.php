@@ -7,6 +7,10 @@
                 <img src="../../Shared/Img/4BoxIcon.png" alt="4 Boxes">
                 <span>Dashboard</span>
             </a>
+            <a href="index.php?page=services" class="iconLink centerRowLayout minGap <?= ($page === 'services') ? 'active' : '' ?>">
+                <img src="../../Shared/Img/GearIcon.png" alt="Gear">
+                <span>Services</span>
+            </a>
             <?php if (in_array('canManageStaff', $_SESSION['permissions'])): ?>
                 <a href="index.php?page=staff" class="iconLink centerRowLayout minGap <?= ($page === 'staff') ? 'active' : '' ?>">
                     <img src="../../Shared/Img/PeopleIcon.png" alt="People">
