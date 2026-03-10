@@ -11,7 +11,6 @@ class ServicesController {
         $logo     = $config->get('site.logoPath');
         $fb       = $config->get('site.fbLink');
         $address  = $config->get('site.address');
-        $baseUrl  = $config->get('paths.base_url');
         $products = \product::getAllProducts();
 
         $header  = (new \HeaderComponent(['logoPath' => $logo, 'fbLink' => $fb, 'navItems' => $this->getNavigation()]))->render();
@@ -19,11 +18,6 @@ class ServicesController {
         $content = (new \ServicesContentComponent(['products' => $products, 'fbLink' => $fb]))->render();
         $footer  = (new \FooterComponent(['logoPath' => $logo, 'fbLink' => $fb, 'address' => $address, 'navLinks' => $this->getNavigation()]))->render();
         $modal   = (new \ServicesModalComponent(['fbLink' => $fb]))->render();
-
-        $sharedCss = $baseUrl . '/css/shared.css';
-        $sharedJs  = $baseUrl . '/js/shared.js';
-        $pageCss   = $baseUrl . '/css/services.css';
-        $pageJs    = $baseUrl . '/js/services.js';
         ?>
         <!DOCTYPE html>
         <html lang="en">
@@ -33,8 +27,8 @@ class ServicesController {
             <title>Services — <?php echo htmlspecialchars($config->get('site.name')); ?></title>
             <link rel="icon" type="image/png" href="<?php echo htmlspecialchars($logo); ?>"/>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-            <link rel="stylesheet" href="<?php echo htmlspecialchars($sharedCss); ?>"/>
-            <link rel="stylesheet" href="<?php echo htmlspecialchars($pageCss); ?>"/>
+            <link rel="stylesheet" href="css/shared.css"/>
+            <link rel="stylesheet" href="css/services.css"/>
         </head>
         <body>
             <?php echo $header; ?>
@@ -44,8 +38,8 @@ class ServicesController {
             </div>
             <?php echo $footer; ?>
             <?php echo $modal; ?>
-            <script src="<?php echo htmlspecialchars($sharedJs); ?>"></script>
-            <script src="<?php echo htmlspecialchars($pageJs); ?>"></script>
+            <script src="js/shared.js"></script>
+            <script src="js/services.js"></script>
         </body>
         </html>
         <?php
