@@ -195,12 +195,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Thumbnails
   thumbs.forEach(t => t.addEventListener('click', () => { thumbs.forEach(x => x.classList.remove('active')); t.classList.add('active'); }));
 
-  // Click anywhere on the card to open modal
+  // Click card or View Details button to open modal
   document.querySelectorAll('.product-card').forEach(card => {
     card.addEventListener('click', e => {
-      // Don't open modal if clicking Order Now link
-      if (e.target.closest('.order-btn')) return;
+      if (e.target.closest('.order-btn')) return; // Order Now goes to Facebook, not modal
       const name = card.dataset.name;
+      if (name) openModal(name);
+    });
+  });
+
+  // Also wire view-btn directly as backup
+  document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const name = btn.closest('.product-card')?.dataset.name;
       if (name) openModal(name);
     });
   });
