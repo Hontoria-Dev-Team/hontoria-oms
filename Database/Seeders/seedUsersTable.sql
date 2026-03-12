@@ -1,5 +1,3 @@
-TRUNCATE TABLE users;
-
 INSERT INTO users (id, username, email, passwordHash, firstName, middleName, lastName, phone, createdAt, lastLoginAt) VALUES
 (1, 'owner', 'owner@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Juan', 'Carlos', 'Dela Cruz', '+639171234567', '2025-01-01 00:00:00', '2026-02-20 08:30:00'),
 (2, 'ana', 'ana@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ana', 'Marie', 'Santos', '+639171111111', '2025-01-05 00:00:00', '2026-02-21 09:00:00'),
@@ -21,5 +19,3 @@ INSERT INTO users (id, username, email, passwordHash, firstName, middleName, las
 (18, 'quinny', 'quinny@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Quinito', 'Ramos', 'Flores', '+639187777777', '2025-03-25 00:00:00', '2026-02-21 08:30:00'),
 (19, 'rosa', 'rosa@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Rosa', 'Mae', 'Alvarez', '+639188888888', '2025-03-30 00:00:00', '2026-02-21 10:45:00'),
 (20, 'sam', 'sam@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Samuel', 'David', 'Castro', '+639189999999', '2025-04-01 00:00:00', '2026-02-20 17:00:00');
-
-ALTER TABLE users AUTO_INCREMENT = 21;

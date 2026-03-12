@@ -2,15 +2,26 @@
     max-height: 35.5rem;
 }
 
-.serviceElement {
+.serviceElement,
+.subserviceElement {
     border: 0.1rem solid var(--red);
 }
 
-.serviceElement.active {
+.serviceElement.active,
+.subserviceElement.active {
     border-color: var(--yellow) !important;
 }
 
+.serviceElement a {
+    display: none;
+}
+
+.serviceElement.active a {
+    display: flex;
+}
+
 .serviceElement .statusButton,
+.subserviceElement .statusButton,
 #changeConfirmation input[type=submit] {
     background: var(--red);
     color: var(--white);
@@ -19,6 +30,7 @@
 }
 
 .serviceElement.active .statusButton,
+.subserviceElement.active .statusButton,
 #changeConfirmation input[type=submit].active {
     background: var(--yellow) !important;
 }
@@ -28,9 +40,16 @@
     height: 55%;
 }
 
-#servicesList h2>span {
+.subserviceImage {
+    background: var(--gray);
+    height: 40%;
+}
+
+#servicesList h2>span,
+.orderCount {
     color: var(--darkGray);
     font-size: 0.6rem;
+    font-weight: bold;
 }
 
 #changeConfirmation {
@@ -53,4 +72,21 @@
 
 #confirmationText {
     text-align: center;
+}
+
+.backLink {
+    width: fit-content;
+    position: unset;
+}
+
+#process>div {
+    background: var(--redTrans);
+}
+
+#subservicesList {
+    max-height: 24rem;
+}
+
+label[for=pricePerUnit] {
+    display: block;
 }

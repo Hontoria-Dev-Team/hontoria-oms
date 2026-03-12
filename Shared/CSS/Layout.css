@@ -40,6 +40,10 @@
     gap: 2em;
 }
 
+.fullHeight {
+    height: 100%;
+}
+
 .fullWidth {
     width: 100%;
 }
@@ -110,15 +114,15 @@
 }
 
 .minHeight {
-    height: 5rem;
+    height: 5rem !important;
 }
 
 .midHeight {
-    height: 10rem;
+    height: 10rem !important;
 }
 
 .maxHeight {
-    height: 20rem;
+    height: 20rem !important;
 }
 
 .gridFlexMid {

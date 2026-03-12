@@ -42,7 +42,7 @@
 
                         <input type="submit" value="Search" class="importantInput">
                     </form>
-                    <section class="minHeight minGap scrollable gridFlexMid" id="staffList">
+                    <section class="minGap scrollable gridFlexMid" id="staffList">
                         <?php foreach ($staffList as $staff): ?>
                             <?php
                             $fullName = trim("{$staff['firstName']} " . ($staff['middleName'] ? substr($staff['middleName'], 0, 1) . '.' : '') . " {$staff['lastName']}");

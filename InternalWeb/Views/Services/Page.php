@@ -27,7 +27,9 @@
                                 <div class="serviceImage fullWidth roundedMin"></div>
                                 <h2 class="centerRowLayout minGap capitalFirst"><?= $name ?><span>(Active Orders: 100)</span></h2>
                                 <div class="rowLayout minGap">
-                                    <input type="button" class="importantInput flexMid" value="Modify Service">
+                                    <a href="index.php?page=services&service=<?= $service['id'] ?>" class="importantInput flexMid buttonLike centerColumnLayout">
+                                        Modify Service
+                                    </a>
                                     <button type="button" class="statusButton flexMin capitalFirst"
                                         data-id="<?= $service['id'] ?>" data-name="<?= htmlspecialchars($name) ?>" data-status-invert="<?= $statusInvert ?>"><?= $status ?></button>
                                 </div>

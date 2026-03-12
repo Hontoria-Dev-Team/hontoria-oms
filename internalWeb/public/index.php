@@ -76,7 +76,16 @@ switch ($page) {
         break;
 
     case 'services':
-        if ($action === 'updateStatus') {
+        $service = $_GET['service'] ?? null;
+        if ($service !== null) {
+            if ($action === 'updateStatus') {
+                $services->toggleSubserviceStatus($service);
+            } else if ($action === 'updateInfo') {
+                $services->setSubserviceInfo($service);
+            } else {
+                $services->showService($service);
+            }
+        } else if ($action === 'updateStatus') {
             $services->toggleServiceStatus();
         } else {
             $services->showServices();

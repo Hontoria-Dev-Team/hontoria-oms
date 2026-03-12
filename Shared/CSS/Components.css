@@ -140,6 +140,10 @@
     font-weight: 900;
 }
 
+.bordered {
+    border: 0.1rem solid var(--dark);
+}
+
 .redBorder {
     border: 0.1rem solid var(--red);
 }
@@ -163,4 +167,15 @@
 
 *:has(.backLink) {
     position: relative;
+}
+
+.buttonLike {
+    padding: 0 1em;
+    background: var(--lightGray);
+    border-radius: 0.5rem;
+    border: 0.1em solid var(--darkGray);
+}
+
+.justifiedText {
+    text-align: justify;
 }
