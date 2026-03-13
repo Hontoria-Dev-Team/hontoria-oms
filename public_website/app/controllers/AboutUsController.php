@@ -21,7 +21,7 @@ class AboutUsController {
         $address = $config->get('site.address');
 
         $header  = (new \HeaderComponent(['logoPath' => $logo, 'fbLink' => $fb, 'navItems' => $this->getNavigation()]))->render();
-        $content = (new \AboutUsComponent([]))->render();
+        $content = (new \AboutUsComponent(['fbLink' => $fb, 'address' => $address]))->render();
         $footer  = (new \FooterComponent(['logoPath' => $logo, 'fbLink' => $fb, 'address' => $address, 'navLinks' => $this->getNavigation()]))->render();
         ?>
         <!DOCTYPE html>
