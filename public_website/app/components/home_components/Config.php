@@ -13,23 +13,25 @@ class Config {
         $host = $_SERVER['HTTP_HOST'];
         $scriptPath = dirname($_SERVER['SCRIPT_NAME']); // Gets /HONTORIA-OMS/public_website/public
         
+        // Calculate path to Shared folder (go up from public_website/public to HONTORIA-OMS, then to Shared)
+        $basePath = dirname(dirname($scriptPath)); // Goes to /HONTORIA-OMS
+        
         $this->config = [
             'site' => [
                 'name' => 'HONTORIA PRINTING SERVICES',
                 'tagline' => 'Quality. Affordable. Fast.',
                 'fbLink' => 'https://www.facebook.com/jhong.hontoria.3',
                 'address' => 'Feeder Road 2, Brgy. Tibal-og Santo tomas, Davao del Norte',
-                'logoPath' => $scriptPath . '/img/logo.jpg'  // Absolute path
+                'logoPath' => $basePath . '/Shared/img/Logo.png'
             ],
             'navigation' => [
-                ['label' => 'HOME', 'url' => '?page=home', 'active' => true],
+                ['label' => 'HOME',     'url' => '?page=home',     'active' => true],
                 ['label' => 'SERVICES', 'url' => '?page=services', 'active' => false],
-                ['label' => 'PROFILE', 'url' => '?page=profile', 'active' => false],
-                ['label' => 'ABOUT US', 'url' => '?page=about', 'active' => false]
+                ['label' => 'ABOUT US', 'url' => '?page=about',    'active' => false]
             ],
             'paths' => [
-                'css' => $scriptPath . '/css/home.css',  // Absolute path
-                'js' => $scriptPath . '/js/home.js',      // Absolute path
+                'css' => $scriptPath . '/css/home.css',
+                'js' => $scriptPath . '/js/home.js',
                 'base_url' => $scriptPath
             ]
         ];
