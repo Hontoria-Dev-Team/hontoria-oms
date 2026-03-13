@@ -6,6 +6,32 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    // ── Sidebar scroll spy — highlights active section link ──────────────
+    const sidebarLinks = document.querySelectorAll('.about-sidebar-link');
+    const sections     = document.querySelectorAll('.about-content section[id]');
+
+    function updateActiveSidebarLink() {
+        let currentId = '';
+        sections.forEach(section => {
+            const top = section.getBoundingClientRect().top;
+            if (top <= 120) currentId = section.id;
+        });
+        sidebarLinks.forEach(link => {
+            link.classList.toggle('active', link.dataset.section === currentId);
+        });
+    }
+    window.addEventListener('scroll', updateActiveSidebarLink, { passive: true });
+    updateActiveSidebarLink();
+
+    // ── Smooth scroll when clicking sidebar links ─────────────────────────
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const target = document.getElementById(link.dataset.section);
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
     // ── Admin mode toggle (double-click the employees title to enable) ────
     const employeesTitle = document.getElementById('employeesTitle');
     const employeesGrid  = document.getElementById('employeesGrid');
