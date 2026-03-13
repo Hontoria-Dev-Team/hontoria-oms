@@ -39,6 +39,10 @@
 }
 .about-sidebar-brand{padding:0 20px 20px;border-bottom:2px solid var(--border);margin-bottom:16px}
 .about-sidebar-title{font-size:11px;font-weight:900;letter-spacing:3px;color:var(--gray);text-transform:uppercase}
+.about-sidebar-pages{display:flex;flex-direction:column;gap:2px;padding:0 8px;margin-bottom:8px}
+.about-sidebar-page-link{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:0.5px;color:var(--dk);padding:9px 12px;border-radius:var(--radius);transition:background var(--tr),color var(--tr);text-decoration:none}
+.about-sidebar-page-link:hover{background:rgba(26,8,0,0.06);color:var(--red)}
+.about-sidebar-divider{height:1px;background:var(--border);margin:8px 16px 12px}
 .about-sidebar-nav{display:flex;flex-direction:column;gap:2px;padding:0 8px}
 .about-sidebar-link{
   display:flex;align-items:center;gap:10px;
