@@ -108,7 +108,7 @@ class ServicesContentComponent extends \Component {
                     </div>
                 <?php endif; ?>
                 <div class="card-overlay">
-                    <button class="view-btn">View Details <i class="fas fa-arrow-right"></i></button>
+                    <button class="view-btn"><i class="fas fa-eye"></i> View Details</button>
                 </div>
             </div>
 
