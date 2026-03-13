@@ -144,6 +144,10 @@
 .modal-total-row .modal-field-label{margin-bottom:0;white-space:nowrap}
 .total-display{flex:1;height:32px;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--light);padding:0 12px;display:flex;align-items:center;font-size:14px;font-weight:800;color:var(--dk)}
 .modal-actions{display:flex;gap:10px;flex-wrap:wrap}
+.modal-note{margin-bottom:16px}
+.modal-note strong{font-size:13px;font-weight:800;color:var(--black);display:block;margin-bottom:4px}
+.modal-note p{font-size:13px;color:var(--gray);line-height:1.65}
+.modal-note p a{color:var(--red);font-weight:700}
 .modal-order{display:inline-flex;align-items:center;gap:9px;font-size:14px;font-weight:800;background:var(--blue-fb);color:var(--white);padding:12px 24px;border-radius:var(--radius);transition:background var(--tr),transform var(--tr)}
 .modal-order:hover{background:#0e5fcf;transform:translateY(-1px)}
 
