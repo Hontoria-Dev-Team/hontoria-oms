@@ -42,6 +42,11 @@ class ServicesContentComponent extends \Component {
             <div class="content-header">
                 <h1 class="page-title">SERVICES</h1>
                 <p class="page-sub" id="filterLabel">Click any product to view details &amp; pricing</p>
+                <!-- Search bar — visible on mobile (sidebar hidden), hidden on desktop (sidebar has search) -->
+                <div class="mobile-search">
+                    <i class="fas fa-search mobile-search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search products..." class="mobile-search-input"/>
+                </div>
             </div>
 
             <?php foreach ($categoryMeta as $categoryId => $meta): ?>

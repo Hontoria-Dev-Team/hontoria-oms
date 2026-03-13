@@ -118,7 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── SEARCH ───────────────────────────────────────────────────────────
+  // ── SEARCH — works from both sidebar input and mobile input ──────────
+  // Both inputs share the same id="searchInput" — only one is visible at a time
   const searchInput = document.getElementById('searchInput');
   searchInput?.addEventListener('input', () => {
     const q = searchInput.value.toLowerCase().trim();
