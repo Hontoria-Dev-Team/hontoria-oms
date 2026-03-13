@@ -142,44 +142,28 @@
 .owner-info .owner-title{font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:20px}
 .owner-info .owner-bio{font-size:15px;line-height:1.8;color:rgba(26,8,0,0.7);max-width:560px}
 
-/* ========== EMPLOYEES ========== */
+/* ========== STAFF / EMPLOYEES ========== */
 .employees-section{background:var(--light)}
-.employees-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:40px;flex-wrap:wrap;gap:16px}
-.btn-add-employee{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:var(--dk);color:var(--y);padding:10px 22px;border-radius:var(--radius);border:none;cursor:pointer;transition:background var(--tr),transform var(--tr)}
-.btn-add-employee:hover{background:var(--red);transform:translateY(-1px)}
-.employees-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px}
-.employee-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-md);overflow:hidden;transition:transform var(--tr),box-shadow var(--tr),border-color var(--tr);position:relative}
-.employee-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-md);border-color:var(--dk)}
-.employee-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
-.employee-img-placeholder{width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#f0f0f0,#e0e0e0);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
-.employee-img-placeholder i{font-size:48px;color:rgba(26,8,0,0.15)}
-.employee-img-placeholder span{font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(26,8,0,0.3)}
-.employee-info{padding:16px 18px}
-.employee-name{font-weight:800;font-size:16px;color:var(--dk);margin-bottom:4px}
-.employee-role{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--red)}
-.btn-remove-employee{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(204,26,0,0.85);color:var(--white);border:none;cursor:pointer;font-size:12px;display:none;align-items:center;justify-content:center;transition:background var(--tr),transform var(--tr)}
-.btn-remove-employee:hover{background:var(--red);transform:scale(1.1)}
-.admin-mode .btn-remove-employee{display:flex}
+.staff-groups{display:flex;flex-direction:column;gap:48px;margin-top:8px}
 
-/* ========== MODAL — Add Employee ========== */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:3000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s;padding:20px}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--white);border-radius:var(--radius-md);max-width:480px;width:100%;padding:36px 32px;position:relative;transform:scale(0.92);transition:transform 0.3s;box-shadow:0 32px 80px rgba(0,0,0,0.35)}
-.modal-overlay.open .modal{transform:scale(1)}
-.modal-close{position:absolute;top:14px;right:16px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.08);border:none;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background var(--tr)}
-.modal-close:hover{background:var(--red);color:var(--white)}
-.modal-title{font-weight:900;font-size:22px;color:var(--dk);margin-bottom:24px;padding-bottom:14px;border-bottom:2px solid var(--border)}
-.form-group{margin-bottom:18px}
-.form-label{display:block;font-size:13px;font-weight:800;color:var(--dk);margin-bottom:6px}
-.form-input,.form-select{width:100%;padding:10px 14px;font-family:'Inter',sans-serif;font-size:14px;border:1.5px solid var(--border);border-radius:var(--radius);outline:none;transition:border-color var(--tr);background:var(--light)}
-.form-input:focus,.form-select:focus{border-color:var(--dk)}
-.form-file-label{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px dashed var(--border);border-radius:var(--radius);cursor:pointer;font-size:13px;color:var(--gray);transition:border-color var(--tr),background var(--tr)}
-.form-file-label:hover{border-color:var(--dk);background:var(--light)}
-.form-file-label i{font-size:18px;color:var(--gray)}
-.form-file-input{display:none}
-.form-preview{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--border);display:none;margin-top:10px}
-.btn-submit{width:100%;padding:13px;background:var(--dk);color:var(--y);font-family:'Inter',sans-serif;font-size:14px;font-weight:800;letter-spacing:1px;border:none;border-radius:var(--radius);cursor:pointer;transition:background var(--tr),transform var(--tr);margin-top:8px}
-.btn-submit:hover{background:var(--red);transform:translateY(-1px)}
+/* Role group header */
+.staff-role-header{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.staff-role-icon{font-size:16px;color:var(--red);width:20px;text-align:center}
+.staff-role-label{font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--dk);white-space:nowrap}
+.staff-role-line{flex:1;height:2px;background:var(--border);border-radius:2px}
+
+/* Staff cards row */
+.staff-cards{display:flex;flex-wrap:wrap;gap:24px}
+
+/* Individual staff card */
+.staff-card{display:flex;flex-direction:column;align-items:center;gap:12px;width:140px}
+.staff-photo{width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid var(--dk);display:block}
+.staff-photo-placeholder{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#f0f0f0,#e0e0e0);border:3px solid var(--border);display:flex;align-items:center;justify-content:center}
+.staff-photo-placeholder i{font-size:40px;color:rgba(26,8,0,0.15)}
+.staff-photo-empty{border:3px dashed var(--border);background:transparent}
+.staff-photo-empty i{font-size:32px;color:rgba(26,8,0,0.1)}
+.staff-name{font-size:14px;font-weight:700;color:var(--dk);text-align:center}
+.staff-name-empty{font-size:12px;font-weight:600;color:var(--gray);font-style:italic}
 
 /* ========== RESPONSIVE (aboutus-specific only) ========== */
 @media(max-width:900px){
