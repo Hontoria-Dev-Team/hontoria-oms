@@ -1,18 +1,10 @@
 // =============================================
 //  HONTORIA — services.js
+//  Services-specific: filter, modal, scroll reveal.
+//  Mobile nav is handled by shared.js (loaded before this file).
 // =============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-
-  // ── MOBILE NAV ────────────────────────────────────────────────────────
-  const hamburger = document.getElementById('hamburger');
-  const mobileNav = document.getElementById('mobileNav');
-  const closeNav  = document.getElementById('closeNav');
-  const overlay   = document.getElementById('overlay');
-  hamburger?.addEventListener('click', () => { mobileNav.classList.add('open'); overlay.classList.add('show'); document.body.style.overflow='hidden'; });
-  closeNav?.addEventListener('click',  closeMenu);
-  overlay?.addEventListener('click',   closeMenu);
-  function closeMenu() { mobileNav?.classList.remove('open'); overlay?.classList.remove('show'); document.body.style.overflow=''; }
 
   // ── PRODUCT DATA (used by the modal) ─────────────────────────────────
   // Key must exactly match the data-name on each .product-card

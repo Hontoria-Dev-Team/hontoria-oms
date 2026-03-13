@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../home_components/Component.php';
+require_once __DIR__ . '/../reusable_components/Component.php';
 
 /**
  * AboutUsComponent.php

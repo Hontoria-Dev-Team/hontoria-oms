@@ -27,6 +27,8 @@ class AboutUsController {
         $content = (new \AboutUsComponent([]))->render();
         $footer  = (new \FooterComponent(['logoPath' => $logo, 'fbLink' => $fb, 'address' => $address, 'navLinks' => $this->getNavigation()]))->render();
 
+        $sharedCss = $baseUrl . '/css/shared.css';
+        $sharedJs  = $baseUrl . '/js/shared.js';
         $css = $baseUrl . '/css/aboutus.css';
         $js  = $baseUrl . '/js/aboutus.js';
 
@@ -41,13 +43,12 @@ class AboutUsController {
             <!-- Favicon -->
             <link rel="icon" type="image/png" href="<?php echo htmlspecialchars($logo); ?>"/>
 
-            <!-- Google Fonts -->
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-
             <!-- Font Awesome Icons -->
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
-            <!-- Page Stylesheet -->
+            <!-- 1. Shared styles (header, footer, variables) -->
+            <link rel="stylesheet" href="<?php echo htmlspecialchars($sharedCss); ?>"/>
+            <!-- 2. About Us-specific styles -->
             <link rel="stylesheet" href="<?php echo htmlspecialchars($css); ?>"/>
         </head>
         <body>
@@ -63,7 +64,9 @@ class AboutUsController {
             <!-- Footer -->
             <?php echo $footer; ?>
 
-            <!-- Page Scripts -->
+            <!-- 1. Shared JS (mobile nav) -->
+            <script src="<?php echo htmlspecialchars($sharedJs); ?>"></script>
+            <!-- 2. About Us-specific JS -->
             <script src="<?php echo htmlspecialchars($js); ?>"></script>
 
         </body>

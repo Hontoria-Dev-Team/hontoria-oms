@@ -2,17 +2,21 @@
 require_once __DIR__ . '/Component.php';
 
 /**
- * Footer Component
- * Renders footer with links and contact info
+ * FooterComponent.php
+ * Location: app/components/reusable_components/FooterComponent.php
+ *
+ * Shared across all pages (Home, Services, About Us).
+ * Styles live in: public/css/shared.css
+ * Scripts live in: public/js/shared.js
  */
 class FooterComponent extends \Component {
-    
+
     public function render(): string {
         $logoPath = $this->get('logoPath', 'logo.jpg');
-        $fbLink = $this->get('fbLink', 'https://www.facebook.com/jhong.hontoria.3');
-        $address = $this->get('address', 'Feeder Road 2, Brgy. Tibal-og Santo tomas, Davao del Norte');
+        $fbLink   = $this->get('fbLink',   'https://www.facebook.com/jhong.hontoria.3');
+        $address  = $this->get('address',  'Feeder Road 2, Brgy. Tibal-og Santo tomas, Davao del Norte');
         $navLinks = $this->get('navLinks', []);
-        
+
         ob_start();
         ?>
         <footer class="footer">
@@ -22,7 +26,7 @@ class FooterComponent extends \Component {
                 <?php echo $this->renderContact($fbLink, $address); ?>
             </div>
             <div class="footer-bottom">
-                <p>&copy; <?php echo date('Y'); ?> Hontoria Printing Services Designed by: <strong>VICB</strong></p>
+                <p>&copy; <?php echo date('Y'); ?> Hontoria Printing Services &mdash; Designed by: <strong>VICB</strong></p>
             </div>
         </footer>
         <?php
@@ -34,7 +38,7 @@ class FooterComponent extends \Component {
         ?>
         <div class="footer-brand">
             <div class="footer-logo">
-                <img src="<?php echo $this->escape($logoPath); ?>" alt="Hontoria Logo" 
+                <img src="<?php echo $this->escape($logoPath); ?>" alt="Hontoria Logo"
                      class="footer-logo-img" onerror="this.style.display='none'"/>
                 <div>
                     <span class="f-name">HONTORIA</span>

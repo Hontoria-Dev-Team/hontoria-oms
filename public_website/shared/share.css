@@ -1,0 +1,146 @@
+/* =============================================
+   HONTORIA — shared.css
+   Header & Footer styles shared by ALL pages.
+
+   Load this on every page BEFORE the page-specific CSS:
+     <link rel="stylesheet" href="/css/shared.css"/>
+     <link rel="stylesheet" href="/css/home.css"/>   (or services.css / aboutus.css)
+   ============================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ── CSS Variables (shared defaults) ────────────────────────────── */
+:root {
+  --y:       #FFD000;
+  --dk:      #1A0800;
+  --red:     #CC1A00;
+  --black:   #0a0a0a;
+  --white:   #ffffff;
+  --gray:    #6b7280;
+  --light:   #f3f4f6;
+  --border:  #e5e7eb;
+  --blue-fb: #1877f2;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md: 0 8px 32px rgba(0,0,0,0.12);
+  --radius:    8px;
+  --radius-md: 14px;
+  --tr:        0.28s cubic-bezier(0.4,0,0.2,1);
+  --hh:        72px;   /* header height */
+  --bh:        36px;   /* order bar height */
+}
+
+/* ── Reset ───────────────────────────────────────────────────────── */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+html  { scroll-behavior:smooth }
+body  { font-family:'Inter',sans-serif; color:var(--black); overflow-x:hidden }
+a     { text-decoration:none; color:inherit }
+ul    { list-style:none }
+img   { display:block; max-width:100% }
+
+/* ═══════════════════════════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════════════════════════ */
+.header {
+  position:sticky; top:0; z-index:900;
+  background:var(--y);
+  border-bottom:3px solid var(--dk);
+  box-shadow:0 2px 12px rgba(0,0,0,0.15);
+}
+.header-inner {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 32px; height:var(--hh); gap:20px;
+}
+
+/* Logo */
+.logo        { display:flex; align-items:center; gap:12px; flex-shrink:0 }
+.logo-icon   { display:none }
+.logo-img    { width:52px; height:52px; object-fit:contain; border-radius:50%; display:block; flex-shrink:0 }
+.logo-text   { display:flex; flex-direction:column; line-height:1.1 }
+.logo-name   { font-weight:900; font-size:20px; letter-spacing:-0.3px; color:var(--dk) }
+.logo-sub    { font-size:9px; font-weight:700; letter-spacing:2.5px; color:var(--red); text-transform:uppercase }
+
+/* Desktop nav */
+.nav-desktop { display:flex; align-items:center; gap:4px }
+.nav-link    { font-size:13px; font-weight:700; letter-spacing:1px; color:var(--dk); padding:6px 10px; border-radius:var(--radius); transition:color var(--tr),background var(--tr) }
+.nav-link:hover,
+.nav-link.active { color:var(--red); background:rgba(204,26,0,0.10) }
+.nav-sep     { color:rgba(26,8,0,0.25); user-select:none }
+
+/* Header right (hamburger) */
+.header-right { display:flex; align-items:center; gap:12px }
+.hamburger    { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:4px }
+.hamburger span { width:24px; height:2.5px; background:var(--dk); border-radius:2px }
+
+/* Order bar */
+.order-bar      { background:var(--dk); height:var(--bh); display:flex; align-items:center; justify-content:flex-end; padding:0 32px; border-top:1px solid rgba(255,208,0,0.15) }
+.order-bar-text { font-size:12px; font-weight:600; letter-spacing:1px; color:rgba(255,208,0,0.85); display:flex; align-items:center; gap:8px }
+.fb-link        { color:#74b9ff; font-weight:700; display:inline-flex; align-items:center; gap:5px; transition:color var(--tr) }
+.fb-link:hover  { color:var(--white) }
+
+/* Mobile nav drawer */
+.mobile-nav {
+  position:fixed; top:0; right:-280px; width:260px; height:100vh;
+  background:var(--y); z-index:2000;
+  border-left:3px solid var(--dk);
+  display:flex; flex-direction:column;
+  padding:80px 28px 28px; gap:8px;
+  transition:right 0.35s ease;
+}
+.mobile-nav.open { right:0 }
+.close-nav  { position:absolute; top:20px; right:20px; background:none; border:none; font-size:22px; cursor:pointer; color:var(--dk) }
+.mob-link   { font-size:16px; font-weight:700; padding:12px 0; border-bottom:1px solid rgba(26,8,0,0.15); color:var(--dk); transition:color var(--tr) }
+.mob-link:hover { color:var(--red) }
+
+/* Dark overlay behind mobile nav */
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1500; opacity:0; pointer-events:none; transition:opacity 0.3s }
+.overlay.show { opacity:1; pointer-events:all }
+
+/* ═══════════════════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════════════════ */
+.footer { background:var(--y); border-top:3px solid var(--dk) }
+.footer-inner {
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:48px;
+  max-width:1100px; margin:0 auto;
+  padding:60px 32px 40px;
+}
+.footer-logo     { display:flex; align-items:center; gap:12px; margin-bottom:16px }
+.footer-logo-img { width:52px; height:52px; object-fit:contain; border-radius:50%; border:2.5px solid var(--dk); display:block }
+.f-name          { display:block; font-weight:900; font-size:22px; letter-spacing:1px; color:var(--dk); line-height:1 }
+.f-sub           { display:block; font-size:9px; font-weight:700; letter-spacing:2.5px; color:var(--red); text-transform:uppercase }
+.footer-tagline  { font-size:14px; letter-spacing:1.5px; color:rgba(26,8,0,0.50); font-style:italic }
+
+.footer-links h5,
+.footer-contact h5 { font-weight:800; font-size:13px; letter-spacing:2px; text-transform:uppercase; color:var(--dk); margin-bottom:16px; padding-bottom:8px; border-bottom:2px solid rgba(26,8,0,0.18) }
+
+.footer-links a,
+.footer-contact a,
+.footer-contact p  { display:flex; align-items:center; gap:8px; font-size:14px; color:rgba(26,8,0,0.58); padding:6px 0; transition:color var(--tr) }
+.footer-links a:hover,
+.footer-contact a:hover { color:var(--red) }
+
+.footer-bottom   { border-top:2px solid rgba(26,8,0,0.12); padding:20px 32px; text-align:center; background:var(--y) }
+.footer-bottom p { font-size:13px; color:rgba(26,8,0,0.45); letter-spacing:1px }
+.footer-bottom strong { color:var(--red) }
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════ */
+@media(max-width:900px) {
+  .footer-inner { grid-template-columns:1fr 1fr; gap:32px }
+  .footer-brand { grid-column:1/-1 }
+}
+@media(max-width:640px) {
+  :root { --hh:60px; --bh:32px }
+  .header-inner  { padding:0 16px }
+  .logo-name     { font-size:17px }
+  .logo-img      { width:42px; height:42px }
+  .nav-desktop   { display:none }
+  .hamburger     { display:flex }
+  .order-bar     { padding:0 16px; justify-content:center }
+  .order-bar-text{ font-size:11px }
+  .footer-inner  { grid-template-columns:1fr; padding:36px 20px; gap:24px }
+  .footer-bottom { padding:16px 20px }
+}

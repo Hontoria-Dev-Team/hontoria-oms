@@ -1,32 +1,27 @@
 <?php
 /**
  * Hontoria Printing Services - Main Router
- * Routes requests to appropriate controllers
  */
 
-// Error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Define base paths
 define('BASE_PATH', dirname(__DIR__));
-define('APP_PATH', BASE_PATH . '/app');
+define('APP_PATH',  BASE_PATH . '/app');
 define('PUBLIC_PATH', __DIR__);
-define('VIEWS_PATH', BASE_PATH . '/views');
 
-// Autoloader - loads classes from multiple locations
+// ── Autoloader ────────────────────────────────────────────────────────────────
 spl_autoload_register(function ($class) {
     $paths = [
-        // Shared components (used by all pages)
-        APP_PATH . '/components/home_components/' . $class . '.php',
-        // Services components
+        // ★ Reusable components (Header, Footer) — checked first
+        APP_PATH . '/components/reusable_components/' . $class . '.php',
+        // Page-specific components
+        APP_PATH . '/components/home_components/'     . $class . '.php',
         APP_PATH . '/components/services_components/' . $class . '.php',
-        // About Us components
-        APP_PATH . '/components/aboutus_components/' . $class . '.php',
-        // Controllers
+        APP_PATH . '/components/aboutus_components/'  . $class . '.php',
+        // Controllers & Models
         APP_PATH . '/controllers/' . $class . '.php',
-        // Models
-        APP_PATH . '/models/' . $class . '.php',
+        APP_PATH . '/models/'      . $class . '.php',
     ];
 
     foreach ($paths as $file) {
@@ -37,33 +32,21 @@ spl_autoload_register(function ($class) {
     }
 });
 
-// Simple routing based on 'page' parameter
+// ── Router ────────────────────────────────────────────────────────────────────
 $page = $_GET['page'] ?? 'home';
 
 switch ($page) {
 
     case 'home':
-        if (class_exists('HomeController')) {
-            (new \HomeController())->index();
-        } else {
-            die('ERROR: HomeController not found.');
-        }
+        (new \HomeController())->index();
         break;
 
     case 'services':
-        if (class_exists('ServicesController')) {
-            (new \ServicesController())->index();
-        } else {
-            die('ERROR: ServicesController not found.');
-        }
+        (new \ServicesController())->index();
         break;
 
     case 'about':
-        if (class_exists('AboutUsController')) {
-            (new \AboutUsController())->index();
-        } else {
-            die('ERROR: AboutUsController not found.');
-        }
+        (new \AboutUsController())->index();
         break;
 
     default:
