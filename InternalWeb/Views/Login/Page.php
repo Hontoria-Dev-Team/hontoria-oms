@@ -13,7 +13,7 @@
         <div class="flexMin centerColumnLayout">
             <h3>Welcome Employee, please login to your account</h3>
         </div>
-        <section class="centerColumnLayout flexMin">
+        <section class="centerColumnLayout flexMin fullHeight">
             <?php include("../Views/.Components/TitleLogo.php"); ?>
             <h3>Input credentials below</h3>
             <hr>

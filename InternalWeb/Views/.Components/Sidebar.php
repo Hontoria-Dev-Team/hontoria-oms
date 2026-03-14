@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<div class="gradientBorderVert">
-    <aside id="sidebar" class="columnLayout minGap">
-        <?php include("TitleLogo.php"); ?>
+<aside id="sidebar" class="columnLayout">
+    <section class="columnLayout minGap flexMax">
+        <h1 class="titleLogo tinHeight selfCenter">
+            <img src="../../Shared/Img/Logo.png" alt="logo"> Hontoria OMS
+        </h1>
         <nav class="columnLayout midGap">
             <a href="index.php?page=dashboard" class="iconLink centerRowLayout minGap <?= ($page === 'dashboard') ? 'active' : '' ?>">
                 <img src="../../Shared/Img/4BoxIcon.png" alt="4 Boxes">
@@ -24,5 +26,6 @@
                 <span class="capitalFirst"><?= $_SESSION['username'] ?></span>
             </a>
         </div>
-    </aside>
-</div>
+    </section>
+    <div class="gradientBorderVert"></div>
+</aside>

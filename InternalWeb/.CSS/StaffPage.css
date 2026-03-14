@@ -1,7 +1,3 @@
-#staffList {
-    max-height: 33.5rem;
-}
-
 .staffElement {
     border: 0.05rem solid var(--red);
     cursor: pointer;
@@ -51,7 +47,7 @@ div:has(#createButton) {
     position: relative;
 }
 
-#deleteConfirmation {
+/* #deleteConfirmation {
     position: absolute;
     height: 100vh;
     width: 100vw;
@@ -71,4 +67,4 @@ div:has(#createButton) {
 
 #confirmationText {
     text-align: center;
-}
+} */

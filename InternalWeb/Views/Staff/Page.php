@@ -9,14 +9,13 @@
 
 <body class="asideLayout fixedScreen">
     <?php include("../Views/.Components/SideBar.php"); ?>
-    <main class="columnLayout leftAlign midGap midPadding flexStretch">
-        <h1 class="titleLogo minGap">
+    <main class="columnLayout midGap">
+        <h1 class="titleLogo minGap tinHeight">
             <img src="../../Shared/Img/PeopleIcon.png" alt="People"> Staff Panel
         </h1>
-
         <section class="rowLayout flexMax midGap">
-            <div class="gradientBorderDiag roundedMid flexMid">
-                <section class="box columnLayout roundedMid minGap">
+            <section class="flexMid roundedMid centerColumnLayout">
+                <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
                     <form method="GET" action="index.php?page=staff" class="rowLayout fullWidth minGap">
                         <input type="hidden" name="page" value="staff">
                         <input type="hidden" name="action" value="filter">
@@ -62,63 +61,48 @@
                                 </div>
                             </div>
                         <?php endforeach; ?>
+                        <div class="tinHeight"></div>
                     </section>
-                    <a href="index.php?page=staff&action=create" id="createButton" class="roundedMin centerColumnLayout">Create Staff</a>
-                </section>
-            </div>
+                    <div class="rowLayout minGap souEastAbsolute">
+                        <a href="index.php?page=staff&action=create" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">Create Staff</a>
+                    </div>
+                </div>
+                <div class="gradientBorderDiag"></div>
+            </section>
             <section class="columnLayout midGap flexMin">
-                <div class="gradientBorderDiag roundedMid flexMid">
-                    <section class="box centerColumnLayout roundedMid minGap" id="detailsPanel">
-                        <h3 id="selectedStaffName">No Staff Selected</h3>
-                        <p style="display: none;">Permissions: </p>
-                        <form id="permissionForm" action="index.php?page=staff&action=updatePermissions" method="POST" class="columnLayout fullWidth minGap" style="display:none;">
-                            <input type="hidden" name="selectedID" id="selectedStaffId">
-                            <div class="rowLayout centerRowLayout minGap">
-                                <input type="checkbox" name="canManageStaff" id="permCheckbox" value="1">
-                                <label for="permCheckbox">Can Manage Staff</label>
-                            </div>
-
-                            <div class="rowLayout fullWidth minGap">
-                                <input type="submit" class="importantInput flexMax" value="Update Permissions">
-                                <input type="button" class="criticalInput flexMin" id="deleteButton" value="Delete">
-                            </div>
-                        </form>
-                    </section>
-                </div>
-                <div class="gradientBorderDiag roundedMid flexMax">
-                    <section class="box centerColumnLayout roundedMid">
-                    </section>
-                </div>
+                <section class="box centerColumnLayout roundedMid minGap flexMin" id="detailsPanel">
+                    <h3 id="selectedStaffName">No Staff Selected</h3>
+                    <p style="display: none;">Permissions: </p>
+                    <form id="permissionForm" action="index.php?page=staff&action=updatePermissions" method="POST" class="columnLayout fullWidth minGap" style="display:none;">
+                        <input type="hidden" name="selectedID" id="selectedStaffId">
+                        <div class="rowLayout centerRowLayout minGap">
+                            <input type="checkbox" name="canManageStaff" id="permCheckbox" value="1">
+                            <label for="permCheckbox">Can Manage Staff</label>
+                        </div>
+                        <div class="rowLayout fullWidth minGap">
+                            <input type="submit" class="importantInput flexMax" value="Update Permissions">
+                            <input type="button" class="criticalInput flexMin" id="deleteButton" value="Delete">
+                        </div>
+                    </form>
+                    <div class="gradientBorderDiag"></div>
+                </section>
+                <section class="box centerColumnLayout roundedMid flexMid">
+                    <div class="gradientBorderDiag"></div>
+                </section>
             </section>
         </section>
     </main>
-    <section id="deleteConfirmation" class="centerColumnLayout" style="display: none;">
-        <div class="gradientBorderDiag roundedMid maxWidth midHeight">
-            <section class="box centerColumnLayout roundedMid minGap">
-                <h1>Delete Account?</h1>
-                <h4 id="confirmationText">Are you sure to delete Victor's Account?</h4>
-                <form id="permissionForm" action="index.php?page=staff&action=delete" method="POST" class="rowLayout fullWidth minGap">
-                    <input type="hidden" name="deletedID" id="deletedStaffId">
-                    <input type="submit" class="criticalInput flexMax" value="Yes Delete">
-                    <input type="button" class="importantInput flexMax" id="cancelDeleteButton" value="No Cancel">
-                </form>
-            </section>
-        </div>
-    </section>
-    <div id="confirmationBackground" style="display: none;"></div>
+    <?php include("../Views/.Components/ConfirmationBox.php"); ?>
 </body>
+<script src="../.JS/ConfirmationBox.js"></script>
 <script>
     const staffElements = document.querySelectorAll('.staffElement');
     const nameDisplay = document.getElementById('selectedStaffName');
     const form = document.getElementById('permissionForm');
     const idSelected = document.getElementById('selectedStaffId');
-    const idDeleted = document.getElementById('deletedStaffId');
     const checkbox = document.getElementById('permCheckbox');
     const detailsPanel = document.getElementById('detailsPanel');
     const permissionsParagraph = detailsPanel.querySelector('p');
-    const confirmation = document.getElementById('deleteConfirmation');
-    const confirmationBG = document.getElementById('confirmationBackground');
-    const text = document.getElementById('confirmationText');
 
     let name;
     let id;
@@ -147,22 +131,24 @@
     });
 
     // Delete employee confirmation and logic script
-    document.getElementById('deleteButton').addEventListener('click', function() {
-        text.innerHTML = "Are you sure to delete the account of:<br>" + name + "?";
+    document.addEventListener("DOMContentLoaded", () => {
+        confirmationTitle.innerHTML = "Delete Account?";
+        confirmationSubmit.value = "Yes Delete";
+        confirmationCancel.value = "No Cancel";
+    });
 
-        idDeleted.value = id;
+    const deletedID = document.createElement("input");
+    deletedID.type = "hidden";
+    deletedID.name = "deletedID";
+    confirmationForm.appendChild(deletedID);
+    confirmationForm.action = "index.php?page=staff&action=delete"
+
+    document.getElementById('deleteButton').addEventListener('click', function() {
+        confirmationText.innerHTML = "Are you sure to delete the account of:<br>" + name + "?";
+
+        deletedID.value = id;
 
         confirmation.style.display = 'flex';
-        confirmationBG.style.display = 'unset';
-    });
-
-    document.getElementById('cancelDeleteButton').addEventListener('click', function() {
-        confirmation.style.display = 'none';
-        confirmationBG.style.display = 'none';
-    });
-    document.getElementById('confirmationBackground').addEventListener('click', function() {
-        confirmation.style.display = 'none';
-        confirmationBG.style.display = 'none';
     });
 </script>
 <script src="../.JS/AutoRefresher.js"></script>

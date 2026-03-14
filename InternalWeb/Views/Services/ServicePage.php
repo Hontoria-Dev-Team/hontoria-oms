@@ -9,12 +9,12 @@
 
 <body class="asideLayout fixedScreen">
     <?php include("../Views/.Components/SideBar.php"); ?>
-    <main class="columnLayout leftAlign midGap midPadding flexStretch">
+    <main class="columnLayout midGap">
         <?php include("../Views/.Components/BackLink.php"); ?>
         <section class="rowLayout flexMax midGap">
-            <div class="gradientBorderDiag roundedMid flexMid">
-                <section class="box columnLayout roundedMid minGap">
-                    <h1 class="titleLogo minGap">
+            <section class="centerColumnLayout roundedMid flexMid">
+                <div class="box columnLayout roundedMid minGap fullHeight fullWidth">
+                    <h1 class="titleLogo minGap tinHeight">
                         <img src="../../Shared/Img/GearIcon.png" alt="Gear"> <?= $service['name'] ?> Service
                     </h1>
                     <h2>Service Process:</h2>
@@ -69,72 +69,59 @@
                                     </form>
                                 </div>
                             <?php endforeach; ?>
+                            <div class="tinHeight"></div>
                         </div>
                     <?php else: ?>
                         <div class="flexMax centerColumnLayout">
                             <h3>No subservice</h3>
                         </div>
                     <?php endif; ?>
-                </section>
-            </div>
-            <section class="columnLayout midGap flexMin">
-                <div class="gradientBorderDiag roundedMid flexMid">
-                    <section class="box columnLayout roundedMid minGap">
-                    </section>
+                    <div class="rowLayout minGap souEastAbsolute">
+                        <a href="index.php?page=service&action=create" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">Create Subservice</a>
+                    </div>
                 </div>
+                <div class="gradientBorderDiag">
+            </section>
+            <section class="centerColumnLayout flexMin roundedMid">
+                <div class="box roundedMid fullHeight fullWidth"></div>
+                <div class="gradientBorderDiag"></div>
             </section>
         </section>
     </main>
-    <section id="changeConfirmation" class="centerColumnLayout" style="display: none;">
-        <div class="gradientBorderDiag roundedMid maxWidth midHeight">
-            <section class="box centerColumnLayout roundedMid minGap">
-                <h1>Update Subservice Status?</h1>
-                <h4 id="confirmationText">Are you sure to activate the Sublimation subservice?</h4>
-                <form action="index.php?page=services&service=<?= $serviceID ?>&action=updateStatus" method="POST" class="rowLayout fullWidth minGap">
-                    <input type="hidden" name="selectedID" id="selectedID">
-                    <input type="submit" class="flexMax" id="confirmButton" value="Yes Activate">
-                    <input type="button" class="importantInput flexMax" id="cancelButton" value="No Cancel">
-                </form>
-            </section>
-        </div>
-    </section>
-    <div id="confirmationBackground" style="display: none;"></div>
+    <?php include("../Views/.Components/ConfirmationBox.php"); ?>
 </body>
-
+<script src="../.JS/ConfirmationBox.js"></script>
 <script>
     const statusButtons = document.querySelectorAll('.statusButton');
-    const idSelected = document.getElementById('selectedID');
-    const confirmation = document.getElementById('changeConfirmation');
-    const confirmationBG = document.getElementById('confirmationBackground');
-    const text = document.getElementById('confirmationText');
 
-    // Toggle subservice status logic
+    // Toggle service status logic
+    document.addEventListener("DOMContentLoaded", () => {
+        confirmationTitle.innerHTML = "Update Subservice Status?";
+        confirmationCancel.value = "No Cancel";
+    });
+
+    const selectedID = document.createElement("input");
+    selectedID.type = "hidden";
+    selectedID.name = "selectedID";
+    confirmationForm.appendChild(selectedID);
+    confirmationForm.action = "index.php?page=services&service=<?= $serviceID ?>&action=updateStatus";
+
     document.addEventListener('DOMContentLoaded', function() {
         statusButtons.forEach(function(elem) {
             elem.addEventListener('click', function() {
-                idSelected.value = elem.dataset.id;
-                text.innerHTML = "Are you sure to " + elem.dataset.statusInvert + " the " + elem.dataset.name + " service?";
-                confirmButton.value = "Yes " + elem.dataset.statusInvert;
+                selectedID.value = elem.dataset.id;
+                confirmationText.innerHTML = "Are you sure to " + elem.dataset.statusInvert + " the " + elem.dataset.name + " service?";
+                confirmationSubmit.value = "Yes " + elem.dataset.statusInvert;
 
                 if (elem.dataset.statusInvert == "Activate") {
-                    confirmButton.classList.add("active");
+                    confirmationSubmit.classList.add("active");
                 } else {
-                    confirmButton.classList.remove("active");
+                    confirmationSubmit.classList.remove("active");
                 }
 
                 confirmation.style.display = 'flex';
-                confirmationBG.style.display = 'unset';
             });
         });
-    });
-
-    document.getElementById('cancelButton').addEventListener('click', function() {
-        confirmation.style.display = 'none';
-        confirmationBG.style.display = 'none';
-    });
-    document.getElementById('confirmationBackground').addEventListener('click', function() {
-        confirmation.style.display = 'none';
-        confirmationBG.style.display = 'none';
     });
 </script>
 

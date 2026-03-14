@@ -17,6 +17,20 @@
     flex: 6;
 }
 
+.asideLayout>main>*:first-child {
+    margin-top: 1rem;
+}
+
+.asideLayout>main>* {
+    margin-right: 2rem;
+    margin-left: 2rem;
+}
+
+.asideLayout>main>section {
+    max-height: 85vh;
+    height: 85vh;
+}
+
 .columnLayout {
     display: flex;
     flex-direction: column;
@@ -48,6 +62,11 @@
     width: 100%;
 }
 
+.fullDimensions {
+    height: 100%;
+    width: 100%;
+}
+
 .leftAlign {
     align-items: baseline;
 }
@@ -71,6 +90,10 @@
 
 .flexStretch {
     align-items: stretch;
+}
+
+.regPadding {
+    padding: 1rem;
 }
 
 .minPadding {
@@ -106,11 +129,19 @@
 }
 
 .midWidth {
-    width: 10rem;
+    width: 10rem !important;
 }
 
 .maxWidth {
-    width: 20rem;
+    width: 20rem !important;
+}
+
+.extraWidth {
+    width: 30rem !important;
+}
+
+.tinHeight {
+    height: 3rem !important;
 }
 
 .minHeight {
@@ -141,10 +172,6 @@
     flex-grow: 0;
 }
 
-.inputBox {
-    width: 30rem;
-}
-
 .centerHoriSelf {
     margin: 0 auto;
 }
@@ -155,4 +182,19 @@
 
 .marginMicro {
     margin: 0.25rem;
+}
+
+.souEastAbsolute {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+}
+
+*:has(> .souEastAbsolute) {
+    position: relative;
+}
+
+.selfCenter {
+    align-self: center;
+    justify-self: center;
 }

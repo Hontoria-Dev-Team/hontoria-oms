@@ -2,6 +2,8 @@
     height: 60vh;
     width: 45vw;
     overflow: hidden;
+    font-size: 0.9rem;
+    z-index: 1 !important;
 }
 
 #loginBox>div>h3 {

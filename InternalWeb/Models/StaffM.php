@@ -64,12 +64,7 @@ class StaffM {
     }
 
     public function getfilteredStaff($search, $status) {
-        $params = [];
-
-        $where = "(CONCAT(firstName,' ',middleName,' ',lastName) LIKE :name1 OR " .
-            "CONCAT(firstName,' ',middleName,' ',lastName) LIKE :name2)";
-        $params['name1'] = $search . '%';
-        $params['name2'] = '%' . $search . '%';
+        $where = "(CONCAT(firstName,' ',middleName,' ',lastName) LIKE :query)";
 
         if ($status !== '') {
             switch ($status) {
@@ -89,15 +84,16 @@ class StaffM {
             FROM users
             WHERE {$where}
             ORDER BY
-                CASE
-                    WHEN isActive = 1 AND isOnline = 1 THEN 1
-                    WHEN isActive = 0 AND isOnline = 1 THEN 2
-                    ELSE 3
-                END,
-                firstName, lastName";
+            CASE
+                WHEN isActive = 1 AND isOnline = 1 THEN 1
+                WHEN isActive = 0 AND isOnline = 1 THEN 2
+                ELSE 3
+            END,
+            firstName, lastName";
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+        $stmt->bindValue(':query', $search . '%');
+        $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
