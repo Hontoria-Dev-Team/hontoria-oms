@@ -71,6 +71,12 @@ class product {
             $jerseyPhotos[] = 'img/sublimationPicture/jerseyPicture/jerseyPicture' . $i . '.jpg';
         }
 
+        // ── T-Shirt photos gallery (25 photos) ────────────────────────────
+        $tshirtPhotos = [];
+        for ($i = 1; $i <= 24; $i++) {
+            $tshirtPhotos[] = 'img/sublimationPicture/tshirtPicture/tshirtPicture' . $i . '.jpg';
+        }
+
         return [
 
             // ── SUBLIMATION ───────────────────────────────────────────────
@@ -93,8 +99,8 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/sublimationPicture/tshirtPicture/tshirtPicture1.jpg',
+                'photos'      => $tshirtPhotos,
             ]),
             new product([
                 'id'          => 'short',
