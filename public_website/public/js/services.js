@@ -156,28 +156,59 @@ document.addEventListener('DOMContentLoaded', () => {
     const qty = parseInt(qtyInput?.value) || 1;
     if (totalDisplay) totalDisplay.textContent = currentPrice > 0 ? '₱' + (qty * currentPrice).toLocaleString() : '—';
   }
-
   function openModal(name) {
-    const info = productInfo[name];
-    // Fallback: read description directly from the card if not in productInfo
-    const cardDesc = [...allCards].find(c => c.dataset.name === name)?.querySelector('.card-desc')?.textContent || '';
-    const desc  = info?.desc || cardDesc || '';
-    const icon  = info?.icon || 'fa-image';
-    const bg    = info?.bg   || 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
-    currentPrice = 0;
+    const card    = [...allCards].find(c => c.dataset.name === name);
+    const info    = productInfo[name];
 
-    if (modalTitle)   modalTitle.textContent  = name;
-    if (modalDesc)    modalDesc.textContent   = desc;
-    if (modalPrice)   modalPrice.textContent  = 'Contact us for pricing';
-    if (qtyInput)     qtyInput.value          = 1;
+    const desc    = info?.desc  || card?.querySelector('.card-desc')?.textContent || '';
+    const icon    = info?.icon  || 'fa-image';
+    const bg      = info?.bg    || 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
+    const price   = parseFloat(card?.dataset.price || 0);
+    const photos  = card?.dataset.photos ? JSON.parse(card.dataset.photos) : [];
+
+    currentPrice = price;
+
+    if (modalTitle)   modalTitle.textContent = name;
+    if (modalDesc)    modalDesc.textContent  = desc;
+    if (modalPrice)   modalPrice.textContent = price > 0 ? '₱' + price.toLocaleString() + ' each' : 'Contact us for pricing';
+    if (qtyInput)     qtyInput.value         = 1;
     updateTotal();
 
-    if (modalMainImg) modalMainImg.style.background = bg;
-    if (modalPhIcon)  modalPhIcon.className = `fas ${icon} modal-ph-icon`;
-    if (modalPhLabel) modalPhLabel.textContent = name;
+    // ── Main image: use first photo or placeholder ────────────────────
+    if (photos.length > 0) {
+      modalMainImg.innerHTML = `<img src="${photos[0]}" alt="${name}" style="width:100%;height:100%;object-fit:cover;display:block"/>`;
+    } else {
+      modalMainImg.style.background = bg;
+      modalMainImg.innerHTML = `<i class="fas ${icon} modal-ph-icon"></i><span class="modal-ph-label">${name}</span>`;
+    }
 
-    thumbs.forEach(t => { t.classList.remove('active'); t.style.background = bg; });
-    thumbs[0]?.classList.add('active');
+    // ── Thumbnails: use actual photos or placeholder boxes ────────────
+    const thumbsContainer = document.getElementById('modalThumbs');
+    if (thumbsContainer) {
+      if (photos.length > 0) {
+        thumbsContainer.innerHTML = photos.map((src, i) =>
+          `<div class="thumb ${i === 0 ? 'active' : ''}" data-idx="${i}" data-src="${src}">
+             <img src="${src}" style="width:100%;height:100%;object-fit:cover"/>
+           </div>`
+        ).join('');
+
+        // Wire thumbnail clicks to update main image
+        thumbsContainer.querySelectorAll('.thumb').forEach(thumb => {
+          thumb.addEventListener('click', () => {
+            thumbsContainer.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+            modalMainImg.innerHTML = `<img src="${thumb.dataset.src}" alt="${name}" style="width:100%;height:100%;object-fit:cover;display:block"/>`;
+          });
+        });
+      } else {
+        // No photos yet — show placeholder thumbs
+        thumbsContainer.innerHTML = Array.from({length: 8}, (_, i) =>
+          `<div class="thumb ${i === 0 ? 'active' : ''}" data-idx="${i}">
+             <i class="fas fa-image"></i>
+           </div>`
+        ).join('');
+      }
+    }
 
     modalOverlay?.classList.add('open');
     document.body.style.overflow = 'hidden';

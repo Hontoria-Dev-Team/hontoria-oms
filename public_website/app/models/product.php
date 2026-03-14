@@ -3,22 +3,15 @@
  * product.php
  * Product Model — Single Responsibility: manages product data only.
  *
- * SOLID notes for teammates:
- * ─ Single Responsibility : this class only holds product data + factory methods
- * ─ Open/Closed           : add new products by adding to the array below — no other file changes needed
- * ─ Interface Segregation : getters are split by concern (display, category, pricing)
- *
- * HOW TO ADD A NEW PRODUCT (for admin/backend teammate):
- * 1. Copy one of the existing product blocks below
- * 2. Give it a unique 'id' (lowercase, no spaces)
- * 3. Set the correct 'category' — must match one of: sublimation | tarpaulin | uniform | mug | lanyard | stitching | sticker
- * 4. Fill in name, description, price (0 = "Contact us for pricing")
- * 5. Pick an icon from https://fontawesome.com/icons
- * 6. Save — the product will automatically appear on the Services page
+ * HOW TO ADD A NEW PRODUCT:
+ * 1. Copy one block below, change the values, save.
+ * 2. Set 'price' to 0 for "Contact us for pricing"
+ * 3. Set 'photo' to the first/main image path
+ * 4. Set 'photos' to an array of all gallery image paths (used in modal thumbnails)
+ *    e.g. 'photos' => ['img/sublimationPicture/jerseyPicture/jerseyPicture1.jpg', ...]
  */
 class product {
 
-    // ── Product properties ────────────────────────────────────────────────
     private string $id;
     private string $name;
     private string $category;
@@ -26,7 +19,8 @@ class product {
     private float  $price;
     private string $icon;
     private string $bgGradient;
-    private string $photo; // Path to actual product photo (set by admin)
+    private string $photo;   // Main card image
+    private array  $photos;  // All gallery images for modal thumbnails
 
     public function __construct(array $data) {
         $this->id          = $data['id']          ?? '';
@@ -36,10 +30,9 @@ class product {
         $this->price       = $data['price']       ?? 0.0;
         $this->icon        = $data['icon']        ?? 'fa-image';
         $this->bgGradient  = $data['bgGradient']  ?? 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
-        $this->photo       = $data['photo']       ?? ''; // Empty until admin uploads a photo
+        $this->photo       = $data['photo']       ?? '';
+        $this->photos      = $data['photos']      ?? []; // Empty = no gallery yet
     }
-
-    // ── Getters ───────────────────────────────────────────────────────────
 
     public function getId(): string          { return $this->id; }
     public function getName(): string        { return $this->name; }
@@ -49,15 +42,14 @@ class product {
     public function getIcon(): string        { return $this->icon; }
     public function getBgGradient(): string  { return $this->bgGradient; }
     public function getPhoto(): string       { return $this->photo; }
+    public function getPhotos(): array       { return $this->photos; }
 
-    /** Returns formatted price or fallback text */
     public function getPriceFormatted(): string {
         return $this->price > 0
             ? '₱' . number_format($this->price, 2)
             : 'Contact us for pricing';
     }
 
-    /** Returns the CSS class for the card image background */
     public function getCategoryClass(): string {
         $map = [
             'sublimation' => 'sublim-img',
@@ -71,11 +63,14 @@ class product {
         return $map[$this->category] ?? 'sublim-img';
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  PRODUCT CATALOGUE
-    //  To add a product: copy a block, change the values, save the file.
-    // ══════════════════════════════════════════════════════════════════════
     public static function getAllProducts(): array {
+
+        // ── Jersey photos gallery (16 photos) ────────────────────────────
+        $jerseyPhotos = [];
+        for ($i = 1; $i <= 16; $i++) {
+            $jerseyPhotos[] = 'img/sublimationPicture/jerseyPicture/jerseyPicture' . $i . '.jpg';
+        }
+
         return [
 
             // ── SUBLIMATION ───────────────────────────────────────────────
@@ -84,10 +79,11 @@ class product {
                 'name'        => 'Jersey',
                 'category'    => 'sublimation',
                 'description' => 'High-quality full sublimation printing on jerseys. Perfect for sports teams, events, and uniforms. Fade-resistant and durable.',
-                'price'       => 0,
+                'price'       => 300,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => '',
+                'photo'       => 'img/sublimationPicture/jerseyPicture/jerseyPicture1.jpg',
+                'photos'      => $jerseyPhotos,
             ]),
             new product([
                 'id'          => 'tshirt',
@@ -98,6 +94,7 @@ class product {
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
             new product([
                 'id'          => 'short',
@@ -108,6 +105,7 @@ class product {
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
             new product([
                 'id'          => 'warmer',
@@ -118,6 +116,7 @@ class product {
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
             new product([
                 'id'          => 'joggingpants',
@@ -128,6 +127,7 @@ class product {
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
 
             // ── UNIFORM ───────────────────────────────────────────────────
@@ -140,6 +140,7 @@ class product {
                 'icon'        => 'fa-user-graduate',
                 'bgGradient'  => 'linear-gradient(135deg,#e8f0ff,#c8d8ff)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
             new product([
                 'id'          => 'office-uniform',
@@ -150,6 +151,7 @@ class product {
                 'icon'        => 'fa-briefcase',
                 'bgGradient'  => 'linear-gradient(135deg,#e8f0ff,#c8d8ff)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
             new product([
                 'id'          => 'professional-uniform',
@@ -160,6 +162,7 @@ class product {
                 'icon'        => 'fa-user-tie',
                 'bgGradient'  => 'linear-gradient(135deg,#e8f0ff,#c8d8ff)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
 
             // ── TARPAULIN ─────────────────────────────────────────────────
@@ -172,6 +175,7 @@ class product {
                 'icon'        => 'fa-birthday-cake',
                 'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
             new product([
                 'id'          => 'graduation',
@@ -182,6 +186,7 @@ class product {
                 'icon'        => 'fa-graduation-cap',
                 'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
             new product([
                 'id'          => 'congratulation',
@@ -192,6 +197,7 @@ class product {
                 'icon'        => 'fa-star',
                 'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
 
             // ── SUBLIMATION MUGS ──────────────────────────────────────────
@@ -204,6 +210,7 @@ class product {
                 'icon'        => 'fa-mug-hot',
                 'bgGradient'  => 'linear-gradient(135deg,#fff3e0,#ffe0b2)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
 
             // ── ID LANYARDS ───────────────────────────────────────────────
@@ -216,6 +223,7 @@ class product {
                 'icon'        => 'fa-id-card',
                 'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
             new product([
                 'id'          => 'office-id',
@@ -226,6 +234,7 @@ class product {
                 'icon'        => 'fa-id-badge',
                 'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
             new product([
                 'id'          => 'professional-id',
@@ -236,6 +245,7 @@ class product {
                 'icon'        => 'fa-id-card-alt',
                 'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
 
             // ── CUSTOM STITCHING ──────────────────────────────────────────
@@ -248,6 +258,7 @@ class product {
                 'icon'        => 'fa-cut',
                 'bgGradient'  => 'linear-gradient(135deg,#e8f5e9,#c8e6c9)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
 
             // ── STICKERS & DECALS ─────────────────────────────────────────
@@ -260,6 +271,7 @@ class product {
                 'icon'        => 'fa-motorcycle',
                 'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
             new product([
                 'id'          => 'truck-decal',
@@ -270,6 +282,7 @@ class product {
                 'icon'        => 'fa-truck',
                 'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
             new product([
                 'id'          => 'car-decal',
@@ -280,12 +293,12 @@ class product {
                 'icon'        => 'fa-car',
                 'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
                 'photo'       => '',
+                'photos'      => [],
             ]),
 
         ];
     }
 
-    // ── Helper: filter by category ────────────────────────────────────────
     public static function getByCategory(string $category): array {
         return array_values(array_filter(
             self::getAllProducts(),
@@ -293,7 +306,6 @@ class product {
         ));
     }
 
-    // ── Helper: find one product by id ────────────────────────────────────
     public static function getById(string $id): ?product {
         foreach (self::getAllProducts() as $product) {
             if ($product->getId() === $id) return $product;

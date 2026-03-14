@@ -97,7 +97,9 @@ class ServicesContentComponent extends \Component {
         <div class="product-card"
              id="<?php echo $this->escape($product->getId()); ?>"
              data-category="<?php echo $this->escape($product->getCategory()); ?>"
-             data-name="<?php echo $this->escape($product->getName()); ?>">
+             data-name="<?php echo $this->escape($product->getName()); ?>"
+             data-price="<?php echo $product->getPrice(); ?>"
+             data-photos="<?php echo $this->escape(json_encode($product->getPhotos())); ?>">
 
             <!-- Card image / photo -->
             <div class="card-img <?php echo $this->escape($product->getCategoryClass()); ?>">
