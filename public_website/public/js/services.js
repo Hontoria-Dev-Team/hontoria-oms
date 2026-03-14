@@ -1,282 +1,319 @@
 // =============================================
 //  HONTORIA — services.js
+//  Services-specific: filter, modal, scroll reveal.
+//  Mobile nav is handled by shared.js (loaded before this file).
 // =============================================
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ---- MOBILE NAV ----
-  const hamburger = document.getElementById('hamburger');
-  const mobileNav = document.getElementById('mobileNav');
-  const closeNav  = document.getElementById('closeNav');
-  const overlay   = document.getElementById('overlay');
+  // ── PRODUCT DATA (used by the modal) ─────────────────────────────────
+  // Key must exactly match the data-name on each .product-card
+  const productInfo = {
+    // Sublimation
+    'Jersey':                  { desc:'High-quality full sublimation printing on jerseys. Perfect for sports teams, events, and uniforms. Fade-resistant and durable.',    icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
+    'T-Shirt':                 { desc:'Custom sublimation printed t-shirts in any design. Great for organizations, teams, and personal use.',                               icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
+    'Short':                   { desc:'Vibrant sublimation printed shorts. Matched perfectly with our jerseys for a complete team uniform.',                                icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
+    'Warmer':                  { desc:'Sublimation warmers for players and athletes. Keeps you warm while looking professional.',                                           icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
+    'Jogging Pants':           { desc:'Full sublimation jogging pants with any design. Comfortable, durable, and eye-catching.',                                           icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
+    // Uniform
+    'School Uniform':          { desc:'Custom-made school uniforms tailored to your school\'s specifications. Durable, comfortable, and neat.',                            icon:'fa-user-graduate',  bg:'linear-gradient(135deg,#e8f0ff,#c8d8ff)' },
+    'Office Uniform':          { desc:'Professional office uniforms tailored for a sharp, consistent look across your entire team.',                                        icon:'fa-briefcase',      bg:'linear-gradient(135deg,#e8f0ff,#c8d8ff)' },
+    'Professional Uniform':    { desc:'High-quality professional uniforms for healthcare, hospitality, and other industries.',                                              icon:'fa-user-tie',       bg:'linear-gradient(135deg,#e8f0ff,#c8d8ff)' },
+    // Tarpaulin
+    'Birthday Tarpaulin':      { desc:'Beautiful custom birthday tarpaulins. Any size, any design — bold and colorful.',                                                   icon:'fa-birthday-cake',  bg:'linear-gradient(135deg,#ffe0e0,#ffb3b3)' },
+    'Graduation Tarpaulin':    { desc:'Celebrate achievements with stunning graduation tarpaulins. Custom designs that make the moment unforgettable.',                     icon:'fa-graduation-cap', bg:'linear-gradient(135deg,#ffe0e0,#ffb3b3)' },
+    'Congratulation Tarpaulin':{ desc:'Vibrant congratulation tarpaulins for any milestone — promotions, awards, anniversaries, and more.',                                icon:'fa-star',           bg:'linear-gradient(135deg,#ffe0e0,#ffb3b3)' },
+    // Mugs
+    'Sublimation Mug':         { desc:'Full-wrap sublimation printed mugs with your custom design. Perfect for gifts, souvenirs, and giveaways.',                          icon:'fa-mug-hot',        bg:'linear-gradient(135deg,#fff3e0,#ffe0b2)' },
+    // Lanyards
+    'School ID Lanyard':       { desc:'Custom printed school ID lanyards with your school logo and colors. Durable and comfortable.',                                      icon:'fa-id-card',        bg:'linear-gradient(135deg,#f3e5f5,#e1bee7)' },
+    'Office ID Lanyard':       { desc:'Professional office ID lanyards customized with your company branding.',                                                            icon:'fa-id-badge',       bg:'linear-gradient(135deg,#f3e5f5,#e1bee7)' },
+    'Professional ID Lanyard': { desc:'High-quality lanyards for professionals, events, and conferences.',                                                                 icon:'fa-id-card-alt',    bg:'linear-gradient(135deg,#f3e5f5,#e1bee7)' },
+    // Stitching
+    'Custom Stitched T-Shirt': { desc:'Tailored t-shirts with custom stitching and embroidery. Perfect for teams, events, and branded apparel.',                           icon:'fa-cut',            bg:'linear-gradient(135deg,#e8f5e9,#c8e6c9)' },
+    // Stickers
+    'Motorcycle Decals':       { desc:'High-quality waterproof motorcycle decals in any shape and design. Weather-resistant and long-lasting.',                            icon:'fa-motorcycle',     bg:'linear-gradient(135deg,#fce4ec,#f8bbd0)' },
+    'Truck Decals':            { desc:'Large-format truck decals and vinyl wraps. Bold, vibrant, and built to withstand the elements.',                                    icon:'fa-truck',          bg:'linear-gradient(135deg,#fce4ec,#f8bbd0)' },
+    'Car Decals':              { desc:'Custom car decals and stickers. Perfect for business branding, personal style, or promotional use.',                                icon:'fa-car',            bg:'linear-gradient(135deg,#fce4ec,#f8bbd0)' },
+  };
 
-  function openMenu()  { mobileNav.classList.add('open');    overlay.classList.add('show');    document.body.style.overflow='hidden'; }
-  function closeMenu() { mobileNav.classList.remove('open'); overlay.classList.remove('show'); document.body.style.overflow=''; }
+  // ── FILTER ENGINE ─────────────────────────────────────────────────────
+  // Works dynamically — no hardcoded section IDs
+  const allCards    = document.querySelectorAll('.product-card');
+  const allSections = document.querySelectorAll('.product-section');
+  const filterLabel = document.getElementById('filterLabel');
 
-  hamburger?.addEventListener('click', openMenu);
-  closeNav?.addEventListener('click', closeMenu);
-  overlay?.addEventListener('click', closeMenu);
-
-  // ================================================================
-  //  FILTER ENGINE
-  //  Levels:
-  //    'all'          → show every card + every section header
-  //    'sublimation'  → show only sublimation section + its cards
-  //    'tarpaulin'    → show only tarpaulin section + its cards
-  //    'item:<name>'  → show only the card whose data-name === name
-  // ================================================================
-  const allCards       = document.querySelectorAll('.product-card');
-  const sublimSection  = document.getElementById('sublimation');
-  const tarpSection    = document.getElementById('tarpaulin');
-  const filterLabel    = document.getElementById('filterLabel');
-
-  function applyFilter(mode, value) {
-
-    // Show both section wrappers first, then decide
-    sublimSection.style.display = '';
-    tarpSection.style.display   = '';
+  function showAll() {
+    allSections.forEach(s => s.style.display = '');
     allCards.forEach(c => c.style.display = '');
-
-    if (mode === 'all') {
-      // Everything visible
-      if (filterLabel) filterLabel.textContent = 'Click any product to view details & pricing';
-
-    } else if (mode === 'category') {
-      // Show one category section, hide the other
-      if (value === 'sublimation') {
-        tarpSection.style.display = 'none';
-        if (filterLabel) filterLabel.textContent = 'Showing: Sublimation products';
-      } else {
-        sublimSection.style.display = 'none';
-        if (filterLabel) filterLabel.textContent = 'Showing: Tarpaulin products';
-      }
-
-    } else if (mode === 'item') {
-      // Hide every card except the clicked one
-      allCards.forEach(card => {
-        if (card.dataset.name === value) {
-          card.style.display = '';
-        } else {
-          card.style.display = 'none';
-        }
-      });
-      // Hide section whose cards are all hidden
-      const sublimVisible = [...allCards].some(c => c.dataset.category === 'sublimation' && c.style.display !== 'none');
-      const tarpVisible   = [...allCards].some(c => c.dataset.category === 'tarpaulin'   && c.style.display !== 'none');
-      if (!sublimVisible) sublimSection.style.display = 'none';
-      if (!tarpVisible)   tarpSection.style.display   = 'none';
-      if (filterLabel) filterLabel.textContent = 'Showing: ' + value;
-    }
-
-    // Mark active sidebar item
-    document.querySelectorAll('.sb-item, .sb-sub-toggle, .sb-toggle').forEach(el => {
-      el.classList.remove('sb-active');
-    });
+    if (filterLabel) filterLabel.textContent = 'Click any product to view details & pricing';
   }
 
-  // ---- SIDEBAR TOGGLES + FILTER ----
+  function filterByCategory(categoryId) {
+    allSections.forEach(s => s.style.display = s.id === categoryId ? '' : 'none');
+    allCards.forEach(c => c.style.display = '');
+    if (filterLabel) filterLabel.textContent = 'Showing: ' + categoryId.charAt(0).toUpperCase() + categoryId.slice(1);
+  }
 
-  // SERVICES button → show ALL
+  function filterByItem(name) {
+    allCards.forEach(c => c.style.display = c.dataset.name === name ? '' : 'none');
+    allSections.forEach(s => {
+      const hasVisible = [...s.querySelectorAll('.product-card')].some(c => c.style.display !== 'none');
+      s.style.display = hasVisible ? '' : 'none';
+    });
+    if (filterLabel) filterLabel.textContent = 'Showing: ' + name;
+  }
+
+  function clearActive() {
+    document.querySelectorAll('.sb-item,.sb-sub-toggle,.sb-toggle').forEach(el => el.classList.remove('sb-active'));
+  }
+
+  // ── SIDEBAR: SERVICES master toggle ──────────────────────────────────
   const toggleServices = document.getElementById('toggleServices');
   const subServices    = document.getElementById('subServices');
   const chevServices   = document.getElementById('chevServices');
 
   toggleServices?.addEventListener('click', () => {
     const isOpen = subServices.classList.toggle('open');
-    chevServices.classList.toggle('open', isOpen);
-    applyFilter('all');
+    chevServices?.classList.toggle('open', isOpen);
+    showAll();
+    clearActive();
     toggleServices.classList.add('sb-active');
   });
-  // Open by default
+  // Open SERVICES group by default
   subServices?.classList.add('open');
   chevServices?.classList.add('open');
 
-  // SUBLIMATION button → show only sublimation
-  const toggleSublim = document.getElementById('toggleSublim');
-  const subSublim    = document.getElementById('subSublim');
-  const chevSublim   = document.getElementById('chevSublim');
+  // ── SIDEBAR: Each category toggle (sublimation, uniform, etc.) ────────
+  document.querySelectorAll('.sb-sub-toggle').forEach(btn => {
+    const catId = btn.dataset.filter;
+    const subEl = document.getElementById('sub_' + catId);
+    const chevEl = document.getElementById('chev_' + catId);
 
-  toggleSublim?.addEventListener('click', () => {
-    const isOpen = subSublim.classList.toggle('open');
-    chevSublim.classList.toggle('open', isOpen);
-    applyFilter('category', 'sublimation');
-    toggleSublim.classList.add('sb-active');
-  });
-  subSublim?.classList.add('open');
-  chevSublim?.classList.add('open');
+    // Open all category item lists by default
+    subEl?.classList.add('open');
+    chevEl?.classList.add('open');
 
-  // TARPAULIN button → show only tarpaulin
-  const toggleTarp = document.getElementById('toggleTarp');
-  const subTarp    = document.getElementById('subTarp');
-  const chevTarp   = document.getElementById('chevTarp');
+    btn.addEventListener('click', () => {
+      // Toggle open/close the item list for this category
+      const isOpen = subEl?.classList.toggle('open');
+      chevEl?.classList.toggle('open', isOpen);
 
-  toggleTarp?.addEventListener('click', () => {
-    const isOpen = subTarp.classList.toggle('open');
-    chevTarp.classList.toggle('open', isOpen);
-    applyFilter('category', 'tarpaulin');
-    toggleTarp.classList.add('sb-active');
-  });
-  subTarp?.classList.add('open');
-  chevTarp?.classList.add('open');
-
-  // INDIVIDUAL ITEM links → show only that one card
-  document.querySelectorAll('.sb-item').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const name = link.dataset.name;
-      if (name) {
-        applyFilter('item', name);
-        // Highlight active item in sidebar
-        document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('sb-active'));
-        link.classList.add('sb-active');
-      }
+      // Filter content to show only this category
+      clearActive();
+      filterByCategory(catId);
+      btn.classList.add('sb-active');
     });
   });
 
-  // ---- SEARCH FILTER (overrides sidebar filter) ----
+  // ── SIDEBAR: Individual product item links ────────────────────────────
+  document.querySelectorAll('.sb-item').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const name = link.dataset.name;
+      if (!name) return;
+      clearActive();
+      filterByItem(name);
+      link.classList.add('sb-active');
+    });
+  });
+
+  // ── SEARCH — works from both sidebar input and mobile input ──────────
+  // Both inputs share the same id="searchInput" — only one is visible at a time
   const searchInput = document.getElementById('searchInput');
   searchInput?.addEventListener('input', () => {
     const q = searchInput.value.toLowerCase().trim();
+    if (q === '') { showAll(); return; }
 
-    if (q === '') {
-      // Restore all on clear
-      applyFilter('all');
-      return;
-    }
-
-    // Show/hide cards by search
-    allCards.forEach(card => {
-      const name = card.dataset.name?.toLowerCase() || '';
-      const cat  = card.dataset.category?.toLowerCase() || '';
-      card.style.display = (name.includes(q) || cat.includes(q)) ? '' : 'none';
+    allCards.forEach(c => {
+      const match = (c.dataset.name || '').toLowerCase().includes(q) || (c.dataset.category || '').toLowerCase().includes(q);
+      c.style.display = match ? '' : 'none';
     });
-
-    // Show/hide sections based on visible cards
-    const sublimVisible = [...allCards].some(c => c.dataset.category === 'sublimation' && c.style.display !== 'none');
-    const tarpVisible   = [...allCards].some(c => c.dataset.category === 'tarpaulin'   && c.style.display !== 'none');
-    sublimSection.style.display = sublimVisible ? '' : 'none';
-    tarpSection.style.display   = tarpVisible   ? '' : 'none';
-
-    if (filterLabel) filterLabel.textContent = 'Search results for: "' + searchInput.value + '"';
+    allSections.forEach(s => {
+      const hasVisible = [...s.querySelectorAll('.product-card')].some(c => c.style.display !== 'none');
+      s.style.display = hasVisible ? '' : 'none';
+    });
+    if (filterLabel) filterLabel.textContent = 'Search: "' + searchInput.value + '"';
   });
 
-  // ---- MODAL ----
-  const modalOverlay  = document.getElementById('modalOverlay');
-  const modalClose    = document.getElementById('modalClose');
-  const modalTitle    = document.getElementById('modalTitle');
-  const modalDesc     = document.getElementById('modalDesc');
-  const modalPrice    = document.getElementById('modalPrice');
-  const modalMainImg  = document.getElementById('modalMainImg');
-  const modalPhIcon   = document.getElementById('modalPhIcon');
-  const modalPhLabel  = document.getElementById('modalPhLabel');
-  const qtyInput      = document.getElementById('qtyInput');
-  const qtyMinus      = document.getElementById('qtyMinus');
-  const qtyPlus       = document.getElementById('qtyPlus');
-  const totalDisplay  = document.getElementById('totalDisplay');
-  const thumbs        = document.querySelectorAll('.thumb');
-
-  let currentPrice = 0;
-
-  const productInfo = {
-    'Jersey':                  { desc:'High-quality full sublimation printing on jerseys. Perfect for sports teams, events, and uniforms. Fade-resistant and durable.',   price: 0, icon:'fa-tshirt',        bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
-    'T-Shirt':                 { desc:'Custom sublimation printed t-shirts in any design. Great for organizations, teams, and personal use.',                              price: 0, icon:'fa-tshirt',        bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
-    'Short':                   { desc:'Vibrant sublimation printed shorts. Matched perfectly with our jerseys for a complete team uniform.',                               price: 0, icon:'fa-tshirt',        bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
-    'Warmer':                  { desc:'Sublimation warmers for players and athletes. Keeps you warm while looking professional on and off the court.',                     price: 0, icon:'fa-tshirt',        bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
-    'Jogging Pants':           { desc:'Full sublimation jogging pants with any design. Comfortable, durable, and eye-catching for any team or individual.',                price: 0, icon:'fa-tshirt',        bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
-    'Birthday Tarpaulin':      { desc:'Beautiful custom birthday tarpaulins made to celebrate your special day. Any size, any design — bold and colorful.',                price: 0, icon:'fa-birthday-cake', bg:'linear-gradient(135deg,#ffe0e0,#ffb3b3)' },
-    'Graduation Tarpaulin':    { desc:'Celebrate achievements with stunning graduation tarpaulins. Custom designs that make the moment unforgettable.',                    price: 0, icon:'fa-graduation-cap',bg:'linear-gradient(135deg,#ffe0e0,#ffb3b3)' },
-    'Congratulation Tarpaulin':{ desc:'Vibrant congratulation tarpaulins for any milestone — promotions, awards, anniversaries, and more.',                                price: 0, icon:'fa-star',          bg:'linear-gradient(135deg,#ffe0e0,#ffb3b3)' },
-  };
+  // ── MODAL ─────────────────────────────────────────────────────────────
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalClose   = document.getElementById('modalClose');
+  const modalTitle   = document.getElementById('modalTitle');
+  const modalDesc    = document.getElementById('modalDesc');
+  const modalPrice   = document.getElementById('modalPrice');
+  const modalMainImg = document.getElementById('modalMainImg');
+  const modalPhIcon  = document.getElementById('modalPhIcon');
+  const modalPhLabel = document.getElementById('modalPhLabel');
+  const qtyInput     = document.getElementById('qtyInput');
+  const qtyMinus     = document.getElementById('qtyMinus');
+  const qtyPlus      = document.getElementById('qtyPlus');
+  const totalDisplay = document.getElementById('totalDisplay');
+  const thumbs       = document.querySelectorAll('.thumb');
+  let currentPrice   = 0;
 
   function updateTotal() {
-    const qty = parseInt(qtyInput.value) || 1;
-    totalDisplay.textContent = currentPrice > 0
-      ? '₱' + (qty * currentPrice).toLocaleString()
-      : '—';
+    const qty = parseInt(qtyInput?.value) || 1;
+    if (totalDisplay) totalDisplay.textContent = currentPrice > 0 ? '₱' + (qty * currentPrice).toLocaleString() : '—';
   }
-
   function openModal(name) {
-    const info = productInfo[name];
-    if (!info) return;
+    const card    = [...allCards].find(c => c.dataset.name === name);
+    const info    = productInfo[name];
 
-    modalTitle.textContent = name;
-    modalDesc.textContent  = info.desc;
-    modalPrice.textContent = info.price > 0 ? '₱' + info.price.toLocaleString() : 'Contact us for pricing';
-    currentPrice = info.price;
+    const desc    = info?.desc  || card?.querySelector('.card-desc')?.textContent || '';
+    const icon    = info?.icon  || 'fa-image';
+    const bg      = info?.bg    || 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
+    const price   = parseFloat(card?.dataset.price || 0);
+    const photos  = card?.dataset.photos ? JSON.parse(card.dataset.photos) : [];
 
-    qtyInput.value = 1;
+    currentPrice = price;
+    let currentPhotoIdx = 0;
+
+    if (modalTitle)   modalTitle.textContent = name;
+    if (modalDesc)    modalDesc.textContent  = desc;
+    if (modalPrice)   modalPrice.textContent = price > 0 ? '₱' + price.toLocaleString() + ' each' : 'Contact us for pricing';
+    if (qtyInput)     qtyInput.value         = 1;
     updateTotal();
 
-    modalMainImg.style.background = info.bg;
-    modalPhIcon.className  = `fas ${info.icon} modal-ph-icon`;
-    modalPhLabel.textContent = name;
+    // ── Render main image with prev/next arrows ───────────────────────
+    function renderMainImage(idx) {
+      currentPhotoIdx = idx;
+      if (photos.length > 0) {
+        modalMainImg.innerHTML = `
+          <img src="${photos[idx]}" alt="${name}"
+               style="width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in"
+               id="mainModalImg" title="Click to expand"/>
+        `;
+        document.getElementById('mainModalImg')?.addEventListener('click', () => {
+          openLightbox(photos, currentPhotoIdx, name);
+        });
+      } else {
+        modalMainImg.style.background = bg;
+        modalMainImg.innerHTML = `<i class="fas ${icon} modal-ph-icon"></i><span class="modal-ph-label">${name}</span>`;
+      }
+    }
 
-    thumbs.forEach(t => {
-      t.classList.remove('active');
-      t.style.background = info.bg;
-    });
-    thumbs[0]?.classList.add('active');
+    // ── Thumbnails ────────────────────────────────────────────────────
+    function updateThumbActive(idx) {
+      document.querySelectorAll('#modalThumbs .thumb').forEach((t, i) => {
+        t.classList.toggle('active', i === idx);
+      });
+    }
 
-    modalOverlay.classList.add('open');
+    const thumbsContainer = document.getElementById('modalThumbs');
+    if (thumbsContainer) {
+      if (photos.length > 0) {
+        thumbsContainer.innerHTML = photos.map((src, i) =>
+          `<div class="thumb ${i === 0 ? 'active' : ''}" data-idx="${i}" data-src="${src}">
+             <img src="${src}" style="width:100%;height:100%;object-fit:cover"/>
+           </div>`
+        ).join('');
+        thumbsContainer.querySelectorAll('.thumb').forEach((thumb, i) => {
+          thumb.addEventListener('click', () => {
+            renderMainImage(i);
+            updateThumbActive(i);
+          });
+        });
+      } else {
+        thumbsContainer.innerHTML = Array.from({length: 8}, (_, i) =>
+          `<div class="thumb ${i === 0 ? 'active' : ''}" data-idx="${i}">
+             <i class="fas fa-image"></i>
+           </div>`
+        ).join('');
+      }
+    }
+
+    renderMainImage(0);
+    modalOverlay?.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
 
+  // ── Lightbox (fullscreen expand) ──────────────────────────────────────
+  function openLightbox(photos, startIdx, name) {
+    let idx = startIdx;
+
+    const lb = document.createElement('div');
+    lb.id = 'lightbox';
+    lb.style.cssText = `
+      position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;
+      display:flex;align-items:center;justify-content:center;flex-direction:column;
+    `;
+
+    function renderLb() {
+      lb.innerHTML = `
+        <button id="lbClose" style="position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;z-index:10"><i class="fas fa-times"></i></button>
+        <button id="lbPrev" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:22px;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="fas fa-chevron-left"></i></button>
+        <img src="${photos[idx]}" alt="${name}" style="max-width:92vw;max-height:88vh;object-fit:contain;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.5)"/>
+        <button id="lbNext" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:22px;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="fas fa-chevron-right"></i></button>
+        <span style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:12px">${idx + 1} / ${photos.length}</span>
+      `;
+      lb.querySelector('#lbClose').addEventListener('click', () => { lb.remove(); });
+      lb.querySelector('#lbPrev').addEventListener('click',  () => { idx = (idx - 1 + photos.length) % photos.length; renderLb(); });
+      lb.querySelector('#lbNext').addEventListener('click',  () => { idx = (idx + 1) % photos.length; renderLb(); });
+    }
+
+    lb.addEventListener('click', e => { if (e.target === lb) lb.remove(); });
+    document.addEventListener('keydown', function lbKey(e) {
+      if (e.key === 'Escape')    { lb.remove(); document.removeEventListener('keydown', lbKey); }
+      if (e.key === 'ArrowLeft') { idx = (idx - 1 + photos.length) % photos.length; renderLb(); }
+      if (e.key === 'ArrowRight'){ idx = (idx + 1) % photos.length; renderLb(); }
+    });
+
+    renderLb();
+    document.body.appendChild(lb);
+  }
+
   function closeModal() {
-    modalOverlay.classList.remove('open');
+    modalOverlay?.classList.remove('open');
     document.body.style.overflow = '';
   }
 
   // Qty controls
-  qtyMinus?.addEventListener('click', () => {
-    const v = parseInt(qtyInput.value) || 1;
-    if (v > 1) { qtyInput.value = v - 1; updateTotal(); }
-  });
-  qtyPlus?.addEventListener('click', () => {
-    qtyInput.value = (parseInt(qtyInput.value) || 1) + 1;
-    updateTotal();
-  });
+  qtyMinus?.addEventListener('click', () => { const v = parseInt(qtyInput.value)||1; if(v>1){qtyInput.value=v-1; updateTotal();} });
+  qtyPlus?.addEventListener('click',  () => { qtyInput.value=(parseInt(qtyInput.value)||1)+1; updateTotal(); });
   qtyInput?.addEventListener('input', updateTotal);
 
-  // Thumbnail click
-  thumbs.forEach(thumb => {
-    thumb.addEventListener('click', () => {
-      thumbs.forEach(t => t.classList.remove('active'));
-      thumb.classList.add('active');
+  // Thumbnails
+  thumbs.forEach(t => t.addEventListener('click', () => { thumbs.forEach(x => x.classList.remove('active')); t.classList.add('active'); }));
+
+  // Click card or View Details button to open modal
+  document.querySelectorAll('.product-card').forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.closest('.order-btn')) return; // Order Now goes to Facebook, not modal
+      const name = card.dataset.name;
+      if (name) openModal(name);
     });
   });
 
-  // Open modal on view-btn click
+  // Also wire view-btn directly as backup
   document.querySelectorAll('.view-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', e => {
       e.stopPropagation();
-      const card = btn.closest('.product-card');
-      openModal(card.dataset.name);
+      const name = btn.closest('.product-card')?.dataset.name;
+      if (name) openModal(name);
     });
   });
 
+  // Close modal
   modalClose?.addEventListener('click', closeModal);
-  modalOverlay?.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  modalOverlay?.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-  // ---- SCROLL REVEAL ----
-  const cards = document.querySelectorAll('.product-card');
-  const revealObserver = new IntersectionObserver((entries) => {
+  // ── SCROLL REVEAL ─────────────────────────────────────────────────────
+  const observer = new IntersectionObserver(entries => {
     entries.forEach((entry, i) => {
       if (entry.isIntersecting) {
-        setTimeout(() => {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'translateY(0)';
-        }, i * 60);
-        revealObserver.unobserve(entry.target);
+        setTimeout(() => { entry.target.style.opacity='1'; entry.target.style.transform='translateY(0)'; }, i * 60);
+        observer.unobserve(entry.target);
       }
     });
   }, { threshold: 0.1 });
 
-  cards.forEach(card => {
-    card.style.opacity = '0';
+  allCards.forEach(card => {
+    card.style.opacity   = '0';
     card.style.transform = 'translateY(24px)';
-    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-    revealObserver.observe(card);
+    card.style.transition= 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(card);
   });
 
 });

@@ -1,163 +1,320 @@
 <?php
 /**
- * Product Model
- * Single Responsibility: Manages product data
+ * product.php
+ * Product Model — Single Responsibility: manages product data only.
+ *
+ * HOW TO ADD A NEW PRODUCT:
+ * 1. Copy one block below, change the values, save.
+ * 2. Set 'price' to 0 for "Contact us for pricing"
+ * 3. Set 'photo' to the first/main image path
+ * 4. Set 'photos' to an array of all gallery image paths (used in modal thumbnails)
+ *    e.g. 'photos' => ['img/sublimationPicture/jerseyPicture/jerseyPicture1.jpg', ...]
  */
-class Product {
+class product {
+
     private string $id;
     private string $name;
     private string $category;
     private string $description;
-    private float $price;
+    private float  $price;
     private string $icon;
     private string $bgGradient;
+    private string $photo;   // Main card image
+    private array  $photos;  // All gallery images for modal thumbnails
 
     public function __construct(array $data) {
-        $this->id = $data['id'] ?? '';
-        $this->name = $data['name'] ?? '';
-        $this->category = $data['category'] ?? '';
+        $this->id          = $data['id']          ?? '';
+        $this->name        = $data['name']        ?? '';
+        $this->category    = $data['category']    ?? '';
         $this->description = $data['description'] ?? '';
-        $this->price = $data['price'] ?? 0.0;
-        $this->icon = $data['icon'] ?? 'fa-image';
-        $this->bgGradient = $data['bgGradient'] ?? 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
+        $this->price       = $data['price']       ?? 0.0;
+        $this->icon        = $data['icon']        ?? 'fa-image';
+        $this->bgGradient  = $data['bgGradient']  ?? 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
+        $this->photo       = $data['photo']       ?? '';
+        $this->photos      = $data['photos']      ?? []; // Empty = no gallery yet
     }
 
-    public function getId(): string {
-        return $this->id;
-    }
-
-    public function getName(): string {
-        return $this->name;
-    }
-
-    public function getCategory(): string {
-        return $this->category;
-    }
-
-    public function getDescription(): string {
-        return $this->description;
-    }
-
-    public function getPrice(): float {
-        return $this->price;
-    }
+    public function getId(): string          { return $this->id; }
+    public function getName(): string        { return $this->name; }
+    public function getCategory(): string    { return $this->category; }
+    public function getDescription(): string { return $this->description; }
+    public function getPrice(): float        { return $this->price; }
+    public function getIcon(): string        { return $this->icon; }
+    public function getBgGradient(): string  { return $this->bgGradient; }
+    public function getPhoto(): string       { return $this->photo; }
+    public function getPhotos(): array       { return $this->photos; }
 
     public function getPriceFormatted(): string {
-        return $this->price > 0 ? '₱' . number_format($this->price, 2) : 'Contact us for pricing';
-    }
-
-    public function getIcon(): string {
-        return $this->icon;
-    }
-
-    public function getBgGradient(): string {
-        return $this->bgGradient;
+        return $this->price > 0
+            ? '₱' . number_format($this->price, 2)
+            : 'Contact us for pricing';
     }
 
     public function getCategoryClass(): string {
-        return $this->category === 'sublimation' ? 'sublim-img' : 'tarp-img';
+        $map = [
+            'sublimation' => 'sublim-img',
+            'tarpaulin'   => 'tarp-img',
+            'uniform'     => 'uniform-img',
+            'mug'         => 'mug-img',
+            'lanyard'     => 'lanyard-img',
+            'stitching'   => 'stitching-img',
+            'sticker'     => 'sticker-img',
+        ];
+        return $map[$this->category] ?? 'sublim-img';
     }
 
-    /**
-     * Get all products (Static Factory Method)
-     */
     public static function getAllProducts(): array {
+
+        // ── Jersey photos gallery (16 photos) ────────────────────────────
+        $jerseyPhotos = [];
+        for ($i = 1; $i <= 16; $i++) {
+            $jerseyPhotos[] = 'img/sublimationPicture/jerseyPicture/jerseyPicture' . $i . '.jpg';
+        }
+
+        // ── T-Shirt photos gallery (25 photos) ────────────────────────────
+        $tshirtPhotos = [];
+        for ($i = 1; $i <= 24; $i++) {
+            $tshirtPhotos[] = 'img/sublimationPicture/tshirtPicture/tshirtPicture' . $i . '.jpg';
+        }
+
         return [
-            // Sublimation Products
-            new Product([
-                'id' => 'jersey',
-                'name' => 'Jersey',
-                'category' => 'sublimation',
+
+            // ── SUBLIMATION ───────────────────────────────────────────────
+            new product([
+                'id'          => 'jersey',
+                'name'        => 'Jersey',
+                'category'    => 'sublimation',
                 'description' => 'High-quality full sublimation printing on jerseys. Perfect for sports teams, events, and uniforms. Fade-resistant and durable.',
-                'price' => 0,
-                'icon' => 'fa-tshirt',
-                'bgGradient' => 'linear-gradient(135deg,#fff5cc,#ffe57a)'
+                'price'       => 300,
+                'icon'        => 'fa-tshirt',
+                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
+                'photo'       => 'img/sublimationPicture/jerseyPicture/jerseyPicture1.jpg',
+                'photos'      => $jerseyPhotos,
             ]),
-            new Product([
-                'id' => 'tshirt',
-                'name' => 'T-Shirt',
-                'category' => 'sublimation',
+            new product([
+                'id'          => 'tshirt',
+                'name'        => 'T-Shirt',
+                'category'    => 'sublimation',
                 'description' => 'Custom sublimation printed t-shirts in any design. Great for organizations, teams, and personal use.',
-                'price' => 0,
-                'icon' => 'fa-tshirt',
-                'bgGradient' => 'linear-gradient(135deg,#fff5cc,#ffe57a)'
+                'price'       => 0,
+                'icon'        => 'fa-tshirt',
+                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
+                'photo'       => 'img/sublimationPicture/tshirtPicture/tshirtPicture1.jpg',
+                'photos'      => $tshirtPhotos,
             ]),
-            new Product([
-                'id' => 'short',
-                'name' => 'Short',
-                'category' => 'sublimation',
+            new product([
+                'id'          => 'short',
+                'name'        => 'Short',
+                'category'    => 'sublimation',
                 'description' => 'Vibrant sublimation printed shorts. Matched perfectly with our jerseys for a complete team uniform.',
-                'price' => 0,
-                'icon' => 'fa-tshirt',
-                'bgGradient' => 'linear-gradient(135deg,#fff5cc,#ffe57a)'
+                'price'       => 0,
+                'icon'        => 'fa-tshirt',
+                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
+                'photo'       => '',
+                'photos'      => [],
             ]),
-            new Product([
-                'id' => 'warmer',
-                'name' => 'Warmer',
-                'category' => 'sublimation',
-                'description' => 'Sublimation warmers for players and athletes. Keeps you warm while looking professional on and off the court.',
-                'price' => 0,
-                'icon' => 'fa-tshirt',
-                'bgGradient' => 'linear-gradient(135deg,#fff5cc,#ffe57a)'
+            new product([
+                'id'          => 'warmer',
+                'name'        => 'Warmer',
+                'category'    => 'sublimation',
+                'description' => 'Sublimation warmers for players and athletes. Keeps you warm while looking professional.',
+                'price'       => 0,
+                'icon'        => 'fa-tshirt',
+                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
+                'photo'       => '',
+                'photos'      => [],
             ]),
-            new Product([
-                'id' => 'joggingpants',
-                'name' => 'Jogging Pants',
-                'category' => 'sublimation',
-                'description' => 'Full sublimation jogging pants with any design. Comfortable, durable, and eye-catching for any team or individual.',
-                'price' => 0,
-                'icon' => 'fa-tshirt',
-                'bgGradient' => 'linear-gradient(135deg,#fff5cc,#ffe57a)'
+            new product([
+                'id'          => 'joggingpants',
+                'name'        => 'Jogging Pants',
+                'category'    => 'sublimation',
+                'description' => 'Full sublimation jogging pants with any design. Comfortable, durable, and eye-catching.',
+                'price'       => 0,
+                'icon'        => 'fa-tshirt',
+                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
+                'photo'       => '',
+                'photos'      => [],
             ]),
-            
-            // Tarpaulin Products
-            new Product([
-                'id' => 'birthday',
-                'name' => 'Birthday Tarpaulin',
-                'category' => 'tarpaulin',
-                'description' => 'Beautiful custom birthday tarpaulins made to celebrate your special day. Any size, any design — bold and colorful.',
-                'price' => 0,
-                'icon' => 'fa-birthday-cake',
-                'bgGradient' => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)'
+
+            // ── UNIFORM ───────────────────────────────────────────────────
+            new product([
+                'id'          => 'school-uniform',
+                'name'        => 'School Uniform',
+                'category'    => 'uniform',
+                'description' => 'Custom-made school uniforms tailored to your school\'s specifications. Durable, comfortable, and neat.',
+                'price'       => 0,
+                'icon'        => 'fa-user-graduate',
+                'bgGradient'  => 'linear-gradient(135deg,#e8f0ff,#c8d8ff)',
+                'photo'       => '',
+                'photos'      => [],
             ]),
-            new Product([
-                'id' => 'graduation',
-                'name' => 'Graduation Tarpaulin',
-                'category' => 'tarpaulin',
+            new product([
+                'id'          => 'office-uniform',
+                'name'        => 'Office Uniform',
+                'category'    => 'uniform',
+                'description' => 'Professional office uniforms tailored for a sharp, consistent look across your entire team.',
+                'price'       => 0,
+                'icon'        => 'fa-briefcase',
+                'bgGradient'  => 'linear-gradient(135deg,#e8f0ff,#c8d8ff)',
+                'photo'       => '',
+                'photos'      => [],
+            ]),
+            new product([
+                'id'          => 'professional-uniform',
+                'name'        => 'Professional Uniform',
+                'category'    => 'uniform',
+                'description' => 'High-quality professional uniforms for healthcare, hospitality, and other industries.',
+                'price'       => 0,
+                'icon'        => 'fa-user-tie',
+                'bgGradient'  => 'linear-gradient(135deg,#e8f0ff,#c8d8ff)',
+                'photo'       => '',
+                'photos'      => [],
+            ]),
+
+            // ── TARPAULIN ─────────────────────────────────────────────────
+            new product([
+                'id'          => 'birthday',
+                'name'        => 'Birthday Tarpaulin',
+                'category'    => 'tarpaulin',
+                'description' => 'Beautiful custom birthday tarpaulins. Any size, any design — bold and colorful.',
+                'price'       => 0,
+                'icon'        => 'fa-birthday-cake',
+                'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
+                'photo'       => '',
+                'photos'      => [],
+            ]),
+            new product([
+                'id'          => 'graduation',
+                'name'        => 'Graduation Tarpaulin',
+                'category'    => 'tarpaulin',
                 'description' => 'Celebrate achievements with stunning graduation tarpaulins. Custom designs that make the moment unforgettable.',
-                'price' => 0,
-                'icon' => 'fa-graduation-cap',
-                'bgGradient' => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)'
+                'price'       => 0,
+                'icon'        => 'fa-graduation-cap',
+                'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
+                'photo'       => '',
+                'photos'      => [],
             ]),
-            new Product([
-                'id' => 'congratulation',
-                'name' => 'Congratulation Tarpaulin',
-                'category' => 'tarpaulin',
+            new product([
+                'id'          => 'congratulation',
+                'name'        => 'Congratulation Tarpaulin',
+                'category'    => 'tarpaulin',
                 'description' => 'Vibrant congratulation tarpaulins for any milestone — promotions, awards, anniversaries, and more.',
-                'price' => 0,
-                'icon' => 'fa-star',
-                'bgGradient' => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)'
-            ])
+                'price'       => 0,
+                'icon'        => 'fa-star',
+                'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
+                'photo'       => '',
+                'photos'      => [],
+            ]),
+
+            // ── SUBLIMATION MUGS ──────────────────────────────────────────
+            new product([
+                'id'          => 'mug',
+                'name'        => 'Sublimation Mug',
+                'category'    => 'mug',
+                'description' => 'Full-wrap sublimation printed mugs with your custom design. Perfect for gifts, souvenirs, and corporate giveaways.',
+                'price'       => 0,
+                'icon'        => 'fa-mug-hot',
+                'bgGradient'  => 'linear-gradient(135deg,#fff3e0,#ffe0b2)',
+                'photo'       => '',
+                'photos'      => [],
+            ]),
+
+            // ── ID LANYARDS ───────────────────────────────────────────────
+            new product([
+                'id'          => 'school-id',
+                'name'        => 'School ID Lanyard',
+                'category'    => 'lanyard',
+                'description' => 'Custom printed school ID lanyards with your school logo and colors. Durable and comfortable.',
+                'price'       => 0,
+                'icon'        => 'fa-id-card',
+                'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
+                'photo'       => '',
+                'photos'      => [],
+            ]),
+            new product([
+                'id'          => 'office-id',
+                'name'        => 'Office ID Lanyard',
+                'category'    => 'lanyard',
+                'description' => 'Professional office ID lanyards customized with your company branding.',
+                'price'       => 0,
+                'icon'        => 'fa-id-badge',
+                'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
+                'photo'       => '',
+                'photos'      => [],
+            ]),
+            new product([
+                'id'          => 'professional-id',
+                'name'        => 'Professional ID Lanyard',
+                'category'    => 'lanyard',
+                'description' => 'High-quality lanyards for professionals, events, and conferences. Custom design and colors.',
+                'price'       => 0,
+                'icon'        => 'fa-id-card-alt',
+                'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
+                'photo'       => '',
+                'photos'      => [],
+            ]),
+
+            // ── CUSTOM STITCHING ──────────────────────────────────────────
+            new product([
+                'id'          => 'stitching-tshirt',
+                'name'        => 'Custom Stitched T-Shirt',
+                'category'    => 'stitching',
+                'description' => 'Tailored t-shirts with custom stitching and embroidery. Perfect for teams, events, and branded apparel.',
+                'price'       => 0,
+                'icon'        => 'fa-cut',
+                'bgGradient'  => 'linear-gradient(135deg,#e8f5e9,#c8e6c9)',
+                'photo'       => '',
+                'photos'      => [],
+            ]),
+
+            // ── STICKERS & DECALS ─────────────────────────────────────────
+            new product([
+                'id'          => 'motorcycle-decal',
+                'name'        => 'Motorcycle Decals',
+                'category'    => 'sticker',
+                'description' => 'High-quality waterproof motorcycle decals in any shape and design. Weather-resistant and long-lasting.',
+                'price'       => 0,
+                'icon'        => 'fa-motorcycle',
+                'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
+                'photo'       => '',
+                'photos'      => [],
+            ]),
+            new product([
+                'id'          => 'truck-decal',
+                'name'        => 'Truck Decals',
+                'category'    => 'sticker',
+                'description' => 'Large-format truck decals and vinyl wraps. Bold, vibrant, and built to withstand the elements.',
+                'price'       => 0,
+                'icon'        => 'fa-truck',
+                'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
+                'photo'       => '',
+                'photos'      => [],
+            ]),
+            new product([
+                'id'          => 'car-decal',
+                'name'        => 'Car Decals',
+                'category'    => 'sticker',
+                'description' => 'Custom car decals and stickers. Perfect for business branding, personal style, or promotional use.',
+                'price'       => 0,
+                'icon'        => 'fa-car',
+                'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
+                'photo'       => '',
+                'photos'      => [],
+            ]),
+
         ];
     }
 
-    /**
-     * Get products by category
-     */
     public static function getByCategory(string $category): array {
-        return array_filter(self::getAllProducts(), function($product) use ($category) {
-            return $product->getCategory() === $category;
-        });
+        return array_values(array_filter(
+            self::getAllProducts(),
+            fn($p) => $p->getCategory() === $category
+        ));
     }
 
-    /**
-     * Get product by ID
-     */
-    public static function getById(string $id): ?Product {
+    public static function getById(string $id): ?product {
         foreach (self::getAllProducts() as $product) {
-            if ($product->getId() === $id) {
-                return $product;
-            }
+            if ($product->getId() === $id) return $product;
         }
         return null;
     }

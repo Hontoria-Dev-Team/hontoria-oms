@@ -1,15 +1,15 @@
 <?php
-require_once __DIR__ . '/../home_components/Component.php';
+require_once __DIR__ . '/../reusable_components/Component.php';
 
 /**
  * Services Modal Component
  * Renders product detail modal
  */
 class ServicesModalComponent extends \Component {
-    
+
     public function render(): string {
         $fbLink = $this->get('fbLink', 'https://www.facebook.com/jhong.hontoria.3');
-        
+
         ob_start();
         ?>
         <div class="modal-overlay" id="modalOverlay">
@@ -60,9 +60,17 @@ class ServicesModalComponent extends \Component {
                         <div class="total-display" id="totalDisplay">—</div>
                     </div>
 
+                    <!-- Note for customer -->
+                    <div class="modal-note">
+                        <strong>Note:</strong>
+                        <p>Screenshot your preferred design and send it directly to our
+                        <a href="<?php echo $this->escape($fbLink); ?>" target="_blank">Facebook Messenger</a>.
+                        We'll get back to you with the details!</p>
+                    </div>
+
                     <div class="modal-actions">
                         <a href="<?php echo $this->escape($fbLink); ?>" target="_blank" class="modal-order">
-                            <i class="fab fa-facebook-f"></i> Order via Facebook
+                            <i class="fab fa-facebook-messenger"></i> Order via Facebook
                         </a>
                     </div>
                 </div>

@@ -1,35 +1,28 @@
 <?php
 /**
  * AboutUsController.php
- * Renders the About Us page and handles employee AJAX requests.
+ * CSS: shared.css → aboutus.css
+ * JS:  shared.js  → aboutus.js
  */
 class AboutUsController {
 
     public function index() {
 
-        // ── Handle AJAX employee add/remove requests ──────────────────────
+        // ── Handle AJAX employee requests ─────────────────────────────────
         if (isset($_POST['action'])) {
             require_once __DIR__ . '/../components/aboutus_components/EmployeeManager.php';
             (new \EmployeeManager())->handleRequest();
-            return; // Stop here — no HTML needed for AJAX
+            return;
         }
 
-        // ── Load config ───────────────────────────────────────────────────
-        $config = \Config::getInstance();
-
+        $config  = \Config::getInstance();
         $logo    = $config->get('site.logoPath');
         $fb      = $config->get('site.fbLink');
         $address = $config->get('site.address');
-        $baseUrl = $config->get('paths.base_url');
 
-        // ── Render components ─────────────────────────────────────────────
         $header  = (new \HeaderComponent(['logoPath' => $logo, 'fbLink' => $fb, 'navItems' => $this->getNavigation()]))->render();
-        $content = (new \AboutUsComponent([]))->render();
+        $content = (new \AboutUsComponent(['fbLink' => $fb, 'address' => $address]))->render();
         $footer  = (new \FooterComponent(['logoPath' => $logo, 'fbLink' => $fb, 'address' => $address, 'navLinks' => $this->getNavigation()]))->render();
-
-        $css = $baseUrl . '/css/aboutus.css';
-        $js  = $baseUrl . '/js/aboutus.js';
-
         ?>
         <!DOCTYPE html>
         <html lang="en">
@@ -37,41 +30,24 @@ class AboutUsController {
             <meta charset="UTF-8"/>
             <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
             <title>About Us — <?php echo htmlspecialchars($config->get('site.name')); ?></title>
-
-            <!-- Favicon -->
             <link rel="icon" type="image/png" href="<?php echo htmlspecialchars($logo); ?>"/>
-
-            <!-- Google Fonts -->
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-
-            <!-- Font Awesome Icons -->
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-
-            <!-- Page Stylesheet -->
-            <link rel="stylesheet" href="<?php echo htmlspecialchars($css); ?>"/>
+            <link rel="stylesheet" href="css/shared.css"/>
+            <link rel="stylesheet" href="css/aboutus.css"/>
         </head>
         <body>
-
-            <!-- Header & Navigation -->
             <?php echo $header; ?>
-
             <main>
-                <!-- All About Us sections -->
                 <?php echo $content; ?>
             </main>
-
-            <!-- Footer -->
             <?php echo $footer; ?>
-
-            <!-- Page Scripts -->
-            <script src="<?php echo htmlspecialchars($js); ?>"></script>
-
+            <script src="js/shared.js"></script>
+            <script src="js/aboutus.js"></script>
         </body>
         </html>
         <?php
     }
 
-    // ── Navigation items (ABOUT US marked as active) ──────────────────────
     private function getNavigation(): array {
         return [
             ['label' => 'HOME',     'url' => '?page=home',     'active' => false],

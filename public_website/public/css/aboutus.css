@@ -1,7 +1,8 @@
 /* =============================================
    HONTORIA — aboutus.css
+   Page-specific styles only.
+   Header & footer styles are in shared.css
    ============================================= */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
   --y:      #FFD000;
@@ -23,40 +24,36 @@
   --bh: 36px;
 }
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Inter',sans-serif;background:var(--light);color:var(--black);overflow-x:hidden}
-a{text-decoration:none;color:inherit}
-ul{list-style:none}
-img{display:block;max-width:100%}
+/* ========== ABOUT PAGE LAYOUT (sidebar + content) ========== */
+.about-body{display:flex;min-height:100vh}
+.about-content{flex:1;min-width:0}
 
-/* ========== HEADER ========== */
-.header{position:sticky;top:0;z-index:900;background:var(--y);border-bottom:3px solid var(--dk);box-shadow:0 2px 12px rgba(0,0,0,0.15)}
-.header-inner{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:var(--hh);gap:20px}
-.logo{display:flex;align-items:center;gap:12px;flex-shrink:0}
-.logo-icon{display:none}
-.logo-img{width:52px;height:52px;object-fit:contain;border-radius:50%;display:block;flex-shrink:0}
-.logo-text{display:flex;flex-direction:column;line-height:1.1}
-.logo-name{font-weight:900;font-size:20px;letter-spacing:-0.3px;color:var(--dk)}
-.logo-sub{font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--red);text-transform:uppercase}
-.nav-desktop{display:flex;align-items:center;gap:4px}
-.nav-link{font-size:13px;font-weight:700;letter-spacing:1px;color:var(--dk);padding:6px 10px;border-radius:var(--radius);transition:color var(--tr),background var(--tr)}
-.nav-link:hover,.nav-link.active{color:var(--red);background:rgba(204,26,0,0.10)}
-.nav-sep{color:rgba(26,8,0,0.25);user-select:none}
-.header-right{display:flex;align-items:center;gap:12px}
-.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
-.hamburger span{width:24px;height:2.5px;background:var(--dk);border-radius:2px}
-.order-bar{background:var(--dk);height:var(--bh);display:flex;align-items:center;justify-content:flex-end;padding:0 32px;border-top:1px solid rgba(255,208,0,0.15)}
-.order-bar-text{font-size:12px;font-weight:600;letter-spacing:1px;color:rgba(255,208,0,0.85);display:flex;align-items:center;gap:8px}
-.fb-link{color:#74b9ff;font-weight:700;display:inline-flex;align-items:center;gap:5px;transition:color var(--tr)}
-.fb-link:hover{color:var(--white)}
-.mobile-nav{position:fixed;top:0;right:-280px;width:260px;height:100vh;background:var(--y);z-index:2000;border-left:3px solid var(--dk);display:flex;flex-direction:column;padding:80px 28px 28px;gap:8px;transition:right 0.35s ease}
-.mobile-nav.open{right:0}
-.close-nav{position:absolute;top:20px;right:20px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--dk)}
-.mob-link{font-size:16px;font-weight:700;padding:12px 0;border-bottom:1px solid rgba(26,8,0,0.15);color:var(--dk);transition:color var(--tr)}
-.mob-link:hover{color:var(--red)}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1500;opacity:0;pointer-events:none;transition:opacity 0.3s}
-.overlay.show{opacity:1;pointer-events:all}
+/* ========== ABOUT SIDEBAR ========== */
+.about-sidebar{
+  width:220px;min-width:220px;flex-shrink:0;
+  background:var(--white);border-right:2px solid var(--border);
+  padding:32px 0;
+  position:sticky;top:calc(var(--hh) + var(--bh));
+  height:calc(100vh - var(--hh) - var(--bh));
+  overflow-y:auto;
+}
+.about-sidebar-brand{padding:0 20px 20px;border-bottom:2px solid var(--border);margin-bottom:16px}
+.about-sidebar-title{font-size:11px;font-weight:900;letter-spacing:3px;color:var(--gray);text-transform:uppercase}
+.about-sidebar-pages{display:flex;flex-direction:column;gap:2px;padding:0 8px;margin-bottom:8px}
+.about-sidebar-page-link{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:0.5px;color:var(--dk);padding:9px 12px;border-radius:var(--radius);transition:background var(--tr),color var(--tr);text-decoration:none}
+.about-sidebar-page-link:hover{background:rgba(26,8,0,0.06);color:var(--red)}
+.about-sidebar-divider{height:1px;background:var(--border);margin:8px 16px 12px}
+.about-sidebar-nav{display:flex;flex-direction:column;gap:2px;padding:0 8px}
+.about-sidebar-link{
+  display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:600;color:var(--gray);
+  padding:10px 12px;border-radius:var(--radius);
+  transition:background var(--tr),color var(--tr);
+  text-decoration:none;
+}
+.about-sidebar-link:hover{background:rgba(26,8,0,0.06);color:var(--dk)}
+.about-sidebar-link.active{background:rgba(204,26,0,0.08);color:var(--red);font-weight:800}
+.about-sidebar-icon{font-size:13px;width:16px;text-align:center;color:inherit}
 
 /* ========== PAGE HERO ========== */
 .page-hero{background:var(--black);padding:64px 32px;text-align:center;position:relative;overflow:hidden}
@@ -145,82 +142,39 @@ img{display:block;max-width:100%}
 .owner-info .owner-title{font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:20px}
 .owner-info .owner-bio{font-size:15px;line-height:1.8;color:rgba(26,8,0,0.7);max-width:560px}
 
-/* ========== EMPLOYEES ========== */
+/* ========== STAFF / EMPLOYEES ========== */
 .employees-section{background:var(--light)}
-.employees-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:40px;flex-wrap:wrap;gap:16px}
-.btn-add-employee{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;background:var(--dk);color:var(--y);padding:10px 22px;border-radius:var(--radius);border:none;cursor:pointer;transition:background var(--tr),transform var(--tr)}
-.btn-add-employee:hover{background:var(--red);transform:translateY(-1px)}
-.employees-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px}
+.staff-groups{display:flex;flex-direction:column;gap:48px;margin-top:8px}
 
-/* Employee card */
-.employee-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-md);overflow:hidden;transition:transform var(--tr),box-shadow var(--tr),border-color var(--tr);position:relative}
-.employee-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-md);border-color:var(--dk)}
-.employee-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
-.employee-img-placeholder{width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#f0f0f0,#e0e0e0);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
-.employee-img-placeholder i{font-size:48px;color:rgba(26,8,0,0.15)}
-.employee-img-placeholder span{font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(26,8,0,0.3)}
-.employee-info{padding:16px 18px}
-.employee-name{font-weight:800;font-size:16px;color:var(--dk);margin-bottom:4px}
-.employee-role{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--red)}
+/* Role group header */
+.staff-role-header{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.staff-role-icon{font-size:16px;color:var(--red);width:20px;text-align:center}
+.staff-role-label{font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--dk);white-space:nowrap}
+.staff-role-line{flex:1;height:2px;background:var(--border);border-radius:2px}
 
-/* Admin delete button on card */
-.btn-remove-employee{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(204,26,0,0.85);color:var(--white);border:none;cursor:pointer;font-size:12px;display:none;align-items:center;justify-content:center;transition:background var(--tr),transform var(--tr)}
-.btn-remove-employee:hover{background:var(--red);transform:scale(1.1)}
-.admin-mode .btn-remove-employee{display:flex}
+/* Staff cards row */
+.staff-cards{display:flex;flex-wrap:wrap;gap:24px}
 
-/* ========== MODAL — Add Employee ========== */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:3000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s;padding:20px}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--white);border-radius:var(--radius-md);max-width:480px;width:100%;padding:36px 32px;position:relative;transform:scale(0.92);transition:transform 0.3s;box-shadow:0 32px 80px rgba(0,0,0,0.35)}
-.modal-overlay.open .modal{transform:scale(1)}
-.modal-close{position:absolute;top:14px;right:16px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.08);border:none;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background var(--tr)}
-.modal-close:hover{background:var(--red);color:var(--white)}
-.modal-title{font-weight:900;font-size:22px;color:var(--dk);margin-bottom:24px;padding-bottom:14px;border-bottom:2px solid var(--border)}
-.form-group{margin-bottom:18px}
-.form-label{display:block;font-size:13px;font-weight:800;color:var(--dk);margin-bottom:6px}
-.form-input,.form-select{width:100%;padding:10px 14px;font-family:'Inter',sans-serif;font-size:14px;border:1.5px solid var(--border);border-radius:var(--radius);outline:none;transition:border-color var(--tr);background:var(--light)}
-.form-input:focus,.form-select:focus{border-color:var(--dk)}
-.form-file-label{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px dashed var(--border);border-radius:var(--radius);cursor:pointer;font-size:13px;color:var(--gray);transition:border-color var(--tr),background var(--tr)}
-.form-file-label:hover{border-color:var(--dk);background:var(--light)}
-.form-file-label i{font-size:18px;color:var(--gray)}
-.form-file-input{display:none}
-.form-preview{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--border);display:none;margin-top:10px}
-.btn-submit{width:100%;padding:13px;background:var(--dk);color:var(--y);font-family:'Inter',sans-serif;font-size:14px;font-weight:800;letter-spacing:1px;border:none;border-radius:var(--radius);cursor:pointer;transition:background var(--tr),transform var(--tr);margin-top:8px}
-.btn-submit:hover{background:var(--red);transform:translateY(-1px)}
+/* Individual staff card */
+.staff-card{display:flex;flex-direction:column;align-items:center;gap:12px;width:140px}
+.staff-photo{width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid var(--dk);display:block}
+.staff-photo-placeholder{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#f0f0f0,#e0e0e0);border:3px solid var(--border);display:flex;align-items:center;justify-content:center}
+.staff-photo-placeholder i{font-size:40px;color:rgba(26,8,0,0.15)}
+.staff-photo-empty{border:3px dashed var(--border);background:transparent}
+.staff-photo-empty i{font-size:32px;color:rgba(26,8,0,0.1)}
+.staff-name{font-size:14px;font-weight:700;color:var(--dk);text-align:center}
+.staff-name-empty{font-size:12px;font-weight:600;color:var(--gray);font-style:italic}
 
-/* ========== FOOTER ========== */
-.footer{background:var(--y);border-top:3px solid var(--dk)}
-.footer-inner{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;max-width:1100px;margin:0 auto;padding:60px 32px 40px}
-.footer-logo{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.footer-logo-img{width:52px;height:52px;object-fit:contain;border-radius:50%;border:2.5px solid var(--dk);display:block;background:var(--y)}
-.f-name{display:block;font-weight:900;font-size:22px;letter-spacing:1px;color:var(--dk);line-height:1}
-.f-sub{display:block;font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--red);text-transform:uppercase}
-.footer-tagline{font-size:14px;letter-spacing:1.5px;color:rgba(26,8,0,0.50);font-style:italic}
-.footer-links h5,.footer-contact h5{font-weight:800;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--dk);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid rgba(26,8,0,0.18)}
-.footer-links a,.footer-contact a,.footer-contact p{display:flex;align-items:center;gap:8px;font-size:14px;color:rgba(26,8,0,0.58);padding:6px 0;transition:color var(--tr)}
-.footer-links a:hover,.footer-contact a:hover{color:var(--red)}
-.footer-bottom{border-top:2px solid rgba(26,8,0,0.12);padding:20px 32px;text-align:center;background:var(--y)}
-.footer-bottom p{font-size:13px;color:rgba(26,8,0,0.45);letter-spacing:1px}
-.footer-bottom strong{color:var(--red)}
-
-/* ========== RESPONSIVE ========== */
+/* ========== RESPONSIVE (aboutus-specific only) ========== */
 @media(max-width:900px){
+  .about-sidebar{display:none}
   .history-layout,.location-layout{grid-template-columns:1fr}
   .owner-layout{grid-template-columns:1fr;text-align:center}
   .owner-img-wrap{display:flex;flex-direction:column;align-items:center}
-  .footer-inner{grid-template-columns:1fr 1fr;gap:32px}
-  .footer-brand{grid-column:1/-1}
 }
 @media(max-width:640px){
   :root{--hh:60px;--bh:32px}
-  .header-inner{padding:0 16px}
-  .logo-name{font-size:17px}
-  .nav-desktop{display:none}
-  .hamburger{display:flex}
-  .order-bar{padding:0 16px;justify-content:center}
   .section{padding:52px 16px}
   .page-hero{padding:48px 16px}
   .employees-header{flex-direction:column;align-items:flex-start}
-  .footer-inner{grid-template-columns:1fr;padding:36px 20px;gap:24px}
-  .footer-bottom{padding:16px 20px}
 }
