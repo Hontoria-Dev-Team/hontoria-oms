@@ -137,7 +137,7 @@
 .modal-close{position:absolute;top:12px;right:14px;z-index:10;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,0.08);color:var(--black);border:none;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:background var(--tr),color var(--tr)}
 .modal-close:hover{background:var(--red);color:var(--white)}
 .modal-left{width:320px;min-width:280px;flex-shrink:0;display:flex;flex-direction:column;background:var(--light);border-right:2px solid var(--border);padding:20px 16px 16px}
-.modal-main-img{flex:1;border:2.5px solid var(--border);border-radius:var(--radius);background:linear-gradient(135deg,#f0f0f0,#e8e8e8);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px;margin-bottom:12px;overflow:hidden}
+.modal-main-img{flex:1;border:2.5px solid var(--border);border-radius:var(--radius);background:linear-gradient(135deg,#f0f0f0,#e8e8e8);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px;margin-bottom:12px;overflow:hidden;position:relative}
 .modal-ph-icon{font-size:52px;color:rgba(0,0,0,0.18);margin-bottom:8px}
 .modal-ph-label{font-size:13px;font-weight:700;color:rgba(0,0,0,0.35);letter-spacing:1px}
 .modal-thumbs{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px}

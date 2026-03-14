@@ -167,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const photos  = card?.dataset.photos ? JSON.parse(card.dataset.photos) : [];
 
     currentPrice = price;
+    let currentPhotoIdx = 0;
 
     if (modalTitle)   modalTitle.textContent = name;
     if (modalDesc)    modalDesc.textContent  = desc;
@@ -174,15 +175,31 @@ document.addEventListener('DOMContentLoaded', () => {
     if (qtyInput)     qtyInput.value         = 1;
     updateTotal();
 
-    // ── Main image: use first photo or placeholder ────────────────────
-    if (photos.length > 0) {
-      modalMainImg.innerHTML = `<img src="${photos[0]}" alt="${name}" style="width:100%;height:100%;object-fit:cover;display:block"/>`;
-    } else {
-      modalMainImg.style.background = bg;
-      modalMainImg.innerHTML = `<i class="fas ${icon} modal-ph-icon"></i><span class="modal-ph-label">${name}</span>`;
+    // ── Render main image with prev/next arrows ───────────────────────
+    function renderMainImage(idx) {
+      currentPhotoIdx = idx;
+      if (photos.length > 0) {
+        modalMainImg.innerHTML = `
+          <img src="${photos[idx]}" alt="${name}"
+               style="width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in"
+               id="mainModalImg" title="Click to expand"/>
+        `;
+        document.getElementById('mainModalImg')?.addEventListener('click', () => {
+          openLightbox(photos, currentPhotoIdx, name);
+        });
+      } else {
+        modalMainImg.style.background = bg;
+        modalMainImg.innerHTML = `<i class="fas ${icon} modal-ph-icon"></i><span class="modal-ph-label">${name}</span>`;
+      }
     }
 
-    // ── Thumbnails: use actual photos or placeholder boxes ────────────
+    // ── Thumbnails ────────────────────────────────────────────────────
+    function updateThumbActive(idx) {
+      document.querySelectorAll('#modalThumbs .thumb').forEach((t, i) => {
+        t.classList.toggle('active', i === idx);
+      });
+    }
+
     const thumbsContainer = document.getElementById('modalThumbs');
     if (thumbsContainer) {
       if (photos.length > 0) {
@@ -191,17 +208,13 @@ document.addEventListener('DOMContentLoaded', () => {
              <img src="${src}" style="width:100%;height:100%;object-fit:cover"/>
            </div>`
         ).join('');
-
-        // Wire thumbnail clicks to update main image
-        thumbsContainer.querySelectorAll('.thumb').forEach(thumb => {
+        thumbsContainer.querySelectorAll('.thumb').forEach((thumb, i) => {
           thumb.addEventListener('click', () => {
-            thumbsContainer.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
-            thumb.classList.add('active');
-            modalMainImg.innerHTML = `<img src="${thumb.dataset.src}" alt="${name}" style="width:100%;height:100%;object-fit:cover;display:block"/>`;
+            renderMainImage(i);
+            updateThumbActive(i);
           });
         });
       } else {
-        // No photos yet — show placeholder thumbs
         thumbsContainer.innerHTML = Array.from({length: 8}, (_, i) =>
           `<div class="thumb ${i === 0 ? 'active' : ''}" data-idx="${i}">
              <i class="fas fa-image"></i>
@@ -210,8 +223,44 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    renderMainImage(0);
     modalOverlay?.classList.add('open');
     document.body.style.overflow = 'hidden';
+  }
+
+  // ── Lightbox (fullscreen expand) ──────────────────────────────────────
+  function openLightbox(photos, startIdx, name) {
+    let idx = startIdx;
+
+    const lb = document.createElement('div');
+    lb.id = 'lightbox';
+    lb.style.cssText = `
+      position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;
+      display:flex;align-items:center;justify-content:center;flex-direction:column;
+    `;
+
+    function renderLb() {
+      lb.innerHTML = `
+        <button id="lbClose" style="position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;z-index:10"><i class="fas fa-times"></i></button>
+        <button id="lbPrev" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:22px;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="fas fa-chevron-left"></i></button>
+        <img src="${photos[idx]}" alt="${name}" style="max-width:92vw;max-height:88vh;object-fit:contain;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.5)"/>
+        <button id="lbNext" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:22px;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="fas fa-chevron-right"></i></button>
+        <span style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:12px">${idx + 1} / ${photos.length}</span>
+      `;
+      lb.querySelector('#lbClose').addEventListener('click', () => { lb.remove(); });
+      lb.querySelector('#lbPrev').addEventListener('click',  () => { idx = (idx - 1 + photos.length) % photos.length; renderLb(); });
+      lb.querySelector('#lbNext').addEventListener('click',  () => { idx = (idx + 1) % photos.length; renderLb(); });
+    }
+
+    lb.addEventListener('click', e => { if (e.target === lb) lb.remove(); });
+    document.addEventListener('keydown', function lbKey(e) {
+      if (e.key === 'Escape')    { lb.remove(); document.removeEventListener('keydown', lbKey); }
+      if (e.key === 'ArrowLeft') { idx = (idx - 1 + photos.length) % photos.length; renderLb(); }
+      if (e.key === 'ArrowRight'){ idx = (idx + 1) % photos.length; renderLb(); }
+    });
+
+    renderLb();
+    document.body.appendChild(lb);
   }
 
   function closeModal() {
