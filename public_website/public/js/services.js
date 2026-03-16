@@ -162,19 +162,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const card    = [...allCards].find(c => c.dataset.name === name);
     const info    = productInfo[name];
 
-    const desc    = info?.desc  || card?.querySelector('.card-desc')?.textContent || '';
-    const icon    = info?.icon  || 'fa-image';
-    const bg      = info?.bg    || 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
-    const price   = parseFloat(card?.dataset.price || 0);
-    const photos  = card?.dataset.photos ? JSON.parse(card.dataset.photos) : [];
+    const desc     = info?.desc  || card?.querySelector('.card-desc')?.textContent || '';
+    const icon     = info?.icon  || 'fa-image';
+    const bg       = info?.bg    || 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
+    const price    = parseFloat(card?.dataset.price || 0);
+    const photos   = card?.dataset.photos   ? JSON.parse(card.dataset.photos)   : [];
+    const variants = card?.dataset.variants ? JSON.parse(card.dataset.variants) : [];
 
     currentPrice = price;
     let currentPhotoIdx = 0;
 
-    if (modalTitle)   modalTitle.textContent = name;
-    if (modalDesc)    modalDesc.textContent  = desc;
-    if (modalPrice)   modalPrice.textContent = price > 0 ? '₱' + price.toLocaleString() + ' each' : 'Contact us for pricing';
-    if (qtyInput)     qtyInput.value         = 1;
+    if (modalTitle) modalTitle.textContent = name;
+    if (modalDesc)  modalDesc.textContent  = desc;
+    if (qtyInput)   qtyInput.value         = 1;
+
+    // ── Variant selector (e.g. White Mug / Magic Mug) ─────────────────
+    const variantRow    = document.getElementById('modalVariantRow');
+    const variantSelect = document.getElementById('modalVariantSelect');
+
+    if (variants.length > 0 && variantRow && variantSelect) {
+      variantRow.style.display = 'flex';
+      variantSelect.innerHTML  = variants.map(v =>
+        `<option value="${v.price}">${v.name} — ₱${v.price.toLocaleString()}</option>`
+      ).join('');
+      currentPrice = variants[0].price;
+      if (modalPrice) modalPrice.textContent = '₱' + currentPrice.toLocaleString() + ' each';
+      variantSelect.onchange = () => {
+        currentPrice = parseFloat(variantSelect.value);
+        if (modalPrice) modalPrice.textContent = '₱' + currentPrice.toLocaleString() + ' each';
+        updateTotal();
+      };
+    } else {
+      if (variantRow) variantRow.style.display = 'none';
+      if (modalPrice) modalPrice.textContent = price > 0 ? '₱' + price.toLocaleString() + ' each' : 'Contact us for pricing';
+    }
+
     updateTotal();
 
     // ── Render main image with prev/next arrows ───────────────────────

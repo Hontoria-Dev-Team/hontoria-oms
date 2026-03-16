@@ -7,7 +7,9 @@
  * 1. Copy one block below, change the values, save.
  * 2. Set 'price' to 0 for "Contact us for pricing"
  * 3. Set 'photo' to the first/main image path
- * 4. Set 'photos' to an array of all gallery image paths (used in modal thumbnails)
+ * 4. Set 'photos' to an array of all gallery image paths
+ * 5. Set 'variants' for products with multiple options (e.g. mug types)
+ *    e.g. 'variants' => [['name'=>'White Mug','price'=>150],['name'=>'Magic Mug','price'=>200]]
  */
 class product {
 
@@ -20,6 +22,7 @@ class product {
     private string $bgGradient;
     private string $photo;
     private array  $photos;
+    private array  $variants; // For products with multiple price options
 
     public function __construct(array $data) {
         $this->id          = $data['id']          ?? '';
@@ -31,6 +34,7 @@ class product {
         $this->bgGradient  = $data['bgGradient']  ?? 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
         $this->photo       = $data['photo']       ?? '';
         $this->photos      = $data['photos']      ?? [];
+        $this->variants    = $data['variants']    ?? [];
     }
 
     public function getId(): string          { return $this->id; }
@@ -42,6 +46,7 @@ class product {
     public function getBgGradient(): string  { return $this->bgGradient; }
     public function getPhoto(): string       { return $this->photo; }
     public function getPhotos(): array       { return $this->photos; }
+    public function getVariants(): array     { return $this->variants; }
 
     public function getPriceFormatted(): string {
         return $this->price > 0
@@ -78,10 +83,10 @@ class product {
 
         // ── Longsleeve photos (2 photos) ──────────────────────────────────
         $longsleevePhotos = [];
-           for ($i = 1; $i <= 2; $i++) {
-             $longsleevePhotos[]= 'img/sublimationPicture/longsleveePicture/longslevee' .$i. '.jpg';
-           }
-            
+        for ($i = 1; $i <= 2; $i++) {
+            $longsleevePhotos[] = 'img/sublimationPicture/longsleveePicture/longslevee' . $i . '.jpg';
+        }
+
         // ── Polo Shirt photos (10 photos) ─────────────────────────────────
         $poloshirtPhotos = [];
         for ($i = 1; $i <= 10; $i++) {
@@ -101,6 +106,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => 'img/sublimationPicture/jerseyPicture/jerseyPicture1.jpg',
                 'photos'      => $jerseyPhotos,
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'tshirt',
@@ -112,6 +118,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => 'img/sublimationPicture/tshirtPicture/tshirtPicture1.jpg',
                 'photos'      => $tshirtPhotos,
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'short',
@@ -123,6 +130,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'warmer',
@@ -134,6 +142,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'joggingpants',
@@ -145,6 +154,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'longsleeve',
@@ -154,8 +164,9 @@ class product {
                 'price'       => 400,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => 'img/sublimationPicture/longsleevePicture/longsleeve1.jpg',
+                'photo'       => 'img/sublimationPicture/longsleveePicture/longslevee1.jpg',
                 'photos'      => $longsleevePhotos,
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'poloshirt',
@@ -167,6 +178,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => 'img/sublimationPicture/poloshirtPicture/polo1.jpg',
                 'photos'      => $poloshirtPhotos,
+                'variants'    => [],
             ]),
 
             // ── UNIFORM ───────────────────────────────────────────────────
@@ -180,6 +192,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#e8f0ff,#c8d8ff)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'office-uniform',
@@ -191,6 +204,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#e8f0ff,#c8d8ff)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'professional-uniform',
@@ -202,6 +216,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#e8f0ff,#c8d8ff)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
 
             // ── TARPAULIN ─────────────────────────────────────────────────
@@ -215,6 +230,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'graduation',
@@ -226,6 +242,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'congratulation',
@@ -237,6 +254,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
 
             // ── SUBLIMATION MUGS ──────────────────────────────────────────
@@ -245,11 +263,20 @@ class product {
                 'name'        => 'Sublimation Mug',
                 'category'    => 'mug',
                 'description' => 'Full-wrap sublimation printed mugs with your custom design. Perfect for gifts, souvenirs, and corporate giveaways.',
-                'price'       => 0,
+                'price'       => 150,  // Default price (White Mug)
                 'icon'        => 'fa-mug-hot',
                 'bgGradient'  => 'linear-gradient(135deg,#fff3e0,#ffe0b2)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/sublimationMug/mug/mug1.jpg',
+                'photos'      => [
+                    'img/sublimationMug/mug/mug1.jpg',
+                    'img/sublimationMug/mug/mug2.jpg',
+                    'img/sublimationMug/mug/mug3.jpg',
+                    'img/sublimationMug/mug/mug4.jpg',
+                ],
+                'variants'    => [
+                    ['name' => 'White Mug',  'price' => 150],
+                    ['name' => 'Magic Mug',  'price' => 200],
+                ],
             ]),
 
             // ── ID LANYARDS ───────────────────────────────────────────────
@@ -263,6 +290,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'office-id',
@@ -274,6 +302,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'professional-id',
@@ -285,6 +314,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
 
             // ── CUSTOM STITCHING ──────────────────────────────────────────
@@ -298,6 +328,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#e8f5e9,#c8e6c9)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
 
             // ── STICKERS & DECALS ─────────────────────────────────────────
@@ -311,6 +342,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'truck-decal',
@@ -322,6 +354,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
             new product([
                 'id'          => 'car-decal',
@@ -333,6 +366,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
                 'photo'       => '',
                 'photos'      => [],
+                'variants'    => [],
             ]),
 
         ];
