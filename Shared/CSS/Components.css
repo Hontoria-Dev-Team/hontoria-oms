@@ -9,7 +9,7 @@
 }
 
 .box {
-    padding: 1em;
+    padding: 1rem;
     background: var(--white);
 }
 
@@ -206,4 +206,8 @@
 #confirmationTitle,
 #confirmationText {
     text-align: center;
+}
+
+.invertColors {
+    filter: invert(1);
 }

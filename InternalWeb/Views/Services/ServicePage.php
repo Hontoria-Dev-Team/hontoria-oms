@@ -11,6 +11,7 @@
     <?php include("../Views/.Components/SideBar.php"); ?>
     <main class="columnLayout midGap">
         <?php include("../Views/.Components/BackLink.php"); ?>
+        <?php include("../Views/.Components/ErrorBox.php"); ?>
         <section class="rowLayout flexMax midGap">
             <section class="centerColumnLayout roundedMid flexMid">
                 <div class="box columnLayout roundedMid minGap fullHeight fullWidth">
@@ -44,29 +45,22 @@
                                 $name = trim("{$subservice['name']}");
                                 $status = $subservice['isActive'] ? 'active' : 'disabled';
                                 $statusInvert = $subservice['isActive'] ? 'Disable' : 'Activate';
-                                $pricePerUnit = $subservice['pricePerUnit'];
-                                $description = $subservice['description'];
                                 ?>
-                                <div class="maxHeight roundedMin minPadding columnLayout minGap subserviceElement <?= $status ?>">
+                                <div class="midHeight roundedMin minPadding centerHoriColumnLayout minGap subserviceElement <?= $status ?>"
+                                    data-id="<?= $id ?>" data-name="<?= $name ?> <?= $service['name'] ?>" data-description="<?= $subservice['description'] ?>" data-price="<?= $subservice['pricePerUnit'] ?>">
                                     <div class="subserviceImage fullWidth roundedMin"></div>
                                     <h3><?= $name ?> <?= $service['name'] ?></h3>
                                     <p class="orderCount">(Active Orders: 100)</p>
-                                    <form method="POST" action="index.php?page=services&service=<?= $serviceID ?>&action=updateInfo" class="columnLayout minGap fullWidth">
-                                        <input type="hidden" name="selectedID" value="<?= $id ?>">
-                                        <input type="hidden" name="setPricePerUnit" value="<?= $pricePerUnit ?>">
-                                        <input type="hidden" name="setDescription" value="<?= $description ?>">
-                                        <label for="description">Description</label>
-                                        <textarea name="description" class="scrollableTextarea minHeight minPadding justifiedText" placeholder="<?= $description ?>"></textarea>
-                                        <div class="flexMax centerRowLayout minGap">
-                                            <label for="pricePerUnit">Price Per Unit</label>
-                                            <input type="number" name="pricePerUnit" class="flexMid" placeholder="<?php echo $pricePerUnit; ?>">
-                                        </div>
-                                        <div class="rowLayout minGap">
-                                            <input type="submit" name="submit" value="Update" class="importantInput flexMid">
-                                            <button type="button" class="statusButton flexMin capitalFirst"
-                                                data-id="<?= $id ?>" data-name="<?= $name ?>" data-status-invert="<?= $statusInvert ?>"><?= $status ?></button>
-                                        </div>
-                                    </form>
+                                    <div class="rowLayout minGap">
+                                        <button type="button" class="statusButton capitalFirst flexMax"
+                                            data-id="<?= $id ?>" data-name="<?= $name ?>" data-status-invert="<?= $statusInvert ?>"><?= $status ?></button>
+                                        <?php if ($status === 'disabled'): ?>
+                                            <button type="button" class="deleteButton criticalInput flexMin centerColumnLayout"
+                                                data-id="<?= $id ?>" data-name="<?= $name ?>">
+                                                <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             <?php endforeach; ?>
                             <div class="tinHeight"></div>
@@ -77,14 +71,33 @@
                         </div>
                     <?php endif; ?>
                     <div class="rowLayout minGap souEastAbsolute">
-                        <a href="index.php?page=service&action=create" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">Create Subservice</a>
+                        <a id="createButton" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">
+                            Create Subservice</a>
                     </div>
                 </div>
                 <div class="gradientBorderDiag">
             </section>
-            <section class="centerColumnLayout flexMin roundedMid">
-                <div class="box roundedMid fullHeight fullWidth"></div>
-                <div class="gradientBorderDiag"></div>
+            <section class="columnLayout midGap flexMin">
+                <section class="box centerColumnLayout roundedMid minGap flexMid">
+                    <h3 id="selectedName">No Subservice Selected</h3>
+                    <form method="POST" class="columnLayout minGap fullWidth" id="subserviceDataForm" style="display: none;"
+                        action="index.php?page=services&service=<?= $serviceID ?>&action=updateInfo">
+                        <input type="hidden" name="selectedID" id="subserviceID">
+                        <input type="hidden" name="setPricePerUnit" id="setPricePerUnit">
+                        <input type="hidden" name="setDescription" id="setDescription">
+                        <label for="description">Description</label>
+                        <textarea name="description" class="scrollableTextarea minHeight fullWidth minPadding justifiedText" id="descriptionText"></textarea>
+                        <div class="flexMax centerRowLayout minGap">
+                            <label for="pricePerUnit">Price Per Unit</label>
+                            <input type="number" name="pricePerUnit" class="flexMid" id="priceInput">
+                        </div>
+                        <input type="submit" name="submit" value="Update" class="importantInput">
+                    </form>
+                    <div class="gradientBorderDiag"></div>
+                </section>
+                <section class="box centerColumnLayout roundedMid flexMid">
+                    <div class="gradientBorderDiag"></div>
+                </section>
             </section>
         </section>
     </main>
@@ -93,10 +106,36 @@
 <script src="../.JS/ConfirmationBox.js"></script>
 <script>
     const statusButtons = document.querySelectorAll('.statusButton');
+    const deleteButtons = document.querySelectorAll('.deleteButton');
+    const createButton = document.getElementById('createButton');
+    const subserviceElements = document.querySelectorAll('.subserviceElement');
+    const nameDisplay = document.getElementById('selectedName');
+    const form = document.getElementById('subserviceDataForm');
+    const subserviceID = document.getElementById('subserviceID');
+    const setPricePerUnit = document.getElementById('setPricePerUnit');
+    const setDescription = document.getElementById('setDescription');
+    const descriptionText = document.getElementById('descriptionText');
+    const priceInput = document.getElementById('priceInput');
 
-    // Toggle service status logic
+    // Reactive clickable subservice data script
+    document.addEventListener('DOMContentLoaded', function() {
+        subserviceElements.forEach(function(elem) {
+            elem.addEventListener('click', function() {
+                nameDisplay.textContent = elem.dataset.name;
+                nameDisplay.style.alignSelf = 'baseline';
+
+                subserviceID.value = elem.dataset.id;
+                setPricePerUnit.value = elem.dataset.price;
+                priceInput.placeholder = elem.dataset.price;
+                setDescription.value = elem.dataset.description;
+                descriptionText.placeholder = elem.dataset.description;
+
+                form.style.display = 'flex';
+            });
+        });
+    });
+
     document.addEventListener("DOMContentLoaded", () => {
-        confirmationTitle.innerHTML = "Update Subservice Status?";
         confirmationCancel.value = "No Cancel";
     });
 
@@ -104,11 +143,14 @@
     selectedID.type = "hidden";
     selectedID.name = "selectedID";
     confirmationForm.appendChild(selectedID);
-    confirmationForm.action = "index.php?page=services&service=<?= $serviceID ?>&action=updateStatus";
 
+    // Toggle service status logic
     document.addEventListener('DOMContentLoaded', function() {
         statusButtons.forEach(function(elem) {
             elem.addEventListener('click', function() {
+                confirmationTitle.innerHTML = "Update Subservice Status?";
+                confirmationForm.action = "index.php?page=services&service=<?= $serviceID ?>&action=updateStatus";
+
                 selectedID.value = elem.dataset.id;
                 confirmationText.innerHTML = "Are you sure to " + elem.dataset.statusInvert + " the " + elem.dataset.name + " service?";
                 confirmationSubmit.value = "Yes " + elem.dataset.statusInvert;
@@ -122,6 +164,61 @@
                 confirmation.style.display = 'flex';
             });
         });
+    });
+
+    // Toggle delete status logic
+    document.addEventListener('DOMContentLoaded', function() {
+        deleteButtons.forEach(function(elem) {
+            elem.addEventListener('click', function() {
+                confirmationTitle.innerHTML = "Delete Subservice?";
+                confirmationForm.action = "index.php?page=services&service=<?= $serviceID ?>&action=delete";
+
+                selectedID.value = elem.dataset.id;
+                confirmationText.innerHTML = "Are you sure to delete the " + elem.dataset.name + " service?";
+                confirmationSubmit.value = "Yes Delete";
+
+                confirmation.style.display = 'flex';
+            });
+        });
+    });
+
+    // Subservice creation logic
+    let nameInput;
+
+    createButton.addEventListener('click', function() {
+        confirmationTitle.innerHTML = "Create Subservice";
+        confirmationForm.action = "index.php?page=services&service=<?= $serviceID ?>&action=create";
+
+        confirmationText.innerHTML = "To create a subservice for the <?= $service['name'] ?> service, please enter a unique subservice name.";
+        confirmationSubmit.value = "Create";
+        confirmationSubmit.classList.add("active");
+
+        nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.name = "name";
+        nameInput.placeholder = "Subservice Name";
+        nameInput.id = "nameInput";
+        confirmationForm.appendChild(nameInput);
+
+        confirmation.style.display = 'flex';
+    });
+
+    confirmationCancel.addEventListener('click', function() {
+        confirmationSubmit.classList.remove("active");
+        confirmationSubmit.classList.remove("criticalInput");
+
+        if (nameInput) {
+            document.getElementById("nameInput").remove();
+        }
+    });
+
+    confirmationBG.addEventListener('click', function() {
+        confirmationSubmit.classList.remove("active");
+        confirmationSubmit.classList.remove("criticalInput");
+
+        if (nameInput) {
+            document.getElementById("nameInput").remove();
+        }
     });
 </script>
 

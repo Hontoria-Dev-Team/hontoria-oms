@@ -1,4 +1,4 @@
 <!DOCTYPE html>
-<a href="index.php?page=<?php echo htmlspecialchars($lastPage ?? ''); ?>" class="centerColumnLayout importantInput roundedMid tinHeight midWidth capitalFirst minFont">
+<a href="<?= $backLink; ?>" class="centerColumnLayout importantInput roundedMid tinHeight fitWidth regPadding capitalFirst minFont">
     Return to <?= $lastPage ?> Page
 </a>

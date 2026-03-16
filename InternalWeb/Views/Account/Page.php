@@ -10,10 +10,10 @@
 <body class="asideLayout fixedScreen">
     <?php include("../Views/.Components/SideBar.php"); ?>
     <main class="columnLayout">
-        <?php include("../Views/.Components/ErrorBox.php"); ?>
         <h1 class="titleLogo minGap tinHeight">
             <img src="../../Shared/Img/PersonIcon.png" alt="Person"> Account Settings
         </h1>
+        <?php include("../Views/.Components/ErrorBox.php"); ?>
         <div class="centerColumnLayout midGap flexMax">
             <section class="centerColumnLayout box roundedMid extraWidth centerHoriSelf">
                 <form method="POST" action="index.php?page=account&action=rename" class="centerColumnLayout minGap fullWidth">

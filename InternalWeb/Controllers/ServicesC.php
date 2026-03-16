@@ -42,9 +42,37 @@ class ServicesC {
     public function showService($serviceID) {
         $page = "services";
         $lastPage = "services";
+        $backLink = "index.php?page=services";
         $service = $this->servicesModel->getService($serviceID);
         $processList = $this->servicesModel->getProcess($serviceID);
         $subservicesList = $this->servicesModel->getSubservices($serviceID);
         require __DIR__ . '/../Views/Services/ServicePage.php';
+    }
+
+    public function createSubservice($serviceID) {
+        $name = $_POST['name'];
+        $creation = $this->servicesModel->insertSubservice($name, $serviceID);
+
+        if ($creation) {
+            header("Location: index.php?page=services&service=" . $serviceID);
+            exit();
+        } else {
+            $page = "services";
+            $lastPage = "services";
+            $backLink = "index.php?page=services";
+            $error = "Subservice name already exists.";
+            $service = $this->servicesModel->getService($serviceID);
+            $processList = $this->servicesModel->getProcess($serviceID);
+            $subservicesList = $this->servicesModel->getSubservices($serviceID);
+            require __DIR__ . '/../Views/Services/ServicePage.php';
+        }
+    }
+
+    public function deleteSubservice($serviceID) {
+        $subserviceID = $_POST['selectedID'];
+        $this->servicesModel->removeSubservice($subserviceID);
+
+        header("Location: index.php?page=services&service=" . $serviceID);
+        exit();
     }
 }

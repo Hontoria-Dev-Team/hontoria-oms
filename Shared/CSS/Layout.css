@@ -36,6 +36,11 @@
     flex-direction: column;
 }
 
+.reverseColumnLayout {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
 .centerHoriColumnLayout {
     display: flex;
     justify-content: center;
@@ -138,6 +143,10 @@
 
 .extraWidth {
     width: 30rem !important;
+}
+
+.fitWidth {
+    width: fit-content;
 }
 
 .tinHeight {

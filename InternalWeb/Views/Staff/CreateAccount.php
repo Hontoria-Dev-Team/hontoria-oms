@@ -10,8 +10,8 @@
 <body class="asideLayout fixedScreen">
     <?php include("../Views/.Components/SideBar.php"); ?>
     <main class="columnLayout midGap">
-        <?php include("../Views/.Components/ErrorBox.php"); ?>
         <?php include("../Views/.Components/BackLink.php"); ?>
+        <?php include("../Views/.Components/ErrorBox.php"); ?>
         <section class="centerColumnLayout">
             <section class="centerColumnLayout extraWidth roundedMid">
                 <div class="box roundedMid maxHeight centerColumnLayout">

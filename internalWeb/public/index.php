@@ -51,6 +51,7 @@ switch ($page) {
             $authorization->updatePermissions();
         } else if ($action === 'create') {
             $lastPage = 'staff';
+            $backLink = 'index.php?page=staff';
             $pageTitle = 'Account Creation - Hontoria OMS';
             require_once __DIR__ . '/../Views/Staff/CreateAccount.php';
         } else if ($action === 'createFinal') {
@@ -82,6 +83,10 @@ switch ($page) {
                 $services->toggleSubserviceStatus($service);
             } else if ($action === 'updateInfo') {
                 $services->setSubserviceInfo($service);
+            } else if ($action === 'create') {
+                $services->createSubservice($service);
+            } else if ($action === 'delete') {
+                $services->deleteSubservice($service);
             } else {
                 $services->showService($service);
             }

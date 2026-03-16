@@ -38,6 +38,20 @@ class ServicesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getSingleSubserviceByName($name, $serviceID) {
+        $query = "SELECT isActive, description, pricePerUnit
+                  FROM subservices
+                  WHERE serviceID = :serviceID AND name = :name
+                  LIMIT 1";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':serviceID', $serviceID);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function getProcess($serviceID) {
         $query = "SELECT processes.id, processes.name, serviceProcess.phase
                   FROM serviceProcess
@@ -72,6 +86,29 @@ class ServicesM {
         $stmt->bindParam(':id', $id);
         $stmt->bindParam(':pricePerUnit', $pricePerUnit);
         $stmt->bindParam(':description', $description);
+        return $stmt->execute();
+    }
+
+    public function removeSubservice($id) {
+        $query = "DELETE FROM subservices WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
+
+    public function insertSubservice($name, $serviceID) {
+        $user = $this->getSingleSubserviceByName($name, $serviceID);
+
+        if ($user) {
+            return false;
+        }
+
+        $query = "INSERT INTO subservices (name, serviceID, pricePerUnit) VALUES
+            (:name, :serviceID, 0);";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':serviceID', $serviceID);
         return $stmt->execute();
     }
 }
