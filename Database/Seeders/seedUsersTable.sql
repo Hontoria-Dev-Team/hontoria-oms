@@ -1,6 +1,21 @@
-INSERT INTO users (id, username, email, passwordHash, firstName, middleName, lastName, phone, isActive, createdAt, lastLoginAt) VALUES
-(1, 'owner', 'owner@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Juan', 'Carlos', 'Dela Cruz', '+639171234567', TRUE, '2025-01-01 00:00:00', '2026-02-20 08:30:00'),
-(2, 'admin', 'admin@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Maria', 'Santos', 'Reyes', '+639182345678', TRUE, '2025-01-15 00:00:00', '2026-02-21 09:15:00'),
-(3, 'staff', 'staff@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Pedro', 'Luis', 'Garcia', '+639193456789', TRUE, '2025-02-01 00:00:00', '2026-02-21 07:45:00');
-
-ALTER TABLE users AUTO_INCREMENT = 4;
+INSERT INTO users (id, username, email, passwordHash, firstName, middleName, lastName, phone, createdAt, lastLoginAt) VALUES
+(1, 'owner', 'owner@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Juan', 'Carlos', 'Dela Cruz', '+639171234567', '2025-01-01 00:00:00', '2026-02-20 08:30:00'),
+(2, 'ana', 'ana@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ana', 'Marie', 'Santos', '+639171111111', '2025-01-05 00:00:00', '2026-02-21 09:00:00'),
+(3, 'ben', 'ben@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ben', 'Joseph', 'Reyes', '+639172222222', '2025-01-10 00:00:00', '2026-02-21 08:45:00'),
+(4, 'carlo', 'carlo@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Carlo', 'Antonio', 'Gonzales', '+639173333333', '2025-01-15 00:00:00', '2026-02-21 10:15:00'),
+(5, 'diana', 'diana@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Diana', 'Lopez', 'Bautista', '+639174444444', '2025-01-20 00:00:00', '2026-02-20 16:30:00'),
+(6, 'edu', 'edu@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Eduardo', 'Martin', 'Torres', '+639175555555', '2025-01-25 00:00:00', '2026-02-21 07:30:00'),
+(7, 'fátima', 'fatima@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Fátima', 'Cruz', 'Gomez', '+639176666666', '2025-02-01 00:00:00', '2026-02-21 11:00:00'),
+(8, 'gab', 'gab@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Gabriel', 'Santos', 'Diaz', '+639177777777', '2025-02-05 00:00:00', '2026-02-20 14:20:00'),
+(9, 'hannah', 'hannah@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Hannah', 'Rose', 'Mendoza', '+639178888888', '2025-02-10 00:00:00', '2026-02-21 09:45:00'),
+(10, 'ian', 'ian@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ian', 'Patrick', 'Cruz', '+639179999999', '2025-02-15 00:00:00', '2026-02-21 08:00:00'),
+(11, 'jenny', 'jenny@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Jenny', 'Lyn', 'Aquino', '+639180000000', '2025-02-20 00:00:00', '2026-02-21 12:30:00'),
+(12, 'ken', 'ken@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Kenneth', 'Paul', 'Javier', '+639181111111', '2025-02-25 00:00:00', '2026-02-20 13:45:00'),
+(13, 'lara', 'lara@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Lara', 'Kim', 'Ocampo', '+639182222222', '2025-03-01 00:00:00', '2026-02-21 10:00:00'),
+(14, 'miguel', 'miguel@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Miguel', 'Angel', 'Perez', '+639183333333', '2025-03-05 00:00:00', '2026-02-21 07:15:00'),
+(15, 'nina', 'nina@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Nina', 'Grace', 'Salazar', '+639184444444', '2025-03-10 00:00:00', '2026-02-21 11:30:00'),
+(16, 'oliver', 'oliver@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Oliver', 'James', 'Villanueva', '+639185555555', '2025-03-15 00:00:00', '2026-02-20 15:45:00'),
+(17, 'paula', 'paula@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Paula', 'May', 'Delgado', '+639186666666', '2025-03-20 00:00:00', '2026-02-21 09:20:00'),
+(18, 'quinny', 'quinny@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Quinito', 'Ramos', 'Flores', '+639187777777', '2025-03-25 00:00:00', '2026-02-21 08:30:00'),
+(19, 'rosa', 'rosa@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Rosa', 'Mae', 'Alvarez', '+639188888888', '2025-03-30 00:00:00', '2026-02-21 10:45:00'),
+(20, 'sam', 'sam@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Samuel', 'David', 'Castro', '+639189999999', '2025-04-01 00:00:00', '2026-02-20 17:00:00');

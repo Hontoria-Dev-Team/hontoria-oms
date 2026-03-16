@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<aside id="sidebar" class="columnLayout">
+    <section class="columnLayout minGap flexMax">
+        <h1 class="titleLogo tinHeight selfCenter">
+            <img src="../../Shared/Img/Logo.png" alt="logo"> Hontoria OMS
+        </h1>
+        <nav class="columnLayout midGap">
+            <a href="index.php?page=dashboard" class="iconLink centerRowLayout minGap <?= ($page === 'dashboard') ? 'active' : '' ?>">
+                <img src="../../Shared/Img/4BoxIcon.png" alt="4 Boxes">
+                <span>Dashboard</span>
+            </a>
+            <a href="index.php?page=services" class="iconLink centerRowLayout minGap <?= ($page === 'services') ? 'active' : '' ?>">
+                <img src="../../Shared/Img/GearIcon.png" alt="Gear">
+                <span>Services</span>
+            </a>
+            <?php if (in_array('canManageStaff', $_SESSION['permissions'])): ?>
+                <a href="index.php?page=staff" class="iconLink centerRowLayout minGap <?= ($page === 'staff') ? 'active' : '' ?>">
+                    <img src="../../Shared/Img/PeopleIcon.png" alt="People">
+                    <span>Staff</span>
+                </a>
+            <?php endif; ?>
+        </nav>
+        <div id="sidebarFooter" class="<?= ($page === 'account') ? 'active' : '' ?>">
+            <a href="index.php?page=account" class="iconLink centerRowLayout minGap">
+                <img src="../../Shared/Img/PersonIcon.png" alt="Person">
+                <span class="capitalFirst"><?= $_SESSION['username'] ?></span>
+            </a>
+        </div>
+    </section>
+    <div class="gradientBorderVert"></div>
+</aside>

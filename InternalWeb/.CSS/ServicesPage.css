@@ -1,0 +1,66 @@
+#servicesList {
+    max-height: 35.5rem;
+}
+
+.serviceElement,
+.subserviceElement {
+    border: 0.1rem solid var(--red);
+}
+
+.serviceElement.active,
+.subserviceElement.active {
+    border-color: var(--yellow) !important;
+}
+
+.serviceElement a {
+    display: none;
+}
+
+.serviceElement.active a {
+    display: flex;
+}
+
+.serviceElement .statusButton,
+.subserviceElement .statusButton,
+#submitConfimationButton {
+    background: var(--red);
+    color: var(--white);
+    font-weight: 900;
+    border: none;
+}
+
+.serviceElement.active .statusButton,
+.subserviceElement.active .statusButton,
+#submitConfimationButton.active {
+    background: var(--yellow) !important;
+}
+
+.serviceImage {
+    background: var(--gray);
+    height: 55%;
+}
+
+.subserviceImage {
+    background: var(--gray);
+    height: 40%;
+}
+
+#servicesList h2>span,
+.orderCount {
+    color: var(--darkGray);
+    font-size: 0.6rem;
+    font-weight: bold;
+}
+
+.backLink {
+    width: fit-content;
+    position: unset;
+}
+
+#process>div {
+    background: var(--redTrans);
+}
+
+label[for=pricePerUnit] {
+    display: block;
+}

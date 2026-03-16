@@ -8,18 +8,14 @@
 </head>
 
 <body class="centerColumnLayout midGap">
-    <?php if (isset($error) && $error): ?>
-        <div class="errorMessage centerColumnLayout">
-            <h3>Error: <?php echo htmlspecialchars($error); ?></h3>
+    <?php include("../Views/.Components/ErrorBox.php"); ?>
+    <div id="loginBox" class="gradientBorderDiag roundedMid centerRowLayout">
+        <div class="flexMin centerColumnLayout">
+            <h3>Welcome Employee, please login to your account</h3>
         </div>
-    <?php endif; ?>
-
-    <h1 class="titleLogo">
-        <img src="../../Shared/Img/Logo.png" alt="logo"> Hontoria OMS
-    </h1>
-    <div class="gradientBorder">
-        <section id="loginBox" class="centerColumnLayout box">
-            <h3>Login to your account</h3>
+        <section class="centerColumnLayout flexMin fullHeight">
+            <?php include("../Views/.Components/TitleLogo.php"); ?>
+            <h3>Input credentials below</h3>
             <hr>
             <form method="POST" action="index.php?page=login&action=authenticate" class="centerColumnLayout minGap fullWidth">
                 <div class="fullWidth columnLayout">
@@ -30,8 +26,9 @@
                     <label for="password" class="leftStart">Password</label>
                     <input type="password" name="password" required="true">
                 </div>
-                <input type="submit" name="submit" value="Login" class="fullWidth">
+                <input type="submit" name="submit" value="Login" class="fullWidth importantInput">
             </form>
+            <div class="box"></div>
         </section>
     </div>
 </body>

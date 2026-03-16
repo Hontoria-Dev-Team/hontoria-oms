@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../Config/config.php';
 require_once __DIR__ . '/../Controllers/AuthorizationC.php';
+require_once __DIR__ . '/../Controllers/ServicesC.php';
 require_once __DIR__ . '/../Middleware/AuthorizationMid.php';
 
 session_start();
@@ -8,12 +9,13 @@ session_start();
 $page = $_GET['page'] ?? 'login';
 $action = $_GET['action'] ?? 'show';
 
-$controller = new AuthorizationC($pdo);
+$authorization = new AuthorizationC($pdo);
+$services = new ServicesC($pdo);
 
-$protectedPages = ['dashboard'];
+$protectedPages = ['dashboard', 'staff', 'services'];
 
 if (in_array($page, $protectedPages)) {
-    AuthorizationMid::check();
+    AuthorizationMid::check($page);
 }
 
 switch ($page) {
@@ -24,21 +26,77 @@ switch ($page) {
         }
 
         if ($action === 'authenticate') {
-            $controller->login();
+            $authorization->login();
         } else {
-            $controller->showPage();
+            $authorization->showLogin();
         }
         break;
 
     case 'logout':
-        $controller->logout();
+        $authorization->logout();
         break;
 
     case 'dashboard':
+        $pageTitle = 'Dashboard - Hontoria OMS';
         require_once __DIR__ . '/../Views/Dashboard/Page.php';
         break;
 
-    default:
-        $controller->showPage();
+    case 'staff':
+        $pageTitle = 'Staff Panel - Hontoria OMS';
+        if ($action === 'filter') {
+            $search = $_GET['search'] ?? '';
+            $status = $_GET['status'] ?? '';
+            $authorization->showStaff($search, $status);
+        } else if ($action === 'updatePermissions') {
+            $authorization->updatePermissions();
+        } else if ($action === 'create') {
+            $lastPage = 'staff';
+            $pageTitle = 'Account Creation - Hontoria OMS';
+            require_once __DIR__ . '/../Views/Staff/CreateAccount.php';
+        } else if ($action === 'createFinal') {
+            $authorization->createAccount();
+        } else if ($action === 'delete') {
+            $authorization->deleteAccount();
+        } else {
+            $authorization->showStaff();
+        }
         break;
+
+    case 'account':
+        $pageTitle = 'Account Panel - Hontoria OMS';
+        if ($action === 'rename') {
+            $authorization->setUsername();
+        } else if ($action === 'updateContacts') {
+            $authorization->setContacts();
+        } else if ($action === 'changePassword') {
+            $authorization->setPassword();
+        } else {
+            require_once __DIR__ . '/../Views/Account/Page.php';
+        }
+        break;
+
+    case 'services':
+        $service = $_GET['service'] ?? null;
+        if ($service !== null) {
+            if ($action === 'updateStatus') {
+                $services->toggleSubserviceStatus($service);
+            } else if ($action === 'updateInfo') {
+                $services->setSubserviceInfo($service);
+            } else {
+                $services->showService($service);
+            }
+        } else if ($action === 'updateStatus') {
+            $services->toggleServiceStatus();
+        } else {
+            $services->showServices();
+        }
+        break;
+
+    default:
+        require_once __DIR__ . '/../Views/.Misc/ErrorPage.php';
+        break;
+}
+
+if ($page !== 'login') {
+    $authorization->keepOnline();
 }

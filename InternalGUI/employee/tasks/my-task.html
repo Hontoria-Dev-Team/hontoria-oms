@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Tasks - HontoriaOMS</title>
+    <link rel="stylesheet" href="../../assets/css/employee.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-logo" aria-label="Hontoria logo">
+            <img
+              src="../../assets/images/whitehontoria-removebg-preview.png"
+              alt="Hontoria"
+            />
+          </div>
+          <div class="brand-title">HontoriaOMS</div>
+        </div>
+
+        <nav class="nav" aria-label="Employee navigation">
+          <a href="../dashboard.html" class="nav-item">
+            <i class="fa-solid fa-border-all"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="my-task.html" class="nav-item active">
+            <i class="fa-solid fa-list-check"></i>
+            <span>My Tasks</span>
+          </a>
+          <a href="available-task.html" class="nav-item">
+            <i class="fa-regular fa-clipboard"></i>
+            <span>Available T.</span>
+          </a>
+          <a href="../inventory.html" class="nav-item">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Inventory</span>
+          </a>
+          <a href="../analytics.html" class="nav-item">
+            <i class="fa-solid fa-chart-simple"></i>
+            <span>Analytics</span>
+          </a>
+          <a href="../archive.html" class="nav-item">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Archive</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="../employee-settings.html" class="employee-badge">
+            <i class="fa-regular fa-user"></i>
+            <span>Employee</span>
+          </a>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="page-header">
+          <h1>My Tasks</h1>
+          <a
+            href="../../modules/orders/employee/create-order.html"
+            class="btn btn-primary"
+          >
+            <i class="fa-solid fa-plus"></i>
+            <span>Create Order</span>
+          </a>
+        </header>
+
+        <section aria-label="My assigned orders">
+          <div class="available-grid">
+            <a href="../../modules/production/employee/designing-process.html" class="order-card-link">
+              <article class="available-card">
+                <div class="available-card-header">
+                  <div class="available-title">Order #3123</div>
+                  <span class="status-pill status-active">Active</span>
+                </div>
+                <div class="available-price">₱3,500 • Due 13/02/2026</div>
+                <div class="available-body">
+                  <div>Type: Sublimation</div>
+                  <div>Class: Jersey</div>
+                  <div>Customer: Mochino</div>
+                </div>
+                <div class="available-footer">
+                  <span class="current-pill">Current: Designing</span>
+                </div>
+              </article>
+            </a>
+
+            <a href="../../modules/production/employee/printing-process.html" class="order-card-link">
+              <article class="available-card">
+                <div class="available-card-header">
+                  <div class="available-title">Order #3124</div>
+                  <span class="status-pill status-active">Active</span>
+                </div>
+                <div class="available-price">₱2,800 • Due 15/02/2026</div>
+                <div class="available-body">
+                  <div>Type: Sublimation</div>
+                  <div>Class: T‑shirt</div>
+                  <div>Customer: Santos</div>
+                </div>
+                <div class="available-footer">
+                  <span class="current-pill">Current: Sublimation</span>
+                </div>
+              </article>
+            </a>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>
+

@@ -5,8 +5,40 @@
     align-items: center;
 }
 
+.asideLayout {
+    display: flex;
+}
+
+.asideLayout>aside {
+    flex: 1;
+}
+
+.asideLayout>main {
+    flex: 6;
+}
+
+.asideLayout>main>*:first-child {
+    margin-top: 1rem;
+}
+
+.asideLayout>main>* {
+    margin-right: 2rem;
+    margin-left: 2rem;
+}
+
+.asideLayout>main>section {
+    max-height: 85vh;
+    height: 85vh;
+}
+
 .columnLayout {
     display: flex;
+    flex-direction: column;
+}
+
+.centerHoriColumnLayout {
+    display: flex;
+    justify-content: center;
     flex-direction: column;
 }
 
@@ -22,10 +54,147 @@
     gap: 2em;
 }
 
+.fullHeight {
+    height: 100%;
+}
+
 .fullWidth {
     width: 100%;
 }
 
+.fullDimensions {
+    height: 100%;
+    width: 100%;
+}
+
+.leftAlign {
+    align-items: baseline;
+}
+
 .leftStart {
     align-self: baseline;
+}
+
+.centerStart {
+    align-self: center;
+}
+
+.centerRowLayout {
+    display: flex;
+    align-items: center;
+}
+
+.rowLayout {
+    display: flex;
+}
+
+.flexStretch {
+    align-items: stretch;
+}
+
+.regPadding {
+    padding: 1rem;
+}
+
+.minPadding {
+    padding: 0.3rem 0.5rem;
+}
+
+.midPadding {
+    padding: 1em 2em;
+}
+
+.flexMin {
+    flex: 1;
+}
+
+.flexMid {
+    flex: 3;
+}
+
+.flexMax {
+    flex: 6;
+}
+
+.scrollable {
+    overflow-y: scroll;
+}
+
+.fixedScreen {
+    overflow: hidden;
+}
+
+.minWidth {
+    width: 5rem;
+}
+
+.midWidth {
+    width: 10rem !important;
+}
+
+.maxWidth {
+    width: 20rem !important;
+}
+
+.extraWidth {
+    width: 30rem !important;
+}
+
+.tinHeight {
+    height: 3rem !important;
+}
+
+.minHeight {
+    height: 5rem !important;
+}
+
+.midHeight {
+    height: 10rem !important;
+}
+
+.maxHeight {
+    height: 20rem !important;
+}
+
+.gridFlexMid {
+    display: flex;
+    flex-wrap: wrap;
+    flex: auto;
+    height: unset;
+    flex-grow: 0;
+}
+
+.gridFlexMid>* {
+    width: 32.5%;
+}
+
+.flexStatic {
+    flex-grow: 0;
+}
+
+.centerHoriSelf {
+    margin: 0 auto;
+}
+
+.triItemLayout>* {
+    width: 32.5%;
+}
+
+.marginMicro {
+    margin: 0.25rem;
+}
+
+.souEastAbsolute {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+}
+
+*:has(> .souEastAbsolute) {
+    position: relative;
+}
+
+.selfCenter {
+    align-self: center;
+    justify-self: center;
 }

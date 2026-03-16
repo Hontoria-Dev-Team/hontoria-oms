@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Order - HontoriaOMS (Admin)</title>
+    <link rel="stylesheet" href="../../../assets/css/employee.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo" aria-label="Hontoria logo">
+                    <img src="../../../assets/images/whitehontoria-removebg-preview.png" alt="Hontoria" />
+                </div>
+                <div class="brand-title">HontoriaOMS</div>
+            </div>
+
+            <nav class="nav" aria-label="Admin navigation">
+                <a href="../../../admin/dashboard.html" class="nav-item">
+                    <i class="fa-solid fa-border-all"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="../../../admin/orders.html" class="nav-item active">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="../../../admin/staff.html" class="nav-item">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Staff</span>
+                </a>
+                <a href="../../../admin/inventory.html" class="nav-item">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                    <span>Inventory</span>
+                </a>
+                <a href="../../../admin/analytics.html" class="nav-item">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="../../../admin/archive.html" class="nav-item">
+                    <i class="fa-solid fa-box-archive"></i>
+                    <span>Archive</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="../../../admin/admin-settings.html" class="employee-badge">
+                    <i class="fa-regular fa-user"></i>
+                    <span>Admin</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main main-create-order">
+            <header class="page-header create-order-header">
+                <h1>Create Order</h1>
+            </header>
+
+            <section aria-label="Create order form">
+                <form
+                  class="create-order-form"
+                  action="../../../admin/orders.html"
+                  method="get"
+                >
+                    <div class="form-columns">
+                        <div class="form-column">
+                            <div class="form-card">
+                                <h3>Order Details</h3>
+                                <div class="form-group">
+                                    <label for="order-type">Type</label>
+                                    <input
+                                      id="order-type"
+                                      name="order-type"
+                                      type="text"
+                                      placeholder="e.g. Sublimation"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="order-class">Class</label>
+                                    <input
+                                      id="order-class"
+                                      name="order-class"
+                                      type="text"
+                                      placeholder="e.g. Jersey"
+                                    />
+                                    <span class="form-hint">e.g. Jersey, T‑shirt, Hoodie</span>
+                                </div>
+                            </div>
+
+                            <div class="form-card">
+                                <h3>Customer Information</h3>
+                                <div class="form-group">
+                                    <label for="cust-first">First</label>
+                                    <input
+                                      id="cust-first"
+                                      name="cust-first"
+                                      type="text"
+                                      placeholder="First name"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="cust-middle">Middle</label>
+                                    <input
+                                      id="cust-middle"
+                                      name="cust-middle"
+                                      type="text"
+                                      placeholder="Middle name"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="cust-last">Last</label>
+                                    <input
+                                      id="cust-last"
+                                      name="cust-last"
+                                      type="text"
+                                      placeholder="Last name"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="group-link">Group Chat Link</label>
+                                    <input
+                                      id="group-link"
+                                      name="group-link"
+                                      type="url"
+                                      placeholder="https://"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="form-card">
+                                <h3>Employees</h3>
+                                <div class="employees-section">
+                                    <select class="employees-select">
+                                        <option value="">Select employee</option>
+                                        <option value="kym">Kym</option>
+                                        <option value="aljon">Aljon</option>
+                                        <option value="santos">Santos</option>
+                                    </select>
+                                    <button
+                                      type="button"
+                                      class="btn btn-primary btn-add-employee"
+                                    >
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Add Employee</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-column">
+                            <div class="form-card">
+                                <h3>Size &amp; Quantity</h3>
+                                <div class="form-group">
+                                    <label for="sizes">Sizes</label>
+                                    <input
+                                      id="sizes"
+                                      name="sizes"
+                                      type="text"
+                                      placeholder="e.g. S 20, M 5"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="total-qty">Total Quantity</label>
+                                    <input
+                                      id="total-qty"
+                                      name="total-qty"
+                                      type="number"
+                                      min="1"
+                                      placeholder="0"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="form-card">
+                                <h3>Tasks</h3>
+                                <div class="tasks-list">
+                                    <div class="task-item">
+                                        <span class="task-name">Designing</span>
+                                        <select class="task-status">
+                                            <option>Pending</option>
+                                            <option>In Progress</option>
+                                            <option>Done</option>
+                                        </select>
+                                    </div>
+                                    <div class="task-item">
+                                        <span class="task-name">Printing</span>
+                                        <select class="task-status">
+                                            <option>Pending</option>
+                                            <option>In Progress</option>
+                                            <option>Done</option>
+                                        </select>
+                                    </div>
+                                    <div class="task-item">
+                                        <span class="task-name">Heatpress</span>
+                                        <select class="task-status">
+                                            <option>Pending</option>
+                                            <option>In Progress</option>
+                                            <option>Done</option>
+                                        </select>
+                                    </div>
+                                    <div class="task-item">
+                                        <span class="task-name">Sewing</span>
+                                        <select class="task-status">
+                                            <option>Pending</option>
+                                            <option>In Progress</option>
+                                            <option>Done</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-card">
+                                <h3>Pricing &amp; Deadline</h3>
+                                <div class="form-group">
+                                    <label for="order-price">Order Price</label>
+                                    <input
+                                      id="order-price"
+                                      name="order-price"
+                                      type="text"
+                                      placeholder="₱0.00"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="order-discount">Order Discount</label>
+                                    <input
+                                      id="order-discount"
+                                      name="order-discount"
+                                      type="text"
+                                      placeholder="0"
+                                    />
+                                </div>
+                                <div class="form-group">
+                                    <label for="due-date">Due Date</label>
+                                    <input id="due-date" name="due-date" type="date" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="../../../admin/orders.html" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-confirm">
+                            Confirm Creation
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
+

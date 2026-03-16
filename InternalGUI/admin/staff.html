@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff - HontoriaOMS</title>
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/employee.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="app">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-logo" aria-label="Hontoria logo">
+            <img
+              src="../assets/images/whitehontoria-removebg-preview.png"
+              alt="Hontoria"
+            />
+          </div>
+          <div class="brand-title">HontoriaOMS</div>
+        </div>
+
+        <nav class="nav" aria-label="Admin navigation">
+          <a href="dashboard.html" class="nav-item">
+            <i class="fa-solid fa-border-all"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="orders.html" class="nav-item">
+            <i class="fa-solid fa-clipboard-list"></i>
+            <span>Orders</span>
+          </a>
+          <a href="staff.html" class="nav-item active">
+            <i class="fa-solid fa-users"></i>
+            <span>Staff</span>
+          </a>
+          <a href="inventory.html" class="nav-item">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Inventory</span>
+          </a>
+          <a href="analytics.html" class="nav-item">
+            <i class="fa-solid fa-chart-simple"></i>
+            <span>Analytics</span>
+          </a>
+          <a href="archive.html" class="nav-item">
+            <i class="fa-solid fa-box-archive"></i>
+            <span>Archive</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="admin-settings.html" class="employee-badge">
+            <i class="fa-regular fa-user"></i>
+            <span>Admin</span>
+          </a>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main">
+        <header class="page-header">
+          <h1>Staff</h1>
+        </header>
+
+        <section class="staff-layout" aria-label="Staff overview">
+          <!-- Left: staff list -->
+          <article class="card staff-list-card">
+            <div class="staff-list-header">
+              <div class="staff-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input
+                  type="text"
+                  placeholder="Search staff"
+                  aria-label="Search staff"
+                />
+              </div>
+              <select class="staff-filter" aria-label="Filter employees">
+                <option>All employees</option>
+                <option>Active</option>
+                <option>Idle</option>
+              </select>
+            </div>
+
+            <div class="staff-cards">
+              <button class="staff-card staff-card-active" type="button">
+                <div class="staff-avatar">
+                  <i class="fa-regular fa-user"></i>
+                </div>
+                <div class="staff-main">
+                  <div class="staff-name">Aljun Cursigo</div>
+                  <div class="staff-role">Layout Artist</div>
+                  <div class="staff-meta">Active tasks: 1</div>
+                </div>
+                <span class="staff-status staff-status-active">Active</span>
+              </button>
+
+              <button class="staff-card" type="button">
+                <div class="staff-avatar">
+                  <i class="fa-regular fa-user"></i>
+                </div>
+                <div class="staff-main">
+                  <div class="staff-name">Kym Santos</div>
+                  <div class="staff-role">Printer</div>
+                  <div class="staff-meta">Active tasks: 2</div>
+                </div>
+                <span class="staff-status staff-status-active">Active</span>
+              </button>
+
+              <button class="staff-card" type="button">
+                <div class="staff-avatar">
+                  <i class="fa-regular fa-user"></i>
+                </div>
+                <div class="staff-main">
+                  <div class="staff-name">Kat Rivera</div>
+                  <div class="staff-role">Seamstress</div>
+                  <div class="staff-meta">Active tasks: 0</div>
+                </div>
+                <span class="staff-status staff-status-idle">Idle</span>
+              </button>
+            </div>
+
+            <div class="staff-actions">
+              <button class="btn btn-primary" type="button">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add New Staff</span>
+              </button>
+            </div>
+          </article>
+
+          <!-- Right: staff details + current order -->
+          <article class="staff-detail-column">
+            <div class="card staff-detail-card">
+              <div class="staff-detail-header">
+                <div class="staff-avatar large">
+                  <i class="fa-regular fa-user"></i>
+                </div>
+                <div>
+                  <h2>Aljun Cursigo</h2>
+                  <div class="staff-role">Layout Artist</div>
+                  <div class="staff-meta">Active tasks: 1 · Miscellaneous Task</div>
+                  <span class="staff-status-badge staff-status-active">
+                    Status: Active
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <a href="../modules/production/admin/designing-process.html" class="staff-order-link">
+              <div class="card staff-order-card">
+                <div class="staff-order-header">
+                  <h3>Order #3123</h3>
+                  <span class="staff-status-badge staff-status-active">Active</span>
+                </div>
+                <div class="staff-order-grid">
+                  <div class="staff-order-field">
+                    <label>Price</label>
+                    <div>₱3,500.00</div>
+                  </div>
+                  <div class="staff-order-field">
+                    <label>Date</label>
+                    <div>13/02/2026</div>
+                  </div>
+                  <div class="staff-order-field">
+                    <label>Task Type</label>
+                    <div>Sublimation</div>
+                  </div>
+                  <div class="staff-order-field">
+                    <label>Customer</label>
+                    <div>Machina</div>
+                  </div>
+                </div>
+                <div class="staff-current-task">
+                  <label>Current Task</label>
+                  <div>Designing</div>
+                </div>
+              </div>
+            </a>
+          </article>
+        </section>
+      </main>
+    </div>
+</body>
+
+</html>
