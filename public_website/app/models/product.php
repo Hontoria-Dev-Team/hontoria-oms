@@ -96,7 +96,7 @@ class product {
                 'name'        => 'T-Shirt',
                 'category'    => 'sublimation',
                 'description' => 'Custom sublimation printed t-shirts in any design. Great for organizations, teams, and personal use.',
-                'price'       => 0,
+                'price'       => 300,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => 'img/sublimationPicture/tshirtPicture/tshirtPicture1.jpg',
