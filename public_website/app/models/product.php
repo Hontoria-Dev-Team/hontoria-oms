@@ -77,11 +77,16 @@ class product {
         }
 
         // ── Longsleeve photos (2 photos) ──────────────────────────────────
-        // Filename: longSlevee1.jpg, longSlevee2.jpg (capital S, single 'e' in Slevee)
-        $longsleevePhotos = [
-            'img/sublimationPicture/longsleevePicture/longSlevee1.jpg',
-            'img/sublimationPicture/longsleevePicture/longSlevee2.jpg',
-        ];
+        $longsleevePhotos = [];
+           for ($i = 1; $i <= 2; $i++) {
+             $longsleevePhotos[]= 'img/sublimationPicture/longsleveePicture/longslevee' .$i. '.jpg';
+           }
+            
+        // ── Polo Shirt photos (10 photos) ─────────────────────────────────
+        $poloshirtPhotos = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $poloshirtPhotos[] = 'img/sublimationPicture/poloshirtPicture/polo' . $i . '.jpg';
+        }
 
         return [
 
@@ -149,8 +154,19 @@ class product {
                 'price'       => 400,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => 'img/sublimationPicture/longsleevePicture/longSlevee1.jpg',
+                'photo'       => 'img/sublimationPicture/longsleevePicture/longsleeve1.jpg',
                 'photos'      => $longsleevePhotos,
+            ]),
+            new product([
+                'id'          => 'poloshirt',
+                'name'        => 'Polo Shirt',
+                'category'    => 'sublimation',
+                'description' => 'Custom sublimation polo shirts with full color printing. Great for corporate events, teams, and casual wear.',
+                'price'       => 430,
+                'icon'        => 'fa-tshirt',
+                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
+                'photo'       => 'img/sublimationPicture/poloshirtPicture/polo1.jpg',
+                'photos'      => $poloshirtPhotos,
             ]),
 
             // ── UNIFORM ───────────────────────────────────────────────────
