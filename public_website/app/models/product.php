@@ -8,7 +8,6 @@
  * 2. Set 'price' to 0 for "Contact us for pricing"
  * 3. Set 'photo' to the first/main image path
  * 4. Set 'photos' to an array of all gallery image paths (used in modal thumbnails)
- *    e.g. 'photos' => ['img/sublimationPicture/jerseyPicture/jerseyPicture1.jpg', ...]
  */
 class product {
 
@@ -19,8 +18,8 @@ class product {
     private float  $price;
     private string $icon;
     private string $bgGradient;
-    private string $photo;   // Main card image
-    private array  $photos;  // All gallery images for modal thumbnails
+    private string $photo;
+    private array  $photos;
 
     public function __construct(array $data) {
         $this->id          = $data['id']          ?? '';
@@ -31,7 +30,7 @@ class product {
         $this->icon        = $data['icon']        ?? 'fa-image';
         $this->bgGradient  = $data['bgGradient']  ?? 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
         $this->photo       = $data['photo']       ?? '';
-        $this->photos      = $data['photos']      ?? []; // Empty = no gallery yet
+        $this->photos      = $data['photos']      ?? [];
     }
 
     public function getId(): string          { return $this->id; }
@@ -65,23 +64,24 @@ class product {
 
     public static function getAllProducts(): array {
 
-        // ── Jersey photos gallery (16 photos) ────────────────────────────
+        // ── Jersey photos (16 photos) ─────────────────────────────────────
         $jerseyPhotos = [];
         for ($i = 1; $i <= 16; $i++) {
             $jerseyPhotos[] = 'img/sublimationPicture/jerseyPicture/jerseyPicture' . $i . '.jpg';
         }
 
-        // ── T-Shirt photos gallery (25 photos) ────────────────────────────
+        // ── T-Shirt photos (25 photos) ────────────────────────────────────
         $tshirtPhotos = [];
         for ($i = 1; $i <= 25; $i++) {
             $tshirtPhotos[] = 'img/sublimationPicture/tshirtPicture/tshirtPicture' . $i . '.jpg';
         }
 
-        // ── Longsleeve photos gallery ─────────────────────────────────────
-        $longsleevePhotos = [];
-        for ($i = 1; $i <= 20; $i++) {
-            $longsleevePhotos[] = 'img/sublimationPicture/longsleevePicture/longsleevePicture' . $i . '.jpg';
-        }
+        // ── Longsleeve photos (2 photos) ──────────────────────────────────
+        // Filename: longSlevee1.jpg, longSlevee2.jpg (capital S, single 'e' in Slevee)
+        $longsleevePhotos = [
+            'img/sublimationPicture/longsleevePicture/longSlevee1.jpg',
+            'img/sublimationPicture/longsleevePicture/longSlevee2.jpg',
+        ];
 
         return [
 
@@ -149,7 +149,7 @@ class product {
                 'price'       => 400,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => 'img/sublimationPicture/longsleevePicture/longsleevePicture1.jpg',
+                'photo'       => 'img/sublimationPicture/longsleevePicture/longSlevee1.jpg',
                 'photos'      => $longsleevePhotos,
             ]),
 
