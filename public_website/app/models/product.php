@@ -73,8 +73,14 @@ class product {
 
         // ── T-Shirt photos gallery (25 photos) ────────────────────────────
         $tshirtPhotos = [];
-        for ($i = 1; $i <= 24; $i++) {
+        for ($i = 1; $i <= 25; $i++) {
             $tshirtPhotos[] = 'img/sublimationPicture/tshirtPicture/tshirtPicture' . $i . '.jpg';
+        }
+
+        // ── Longsleeve photos gallery ─────────────────────────────────────
+        $longsleevePhotos = [];
+        for ($i = 1; $i <= 20; $i++) {
+            $longsleevePhotos[] = 'img/sublimationPicture/longsleevePicture/longsleevePicture' . $i . '.jpg';
         }
 
         return [
@@ -134,6 +140,17 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => '',
                 'photos'      => [],
+            ]),
+            new product([
+                'id'          => 'longsleeve',
+                'name'        => 'Long Sleeve',
+                'category'    => 'sublimation',
+                'description' => 'Full sublimation long sleeve shirts with vibrant custom designs. Perfect for teams, events, and everyday wear.',
+                'price'       => 400,
+                'icon'        => 'fa-tshirt',
+                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
+                'photo'       => 'img/sublimationPicture/longsleevePicture/longsleevePicture1.jpg',
+                'photos'      => $longsleevePhotos,
             ]),
 
             // ── UNIFORM ───────────────────────────────────────────────────

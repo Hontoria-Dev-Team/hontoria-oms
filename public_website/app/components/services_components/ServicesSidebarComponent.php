@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../reusable_components/Component.php';
+require_once __DIR__ . '/../home_components/Component.php';
 
 /**
  * ServicesSidebarComponent.php
@@ -92,7 +92,7 @@ class ServicesSidebarComponent extends \Component {
                 'id'    => 'sublimation',
                 'icon'  => 'fa-fire',
                 'label' => 'SUBLIMATION',
-                'items' => ['Jersey', 'T-Shirt', 'Short', 'Warmer', 'Jogging Pants'],
+                'items' => ['Jersey', 'T-Shirt', 'Short', 'Warmer', 'Jogging Pants', 'Long Sleeve'],
             ],
             [
                 'id'    => 'uniform',

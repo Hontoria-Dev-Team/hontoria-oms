@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'Short':                   { desc:'Vibrant sublimation printed shorts. Matched perfectly with our jerseys for a complete team uniform.',                                icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
     'Warmer':                  { desc:'Sublimation warmers for players and athletes. Keeps you warm while looking professional.',                                           icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
     'Jogging Pants':           { desc:'Full sublimation jogging pants with any design. Comfortable, durable, and eye-catching.',                                           icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
+    'Long Sleeve':             { desc:'Full sublimation long sleeve shirts with vibrant custom designs. Perfect for teams, events, and everyday wear.',                    icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
     // Uniform
     'School Uniform':          { desc:'Custom-made school uniforms tailored to your school\'s specifications. Durable, comfortable, and neat.',                            icon:'fa-user-graduate',  bg:'linear-gradient(135deg,#e8f0ff,#c8d8ff)' },
     'Office Uniform':          { desc:'Professional office uniforms tailored for a sharp, consistent look across your entire team.',                                        icon:'fa-briefcase',      bg:'linear-gradient(135deg,#e8f0ff,#c8d8ff)' },
