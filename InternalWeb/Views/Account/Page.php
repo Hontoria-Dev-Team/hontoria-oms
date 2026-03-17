@@ -11,7 +11,7 @@
     <?php include("../Views/.Components/SideBar.php"); ?>
     <main class="columnLayout">
         <h1 class="titleLogo minGap tinHeight">
-            <img src="../../Shared/Img/PersonIcon.png" alt="Person"> Account Settings
+            <img src="../../Shared/Img/AccountSettingsIcon.png" alt="AccountSettings"> Account Settings
         </h1>
         <?php include("../Views/.Components/ErrorBox.php"); ?>
         <div class="centerColumnLayout midGap flexMax">
