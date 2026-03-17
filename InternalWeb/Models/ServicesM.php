@@ -7,7 +7,7 @@ class ServicesM {
     }
 
     public function getServices() {
-        $query = "SELECT id, name, isActive, description FROM services";
+        $query = "SELECT id, name, isActive, description FROM services ORDER BY isActive DESC, name ASC";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
@@ -15,7 +15,7 @@ class ServicesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getService($id) {
+    public function getServiceByID($id) {
         $query = "SELECT name, description FROM services WHERE id = :id";
 
         $stmt = $this->pdo->prepare($query);
@@ -23,6 +23,36 @@ class ServicesM {
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getServiceByName($name) {
+        $query = "SELECT id, description FROM services WHERE name = :name";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':name', $name);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function insertService($name) {
+        $service = $this->getServiceByName($name);
+
+        if ($service) {
+            return false;
+        }
+
+        $query = "INSERT INTO services (name) VALUES (:name);";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':name', $name);
+        return $stmt->execute();
+    }
+
+    public function removeService($id) {
+        $query = "DELETE FROM services WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
     }
 
     public function getSubservices($serviceID) {

@@ -21,6 +21,28 @@ class ServicesC {
         exit();
     }
 
+    public function createService() {
+        $name = ucwords(strtolower(trim($_POST['name'])));
+
+        $creation = $this->servicesModel->insertService($name);
+        $error = null;
+
+        if ($creation) {
+            header('Location: index.php?page=services');
+        } else {
+            $page = 'services';
+            $error = "Service name already exists.";
+            require __DIR__ . '/../Views/Services/Page.php';
+        }
+    }
+
+    public function deleteService() {
+        $serviceID = $_POST['selectedID'];
+        $this->servicesModel->removeService($serviceID);
+
+        header('Location: index.php?page=services');
+    }
+
     public function toggleSubserviceStatus($serviceID) {
         $selectedID = $_POST['selectedID'];
         $this->servicesModel->updateSubserviceStatus($selectedID);
@@ -43,7 +65,7 @@ class ServicesC {
         $page = "services";
         $lastPage = "services";
         $backLink = "index.php?page=services";
-        $service = $this->servicesModel->getService($serviceID);
+        $service = $this->servicesModel->getServiceByID($serviceID);
         $processList = $this->servicesModel->getServiceProcess($serviceID);
         $subservicesList = $this->servicesModel->getSubservices($serviceID);
         $processes = $this->servicesModel->getAllProcesses();
@@ -62,7 +84,7 @@ class ServicesC {
             $lastPage = "services";
             $backLink = "index.php?page=services";
             $error = "Subservice name already exists.";
-            $service = $this->servicesModel->getService($serviceID);
+            $service = $this->servicesModel->getServiceByID($serviceID);
             $processList = $this->servicesModel->getServiceProcess($serviceID);
             $subservicesList = $this->servicesModel->getSubservices($serviceID);
             $processes = $this->servicesModel->getAllProcesses();
@@ -98,7 +120,7 @@ class ServicesC {
             $lastPage = "services";
             $backLink = "index.php?page=services";
             $error = "Process name already exists.";
-            $service = $this->servicesModel->getService($serviceID);
+            $service = $this->servicesModel->getServiceByID($serviceID);
             $processList = $this->servicesModel->getServiceProcess($serviceID);
             $subservicesList = $this->servicesModel->getSubservices($serviceID);
             $processes = $this->servicesModel->getAllProcesses();

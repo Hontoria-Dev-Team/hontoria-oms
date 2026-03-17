@@ -96,6 +96,10 @@ switch ($page) {
             }
         } else if ($action === 'updateStatus') {
             $services->toggleServiceStatus();
+        } else if ($action === 'create') {
+            $services->createService();
+        } else if ($action === 'delete') {
+            $services->deleteService();
         } else {
             $services->showServices();
         }
