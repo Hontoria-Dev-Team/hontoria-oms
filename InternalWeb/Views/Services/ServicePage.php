@@ -45,7 +45,7 @@
                                         <button type="button" class="statusButton capitalFirst flexMax"
                                             data-id="<?= $id ?>" data-name="<?= $name ?>" data-status-invert="<?= $statusInvert ?>"><?= $status ?></button>
                                         <?php if ($status === 'disabled'): ?>
-                                            <button type="button" class="deleteButton criticalInput flexMin centerColumnLayout"
+                                            <button type="button" class="deleteButton criticalInput centerColumnLayout"
                                                 data-id="<?= $id ?>" data-name="<?= $name ?>">
                                                 <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
                                             </button>
