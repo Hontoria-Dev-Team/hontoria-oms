@@ -2,8 +2,9 @@
 require_once __DIR__ . '/../reusable_components/Component.php';
 
 /**
- * Services Modal Component
- * Renders product detail modal
+ * ServicesModalComponent.php
+ * Renders the product detail modal.
+ * Supports variant selector (e.g. White Mug / Magic Mug) with auto price switching.
  */
 class ServicesModalComponent extends \Component {
 
@@ -44,6 +45,12 @@ class ServicesModalComponent extends \Component {
                         <span class="modal-price" id="modalPrice">Contact us for pricing</span>
                     </div>
 
+                    <!-- Variant selector — hidden by default, JS shows it when variants exist -->
+                    <div class="modal-variant-row" id="modalVariantRow" style="display:none">
+                        <span class="modal-field-label">Type:</span>
+                        <select class="modal-variant-select" id="modalVariantSelect"></select>
+                    </div>
+
                     <div class="modal-spacer"></div>
 
                     <div class="modal-qty-row">
@@ -61,10 +68,10 @@ class ServicesModalComponent extends \Component {
                     </div>
 
                     <!-- Note for customer -->
-                    <div class="modal-note">
-                        <strong>Note:</strong>
-                        <p>Screenshot your preferred design and send it directly to our
-                        <a href="<?php echo $this->escape($fbLink); ?>" target="_blank">Facebook Messenger</a>.
+                    <div class="modal-field">
+                        <span class="modal-field-label">Note:</span>
+                        <p class="modal-desc">Screenshot your preferred design and send it directly to our
+                        <a href="<?php echo $this->escape($fbLink); ?>" target="_blank" style="color:#CC1A00;font-weight:700">Facebook Messenger</a>.
                         We'll get back to you with the details!</p>
                     </div>
 

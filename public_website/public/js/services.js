@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     'Short':                   { desc:'Vibrant sublimation printed shorts. Matched perfectly with our jerseys for a complete team uniform.',                                icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
     'Warmer':                  { desc:'Sublimation warmers for players and athletes. Keeps you warm while looking professional.',                                           icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
     'Jogging Pants':           { desc:'Full sublimation jogging pants with any design. Comfortable, durable, and eye-catching.',                                           icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
+    'Long Sleeve':             { desc:'Full sublimation long sleeve shirts with vibrant custom designs. Perfect for teams, events, and everyday wear.',                    icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
+    'Polo Shirt':              { desc:'Custom sublimation polo shirts with full color printing. Great for corporate events, teams, and casual wear.',                      icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
     // Uniform
     'School Uniform':          { desc:'Custom-made school uniforms tailored to your school\'s specifications. Durable, comfortable, and neat.',                            icon:'fa-user-graduate',  bg:'linear-gradient(135deg,#e8f0ff,#c8d8ff)' },
     'Office Uniform':          { desc:'Professional office uniforms tailored for a sharp, consistent look across your entire team.',                                        icon:'fa-briefcase',      bg:'linear-gradient(135deg,#e8f0ff,#c8d8ff)' },
@@ -160,19 +162,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const card    = [...allCards].find(c => c.dataset.name === name);
     const info    = productInfo[name];
 
-    const desc    = info?.desc  || card?.querySelector('.card-desc')?.textContent || '';
-    const icon    = info?.icon  || 'fa-image';
-    const bg      = info?.bg    || 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
-    const price   = parseFloat(card?.dataset.price || 0);
-    const photos  = card?.dataset.photos ? JSON.parse(card.dataset.photos) : [];
+    const desc     = info?.desc  || card?.querySelector('.card-desc')?.textContent || '';
+    const icon     = info?.icon  || 'fa-image';
+    const bg       = info?.bg    || 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
+    const price    = parseFloat(card?.dataset.price || 0);
+    const photos   = card?.dataset.photos   ? JSON.parse(card.dataset.photos)   : [];
+    const variants = card?.dataset.variants ? JSON.parse(card.dataset.variants) : [];
 
     currentPrice = price;
     let currentPhotoIdx = 0;
 
-    if (modalTitle)   modalTitle.textContent = name;
-    if (modalDesc)    modalDesc.textContent  = desc;
-    if (modalPrice)   modalPrice.textContent = price > 0 ? '₱' + price.toLocaleString() + ' each' : 'Contact us for pricing';
-    if (qtyInput)     qtyInput.value         = 1;
+    if (modalTitle) modalTitle.textContent = name;
+    if (modalDesc)  modalDesc.textContent  = desc;
+    if (qtyInput)   qtyInput.value         = 1;
+
+    // ── Variant selector (e.g. White Mug / Magic Mug) ─────────────────
+    const variantRow    = document.getElementById('modalVariantRow');
+    const variantSelect = document.getElementById('modalVariantSelect');
+
+    if (variants.length > 0 && variantRow && variantSelect) {
+      variantRow.style.display = 'flex';
+      variantSelect.innerHTML  = variants.map(v =>
+        `<option value="${v.price}">${v.name} — ₱${v.price.toLocaleString()}</option>`
+      ).join('');
+      currentPrice = variants[0].price;
+      if (modalPrice) modalPrice.textContent = '₱' + currentPrice.toLocaleString() + ' each';
+      variantSelect.onchange = () => {
+        currentPrice = parseFloat(variantSelect.value);
+        if (modalPrice) modalPrice.textContent = '₱' + currentPrice.toLocaleString() + ' each';
+        updateTotal();
+      };
+    } else {
+      if (variantRow) variantRow.style.display = 'none';
+      if (modalPrice) modalPrice.textContent = price > 0 ? '₱' + price.toLocaleString() + ' each' : 'Contact us for pricing';
+    }
+
     updateTotal();
 
     // ── Render main image with prev/next arrows ───────────────────────

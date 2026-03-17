@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../reusable_components/Component.php';
-
 /**
  * ServicesSidebarComponent.php
  * Renders sidebar navigation with category filtering.
@@ -92,7 +91,7 @@ class ServicesSidebarComponent extends \Component {
                 'id'    => 'sublimation',
                 'icon'  => 'fa-fire',
                 'label' => 'SUBLIMATION',
-                'items' => ['Jersey', 'T-Shirt', 'Short', 'Warmer', 'Jogging Pants'],
+                'items' => ['Jersey', 'T-Shirt', 'Short', 'Warmer', 'Jogging Pants', 'Long Sleeve', 'Polo Shirt'],
             ],
             [
                 'id'    => 'uniform',
