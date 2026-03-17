@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title><?php echo $pageTitle; ?></title>
+    <title>Dashboard - Hontoria OMS</title>
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
 </head>
 

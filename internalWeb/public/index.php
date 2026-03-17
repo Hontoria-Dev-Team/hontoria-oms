@@ -37,12 +37,10 @@ switch ($page) {
         break;
 
     case 'dashboard':
-        $pageTitle = 'Dashboard - Hontoria OMS';
         require_once __DIR__ . '/../Views/Dashboard/Page.php';
         break;
 
     case 'staff':
-        $pageTitle = 'Staff Panel - Hontoria OMS';
         if ($action === 'filter') {
             $search = $_GET['search'] ?? '';
             $status = $_GET['status'] ?? '';
@@ -64,7 +62,6 @@ switch ($page) {
         break;
 
     case 'account':
-        $pageTitle = 'Account Panel - Hontoria OMS';
         if ($action === 'rename') {
             $authorization->setUsername();
         } else if ($action === 'updateContacts') {

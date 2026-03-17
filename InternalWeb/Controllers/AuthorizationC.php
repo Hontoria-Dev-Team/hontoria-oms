@@ -9,14 +9,12 @@ class AuthorizationC {
 
     public function showLogin() {
         $page = "login";
-        $pageTitle = "Internal Login";
         $error = null;
         require __DIR__ . '/../Views/Login/Page.php';
     }
 
     public function showStaff($search = '', $status = '') {
         $page = "staff";
-        $pageTitle = "Staff Panel - Hontoria OMS";
 
         if ($search !== '' || $status !== '') {
             $staffList = $this->staffModel->getfilteredStaff($search, $status);
@@ -63,7 +61,6 @@ class AuthorizationC {
             exit;
         } else {
             $error = "Invalid username or password.";
-            $pageTitle = "Internal Login";
             require __DIR__ . '/../Views/Login/Page.php';
         }
     }
@@ -103,7 +100,6 @@ class AuthorizationC {
         } else {
             $page = 'staff';
             $lastPage = 'staff';
-            $pageTitle = 'Account Creation - Hontoria OMS';
             $error = "Username already exists.";
             require __DIR__ . '/../Views/Staff/CreateAccount.php';
         }
@@ -128,7 +124,6 @@ class AuthorizationC {
             header('Location: index.php?page=account');
         } else {
             $page = 'account';
-            $pageTitle = 'Account Panel - Hontoria OMS';
             $error = "Username already exists.";
             require __DIR__ . '/../Views/Account/Page.php';
         }
@@ -157,7 +152,6 @@ class AuthorizationC {
 
         if (!$user) {
             $page = 'account';
-            $pageTitle = 'Account Panel - Hontoria OMS';
             $error = "Incorrect Password.";
             require __DIR__ . '/../Views/Account/Page.php';
             return;
@@ -165,7 +159,6 @@ class AuthorizationC {
 
         if ($passNew !== $passRetype) {
             $page = 'account';
-            $pageTitle = 'Account Panel - Hontoria OMS';
             $error = "New And Retyped Password Mismatch.";
             require __DIR__ . '/../Views/Account/Page.php';
             return;
