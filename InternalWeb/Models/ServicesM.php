@@ -52,7 +52,7 @@ class ServicesM {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function getProcess($serviceID) {
+    public function getServiceProcess($serviceID) {
         $query = "SELECT processes.id, processes.name, serviceProcess.phase
                   FROM serviceProcess
                   JOIN processes ON serviceProcess.processesID = processes.id
@@ -64,6 +64,16 @@ class ServicesM {
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getSingleProcessByName($name) {
+        $query = "SELECT id FROM processes WHERE name = :name";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':name', $name);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_COLUMN);
     }
 
     public function updateServiceStatus($id) {
@@ -110,5 +120,51 @@ class ServicesM {
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':serviceID', $serviceID);
         return $stmt->execute();
+    }
+
+    public function clearServiceProcess($id) {
+        $query = "DELETE FROM serviceProcess WHERE serviceID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
+    public function updateServiceProcess($id, $processes) {
+        $this->clearServiceProcess($id);
+
+        if (!empty($processes)) {
+            $query = "INSERT INTO serviceProcess (serviceID, processesID, phase) VALUES (:serviceID, :processID, :phase)";
+            $stmt = $this->pdo->prepare($query);
+
+            for ($i = 0; $i < count($processes); $i++) {
+                $stmt->execute([
+                    ':serviceID' => $id,
+                    ':processID' => $processes[$i],
+                    ':phase' => $i + 1
+                ]);
+            }
+        }
+    }
+
+    public function insertProcess($name) {
+        $process = $this->getSingleProcessByName($name);
+
+        if ($process) {
+            return false;
+        }
+
+        $query = "INSERT INTO processes (name) VALUES (:name);";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':name', $name);
+        return $stmt->execute();
+    }
+
+    public function getAllProcesses() {
+        $query = "SELECT id, name FROM processes ORDER BY name";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

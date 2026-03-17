@@ -19,22 +19,12 @@
                         <img src="../../Shared/Img/GearIcon.png" alt="Gear"> <?= $service['name'] ?> Service
                     </h1>
                     <h2>Service Process:</h2>
-                    <div class="centerRowLayout minGap" id="process">
-                        <?php if (count($processList) > 0): ?>
-                            <div class="flexMin minHeight bordered roundedMin centerColumnLayout">
-                                <h3><?= $processList[0]['name'] ?></h3>
-                            </div>
-                            <?php for ($i = 1; $i < count($processList); $i++): ?>
-                                <h1>></h1>
-                                <div class="flexMin minHeight bordered roundedMin centerColumnLayout">
-                                    <h3><?= $processList[$i]['name'] ?></h3>
-                                </div>
-                            <?php endfor; ?>
-                        <?php else: ?>
-                            <div class="flexMin minHeight bordered roundedMin centerColumnLayout">
-                                <h3>Empty process</h3>
-                            </div>
-                        <?php endif; ?>
+                    <div class="columnLayout minGap">
+                        <div class="centerHoriRowLayout minGap" id="process"></div>
+                        <div class="rowLayout minGap">
+                            <button type="button" id="updateProcessButton" class="importantInput flexMax">Update Service Process</button>
+                            <button type="button" id="addProcessButton" class="importantInput">Add Service Process</button>
+                        </div>
                     </div>
                     <h2>Subservices:</h2>
                     <?php if (count($subservicesList) > 0): ?>
@@ -87,7 +77,7 @@
                         <input type="hidden" name="setDescription" id="setDescription">
                         <label for="description">Description</label>
                         <textarea name="description" class="scrollableTextarea minHeight fullWidth minPadding justifiedText" id="descriptionText"></textarea>
-                        <div class="flexMax centerRowLayout minGap">
+                        <div class="flexMax centerHoriRowLayout minGap">
                             <label for="pricePerUnit">Price Per Unit</label>
                             <input type="number" name="pricePerUnit" class="flexMid" id="priceInput">
                         </div>
@@ -116,6 +106,10 @@
     const setDescription = document.getElementById('setDescription');
     const descriptionText = document.getElementById('descriptionText');
     const priceInput = document.getElementById('priceInput');
+    const process = document.getElementById('process');
+    const updateProcessButton = document.getElementById('updateProcessButton');
+    const addProcessButton = document.getElementById('addProcessButton');
+    const processes = <?php echo json_encode($processes); ?>;
 
     // Reactive clickable subservice data script
     document.addEventListener('DOMContentLoaded', function() {
@@ -152,7 +146,7 @@
                 confirmationForm.action = "index.php?page=services&service=<?= $serviceID ?>&action=updateStatus";
 
                 selectedID.value = elem.dataset.id;
-                confirmationText.innerHTML = "Are you sure to " + elem.dataset.statusInvert + " the " + elem.dataset.name + " service?";
+                confirmationText.innerHTML = "Are you sure to " + elem.dataset.statusInvert + " the " + elem.dataset.name + " subservice?";
                 confirmationSubmit.value = "Yes " + elem.dataset.statusInvert;
 
                 if (elem.dataset.statusInvert == "Activate") {
@@ -174,7 +168,7 @@
                 confirmationForm.action = "index.php?page=services&service=<?= $serviceID ?>&action=delete";
 
                 selectedID.value = elem.dataset.id;
-                confirmationText.innerHTML = "Are you sure to delete the " + elem.dataset.name + " service?";
+                confirmationText.innerHTML = "Are you sure to delete the " + elem.dataset.name + " subservice?";
                 confirmationSubmit.value = "Yes Delete";
 
                 confirmation.style.display = 'flex';
@@ -203,22 +197,286 @@
         confirmation.style.display = 'flex';
     });
 
+    //Process graph logic and functionality
+    let processList = <?php echo json_encode($processList); ?>;
+    let processRemoves;
+    let swapRights;
+    let swapLefts;
+
+    function renderProcessList() {
+        const container = document.getElementById('process');
+        container.innerHTML = '';
+
+        if (processList.length > 0) {
+            const firstDiv = document.createElement('div');
+            firstDiv.className = 'flexMin minHeight bordered roundedMin centerRowLayout minGap';
+            firstDiv.innerHTML = `
+                <h3>${processList[0].name}</h3>
+                <a class="squareSize unitHeight norWestAbsolute centerColumnLayout closeCorner processRemove" data-index="0">
+                    <img src="../../Shared/Img/XIcon.png" alt="X">
+                </a>
+            `;
+
+            if (processList.length > 1) {
+                const firstArrow = document.createElement('a');
+                firstArrow.className = 'circle squareSize unitHeight souEastAbsolute centerColumnLayout importantInput closeCorner swapRight';
+                firstArrow.dataset.index = '0';
+                firstArrow.innerHTML = '<img src="../../Shared/Img/ArrowIcon.png" alt="Arrow" class="invertColors">';
+                firstDiv.appendChild(firstArrow);
+            }
+
+            container.appendChild(firstDiv);
+
+            for (let i = 1; i < processList.length - 1; i++) {
+                const arrow = document.createElement('h1');
+                arrow.textContent = '>';
+                container.appendChild(arrow);
+
+                const div = document.createElement('div');
+                div.className = 'flexMin minHeight bordered roundedMin centerColumnLayout';
+                div.innerHTML = `
+                    <h3>${processList[i].name}</h3>
+                    <a class="squareSize unitHeight norWestAbsolute centerColumnLayout closeCorner processRemove" data-index="${i}">
+                        <img src="../../Shared/Img/XIcon.png" alt="X">
+                    </a>
+                    <a class="circle squareSize unitHeight souWestAbsolute centerColumnLayout importantInput closeCorner swapLeft" data-index="${i}">
+                        <img src="../../Shared/Img/ArrowIcon.png" alt="Arrow" class="invertColors mirrorX">
+                    </a>
+                    <a class="circle squareSize unitHeight souEastAbsolute centerColumnLayout importantInput closeCorner swapRight" data-index="${i}">
+                        <img src="../../Shared/Img/ArrowIcon.png" alt="Arrow" class="invertColors">
+                    </a>
+                `;
+                container.appendChild(div);
+            }
+
+            if (processList.length > 1) {
+                const arrow = document.createElement('h1');
+                arrow.textContent = '>';
+                container.appendChild(arrow);
+
+                const lastDiv = document.createElement('div');
+                lastDiv.className = 'flexMin minHeight bordered roundedMin centerRowLayout minGap';
+                lastDiv.innerHTML = `
+                    <h3>${processList[processList.length - 1].name}</h3>
+                    <a class="squareSize unitHeight norWestAbsolute centerColumnLayout closeCorner processRemove" data-index="${processList.length - 1}">
+                        <img src="../../Shared/Img/XIcon.png" alt="X">
+                    </a>
+                    <a class="circle squareSize unitHeight souWestAbsolute centerColumnLayout importantInput closeCorner swapLeft" data-index="${processList.length - 1}">
+                        <img src="../../Shared/Img/ArrowIcon.png" alt="Arrow" class="invertColors mirrorX">
+                    </a>
+                `;
+                container.appendChild(lastDiv);
+            }
+
+            processRemoves = document.querySelectorAll('.processRemove');
+            swapRights = document.querySelectorAll('.swapRight');
+            swapLefts = document.querySelectorAll('.swapLeft');
+
+            processRemoves.forEach(function(elem) {
+                elem.addEventListener('click', function() {
+                    processList.splice(elem.dataset.index, 1);
+                    renderProcessList();
+                });
+            });
+
+            swapRights.forEach(function(elem) {
+                elem.addEventListener('click', function() {
+                    const index = Number(elem.dataset.index);
+                    [processList[index], processList[index + 1]] = [processList[index + 1], processList[index]];
+                    renderProcessList();
+                });
+            });
+
+            swapLefts.forEach(function(elem) {
+                elem.addEventListener('click', function() {
+                    const index = Number(elem.dataset.index);
+                    [processList[index], processList[index - 1]] = [processList[index - 1], processList[index]];
+                    renderProcessList();
+                });
+            });
+        } else {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'flexMin minHeight bordered roundedMin centerColumnLayout';
+            emptyDiv.innerHTML = '<h3>Empty process</h3>';
+            container.appendChild(emptyDiv);
+        }
+    }
+
+    renderProcessList();
+
+    //Update Process Function Logic
+    updateProcessButton.addEventListener('click', function() {
+        confirmationTitle.innerHTML = "Update Service Process?";
+        confirmationForm.action = "index.php?page=services&service=<?= $serviceID ?>&action=updateProcess";
+
+        confirmationText.innerHTML = "Are you sure to update the process of the <?= $service['name'] ?> service?";
+        confirmationSubmit.value = "Yes Update";
+        confirmationSubmit.classList.add("active");
+
+        processList.forEach(function(process, i) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'processList[]';
+            input.value = process.id;
+            input.classList.add("processListElement");
+            confirmationForm.appendChild(input);
+        });
+
+        confirmation.style.display = 'flex';
+    });
+
+    //Process addition, creation, and deletion function logic
+    let processesContainer;
+    let processNameInput;
+    let cancelProcessCreationButton;
+    let processElement;
+    let currentProcesses = new Set(processList.map(p => p.name));
+
+    addProcessButton.addEventListener('click', function() {
+        addProcessBox();
+    });
+
+    function addProcessBox() {
+        currentProcesses = new Set(processList.map(p => p.name));
+
+        if (document.getElementById("processesContainer")) {
+            document.getElementById("processesContainer").remove();
+        }
+
+        confirmationTitle.innerHTML = "Add Processes";
+        confirmationForm.action = "index.php?page=services&service=<?= $serviceID ?>&action=addProcess";
+
+        confirmationText.innerHTML = "Click on processes that you want to add to the <?= $service['name'] ?> service process.";
+        confirmationSubmit.classList.add("hidden");
+
+        confirmationCancel.value = "Return";
+
+        processesContainer = document.createElement("div");
+        processesContainer.id = "processesContainer";
+        processesContainer.className = 'midHeight scrollable columnLayout minGap';
+        processesContainer.innerHTML = `
+            <a class="tinHeight noShrink roundedMin centerColumnLayout importantInput" id="createProcessButton">Create New Process</a>
+        `;
+
+        processes.forEach((item) => {
+            if (currentProcesses.has(item.name)) return;
+
+            const processElement = document.createElement('div');
+            processElement.className = 'tinHeight noShrink roundedMin centerColumnLayout bordered redTransBG emphasizedText capitalFirst addProcessElement';
+            processElement.textContent = item.name;
+            processElement.dataset.name = item.name;
+            processElement.dataset.id = item.id;
+            processesContainer.appendChild(processElement);
+        });
+
+        confirmationForm.appendChild(processesContainer);
+
+        document.getElementById('createProcessButton').addEventListener('click', function() {
+            document.getElementById("processesContainer").remove();
+
+            confirmationTitle.innerHTML = "Create Process";
+            confirmationForm.action = "index.php?page=services&service=<?= $serviceID ?>&action=createProcess";
+
+            processNameInput = document.createElement("input");
+            processNameInput.type = "text";
+            processNameInput.name = "name";
+            processNameInput.placeholder = "Process Name";
+            processNameInput.id = "processNameInput";
+            confirmationForm.appendChild(processNameInput);
+
+            confirmationText.innerHTML = "To create a process to be used in services, please enter a unique process name."
+            confirmationSubmit.value = "Create Processes";
+            confirmationSubmit.classList.remove("hidden");
+            confirmationSubmit.classList.add("active");
+
+            cancelProcessCreationButton = document.createElement("input");
+            cancelProcessCreationButton.type = "button";
+            cancelProcessCreationButton.className = 'importantInput flexMax';
+            cancelProcessCreationButton.id = "cancelProcessCreationButton";
+            cancelProcessCreationButton.value = "No Cancel";
+
+            cancelProcessCreationButton.addEventListener('click', function() {
+                addProcessBox();
+            });
+
+            confirmationButtons.appendChild(cancelProcessCreationButton);
+
+            confirmationCancel.classList.add("hidden");
+        });
+
+        document.querySelectorAll('.addProcessElement').forEach(function(elem) {
+            elem.addEventListener('click', function() {
+                processList.push({
+                    id: elem.dataset.id,
+                    name: elem.dataset.name,
+                    phase: -1
+                });
+
+                renderProcessList();
+                addProcessBox();
+            });
+        });
+
+        if (document.getElementById("cancelProcessCreationButton")) {
+            document.getElementById("cancelProcessCreationButton").remove();
+        }
+
+        if (document.getElementById("processNameInput")) {
+            document.getElementById("processNameInput").remove();
+        }
+
+        confirmationCancel.classList.remove("hidden");
+        confirmation.style.display = 'flex';
+    }
+
+    // Added cancellation events
     confirmationCancel.addEventListener('click', function() {
         confirmationSubmit.classList.remove("active");
         confirmationSubmit.classList.remove("criticalInput");
+        confirmationSubmit.classList.remove("hidden");
 
-        if (nameInput) {
+        confirmationCancel.value = "No Cancel";
+
+        if (document.getElementById("nameInput")) {
             document.getElementById("nameInput").remove();
         }
+
+        if (document.getElementById("processesContainer")) {
+            document.getElementById("processesContainer").remove();
+        }
+
+        document.querySelectorAll('.processListElement').forEach(function(elem) {
+            elem.remove();
+        });
     });
 
     confirmationBG.addEventListener('click', function() {
         confirmationSubmit.classList.remove("active");
         confirmationSubmit.classList.remove("criticalInput");
+        confirmationSubmit.classList.remove("hidden");
+        confirmationCancel.classList.remove("hidden");
 
-        if (nameInput) {
+        confirmationCancel.value = "No Cancel";
+
+        if (document.getElementById("nameInput")) {
             document.getElementById("nameInput").remove();
         }
+
+        if (document.getElementById("processesContainer")) {
+            document.getElementById("processesContainer").remove();
+        }
+
+        if (document.getElementById("cancelProcessCreationButton")) {
+            document.getElementById("cancelProcessCreationButton").remove();
+        }
+
+        if (document.getElementById("processNameInput")) {
+            document.getElementById("processNameInput").remove();
+        }
+
+        document.querySelectorAll('.processListElement').forEach(function(elem) {
+            elem.remove();
+        });
     });
 </script>
 

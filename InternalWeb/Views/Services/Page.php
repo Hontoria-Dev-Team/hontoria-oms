@@ -25,7 +25,7 @@
                             ?>
                             <div class="midHeight minPadding roundedMin rowLayout minGap flexStatic serviceElement columnLayout <?= $status ?>">
                                 <div class="serviceImage fullWidth roundedMin"></div>
-                                <h2 class="centerRowLayout minGap capitalFirst"><?= $name ?><span>(Active Orders: 100)</span></h2>
+                                <h2 class="centerHoriRowLayout minGap capitalFirst"><?= $name ?><span>(Active Orders: 100)</span></h2>
                                 <div class="rowLayout minGap">
                                     <a href="index.php?page=services&service=<?= $service['id'] ?>" class="importantInput flexMid buttonLike centerColumnLayout">
                                         Modify Service

@@ -5,23 +5,23 @@
             <img src="../../Shared/Img/Logo.png" alt="logo"> Hontoria OMS
         </h1>
         <nav class="columnLayout midGap">
-            <a href="index.php?page=dashboard" class="iconLink centerRowLayout minGap <?= ($page === 'dashboard') ? 'active' : '' ?>">
+            <a href="index.php?page=dashboard" class="iconLink centerHoriRowLayout minGap <?= ($page === 'dashboard') ? 'active' : '' ?>">
                 <img src="../../Shared/Img/4BoxIcon.png" alt="4 Boxes">
                 <span>Dashboard</span>
             </a>
-            <a href="index.php?page=services" class="iconLink centerRowLayout minGap <?= ($page === 'services') ? 'active' : '' ?>">
+            <a href="index.php?page=services" class="iconLink centerHoriRowLayout minGap <?= ($page === 'services') ? 'active' : '' ?>">
                 <img src="../../Shared/Img/GearIcon.png" alt="Gear">
                 <span>Services</span>
             </a>
             <?php if (in_array('canManageStaff', $_SESSION['permissions'])): ?>
-                <a href="index.php?page=staff" class="iconLink centerRowLayout minGap <?= ($page === 'staff') ? 'active' : '' ?>">
+                <a href="index.php?page=staff" class="iconLink centerHoriRowLayout minGap <?= ($page === 'staff') ? 'active' : '' ?>">
                     <img src="../../Shared/Img/PeopleIcon.png" alt="People">
                     <span>Staff</span>
                 </a>
             <?php endif; ?>
         </nav>
         <div id="sidebarFooter" class="<?= ($page === 'account') ? 'active' : '' ?>">
-            <a href="index.php?page=account" class="iconLink centerRowLayout minGap">
+            <a href="index.php?page=account" class="iconLink centerHoriRowLayout minGap">
                 <img src="../../Shared/Img/PersonIcon.png" alt="Person">
                 <span class="capitalFirst"><?= $_SESSION['username'] ?></span>
             </a>

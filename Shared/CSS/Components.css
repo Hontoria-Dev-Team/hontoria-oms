@@ -211,3 +211,19 @@
 .invertColors {
     filter: invert(1);
 }
+
+.circle {
+    border-radius: 100%;
+}
+
+.mirrorX {
+    transform: scaleX(-1);
+}
+
+.redTransBG {
+    background: var(--redTrans);
+}
+
+.hidden {
+    display: none;
+}

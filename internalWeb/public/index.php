@@ -83,8 +83,12 @@ switch ($page) {
                 $services->toggleSubserviceStatus($service);
             } else if ($action === 'updateInfo') {
                 $services->setSubserviceInfo($service);
+            } else if ($action === 'updateProcess') {
+                $services->setServiceProcess($service);
             } else if ($action === 'create') {
                 $services->createSubservice($service);
+            } else if ($action === 'createProcess') {
+                $services->createProcess($service);
             } else if ($action === 'delete') {
                 $services->deleteSubservice($service);
             } else {

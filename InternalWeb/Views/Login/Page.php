@@ -9,7 +9,7 @@
 
 <body class="centerColumnLayout midGap">
     <?php include("../Views/.Components/ErrorBox.php"); ?>
-    <div id="loginBox" class="gradientBorderDiag roundedMid centerRowLayout">
+    <div id="loginBox" class="gradientBorderDiag roundedMid centerHoriRowLayout">
         <div class="flexMin centerColumnLayout">
             <h3>Welcome Employee, please login to your account</h3>
         </div>

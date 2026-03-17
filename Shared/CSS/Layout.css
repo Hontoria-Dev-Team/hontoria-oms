@@ -87,6 +87,12 @@
 .centerRowLayout {
     display: flex;
     align-items: center;
+    justify-content: center;
+}
+
+.centerHoriRowLayout {
+    display: flex;
+    align-items: center;
 }
 
 .rowLayout {
@@ -95,6 +101,10 @@
 
 .flexStretch {
     align-items: stretch;
+}
+
+.regMinPadding {
+    padding: 0.3rem;
 }
 
 .regPadding {
@@ -149,6 +159,10 @@
     width: fit-content;
 }
 
+.unitHeight {
+    height: 1rem !important;
+}
+
 .tinHeight {
     height: 3rem !important;
 }
@@ -163,6 +177,10 @@
 
 .maxHeight {
     height: 20rem !important;
+}
+
+.midMaxHeight {
+    max-height: 5rem !important;
 }
 
 .gridFlexMid {
@@ -193,17 +211,54 @@
     margin: 0.25rem;
 }
 
+.norWestAbsolute {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+}
+
 .souEastAbsolute {
     position: absolute;
     bottom: 1rem;
     right: 1rem;
 }
 
-*:has(> .souEastAbsolute) {
+.souWestAbsolute {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+}
+
+.norWestAbsolute.closeCorner {
+    top: 0.3rem;
+    left: 0.3rem;
+}
+
+.souEastAbsolute.closeCorner {
+    bottom: 0.3rem;
+    right: 0.3rem;
+}
+
+.souWestAbsolute.closeCorner {
+    bottom: 0.3rem;
+    left: 0.3rem;
+}
+
+*:has(> .norWestAbsolute),
+*:has(> .souEastAbsolute),
+*:has(> .souWestAbsolute) {
     position: relative;
 }
 
 .selfCenter {
     align-self: center;
     justify-self: center;
+}
+
+.squareSize {
+    aspect-ratio: 1 / 1;
+}
+
+.noShrink {
+    flex-shrink: 0;
 }

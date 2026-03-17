@@ -44,8 +44,9 @@ class ServicesC {
         $lastPage = "services";
         $backLink = "index.php?page=services";
         $service = $this->servicesModel->getService($serviceID);
-        $processList = $this->servicesModel->getProcess($serviceID);
+        $processList = $this->servicesModel->getServiceProcess($serviceID);
         $subservicesList = $this->servicesModel->getSubservices($serviceID);
+        $processes = $this->servicesModel->getAllProcesses();
         require __DIR__ . '/../Views/Services/ServicePage.php';
     }
 
@@ -62,8 +63,9 @@ class ServicesC {
             $backLink = "index.php?page=services";
             $error = "Subservice name already exists.";
             $service = $this->servicesModel->getService($serviceID);
-            $processList = $this->servicesModel->getProcess($serviceID);
+            $processList = $this->servicesModel->getServiceProcess($serviceID);
             $subservicesList = $this->servicesModel->getSubservices($serviceID);
+            $processes = $this->servicesModel->getAllProcesses();
             require __DIR__ . '/../Views/Services/ServicePage.php';
         }
     }
@@ -74,5 +76,33 @@ class ServicesC {
 
         header("Location: index.php?page=services&service=" . $serviceID);
         exit();
+    }
+
+    public function setServiceProcess($serviceID) {
+        $processes = $_POST['processList'];
+        $this->servicesModel->updateServiceProcess($serviceID, $processes);
+
+        header("Location: index.php?page=services&service=" . $serviceID);
+        exit();
+    }
+
+    public function createProcess($serviceID) {
+        $processName = $_POST['name'];
+        $creation = $this->servicesModel->insertProcess($processName);
+
+        if ($creation) {
+            header("Location: index.php?page=services&service=" . $serviceID);
+            exit();
+        } else {
+            $page = "services";
+            $lastPage = "services";
+            $backLink = "index.php?page=services";
+            $error = "Process name already exists.";
+            $service = $this->servicesModel->getService($serviceID);
+            $processList = $this->servicesModel->getServiceProcess($serviceID);
+            $subservicesList = $this->servicesModel->getSubservices($serviceID);
+            $processes = $this->servicesModel->getAllProcesses();
+            require __DIR__ . '/../Views/Services/ServicePage.php';
+        }
     }
 }

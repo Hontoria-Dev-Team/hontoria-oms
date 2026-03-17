@@ -20,7 +20,7 @@
                         <input type="hidden" name="page" value="staff">
                         <input type="hidden" name="action" value="filter">
 
-                        <div class="iconInput flexMax centerRowLayout">
+                        <div class="iconInput flexMax centerHoriRowLayout">
                             <input type="search" name="search" placeholder="Search Staff" class="fullWidth" value="<?= $search ?>">
                             <img src="../../Shared/Img/MagnifierIcon.png" alt="Magnifier">
                         </div>
@@ -75,7 +75,7 @@
                     <p style="display: none;">Permissions: </p>
                     <form id="permissionForm" action="index.php?page=staff&action=updatePermissions" method="POST" class="columnLayout fullWidth minGap" style="display:none;">
                         <input type="hidden" name="selectedID" id="selectedStaffId">
-                        <div class="rowLayout centerRowLayout minGap">
+                        <div class="rowLayout centerHoriRowLayout minGap">
                             <input type="checkbox" name="canManageStaff" id="permCheckbox" value="1">
                             <label for="permCheckbox">Can Manage Staff</label>
                         </div>
