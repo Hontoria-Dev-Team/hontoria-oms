@@ -12,7 +12,7 @@ $action = $_GET['action'] ?? 'show';
 $authorization = new AuthorizationC($pdo);
 $services = new ServicesC($pdo);
 
-$protectedPages = ['dashboard', 'staff', 'services'];
+$protectedPages = ['dashboard', 'account', 'staff', 'services'];
 
 if (in_array($page, $protectedPages)) {
     AuthorizationMid::check($page);
