@@ -224,6 +224,29 @@
     background: var(--redTrans);
 }
 
+.greenTransBG {
+    background: var(--greenTrans);
+}
+
 .hidden {
     display: none;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.unselectable {
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: none;
+}
+
+.topBordered {
+    border-top: 0.1rem solid var(--dark);
+}
+
+.botBordered {
+    border-bottom: 0.1rem solid var(--dark);
 }

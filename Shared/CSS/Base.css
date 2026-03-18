@@ -25,6 +25,8 @@ html {
     --redTrans: #f522022f;
     --redFaded: #f5220217;
     --yellow: #FFB611;
+    --green: #70ff11;
+    --greenTrans: #70ff1159;
     --gradientDiag: linear-gradient(to left, #F20505, #FFB611);
     --gradientVert: linear-gradient(to top, #F20505, #FFB611);
 }
@@ -36,8 +38,10 @@ body {
 }
 
 hr {
-    margin: 0.5em 0;
+    height: 0.15rem;
+    margin: 0.3rem 0;
     width: 100%;
+    background: var(--dark);
 }
 
 label {
@@ -50,8 +54,10 @@ input[type=password],
 input[type=search],
 input[type=tel],
 input[type=email],
+input[type=url],
 input[type=button],
 input[type=submit],
+input[type=date],
 button,
 select,
 textarea {

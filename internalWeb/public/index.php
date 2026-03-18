@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../Config/config.php';
 require_once __DIR__ . '/../Controllers/AuthorizationC.php';
 require_once __DIR__ . '/../Controllers/ServicesC.php';
+require_once __DIR__ . '/../Controllers/OrdersC.php';
 require_once __DIR__ . '/../Middleware/AuthorizationMid.php';
 
 session_start();
@@ -11,6 +12,7 @@ $action = $_GET['action'] ?? 'show';
 
 $authorization = new AuthorizationC($pdo);
 $services = new ServicesC($pdo);
+$orders = new OrdersC($pdo);
 
 $protectedPages = ['dashboard', 'account', 'staff', 'services'];
 
@@ -50,7 +52,6 @@ switch ($page) {
         } else if ($action === 'create') {
             $lastPage = 'staff';
             $backLink = 'index.php?page=staff';
-            $pageTitle = 'Account Creation - Hontoria OMS';
             require_once __DIR__ . '/../Views/Staff/CreateAccount.php';
         } else if ($action === 'createFinal') {
             $authorization->createAccount();
@@ -99,6 +100,14 @@ switch ($page) {
             $services->deleteService();
         } else {
             $services->showServices();
+        }
+        break;
+
+    case 'orders':
+        if ($action === 'create') {
+            $orders->showOrderCreation();
+        } else {
+            $orders->showOrders();
         }
         break;
 

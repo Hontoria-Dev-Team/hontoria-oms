@@ -217,6 +217,12 @@
     left: 1rem;
 }
 
+.norEastAbsolute {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
 .souEastAbsolute {
     position: absolute;
     bottom: 1rem;
@@ -234,6 +240,11 @@
     left: 0.3rem;
 }
 
+.norEastAbsolute.closeCorner {
+    top: 0.3rem;
+    right: 0.3rem;
+}
+
 .souEastAbsolute.closeCorner {
     bottom: 0.3rem;
     right: 0.3rem;
@@ -245,6 +256,7 @@
 }
 
 *:has(> .norWestAbsolute),
+*:has(> .norEastAbsolute),
 *:has(> .souEastAbsolute),
 *:has(> .souWestAbsolute) {
     position: relative;

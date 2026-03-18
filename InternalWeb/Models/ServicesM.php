@@ -68,6 +68,15 @@ class ServicesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllSubservices() {
+        $query = "SELECT * FROM subservices";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getSingleSubserviceByName($name, $serviceID) {
         $query = "SELECT isActive, description, pricePerUnit
                   FROM subservices

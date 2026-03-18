@@ -13,6 +13,10 @@
                 <img src="../../Shared/Img/GearIcon.png" alt="Gear">
                 <span>Services</span>
             </a>
+            <a href="index.php?page=orders" class="iconLink centerHoriRowLayout minGap <?= ($page === 'orders') ? 'active' : '' ?>">
+                <img src="../../Shared/Img/ListIcon.png" alt="List">
+                <span>Orders</span>
+            </a>
             <?php if (in_array('canManageStaff', $_SESSION['permissions'])): ?>
                 <a href="index.php?page=staff" class="iconLink centerHoriRowLayout minGap <?= ($page === 'staff') ? 'active' : '' ?>">
                     <img src="../../Shared/Img/PeopleIcon.png" alt="People">
