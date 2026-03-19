@@ -106,6 +106,8 @@ switch ($page) {
     case 'orders':
         if ($action === 'create') {
             $orders->showOrderCreation();
+        } else if ($action === 'createFinal') {
+            $orders->createOrder();
         } else {
             $orders->showOrders();
         }

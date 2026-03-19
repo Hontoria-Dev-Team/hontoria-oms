@@ -1,10 +1,28 @@
 CREATE TABLE orders (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     subserviceID INT UNSIGNED NOT NULL,
     customerName VARCHAR(100) NOT NULL,
     messengerGCLink VARCHAR(255) NOT NULL,
+    priceTotal DECIMAL(10, 2) NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deadlineAt TIMESTAMP NULL,
     FOREIGN KEY (subserviceID) REFERENCES subservices(id),
     UNIQUE KEY uniqueName (subserviceID, customerName, createdAt)
 );
+
+CREATE TABLE orderGroups (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    orderID BIGINT UNSIGNED NOT NULL,
+    description TEXT NOT NULL,
+    quantity INT UNSIGNED NOT NULL,
+    FOREIGN KEY (orderID) REFERENCES orders(id)
+);
+
+CREATE TABLE orderProcess (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    orderID BIGINT UNSIGNED NOT NULL,
+    phase TINYINT UNSIGNED NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    FOREIGN KEY (orderID) REFERENCES orders(id)
+);
+

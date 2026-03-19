@@ -228,6 +228,10 @@
     background: var(--greenTrans);
 }
 
+.yellowTransBG {
+    background: var(--yellowTrans);
+}
+
 .hidden {
     display: none;
 }

@@ -38,7 +38,7 @@
                                 <div class="norEastAbsolute closeCorner minPadding bordered roundedMin">Status</div>
                                 <h2>Order #<?= $order['id'] ?></h2>
                                 <b>Customer: <?= $order['customerName'] ?></b>
-                                <p>Value: ₱1000 - Due In: <span class="dueInText" data-due-date="<?= $order['deadlineAt'] ?>"></span></p>
+                                <p>Value: ₱<?= $order['priceTotal'] ?> - Due In: <span class="dueInText" data-due-date="<?= $order['deadlineAt'] ?>"></span></p>
                                 <p>Service: <?= $order['subserviceName'] ?> <?= $order['serviceName'] ?></p>
                                 <p>Current Process: Designing</p>
                             </div>
@@ -62,7 +62,7 @@
 <script>
     // Due time calculation
     document.querySelectorAll('.dueInText').forEach(function(elem) {
-        elem.textContent = elem.dataset.dueDate == '' ? "No due date" : getDueTime(elem.dataset.dueDate) + "(" + elem.dataset.dueDate + ")";
+        elem.textContent = elem.dataset.dueDate == '' ? "No due date" : getDueTime(elem.dataset.dueDate) + " (" + formatDate(elem.dataset.dueDate) + ")";
     });
 </script>
 

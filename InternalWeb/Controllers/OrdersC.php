@@ -78,4 +78,18 @@ class OrdersC {
         $error = null;
         require __DIR__ . '/../Views/Orders/CreateOrder.php';
     }
+
+    public function createOrder() {
+        $subserviceID = $_POST['subserviceType'];
+        $customerName = $_POST['customerName'];
+        $messengerGCLink = $_POST['messengerGCLink'];
+        $deadlineAt = $_POST['deadlineAt'];
+        $priceTotal = $_POST['priceTotal'];
+        $groupDescriptions = $_POST['groupDescriptions'];
+        $groupQuantities = $_POST['groupQuantities'];
+        $orderProcess = $_POST['orderProcess'];
+
+        $this->ordersModel->insertOrder($subserviceID, $customerName, $messengerGCLink, $deadlineAt, $priceTotal, $groupDescriptions, $groupQuantities, $orderProcess);
+        header('Location: index.php?page=orders');
+    }
 }

@@ -81,6 +81,7 @@
                             <h3>Order Pricing</h3>
                             <p class="flexMin">Total Price: ₱<span id="priceTotalText"></span></p>
                             <p class="flexMin">Price Per Unit: ₱<span id="pricePerUnitText"></span></p>
+                            <input type="hidden" name="priceTotal" id="priceTotal">
                             <div>
                                 <label for="priceDiscount">Price Discount</label>
                                 <input type="number" name="priceDiscount" class="fullWidth" id="priceDiscount" min="0" value="0">
@@ -97,12 +98,12 @@
                             <div class="scrollable reverseColumnLayout" id="orderGroups">
                                 <div class="minHeight noShrink centerHoriRowLayout minGap">
                                     <div class="flexMid">
-                                        <label for="groupDescription[]">Description</label>
-                                        <input type="text" name="description[]" required="true" class="fullWidth">
+                                        <label for="groupDescriptions[]">Description</label>
+                                        <input type="text" name="groupDescriptions[]" required="true" class="fullWidth">
                                     </div>
                                     <div class="flexMin">
-                                        <label for="groupQuantity[]">Quantity</label>
-                                        <input type="number" name="groupQuantity[]" required="true" class="fullWidth orderGroupPrice" min="1" value="1">
+                                        <label for="groupQuantities[]">Quantity</label>
+                                        <input type="number" name="groupQuantities[]" required="true" class="fullWidth orderGroupPrice" min="1" value="1">
                                     </div>
                                 </div>
                             </div>
@@ -131,6 +132,7 @@
     const orderGroups = document.getElementById('orderGroups');
     const priceTotalText = document.getElementById('priceTotalText');
     const pricePerUnitText = document.getElementById('pricePerUnitText');
+    const priceTotal = document.getElementById('priceTotal');
     const priceDiscount = document.getElementById('priceDiscount');
     const subservices = <?php echo json_encode($subserviceList); ?>;
     const serviceProcesses = <?php echo json_encode($serviceProcessList); ?>;
@@ -178,6 +180,9 @@
     let hasFirstProcess;
     let currentServiceProcess;
     let currentProcessIndex;
+    let tempStatusInput;
+    let processHead;
+    let processParagraph;
 
     function setProcess(serviceID) {
         serviceProcess.innerHTML = '';
@@ -197,58 +202,64 @@
             }
 
             processDiv = document.createElement('div');
-            processDiv.className = 'flexMin minHeight bordered roundedMin centerColumnLayout redTransBG processElement clickable unselectable';
-            processDiv.dataset.status = 'pending';
+            processDiv.className = 'flexMin minHeight bordered roundedMin centerColumnLayout processElement clickable unselectable';
+            processDiv.classList.add(hasFirstProcess ? 'redTransBG' : 'yellowTransBG');
+            processDiv.dataset.status = hasFirstProcess ? 'pending' : 'active';
             processDiv.dataset.name = serviceProcesses[i].name;
             processDiv.dataset.index = currentProcessIndex++;
-            processDiv.innerHTML = `
-                <h3>${serviceProcesses[i].name}</h3>
-                <p>(Pending)</p>
-            `;
+
+            processHead = document.createElement('h3');
+            processHead.textContent = serviceProcesses[i].name;
+            processParagraph = document.createElement('p');
+            processParagraph.textContent = hasFirstProcess ? '(Pending)' : '(Active)';
+
+            processDiv.appendChild(processHead);
+            processDiv.appendChild(processParagraph);
+
             serviceProcess.appendChild(processDiv);
             currentServiceProcess.push(processDiv);
+
+            tempStatusInput = document.createElement('input');
+            tempStatusInput.type = "hidden";
+            tempStatusInput.name = "orderProcess[]";
+            tempStatusInput.value = hasFirstProcess ? 'pending' : 'active';
+            processDiv.appendChild(tempStatusInput);
 
             hasFirstProcess = true;
         }
 
         document.querySelectorAll('.processElement').forEach(function(elem) {
             elem.addEventListener('click', function() {
-                if (elem.dataset.status == 'pending') {
-                    elem.classList.remove("redTransBG");
-                    elem.classList.add("greenTransBG");
-                    elem.dataset.status = 'complete';
-                    elem.innerHTML = `
-                        <h3>${elem.dataset.name}</h3>
-                        <p>(Complete)</p>
-                    `;
+                if (elem.dataset.status == 'active') {
+                    return;
+                }
 
-                    for (let i = elem.dataset.index; i >= 0; i--) {
-                        currentServiceProcess[i].classList.remove("redTransBG");
-                        currentServiceProcess[i].classList.add("greenTransBG");
-                        currentServiceProcess[i].dataset.status = 'complete';
-                        currentServiceProcess[i].innerHTML = `
-                            <h3>${currentServiceProcess[i].dataset.name}</h3>
-                            <p>(Complete)</p>
-                        `;
-                    }
-                } else {
-                    elem.classList.add("redTransBG");
-                    elem.classList.remove("greenTransBG");
-                    elem.dataset.status = 'pending';
-                    elem.innerHTML = `
-                        <h3>${elem.dataset.name}</h3>
-                        <p>(Pending)</p>
-                    `;
+                elem.classList.remove("redTransBG", "greenTransBG");
+                elem.classList.add("yellowTransBG");
+                elem.dataset.status = 'active';
 
-                    for (let i = elem.dataset.index; i < currentServiceProcess.length; i++) {
-                        currentServiceProcess[i].classList.add("redTransBG");
-                        currentServiceProcess[i].classList.remove("greenTransBG");
-                        currentServiceProcess[i].dataset.status = 'pending';
-                        currentServiceProcess[i].innerHTML = `
-                            <h3>${currentServiceProcess[i].dataset.name}</h3>
-                            <p>(Pending)</p>
-                        `;
-                    }
+                elem.querySelector('h3').textContent = elem.dataset.name;
+                elem.querySelector('p').textContent = '(Active)';
+                elem.querySelector('input').value = "active";
+
+                for (let i = elem.dataset.index - 1; i >= 0; i--) {
+                    currentServiceProcess[i].classList.remove("redTransBG", "yellowTransBG");
+                    currentServiceProcess[i].classList.add("greenTransBG");
+                    currentServiceProcess[i].dataset.status = 'complete';
+
+                    currentServiceProcess[i].querySelector('h3').textContent = currentServiceProcess[i].dataset.name;
+                    currentServiceProcess[i].querySelector('p').textContent = '(Complete)';
+                    currentServiceProcess[i].querySelector('input').value = "complete";
+                }
+
+                for (let i = Number(elem.dataset.index) + 1; i < currentServiceProcess.length; i++) {
+                    currentServiceProcess[i].classList.remove("greenTransBG", "yellowTransBG");
+                    currentServiceProcess[i].classList.add("redTransBG");
+                    currentServiceProcess[i].dataset.status = 'pending';
+
+                    currentServiceProcess[i].querySelector('h3').textContent = currentServiceProcess[i].dataset.name;
+                    currentServiceProcess[i].querySelector('p').textContent = '(Pending)';
+                    currentServiceProcess[i].querySelector('input').value = "pending";
                 }
             });
         });
@@ -273,12 +284,12 @@
                 <img src="../../Shared/Img/XIcon.png" alt="X">
             </a>
             <div class="flexMid">
-                <label for="groupDescription[]">Description</label>
-                <input type="text" name="description[]" required="true" class="fullWidth">
+                <label for="groupDescriptions[]">Description</label>
+                <input type="text" name="groupDescriptions[]" required="true" class="fullWidth">
             </div>
             <div class="flexMin">
-                <label for="groupQuantity[]">Quantity</label>
-                <input type="number" name="groupQuantity[]" required="true" class="fullWidth orderGroupPrice" min="1" value="1">
+                <label for="groupQuantities[]">Quantity</label>
+                <input type="number" name="groupQuantities[]" required="true" class="fullWidth orderGroupPrice" min="1" value="1">
             </div>
         `;
 
@@ -333,6 +344,7 @@
             quantities += parseFloat(input.value) || 0;
         });
 
+        priceTotal.value = (quantities * currentPricePerUnit) - priceDiscount.value;
         priceTotalText.textContent = priceDiscount.value != 0 ?
             (quantities * currentPricePerUnit) + " - " + priceDiscount.value + " = ₱" + ((quantities * currentPricePerUnit) - priceDiscount.value) :
             quantities * currentPricePerUnit;
