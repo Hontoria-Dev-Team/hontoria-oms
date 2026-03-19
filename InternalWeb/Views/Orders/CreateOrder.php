@@ -50,7 +50,8 @@
                             </div>
                             <div>
                                 <label for="messengerGCLink">Messenger Group Chat Invite Link</label>
-                                <input type="url" name="messengerGCLink" required="true" class="fullWidth" value="<?php echo htmlspecialchars($messengerGCLink ?? ''); ?>">
+                                <input type="url" name="messengerGCLink" required="true" class="fullWidth" pattern="https://m\.me/.*" placeholder="https://m.me/..."
+                                    value="<?php echo htmlspecialchars($messengerGCLink ?? ''); ?>">
                             </div>
                         </div>
                         <div class="gradientBorderDiag"></div>
@@ -93,7 +94,24 @@
                                 <h3 class="flexMax">Order Groups</h3>
                                 <button type="button" id="addOrderGroupButton" class="importantInput">Add Order Group</button>
                             </div>
-                            <div class="scrollable columnLayout" id="orderGroups"></div>
+                            <div class="scrollable reverseColumnLayout" id="orderGroups">
+                                <div class="minHeight noShrink centerHoriRowLayout minGap">
+                                    <div class="flexMid">
+                                        <label for="groupDescription[]">Description</label>
+                                        <input type="text" name="description[]" required="true" class="fullWidth">
+                                    </div>
+                                    <div class="flexMin">
+                                        <label for="groupQuantity[]">Quantity</label>
+                                        <input type="number" name="groupQuantity[]" required="true" class="fullWidth orderGroupPrice" min="1" value="1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gradientBorderDiag"></div>
+                    </section>
+                    <section class="flexMin minHeight fullWidth roundedMid centerColumnLayout">
+                        <div class="box fullDimensions roundedMid centerColumnLayout minGap">
+                            <input type="submit" name="submit" value="Create Order" class="fullWidth importantInput">
                         </div>
                         <div class="gradientBorderDiag"></div>
                     </section>
@@ -248,7 +266,7 @@
 
     addOrderGroupButton.addEventListener('click', function() {
         tempGroup = document.createElement('div');
-        tempGroup.className = 'minHeight noShrink centerHoriRowLayout minGap topBordered';
+        tempGroup.className = 'minHeight noShrink centerHoriRowLayout minGap botBordered';
         tempGroup.id = "orderGroup" + currentOrderGroupIndex++;
         tempGroup.innerHTML = `
             <a class="squareSize unitHeight norEastAbsolute centerColumnLayout closeCorner removeOrderGroup" data-group-id="${tempGroup.id}">
@@ -260,13 +278,12 @@
             </div>
             <div class="flexMin">
                 <label for="groupQuantity[]">Quantity</label>
-                <input type="number" name="groupQuantity[]" required="true" class="fullWidth orderGroupPrice" min="0" value="0">
+                <input type="number" name="groupQuantity[]" required="true" class="fullWidth orderGroupPrice" min="1" value="1">
             </div>
         `;
 
         orderGroups.appendChild(tempGroup);
 
-        // Attach the event listener explicitly to the newly created X button
         const xButton = tempGroup.querySelector('.removeOrderGroup');
         xButton.addEventListener('click', function() {
             const groupId = this.dataset.groupId;

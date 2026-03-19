@@ -12,8 +12,8 @@
         <h1 class="titleLogo minGap tinHeight">
             <img src="../../Shared/Img/ListIcon.png" alt="List"> Orders Panel
         </h1>
-        <section class="rowLayout flexMax midGap">
-            <section class="centerColumnLayout roundedMid flexMid">
+        <section class="columnLayout flexMax midGap">
+            <section class="centerColumnLayout roundedMid flexMid minHeight">
                 <div class="box fullHeight fullWidth roundedMid columnLayout minGap">
                     <form method="GET" action="index.php?page=staff" class="rowLayout fullWidth minGap">
                         <input type="hidden" name="page" value="orders">
@@ -34,8 +34,13 @@
                     </form>
                     <section class="minGap gridFlexMid scrollable" id="orderList">
                         <?php foreach ($orderList as $order): ?>
-                            <div class="midHeight minPadding roundedMin rowLayout minGap flexStatic staffElement" style="background-color: yellow;">
-                                <?= $order['serviceName'] ?><?= $order['subserviceName'] ?><?= $order['customerName'] ?>
+                            <div class="midHeight regPadding roundedMin centerHoriColumnLayout minGap flexStatic staffElement bordered shadowed">
+                                <div class="norEastAbsolute closeCorner minPadding bordered roundedMin">Status</div>
+                                <h2>Order #<?= $order['id'] ?></h2>
+                                <b>Customer: <?= $order['customerName'] ?></b>
+                                <p>Value: ₱1000 - Due In: <span class="dueInText" data-due-date="<?= $order['deadlineAt'] ?>"></span></p>
+                                <p>Service: <?= $order['subserviceName'] ?> <?= $order['serviceName'] ?></p>
+                                <p>Current Process: Designing</p>
                             </div>
                         <?php endforeach; ?>
                         <div class="tinHeight"></div>
@@ -53,5 +58,12 @@
         </section>
     </main>
 </body>
+<script src="../.JS/DueTimeCalculator.js"></script>
+<script>
+    // Due time calculation
+    document.querySelectorAll('.dueInText').forEach(function(elem) {
+        elem.textContent = elem.dataset.dueDate == '' ? "No due date" : getDueTime(elem.dataset.dueDate) + "(" + elem.dataset.dueDate + ")";
+    });
+</script>
 
 </html>

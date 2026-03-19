@@ -18,11 +18,14 @@ class OrdersM {
                   FROM orders
                   JOIN subservices ON orders.subserviceID = subservices.id
                   JOIN services ON subservices.serviceID = services.id
-                  ORDER BY orders.createdAt DESC;";
+                  ORDER BY orders.id ASC;";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function insertOrder() {
     }
 }

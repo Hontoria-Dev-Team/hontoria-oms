@@ -99,6 +99,10 @@ div {
     font-size: 0.7rem;
 }
 
+b {
+    font-size: 0.8rem;
+}
+
 @keyframes fadeOut {
     0% {
         opacity: 1;
