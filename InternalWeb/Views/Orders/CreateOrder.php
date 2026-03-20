@@ -69,7 +69,7 @@
                     </section>
                     <section class="flexMax fullWidth roundedMid centerColumnLayout">
                         <div class="box fullDimensions roundedMid columnLayout minGap">
-                            <h3>Service Process</h3>
+                            <h3>Order Process</h3>
                             <div class="centerHoriRowLayout minGap flexMax" id="serviceProcess"></div>
                         </div>
                         <div class="gradientBorderDiag"></div>

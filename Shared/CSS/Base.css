@@ -18,6 +18,7 @@ html {
     --whiteFaded: #fffafa17;
     --dark: #220000;
     --darkTrans: #22000046;
+    --darkFaded: #2200002a;
     --darkGray: #997979;
     --lightGray: #f7f7f7;
     --gray: #eeeeee;
@@ -26,6 +27,8 @@ html {
     --redFaded: #f5220217;
     --yellow: #FFB611;
     --yellowTrans: #ffb8115e;
+    --yellowGreen: #efff11;
+    --yellowGreenTrans: #efff115e;
     --green: #70ff11;
     --greenTrans: #70ff1159;
     --gradientDiag: linear-gradient(to left, #F20505, #FFB611);
@@ -101,7 +104,7 @@ div {
 }
 
 b {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
 }
 
 @keyframes fadeOut {

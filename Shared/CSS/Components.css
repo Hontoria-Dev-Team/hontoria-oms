@@ -175,6 +175,10 @@
     text-align: justify;
 }
 
+.centerText {
+    text-align: center;
+}
+
 .emphasizedText {
     font-weight: 900;
     font-size: 0.8rem;
@@ -228,8 +232,20 @@
     background: var(--greenTrans);
 }
 
+.yellowBG {
+    background: var(--yellow) !important;
+}
+
 .yellowTransBG {
     background: var(--yellowTrans);
+}
+
+.yellowGreenTransBG {
+    background: var(--yellowGreenTrans);
+}
+
+.whiteText {
+    color: var(--white) !important;
 }
 
 .hidden {
@@ -247,6 +263,10 @@
     -moz-user-select: none;
 }
 
+.noBorder {
+    border: none !important;
+}
+
 .topBordered {
     border-top: 0.1rem solid var(--dark);
 }
@@ -257,4 +277,8 @@
 
 .shadowed {
     box-shadow: 0 0.1rem 0.2rem var(--dark);
+}
+
+.transText {
+    color: var(--darkTrans);
 }

@@ -108,6 +108,10 @@ switch ($page) {
             $orders->showOrderCreation();
         } else if ($action === 'createFinal') {
             $orders->createOrder();
+        } else if ($action === 'changeDeadline') {
+            $orders->setDeadline();
+        } else if ($action === 'delete') {
+            $orders->deleteOrder();
         } else {
             $orders->showOrders();
         }

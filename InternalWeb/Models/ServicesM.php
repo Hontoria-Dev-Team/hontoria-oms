@@ -145,7 +145,6 @@ class ServicesM {
         return $stmt->execute();
     }
 
-
     public function insertSubservice($name, $serviceID) {
         $user = $this->getSingleSubserviceByName($name, $serviceID);
 

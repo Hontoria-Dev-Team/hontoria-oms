@@ -12,7 +12,8 @@ class OrdersC {
     public function showOrders($search = '', $status = '') {
         $page = "orders";
 
-        $orderList = $this->ordersModel->getOrderList();
+        $orderList = $this->ordersModel->getAllOrders();
+        $orderProcessList = $this->ordersModel->getAllOrderProcesses();
 
         // if ($search !== '' || $status !== '') {
         //     $staffList = $this->staffModel->getfilteredStaff($search, $status);
@@ -90,6 +91,21 @@ class OrdersC {
         $orderProcess = $_POST['orderProcess'];
 
         $this->ordersModel->insertOrder($subserviceID, $customerName, $messengerGCLink, $deadlineAt, $priceTotal, $groupDescriptions, $groupQuantities, $orderProcess);
+        header('Location: index.php?page=orders');
+    }
+
+    public function deleteOrder() {
+        $orderID = $_POST['selectedID'];
+
+        $this->ordersModel->removeOrder($orderID);
+        header('Location: index.php?page=orders');
+    }
+
+    public function setDeadline() {
+        $orderID = $_POST['selectedID'];
+        $newDeadline = $_POST['newDeadline'];
+
+        $this->ordersModel->updateDeadline($orderID, $newDeadline);
         header('Location: index.php?page=orders');
     }
 }

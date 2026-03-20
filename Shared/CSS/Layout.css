@@ -47,16 +47,20 @@
     flex-direction: column;
 }
 
+.tinGap {
+    gap: 0.2rem;
+}
+
 .minGap {
-    gap: 0.5em;
+    gap: 0.5rem;
 }
 
 .midGap {
-    gap: 1em;
+    gap: 1rem;
 }
 
 .maxGap {
-    gap: 2em;
+    gap: 2rem;
 }
 
 .fullHeight {
@@ -197,6 +201,10 @@
 
 .flexStatic {
     flex-grow: 0;
+}
+
+.centerMarginsSelf {
+    margin: auto;
 }
 
 .centerHoriSelf {
