@@ -199,4 +199,11 @@ class StaffM {
             $stmt->execute();
         }
     }
+
+    public function getAllUserRoles() {
+        $query = "SELECT userRoles.userID, roles.name FROM userRoles JOIN roles ON roles.id = userRoles.roleID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

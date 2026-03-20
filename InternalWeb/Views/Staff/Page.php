@@ -42,11 +42,19 @@
                         <input type="submit" value="Search" class="importantInput">
                     </form>
                     <section class="minGap scrollable gridFlexMid" id="staffList">
+                        <?php
+                        $userRolesMap = [];
+                        foreach ($userRoles as $role) {
+                            $userRolesMap[$role['userID']][] = $role['name'];
+                        }
+                        ?>
                         <?php foreach ($staffList as $staff): ?>
                             <?php
                             $fullName = trim("{$staff['firstName']} " . ($staff['middleName'] ? substr($staff['middleName'], 0, 1) . '.' : '') . " {$staff['lastName']}");
                             $status = $staff['isOnline'] ? ($staff['isActive'] ? 'Active' : 'Idle') : 'Offline';
                             $statusClass = $staff['isOnline'] ? ($staff['isActive'] ? 'active' : 'idle') : '';
+                            $roles = $userRolesMap[$staff['id']] ?? [];
+                            $rolesText = !empty($roles) ? implode(', ', $roles) : 'Unset Role';
                             ?>
                             <div class="minHeight minPadding roundedMin rowLayout minGap flexStatic staffElement <?= $statusClass ?>"
                                 data-id="<?= $staff['id'] ?>" data-name="<?= htmlspecialchars($fullName) ?>" data-can-manage-staff="<?= $staff['canManageStaff'] ?>">
@@ -55,6 +63,7 @@
                                 </div>
                                 <div class="flexMax centerHoriColumnLayout">
                                     <h5><?= htmlspecialchars($fullName) ?></h5>
+                                    <h6 class="capitalFirst">(<?= $rolesText ?>)</h6>
                                 </div>
                                 <div class="flexMin status roundedMin minPadding centerColumnLayout">
                                     <h5><?= $status ?></h5>

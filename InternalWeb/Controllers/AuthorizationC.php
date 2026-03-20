@@ -33,6 +33,8 @@ class AuthorizationC {
         }
         unset($staff);
 
+        $userRoles = $this->staffModel->getAllUserRoles();
+
         $error = null;
         require __DIR__ . '/../Views/Staff/Page.php';
     }
