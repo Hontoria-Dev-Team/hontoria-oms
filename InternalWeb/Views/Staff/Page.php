@@ -90,7 +90,9 @@
                         </div>
                         <div class="rowLayout fullWidth minGap">
                             <input type="submit" class="importantInput flexMax" value="Update Permissions">
-                            <input type="button" class="criticalInput flexMin" id="deleteButton" value="Delete">
+                            <button type="button" class="criticalInput centerColumnLayout" id="deleteButton">
+                                <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
+                            </button>
                         </div>
                     </form>
                     <div class="gradientBorderDiag"></div>
