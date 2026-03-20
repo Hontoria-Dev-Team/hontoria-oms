@@ -123,6 +123,7 @@ switch ($page) {
 }
 
 if ($page !== 'login') {
+    $authorization->checkUserExists();
     $authorization->keepOnline();
     $authorization->getPermissions();
 }

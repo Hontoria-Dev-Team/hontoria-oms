@@ -13,6 +13,7 @@
         <h1 class="titleLogo minGap tinHeight">
             <img src="../../Shared/Img/PeopleIcon.png" alt="People"> Staff Panel
         </h1>
+        <?php include("../Views/.Components/ErrorBox.php"); ?>
         <section class="rowLayout flexMax midGap">
             <section class="flexMid roundedMid centerColumnLayout">
                 <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
@@ -79,15 +80,10 @@
                 <div class="gradientBorderDiag"></div>
             </section>
             <section class="columnLayout midGap flexMin">
-                <section class="box centerColumnLayout roundedMid minGap flexMin" id="detailsPanel">
+                <section class="box centerColumnLayout roundedMid minGap flexMin">
                     <h3 id="selectedStaffName">No Staff Selected</h3>
-                    <p style="display: none;">Permissions: </p>
-                    <form id="permissionForm" action="index.php?page=staff&action=updatePermissions" method="POST" class="columnLayout fullWidth minGap" style="display:none;">
+                    <form id="roleInputForm" action="index.php?page=staff&action=updatePermissions" method="POST" class="columnLayout fullWidth minGap">
                         <input type="hidden" name="selectedID" id="selectedStaffId">
-                        <div class="rowLayout centerHoriRowLayout minGap">
-                            <input type="checkbox" name="canManageStaff" id="permCheckbox" value="1">
-                            <label for="permCheckbox">Can Manage Staff</label>
-                        </div>
                         <div class="rowLayout fullWidth minGap">
                             <input type="submit" class="importantInput flexMax" value="Update Permissions">
                             <button type="button" class="criticalInput centerColumnLayout" id="deleteButton">
@@ -109,11 +105,8 @@
 <script>
     const staffElements = document.querySelectorAll('.staffElement');
     const nameDisplay = document.getElementById('selectedStaffName');
-    const form = document.getElementById('permissionForm');
+    const form = document.getElementById('roleInputForm');
     const idSelected = document.getElementById('selectedStaffId');
-    const checkbox = document.getElementById('permCheckbox');
-    const detailsPanel = document.getElementById('detailsPanel');
-    const permissionsParagraph = detailsPanel.querySelector('p');
 
     let name;
     let id;
@@ -131,7 +124,6 @@
                 nameDisplay.style.alignSelf = 'baseline';
 
                 idSelected.value = id;
-                checkbox.checked = hasPerm;
 
                 form.style.display = 'flex';
 

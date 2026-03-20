@@ -13,7 +13,14 @@ class AuthorizationC {
         require __DIR__ . '/../Views/Login/Page.php';
     }
 
-    public function showStaff($search = '', $status = '') {
+    public function checkUserExists() {
+        $existence = $this->staffModel->getAccount($_SESSION['id']);
+        if (!$existence) {
+            $this->logout();
+        }
+    }
+
+    public function showStaff($search = '', $status = '', $error = '') {
         $page = "staff";
 
         if ($search !== '' || $status !== '') {
@@ -35,7 +42,6 @@ class AuthorizationC {
 
         $userRoles = $this->staffModel->getAllUserRoles();
 
-        $error = null;
         require __DIR__ . '/../Views/Staff/Page.php';
     }
 
@@ -108,11 +114,14 @@ class AuthorizationC {
     }
 
     public function deleteAccount() {
-        if (in_array('canManageStaff', $_SESSION['permissions'])) {
+        $error = '';
+        if (in_array('canDeleteUserAccounts', $_SESSION['permissions'])) {
             $id = $_POST['deletedID'];
             $this->staffModel->removeAccount($id);
+        } else {
+            $error = "You dont have permission to delete accounts";
         }
-        $this->showStaff();
+        $this->showStaff(error: $error);
     }
 
     public function setUsername() {
