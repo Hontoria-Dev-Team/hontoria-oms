@@ -14,7 +14,7 @@ $authorization = new AuthorizationC($pdo);
 $services = new ServicesC($pdo);
 $orders = new OrdersC($pdo);
 
-$protectedPages = ['dashboard', 'account', 'staff', 'services'];
+$protectedPages = ['dashboard', 'account', 'staff', 'services', 'orders'];
 
 if (in_array($page, $protectedPages)) {
     AuthorizationMid::check($page);
