@@ -173,10 +173,11 @@ class StaffM {
     }
 
     public function getUserPermissions($id) {
-        $query = "SELECT perms.name
-                  FROM permissions perms
-                  JOIN userPermissions userPerms ON perms.id = userPerms.permissionID
-                  WHERE userPerms.userID = :id";
+        $query = "SELECT DISTINCT permissions.name
+                      FROM userRoles
+                      JOIN rolePermissions ON rolePermissions.roleID = userRoles.roleID
+                      JOIN permissions ON permissions.id = rolePermissions.permissionID
+                      WHERE userRoles.userID = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
         $stmt->execute();

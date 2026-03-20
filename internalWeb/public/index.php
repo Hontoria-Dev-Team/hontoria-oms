@@ -124,4 +124,5 @@ switch ($page) {
 
 if ($page !== 'login') {
     $authorization->keepOnline();
+    $authorization->getPermissions();
 }
