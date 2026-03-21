@@ -25,12 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
     'Graduation Tarpaulin':    { desc:'Celebrate achievements with stunning graduation tarpaulins. Custom designs that make the moment unforgettable.',                     icon:'fa-graduation-cap', bg:'linear-gradient(135deg,#ffe0e0,#ffb3b3)' },
     'Congratulation Tarpaulin':{ desc:'Vibrant congratulation tarpaulins for any milestone — promotions, awards, anniversaries, and more.',                                icon:'fa-star',           bg:'linear-gradient(135deg,#ffe0e0,#ffb3b3)' },
     // Mugs & Tumbler
-    'Sublimation Mug':         { desc:'Full-wrap sublimation printed mugs with your custom design. Perfect for gifts, souvenirs, and giveaways.',                          icon:'fa-mug-hot',        bg:'linear-gradient(135deg,#fff3e0,#ffe0b2)' },
+    'Mug':                     { desc:'Full-wrap sublimation printed mugs with your custom design. Perfect for gifts, souvenirs, and giveaways.',                          icon:'fa-mug-hot',        bg:'linear-gradient(135deg,#fff3e0,#ffe0b2)' },
     'Tumbler':                 { desc:'Custom sublimation printed tumblers. Keep your drinks hot or cold while showing off your unique design.',                           icon:'fa-mug-hot',        bg:'linear-gradient(135deg,#fff3e0,#ffe0b2)' },
     // Lanyards
-    'School ID Lanyard':       { desc:'Custom printed school ID lanyards with your school logo and colors. Durable and comfortable.',                                      icon:'fa-id-card',        bg:'linear-gradient(135deg,#f3e5f5,#e1bee7)' },
-    'Office ID Lanyard':       { desc:'Professional office ID lanyards customized with your company branding.',                                                            icon:'fa-id-badge',       bg:'linear-gradient(135deg,#f3e5f5,#e1bee7)' },
-    'Professional ID Lanyard': { desc:'High-quality lanyards for professionals, events, and conferences.',                                                                 icon:'fa-id-card-alt',    bg:'linear-gradient(135deg,#f3e5f5,#e1bee7)' },
+    'Lanyard':                 { desc:'Custom printed lanyards with your logo and colors. Durable and comfortable.',                                                       icon:'fa-id-card',        bg:'linear-gradient(135deg,#f3e5f5,#e1bee7)' },
     // Stitching
     'Custom Stitched T-Shirt': { desc:'Tailored t-shirts with custom stitching and embroidery. Perfect for teams, events, and branded apparel.',                           icon:'fa-cut',            bg:'linear-gradient(135deg,#e8f5e9,#c8e6c9)' },
     // Stickers

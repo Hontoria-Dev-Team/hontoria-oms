@@ -298,7 +298,7 @@ class product {
 
             // ── CUSTOMIZE LANYARD ─────────────────────────────────────────
             new product([
-                'id'          => 'school-id',
+                'id'          => 'lanyard',
                 'name'        => 'Lanyard',
                 'category'    => 'lanyard',
                 'description' => 'Custom printed lanyards with your logo and colors. Durable and comfortable.',
