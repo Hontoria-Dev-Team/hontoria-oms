@@ -23,6 +23,10 @@ class AuthorizationC {
     public function showStaff($search = '', $status = '', $error = '') {
         $page = "staff";
 
+        $roleList = $this->staffModel->getAllRoles();
+        $userRoles = $this->staffModel->getAllUserRoles();
+        $roleGovernance = $this->staffModel->getRoleManagementGovernance($this->staffModel->getUserRoles($_SESSION['id']));
+
         if ($search !== '' || $status !== '') {
             $staffList = $this->staffModel->getfilteredStaff($search, $status);
         } else {
@@ -33,15 +37,6 @@ class AuthorizationC {
         $staffList = array_filter($staffList, function ($staff) use ($currentUserId) {
             return $staff['id'] !== $currentUserId;
         });
-
-        foreach ($staffList as &$staff) {
-            $perms = $this->staffModel->getUserPermissions($staff['id']);
-            $staff['canManageStaff'] = in_array('canManageStaff', $perms) ? 1 : 0;
-        }
-        unset($staff);
-
-        $roleList = $this->staffModel->getAllRoles();
-        $userRoles = $this->staffModel->getAllUserRoles();
 
         require __DIR__ . '/../Views/Staff/Page.php';
     }
@@ -86,9 +81,9 @@ class AuthorizationC {
             $userRoles = $_POST['roleHiddenInput'] ?? [];
             $this->staffModel->updateUserRoles($userID, $userRoles);
         } else {
-            $error = "You dont have permission to alter user roles";
+            $error = "You dont have permission to alter user roles"; //doesnt work fix
         }
-        $this->showStaff(error: $error);
+        header("Location: index.php?page=staff");
     }
 
     public function createAccount() {
@@ -118,9 +113,9 @@ class AuthorizationC {
             $id = $_POST['deletedID'];
             $this->staffModel->removeAccount($id);
         } else {
-            $error = "You dont have permission to delete accounts";
+            $error = "You dont have permission to delete accounts"; //doesnt work fix
         }
-        $this->showStaff(error: $error);
+        header("Location: index.php?page=staff");
     }
 
     public function setUsername() {

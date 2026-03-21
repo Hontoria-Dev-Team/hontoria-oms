@@ -108,11 +108,37 @@
     const staffActionsstaffActions = document.getElementById('staffActions');
     const rolesText = document.getElementById('rolesText');
     const modifyRolesButton = document.getElementById('modifyRolesButton');
+    const deleteButton = document.getElementById('deleteButton');
     const roles = <?php echo json_encode($roleList); ?>;
     const userRoles = <?php echo json_encode($userRoles); ?>;
+    const roleGovernance = <?php echo json_encode($roleGovernance); ?>;
+
+    const userRolesMap = {};
+
+    userRoles.forEach(item => {
+        if (!userRolesMap[item.userID]) {
+            userRolesMap[item.userID] = [];
+        }
+
+        userRolesMap[item.userID].push({
+            name: item.name,
+            roleID: item.roleID
+        });
+    });
+
+    const noGrants = [];
+
+    roleGovernance.forEach(item => {
+        if (item.canGrant == 0) {
+            noGrants.push(item.roleSubjectID);
+        }
+    });
 
     let name;
     let id;
+    let selectedUserRoles;
+    let governances;
+    let governanceRules;
 
     document.addEventListener("DOMContentLoaded", () => {
         confirmationCancel.value = "No Cancel";
@@ -135,8 +161,34 @@
                 nameDisplay.textContent = name;
                 nameDisplay.style.alignSelf = 'baseline';
 
+                selectedUserRoles = [...(userRolesMap[id] || [])];
+
+                governances = roleGovernance.filter(gov =>
+                    selectedUserRoles.some(role => role.roleID === gov.roleSubjectID)
+                );
+
+                governanceRules = {
+                    canGrant: governances.every(role => role.canGrant == 1) ? 1 : 0,
+                    canRevoke: governances.every(role => role.canRevoke == 1) ? 1 : 0,
+                    canAlter: governances.every(role => role.canAlter == 1) ? 1 : 0,
+                    canDelete: governances.every(role => role.canDelete == 1) ? 1 : 0
+                };
+
                 rolesText.parentElement.classList.remove("hidden");
                 staffActions.classList.remove("hidden");
+
+                if (governanceRules.canGrant || governanceRules.canRevoke) {
+                    modifyRolesButton.classList.remove("unclickable", "faded");
+                } else {
+                    modifyRolesButton.classList.add("unclickable", "faded");
+                }
+
+                if (governanceRules.canDelete) {
+                    deleteButton.classList.remove("unclickable", "faded");
+                } else {
+                    deleteButton.classList.add("unclickable", "faded");
+                }
+
                 rolesText.textContent = elem.dataset.roles;
             });
         });
@@ -148,7 +200,7 @@
     deletedID.name = "deletedID";
     confirmationForm.appendChild(deletedID);
 
-    document.getElementById('deleteButton').addEventListener('click', function() {
+    deleteButton.addEventListener('click', function() {
         confirmationForm.action = "index.php?page=staff&action=delete"
 
         confirmationTitle.innerHTML = "Delete Account?";
@@ -162,19 +214,6 @@
     });
 
     // Change User Role Box Function logic
-    const userRolesMap = {};
-
-    userRoles.forEach(item => {
-        if (!userRolesMap[item.userID]) {
-            userRolesMap[item.userID] = [];
-        }
-
-        userRolesMap[item.userID].push({
-            name: item.name,
-            roleID: item.roleID
-        });
-    });
-
     let currentRolesContainer;
     let choiceRolesContainer;
     let currentRoles;
@@ -245,11 +284,13 @@
             tempRoleTitle.textContent = currentRoles[i].name;
             tempRoleDiv.appendChild(tempRoleTitle);
 
-            tempRoleXButton = document.createElement("a");
-            tempRoleXButton.className = "squareSize unitHeight centerColumnLayout roleRemove";
-            tempRoleXButton.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X">';
-            tempRoleXButton.dataset.index = i;
-            tempRoleDiv.appendChild(tempRoleXButton);
+            if (governanceRules.canRevoke) {
+                tempRoleXButton = document.createElement("a");
+                tempRoleXButton.className = "squareSize unitHeight centerColumnLayout roleRemove";
+                tempRoleXButton.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X">';
+                tempRoleXButton.dataset.index = i;
+                tempRoleDiv.appendChild(tempRoleXButton);
+            }
 
             roleHiddenInput = document.createElement("input");
             roleHiddenInput.type = "hidden";
@@ -288,6 +329,8 @@
         }
 
         for (let i = 0; i < choiceRoles.length; i++) {
+            if (noGrants.includes(choiceRoles[i].id)) continue;
+
             tempRoleDiv = document.createElement("div");
             tempRoleDiv.className = "noShrink roundedMin centerRowLayout minGap darkFadedBG regMinPadding bordered clickable choiceRole";
             tempRoleDiv.dataset.index = i;

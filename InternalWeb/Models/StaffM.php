@@ -214,6 +214,26 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getUserRoles($userID) {
+        $query = "SELECT roleID FROM userRoles WHERE userID = :userID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+    }
+
+    public function getRoleManagementGovernance($roles) {
+        $placeholders = implode(',', array_fill(0, count($roles), '?'));
+
+        $query = "SELECT roleSubjectID, canGrant, canRevoke, canAlter, canDelete
+          FROM roleManagementGovernance
+          WHERE roleAgentID IN ($placeholders)";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute($roles);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function clearUserRoles($userID) {
         $query = "DELETE FROM userRoles WHERE userID = :userID";
         $stmt = $this->pdo->prepare($query);

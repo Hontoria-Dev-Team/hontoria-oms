@@ -290,3 +290,12 @@
 .transText {
     color: var(--darkTrans);
 }
+
+.unclickable {
+    pointer-events: none;
+    cursor: default;
+}
+
+.faded {
+    opacity: 0.5;
+}

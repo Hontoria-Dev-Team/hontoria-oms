@@ -7,6 +7,12 @@ INSERT INTO roles (name) VALUES
 ('sewist'),
 ('verifier');
 
+INSERT INTO roleManagementGovernance (roleSubjectID, roleAgentID, canGrant, canRevoke, canAlter, canDelete) VALUES
+(1, 1, 1, 0, 0, 0),
+(1, 2, 0, 0, 0, 0),
+(2, 1, 1, 1, 1, 1),
+(2, 2, 1, 0, 0, 0);
+
 INSERT INTO permissions (name) VALUES
 ('canViewStaffList'),
 ('isHiddenFromStaffList'),

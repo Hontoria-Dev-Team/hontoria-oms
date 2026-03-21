@@ -4,6 +4,18 @@ CREATE TABLE roles (
     description TEXT
 );
 
+CREATE TABLE roleManagementGovernance (
+    roleSubjectID INT UNSIGNED NOT NULL,
+    roleAgentID INT UNSIGNED NOT NULL,
+    canGrant BOOLEAN DEFAULT FALSE,
+    canRevoke BOOLEAN DEFAULT FALSE,
+    canAlter BOOLEAN DEFAULT FALSE,
+    canDelete BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY (roleSubjectID, roleAgentID),
+    FOREIGN KEY (roleSubjectID) REFERENCES roles(id),
+    FOREIGN KEY (roleAgentID) REFERENCES roles(id)
+);
+
 CREATE TABLE permissions (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) UNIQUE NOT NULL,
