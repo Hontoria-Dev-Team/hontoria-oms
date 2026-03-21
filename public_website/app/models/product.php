@@ -86,6 +86,12 @@ class product {
             $longsleevePhotos[] = 'img/sublimationPicture/longsleveePicture/longslevee' . $i . '.jpg';
         }
 
+        // ── Jogging Pants photos (5 photos) ──────────────────────────────
+        $pantsPhotos = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $pantsPhotos[] = 'img/sublimationPicture/pantsPicture/pants' . $i . '.jpg';
+        }
+
         // ── Warmer photos (10 photos) ─────────────────────────────────────
         $warmerPhotos = [];
         for ($i = 1; $i <= 10; $i++) {
@@ -163,8 +169,8 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/sublimationPicture/pantsPicture/pants1.jpg',
+                'photos'      => $pantsPhotos,
                 'variants'    => [],
             ]),
             new product([
