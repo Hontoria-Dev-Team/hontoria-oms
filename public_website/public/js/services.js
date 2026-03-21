@@ -7,7 +7,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // ── PRODUCT DATA (used by the modal) ─────────────────────────────────
-  // Key must exactly match the data-name on each .product-card
   const productInfo = {
     // Sublimation
     'Jersey':                  { desc:'High-quality full sublimation printing on jerseys. Perfect for sports teams, events, and uniforms. Fade-resistant and durable.',    icon:'fa-tshirt',         bg:'linear-gradient(135deg,#fff5cc,#ffe57a)' },
@@ -25,8 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
     'Birthday Tarpaulin':      { desc:'Beautiful custom birthday tarpaulins. Any size, any design — bold and colorful.',                                                   icon:'fa-birthday-cake',  bg:'linear-gradient(135deg,#ffe0e0,#ffb3b3)' },
     'Graduation Tarpaulin':    { desc:'Celebrate achievements with stunning graduation tarpaulins. Custom designs that make the moment unforgettable.',                     icon:'fa-graduation-cap', bg:'linear-gradient(135deg,#ffe0e0,#ffb3b3)' },
     'Congratulation Tarpaulin':{ desc:'Vibrant congratulation tarpaulins for any milestone — promotions, awards, anniversaries, and more.',                                icon:'fa-star',           bg:'linear-gradient(135deg,#ffe0e0,#ffb3b3)' },
-    // Mugs
+    // Mugs & Tumbler
     'Sublimation Mug':         { desc:'Full-wrap sublimation printed mugs with your custom design. Perfect for gifts, souvenirs, and giveaways.',                          icon:'fa-mug-hot',        bg:'linear-gradient(135deg,#fff3e0,#ffe0b2)' },
+    'Tumbler':                 { desc:'Custom sublimation printed tumblers. Keep your drinks hot or cold while showing off your unique design.',                           icon:'fa-mug-hot',        bg:'linear-gradient(135deg,#fff3e0,#ffe0b2)' },
     // Lanyards
     'School ID Lanyard':       { desc:'Custom printed school ID lanyards with your school logo and colors. Durable and comfortable.',                                      icon:'fa-id-card',        bg:'linear-gradient(135deg,#f3e5f5,#e1bee7)' },
     'Office ID Lanyard':       { desc:'Professional office ID lanyards customized with your company branding.',                                                            icon:'fa-id-badge',       bg:'linear-gradient(135deg,#f3e5f5,#e1bee7)' },
@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // ── FILTER ENGINE ─────────────────────────────────────────────────────
-  // Works dynamically — no hardcoded section IDs
   const allCards    = document.querySelectorAll('.product-card');
   const allSections = document.querySelectorAll('.product-section');
   const filterLabel = document.getElementById('filterLabel');
@@ -82,26 +81,21 @@ document.addEventListener('DOMContentLoaded', () => {
     clearActive();
     toggleServices.classList.add('sb-active');
   });
-  // Open SERVICES group by default
   subServices?.classList.add('open');
   chevServices?.classList.add('open');
 
-  // ── SIDEBAR: Each category toggle (sublimation, uniform, etc.) ────────
+  // ── SIDEBAR: Each category toggle ────────────────────────────────────
   document.querySelectorAll('.sb-sub-toggle').forEach(btn => {
-    const catId = btn.dataset.filter;
-    const subEl = document.getElementById('sub_' + catId);
+    const catId  = btn.dataset.filter;
+    const subEl  = document.getElementById('sub_' + catId);
     const chevEl = document.getElementById('chev_' + catId);
 
-    // Open all category item lists by default
     subEl?.classList.add('open');
     chevEl?.classList.add('open');
 
     btn.addEventListener('click', () => {
-      // Toggle open/close the item list for this category
       const isOpen = subEl?.classList.toggle('open');
       chevEl?.classList.toggle('open', isOpen);
-
-      // Filter content to show only this category
       clearActive();
       filterByCategory(catId);
       btn.classList.add('sb-active');
@@ -120,13 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── SEARCH — works from both sidebar input and mobile input ──────────
-  // Both inputs share the same id="searchInput" — only one is visible at a time
+  // ── SEARCH ───────────────────────────────────────────────────────────
   const searchInput = document.getElementById('searchInput');
   searchInput?.addEventListener('input', () => {
     const q = searchInput.value.toLowerCase().trim();
     if (q === '') { showAll(); return; }
-
     allCards.forEach(c => {
       const match = (c.dataset.name || '').toLowerCase().includes(q) || (c.dataset.category || '').toLowerCase().includes(q);
       c.style.display = match ? '' : 'none';
@@ -145,23 +137,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalDesc    = document.getElementById('modalDesc');
   const modalPrice   = document.getElementById('modalPrice');
   const modalMainImg = document.getElementById('modalMainImg');
-  const modalPhIcon  = document.getElementById('modalPhIcon');
-  const modalPhLabel = document.getElementById('modalPhLabel');
   const qtyInput     = document.getElementById('qtyInput');
   const qtyMinus     = document.getElementById('qtyMinus');
   const qtyPlus      = document.getElementById('qtyPlus');
   const totalDisplay = document.getElementById('totalDisplay');
-  const thumbs       = document.querySelectorAll('.thumb');
   let currentPrice   = 0;
 
   function updateTotal() {
     const qty = parseInt(qtyInput?.value) || 1;
     if (totalDisplay) totalDisplay.textContent = currentPrice > 0 ? '₱' + (qty * currentPrice).toLocaleString() : '—';
   }
-  function openModal(name) {
-    const card    = [...allCards].find(c => c.dataset.name === name);
-    const info    = productInfo[name];
 
+  function openModal(name) {
+    const card     = [...allCards].find(c => c.dataset.name === name);
+    const info     = productInfo[name];
     const desc     = info?.desc  || card?.querySelector('.card-desc')?.textContent || '';
     const icon     = info?.icon  || 'fa-image';
     const bg       = info?.bg    || 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
@@ -176,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalDesc)  modalDesc.textContent  = desc;
     if (qtyInput)   qtyInput.value         = 1;
 
-    // ── Variant selector (e.g. White Mug / Magic Mug) ─────────────────
+    // ── Variant selector ──────────────────────────────────────────────
     const variantRow    = document.getElementById('modalVariantRow');
     const variantSelect = document.getElementById('modalVariantSelect');
 
@@ -199,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateTotal();
 
-    // ── Render main image with prev/next arrows ───────────────────────
+    // ── Main image ────────────────────────────────────────────────────
     function renderMainImage(idx) {
       currentPhotoIdx = idx;
       if (photos.length > 0) {
@@ -252,16 +241,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.overflow = 'hidden';
   }
 
-  // ── Lightbox (fullscreen expand) ──────────────────────────────────────
+  // ── Lightbox ──────────────────────────────────────────────────────────
   function openLightbox(photos, startIdx, name) {
     let idx = startIdx;
-
     const lb = document.createElement('div');
     lb.id = 'lightbox';
-    lb.style.cssText = `
-      position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;
-      display:flex;align-items:center;justify-content:center;flex-direction:column;
-    `;
+    lb.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;`;
 
     function renderLb() {
       lb.innerHTML = `
@@ -271,16 +256,16 @@ document.addEventListener('DOMContentLoaded', () => {
         <button id="lbNext" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:22px;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center"><i class="fas fa-chevron-right"></i></button>
         <span style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:12px">${idx + 1} / ${photos.length}</span>
       `;
-      lb.querySelector('#lbClose').addEventListener('click', () => { lb.remove(); });
+      lb.querySelector('#lbClose').addEventListener('click', () => lb.remove());
       lb.querySelector('#lbPrev').addEventListener('click',  () => { idx = (idx - 1 + photos.length) % photos.length; renderLb(); });
       lb.querySelector('#lbNext').addEventListener('click',  () => { idx = (idx + 1) % photos.length; renderLb(); });
     }
 
     lb.addEventListener('click', e => { if (e.target === lb) lb.remove(); });
     document.addEventListener('keydown', function lbKey(e) {
-      if (e.key === 'Escape')    { lb.remove(); document.removeEventListener('keydown', lbKey); }
-      if (e.key === 'ArrowLeft') { idx = (idx - 1 + photos.length) % photos.length; renderLb(); }
-      if (e.key === 'ArrowRight'){ idx = (idx + 1) % photos.length; renderLb(); }
+      if (e.key === 'Escape')     { lb.remove(); document.removeEventListener('keydown', lbKey); }
+      if (e.key === 'ArrowLeft')  { idx = (idx - 1 + photos.length) % photos.length; renderLb(); }
+      if (e.key === 'ArrowRight') { idx = (idx + 1) % photos.length; renderLb(); }
     });
 
     renderLb();
@@ -297,19 +282,15 @@ document.addEventListener('DOMContentLoaded', () => {
   qtyPlus?.addEventListener('click',  () => { qtyInput.value=(parseInt(qtyInput.value)||1)+1; updateTotal(); });
   qtyInput?.addEventListener('input', updateTotal);
 
-  // Thumbnails
-  thumbs.forEach(t => t.addEventListener('click', () => { thumbs.forEach(x => x.classList.remove('active')); t.classList.add('active'); }));
-
-  // Click card or View Details button to open modal
+  // Click card to open modal
   document.querySelectorAll('.product-card').forEach(card => {
     card.addEventListener('click', e => {
-      if (e.target.closest('.order-btn')) return; // Order Now goes to Facebook, not modal
+      if (e.target.closest('.order-btn')) return;
       const name = card.dataset.name;
       if (name) openModal(name);
     });
   });
 
-  // Also wire view-btn directly as backup
   document.querySelectorAll('.view-btn').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
@@ -318,7 +299,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Close modal
   modalClose?.addEventListener('click', closeModal);
   modalOverlay?.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
