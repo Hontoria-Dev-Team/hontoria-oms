@@ -83,7 +83,7 @@ class AuthorizationC {
         $error = '';
         if (in_array('canAlterAccountRoles', $_SESSION['permissions'])) {
             $userID = $_POST['selectedID'];
-            $userRoles = $_POST['roleHiddenInput'];
+            $userRoles = $_POST['roleHiddenInput'] ?? [];
             $this->staffModel->updateUserRoles($userID, $userRoles);
         } else {
             $error = "You dont have permission to alter user roles";
