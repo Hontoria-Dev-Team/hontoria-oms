@@ -86,6 +86,12 @@ class product {
             $longsleevePhotos[] = 'img/sublimationPicture/longsleveePicture/longslevee' . $i . '.jpg';
         }
 
+        // ── Warmer photos (10 photos) ─────────────────────────────────────
+        $warmerPhotos = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $warmerPhotos[] = 'img/sublimationPicture/warmerPicture/warmer' . $i . '.jpg';
+        }
+
         // ── Short photos (10 photos) ──────────────────────────────────────
         $shortPhotos = [];
         for ($i = 1; $i <= 10; $i++) {
@@ -145,8 +151,8 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/sublimationPicture/warmerPicture/warmer1.jpg',
+                'photos'      => $warmerPhotos,
                 'variants'    => [],
             ]),
             new product([
