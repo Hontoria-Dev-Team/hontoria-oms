@@ -86,6 +86,12 @@ class product {
             $longsleevePhotos[] = 'img/sublimationPicture/longsleveePicture/longslevee' . $i . '.jpg';
         }
 
+        // ── Short photos (10 photos) ──────────────────────────────────────
+        $shortPhotos = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $shortPhotos[] = 'img/sublimationPicture/shortPicture/short' . $i . '.jpg';
+        }
+
         // ── Polo Shirt photos (10 photos) ─────────────────────────────────
         $poloshirtPhotos = [];
         for ($i = 1; $i <= 10; $i++) {
@@ -127,8 +133,8 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/sublimationPicture/shortPicture/short1.jpg',
+                'photos'      => $shortPhotos,
                 'variants'    => [],
             ]),
             new product([
@@ -292,7 +298,7 @@ class product {
 
             // ── CUSTOMIZE LANYARD ─────────────────────────────────────────
             new product([
-                'id'          => 'lanyard',
+                'id'          => 'school-id',
                 'name'        => 'Lanyard',
                 'category'    => 'lanyard',
                 'description' => 'Custom printed lanyards with your logo and colors. Durable and comfortable.',
