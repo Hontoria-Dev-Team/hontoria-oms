@@ -40,6 +40,7 @@ class AuthorizationC {
         }
         unset($staff);
 
+        $roleList = $this->staffModel->getAllRoles();
         $userRoles = $this->staffModel->getAllUserRoles();
 
         require __DIR__ . '/../Views/Staff/Page.php';
@@ -78,18 +79,16 @@ class AuthorizationC {
         $_SESSION['permissions'] = $permissions;
     }
 
-    public function updatePermissions() {
-        if (in_array('canManageStaff', $_SESSION['permissions'])) {
-            $id = $_POST['selectedID'];
-            $permissions = [];
-
-            if (isset($_POST['canManageStaff'])) {
-                $permissions[] = $_POST['canManageStaff'];
-            }
-
-            $this->staffModel->grantPermissions($id, $permissions);
+    public function setUserRoles() {
+        $error = '';
+        if (in_array('canAlterAccountRoles', $_SESSION['permissions'])) {
+            $userID = $_POST['selectedID'];
+            $userRoles = $_POST['roleHiddenInput'];
+            $this->staffModel->updateUserRoles($userID, $userRoles);
+        } else {
+            $error = "You dont have permission to alter user roles";
         }
-        $this->showStaff();
+        $this->showStaff(error: $error);
     }
 
     public function createAccount() {

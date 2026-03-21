@@ -47,8 +47,8 @@ switch ($page) {
             $search = $_GET['search'] ?? '';
             $status = $_GET['status'] ?? '';
             $authorization->showStaff($search, $status);
-        } else if ($action === 'updatePermissions') {
-            $authorization->updatePermissions();
+        } else if ($action === 'setRoles') {
+            $authorization->setUserRoles();
         } else if ($action === 'create') {
             $lastPage = 'staff';
             $backLink = 'index.php?page=staff';

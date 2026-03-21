@@ -200,10 +200,40 @@ class StaffM {
         }
     }
 
-    public function getAllUserRoles() {
-        $query = "SELECT userRoles.userID, roles.name FROM userRoles JOIN roles ON roles.id = userRoles.roleID";
+    public function getAllRoles() {
+        $query = "SELECT id, name FROM roles";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllUserRoles() {
+        $query = "SELECT userRoles.userID, userRoles.roleID, roles.name FROM userRoles JOIN roles ON roles.id = userRoles.roleID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function clearUserRoles($userID) {
+        $query = "DELETE FROM userRoles WHERE userID = :userID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        return $stmt->execute();
+    }
+
+    public function updateUserRoles($userID, $userRoles) {
+        $this->clearUserRoles($userID);
+
+        if (!empty($userRoles)) {
+            $query = "INSERT INTO userRoles (userID, roleID) VALUES (:userID, :roleID)";
+            $stmt = $this->pdo->prepare($query);
+
+            for ($i = 0; $i < count($userRoles); $i++) {
+                $stmt->execute([
+                    ':userID' => $userID,
+                    ':roleID' => $userRoles[$i]
+                ]);
+            }
+        }
     }
 }

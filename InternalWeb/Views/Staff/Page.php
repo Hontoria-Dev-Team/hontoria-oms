@@ -58,7 +58,7 @@
                             $rolesText = !empty($roles) ? implode(', ', $roles) : 'Unset Role';
                             ?>
                             <div class="minHeight minPadding roundedMin rowLayout minGap flexStatic staffElement <?= $statusClass ?>"
-                                data-id="<?= $staff['id'] ?>" data-name="<?= htmlspecialchars($fullName) ?>" data-can-manage-staff="<?= $staff['canManageStaff'] ?>">
+                                data-id="<?= $staff['id'] ?>" data-name="<?= htmlspecialchars($fullName) ?>" data-roles="<?= $rolesText ?>">
                                 <div style="background: var(--gray);" class="flexMid roundedMin centerColumnLayout">
                                     <img src="../../Shared/Img/PersonIcon.png" alt="Person">
                                 </div>
@@ -82,15 +82,15 @@
             <section class="columnLayout midGap flexMin">
                 <section class="box centerColumnLayout roundedMid minGap flexMin">
                     <h3 id="selectedStaffName">No Staff Selected</h3>
-                    <form id="roleInputForm" action="index.php?page=staff&action=updatePermissions" method="POST" class="columnLayout fullWidth minGap">
-                        <input type="hidden" name="selectedID" id="selectedStaffId">
-                        <div class="rowLayout fullWidth minGap">
-                            <input type="submit" class="importantInput flexMax" value="Update Permissions">
-                            <button type="button" class="criticalInput centerColumnLayout" id="deleteButton">
-                                <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
-                            </button>
-                        </div>
-                    </form>
+                    <b class="leftStart rowLayout tinGap hidden">Roles:
+                        <span id="rolesText" class="capitalFirst">Admin, Artist</span>
+                    </b>
+                    <div class="rowLayout fullWidth minGap hidden" id="staffActions">
+                        <button type="button" class="importantInput flexMax" id="modifyRolesButton">Modify Roles</button>
+                        <button type="button" class="criticalInput centerColumnLayout" id="deleteButton">
+                            <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
+                        </button>
+                    </div>
                     <div class="gradientBorderDiag"></div>
                 </section>
                 <section class="box centerColumnLayout roundedMid flexMid">
@@ -105,12 +105,23 @@
 <script>
     const staffElements = document.querySelectorAll('.staffElement');
     const nameDisplay = document.getElementById('selectedStaffName');
-    const form = document.getElementById('roleInputForm');
-    const idSelected = document.getElementById('selectedStaffId');
+    const staffActionsstaffActions = document.getElementById('staffActions');
+    const rolesText = document.getElementById('rolesText');
+    const modifyRolesButton = document.getElementById('modifyRolesButton');
+    const roles = <?php echo json_encode($roleList); ?>;
+    const userRoles = <?php echo json_encode($userRoles); ?>;
 
     let name;
     let id;
-    let hasPerm;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        confirmationCancel.value = "No Cancel";
+    });
+
+    const selectedID = document.createElement("input");
+    selectedID.type = "hidden";
+    selectedID.name = "selectedID";
+    confirmationForm.appendChild(selectedID);
 
     // Reactive clickable employee data script
     document.addEventListener('DOMContentLoaded', function() {
@@ -118,40 +129,206 @@
             elem.addEventListener('click', function() {
                 name = elem.dataset.name;
                 id = elem.dataset.id;
-                hasPerm = elem.dataset.canManageStaff == '1';
+
+                selectedID.value = elem.dataset.id;
 
                 nameDisplay.textContent = name;
                 nameDisplay.style.alignSelf = 'baseline';
 
-                idSelected.value = id;
-
-                form.style.display = 'flex';
-
-                permissionsParagraph.style.display = 'unset';
-                permissionsParagraph.style.alignSelf = 'baseline';
+                rolesText.parentElement.classList.remove("hidden");
+                staffActions.classList.remove("hidden");
+                rolesText.textContent = elem.dataset.roles;
             });
         });
     });
 
     // Delete employee confirmation and logic script
-    document.addEventListener("DOMContentLoaded", () => {
-        confirmationTitle.innerHTML = "Delete Account?";
-        confirmationSubmit.value = "Yes Delete";
-        confirmationCancel.value = "No Cancel";
-    });
-
     const deletedID = document.createElement("input");
     deletedID.type = "hidden";
     deletedID.name = "deletedID";
     confirmationForm.appendChild(deletedID);
-    confirmationForm.action = "index.php?page=staff&action=delete"
 
     document.getElementById('deleteButton').addEventListener('click', function() {
+        confirmationForm.action = "index.php?page=staff&action=delete"
+
+        confirmationTitle.innerHTML = "Delete Account?";
         confirmationText.innerHTML = "Are you sure to delete the account of:<br>" + name + "?";
+        confirmationSubmit.value = "Yes Delete";
+        confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
 
         deletedID.value = id;
 
         confirmation.style.display = 'flex';
+    });
+
+    // Change User Role Box Function logic
+    const userRolesMap = {};
+
+    userRoles.forEach(item => {
+        if (!userRolesMap[item.userID]) {
+            userRolesMap[item.userID] = [];
+        }
+
+        userRolesMap[item.userID].push({
+            name: item.name,
+            roleID: item.roleID
+        });
+    });
+
+    let currentRolesContainer;
+    let choiceRolesContainer;
+    let currentRoles;
+    let choiceRoles;
+    let tempElement;
+    let tempRoleDiv;
+    let tempRoleTitle;
+    let tempRoleXButton;
+
+    modifyRolesButton.addEventListener('click', function() {
+        confirmationForm.action = "index.php?page=staff&action=setRoles"
+        confirmationForm.parentElement.classList.remove("minGap");
+
+        confirmationTitle.innerHTML = "Modify Account Roles";
+        confirmationText.innerHTML = "";
+
+        currentRoles = [...(userRolesMap[id] || [])];
+
+        choiceRolesContainer = document.createElement("div");
+        choiceRolesContainer.id = "choiceRolesContainer";
+        choiceRolesContainer.className = 'gridCenterHoriFlex minGap tempElement';
+        confirmationForm.appendChild(choiceRolesContainer);
+
+        tempElement = document.createElement("b");
+        tempElement.textContent = "All Roles:";
+        tempElement.classList.add("tempElement");
+        confirmationForm.appendChild(tempElement);
+
+        currentRolesContainer = document.createElement("div");
+        currentRolesContainer.id = "currentRolesContainer";
+        currentRolesContainer.className = 'gridCenterHoriFlex minGap tempElement';
+        confirmationForm.appendChild(currentRolesContainer);
+
+        setAssignedRoles();
+        setChoiceRoles();
+
+        tempElement = document.createElement("b");
+        tempElement.textContent = "Assigned Roles:";
+        tempElement.classList.add("tempElement");
+        confirmationForm.appendChild(tempElement);
+
+        confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
+        confirmationSubmit.value = "Confirm Changes";
+
+        confirmation.style.display = 'flex';
+    });
+
+    function setAssignedRoles() {
+        currentRolesContainer.innerHTML = '';
+
+        document.querySelectorAll('.roleHiddenInput').forEach(function(elem) {
+            elem.remove();
+        });
+
+        if (currentRoles.length == 0) {
+            tempElement = document.createElement("h2");
+            tempElement.textContent = "Unset";
+            tempElement.className = "centerText";
+            currentRolesContainer.appendChild(tempElement);
+        }
+
+        for (let i = 0; i < currentRoles.length; i++) {
+            tempRoleDiv = document.createElement("div");
+            tempRoleDiv.className = "noShrink roundedMin centerRowLayout minGap yellowTransBG regMinPadding bordered";
+
+            tempRoleTitle = document.createElement("b");
+            tempRoleTitle.className = "flexMax centerText capitalFirst";
+            tempRoleTitle.textContent = currentRoles[i].name;
+            tempRoleDiv.appendChild(tempRoleTitle);
+
+            tempRoleXButton = document.createElement("a");
+            tempRoleXButton.className = "squareSize unitHeight centerColumnLayout roleRemove";
+            tempRoleXButton.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X">';
+            tempRoleXButton.dataset.index = i;
+            tempRoleDiv.appendChild(tempRoleXButton);
+
+            roleHiddenInput = document.createElement("input");
+            roleHiddenInput.type = "hidden";
+            roleHiddenInput.name = "roleHiddenInput[]";
+            roleHiddenInput.className = "roleHiddenInput";
+            roleHiddenInput.value = currentRoles[i].roleID;
+            confirmationForm.appendChild(roleHiddenInput);
+
+            currentRolesContainer.appendChild(tempRoleDiv);
+        };
+
+        document.querySelectorAll('.roleRemove').forEach(function(elem) {
+            elem.addEventListener('click', function() {
+                currentRoles.splice(elem.dataset.index, 1);
+                setAssignedRoles();
+                setChoiceRoles();
+            });
+        });
+    }
+
+    function setChoiceRoles() {
+        choiceRolesContainer.innerHTML = '';
+        choiceRoles = [];
+
+        roles.forEach((item) => {
+            if (currentRoles.some(role => role.roleID === item.id)) return;
+
+            choiceRoles.push(item);
+        });
+
+        if (choiceRoles.length == 0) {
+            tempElement = document.createElement("h2");
+            tempElement.textContent = "No more available Roles";
+            tempElement.className = "centerText";
+            choiceRolesContainer.appendChild(tempElement);
+        }
+
+        for (let i = 0; i < choiceRoles.length; i++) {
+            tempRoleDiv = document.createElement("div");
+            tempRoleDiv.className = "noShrink roundedMin centerRowLayout minGap darkFadedBG regMinPadding bordered clickable choiceRole";
+            tempRoleDiv.dataset.index = i;
+            tempRoleDiv.dataset.name = choiceRoles[i].name;
+            tempRoleDiv.dataset.id = choiceRoles[i].id;
+
+            tempRoleTitle = document.createElement("b");
+            tempRoleTitle.className = "flexMax centerText capitalFirst";
+            tempRoleTitle.textContent = choiceRoles[i].name;
+            tempRoleDiv.appendChild(tempRoleTitle);
+
+            choiceRolesContainer.appendChild(tempRoleDiv);
+        };
+
+        document.querySelectorAll('.choiceRole').forEach(function(elem) {
+            elem.addEventListener('click', function() {
+                currentRoles.push({
+                    name: elem.dataset.name,
+                    roleID: elem.dataset.id
+                });
+                setAssignedRoles();
+                setChoiceRoles();
+            });
+        });
+    }
+
+    // Added cancellation events
+    confirmationCancel.addEventListener('click', function() {
+        confirmationForm.parentElement.classList.add("minGap");
+
+        document.querySelectorAll('.tempElement').forEach(function(elem) {
+            elem.remove();
+        });
+    });
+
+    confirmationBG.addEventListener('click', function() {
+        confirmationForm.parentElement.classList.add("minGap");
+
+        document.querySelectorAll('.tempElement').forEach(function(elem) {
+            elem.remove();
+        });
     });
 </script>
 <script src="../.JS/AutoRefresher.js"></script>

@@ -224,6 +224,14 @@
     transform: scaleX(-1);
 }
 
+.darkTransBG {
+    background: var(--darkTrans);
+}
+
+.darkFadedBG {
+    background: var(--darkFaded);
+}
+
 .redTransBG {
     background: var(--redTrans);
 }
