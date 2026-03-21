@@ -80,9 +80,9 @@ class product {
             $tshirtPhotos[] = 'img/sublimationPicture/tshirtPicture/tshirtPicture' . $i . '.jpg';
         }
 
-        // ── Longsleeve photos (2 photos) ──────────────────────────────────
+        // ── Longsleeve photos (6 photos) ─────────────────────────────────
         $longsleevePhotos = [];
-        for ($i = 1; $i <= 2; $i++) {
+        for ($i = 1; $i <= 6; $i++) {
             $longsleevePhotos[] = 'img/sublimationPicture/longsleveePicture/longslevee' . $i . '.jpg';
         }
 
@@ -292,10 +292,10 @@ class product {
 
             // ── CUSTOMIZE LANYARD ─────────────────────────────────────────
             new product([
-                'id'          => 'school-id',
+                'id'          => 'lanyard',
                 'name'        => 'Lanyard',
                 'category'    => 'lanyard',
-                'description' => 'Custom printed school ID lanyards with your school logo and colors. Durable and comfortable.',
+                'description' => 'Custom printed lanyards with your logo and colors. Durable and comfortable.',
                 'price'       => 0,
                 'icon'        => 'fa-id-card',
                 'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
@@ -303,7 +303,6 @@ class product {
                 'photos'      => [],
                 'variants'    => [],
             ]),
-           
 
             // ── CUSTOM STITCHING ──────────────────────────────────────────
             new product([
