@@ -74,7 +74,9 @@
                         <div class="tinHeight"></div>
                     </section>
                     <div class="rowLayout minGap souEastAbsolute">
-                        <a href="index.php?page=staff&action=create" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">Create Staff</a>
+                        <?php if (in_array("canCreateUserAccounts", $_SESSION['permissions'])): ?>
+                            <a href="index.php?page=staff&action=create" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">Create Staff</a>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="gradientBorderDiag"></div>

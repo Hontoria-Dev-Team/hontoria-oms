@@ -50,9 +50,7 @@ switch ($page) {
         } else if ($action === 'setRoles') {
             $authorization->setUserRoles();
         } else if ($action === 'create') {
-            $lastPage = 'staff';
-            $backLink = 'index.php?page=staff';
-            require_once __DIR__ . '/../Views/Staff/CreateAccount.php';
+            $authorization->showAccountCreationPage();
         } else if ($action === 'createFinal') {
             $authorization->createAccount();
         } else if ($action === 'delete') {

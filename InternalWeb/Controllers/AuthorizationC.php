@@ -13,6 +13,17 @@ class AuthorizationC {
         require __DIR__ . '/../Views/Login/Page.php';
     }
 
+    public function showAccountCreationPage() {
+        if (in_array('canCreateUserAccounts', $_SESSION['permissions'])) {
+            $page = "staff";
+            $lastPage = 'staff';
+            $backLink = 'index.php?page=staff';
+            require_once __DIR__ . '/../Views/Staff/CreateAccount.php';
+        } else {
+            header("Location: index.php?page=staff");
+        }
+    }
+
     public function checkUserExists() {
         $existence = $this->staffModel->getAccount($_SESSION['id']);
         if (!$existence) {
