@@ -78,10 +78,30 @@ class AuthorizationC {
         $error = '';
         if (in_array('canAlterAccountRoles', $_SESSION['permissions'])) {
             $userID = $_POST['selectedID'];
-            $userRoles = $_POST['roleHiddenInput'] ?? [];
-            $this->staffModel->updateUserRoles($userID, $userRoles);
+
+            $userNewRoles = $_POST['roleHiddenInput'] ?? [];
+            $userPastRoles = $this->staffModel->getUserRoles($userID);
+
+            $userNewRoles = array_map('intval', $userNewRoles);
+            $userPastRoles = array_map('intval', $userPastRoles);
+
+            $removedRoles = array_diff($userPastRoles, $userNewRoles);
+            $addedRoles   = array_diff($userNewRoles, $userPastRoles);
+
+            $isRevoking = !empty($removedRoles);
+            $isGranting   = !empty($addedRoles);
+
+            $governanceRules = $this->staffModel->getGovernanceRules($userID, $_SESSION['id']);
+
+            if ($isRevoking && !$governanceRules['canRevoke']) {
+                $_SESSION['error'] = "You dont have the authority to revoke roles from this user because of their role";
+            } else if ($isGranting && !$governanceRules['canGrant']) {
+                $_SESSION['error'] = "You dont have the authority to grant roles for this user because of their role";
+            } else {
+                $this->staffModel->updateUserRoles($userID, $userNewRoles);
+            }
         } else {
-            $error = "You dont have permission to alter user roles"; //doesnt work fix
+            $_SESSION['error'] = "You dont have permission to alter user roles";
         }
         header("Location: index.php?page=staff");
     }
@@ -111,9 +131,16 @@ class AuthorizationC {
         $error = '';
         if (in_array('canDeleteUserAccounts', $_SESSION['permissions'])) {
             $id = $_POST['deletedID'];
-            $this->staffModel->removeAccount($id);
+
+            $governanceRules = $this->staffModel->getGovernanceRules($id, $_SESSION['id']);
+
+            if (!$governanceRules['canDelete']) {
+                $_SESSION['error'] = "You dont have the authority to delete this user because of their role";
+            } else {
+                $this->staffModel->removeAccount($id);
+            }
         } else {
-            $error = "You dont have permission to delete accounts"; //doesnt work fix
+            $_SESSION['error'] = "You dont have permission to delete accounts";
         }
         header("Location: index.php?page=staff");
     }

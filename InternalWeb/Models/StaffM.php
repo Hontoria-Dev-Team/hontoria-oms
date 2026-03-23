@@ -234,6 +234,31 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getGovernanceRules($subjectID, $actorID) {
+        $subjectRoles = $this->getUserRoles($subjectID);
+        $roleGovernance = $this->getRoleManagementGovernance($this->getUserRoles($actorID));
+
+        $governances = array_filter($roleGovernance, function ($gov) use ($subjectRoles) {
+            return in_array((int)$gov['roleSubjectID'], $subjectRoles);
+        });
+
+        $governanceRules = [
+            'canGrant'  => 1,
+            'canRevoke' => 1,
+            'canAlter'  => 1,
+            'canDelete' => 1
+        ];
+
+        foreach ($governances as $gov) {
+            if ((int)$gov['canGrant'] !== 1)  $governanceRules['canGrant'] = 0;
+            if ((int)$gov['canRevoke'] !== 1) $governanceRules['canRevoke'] = 0;
+            if ((int)$gov['canAlter'] !== 1)  $governanceRules['canAlter'] = 0;
+            if ((int)$gov['canDelete'] !== 1) $governanceRules['canDelete'] = 0;
+        }
+
+        return $governanceRules;
+    }
+
     public function clearUserRoles($userID) {
         $query = "DELETE FROM userRoles WHERE userID = :userID";
         $stmt = $this->pdo->prepare($query);
