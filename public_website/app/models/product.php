@@ -8,8 +8,7 @@
  * 2. Set 'price' to 0 for "Contact us for pricing"
  * 3. Set 'photo' to the first/main image path
  * 4. Set 'photos' to an array of all gallery image paths
- * 5. Set 'variants' for products with multiple options (e.g. mug types)
- *    e.g. 'variants' => [['name'=>'White Mug','price'=>150],['name'=>'Magic Mug','price'=>200]]
+ * 5. Set 'variants' for products with multiple price options
  */
 class product {
 
@@ -22,7 +21,7 @@ class product {
     private string $bgGradient;
     private string $photo;
     private array  $photos;
-    private array  $variants; // For products with multiple price options
+    private array  $variants;
 
     public function __construct(array $data) {
         $this->id          = $data['id']          ?? '';
@@ -81,10 +80,28 @@ class product {
             $tshirtPhotos[] = 'img/sublimationPicture/tshirtPicture/tshirtPicture' . $i . '.jpg';
         }
 
-        // ── Longsleeve photos (2 photos) ──────────────────────────────────
+        // ── Longsleeve photos (6 photos) ─────────────────────────────────
         $longsleevePhotos = [];
-        for ($i = 1; $i <= 2; $i++) {
+        for ($i = 1; $i <= 6; $i++) {
             $longsleevePhotos[] = 'img/sublimationPicture/longsleveePicture/longslevee' . $i . '.jpg';
+        }
+
+        // ── Jogging Pants photos (5 photos) ──────────────────────────────
+        $pantsPhotos = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $pantsPhotos[] = 'img/sublimationPicture/pantsPicture/pants' . $i . '.jpg';
+        }
+
+        // ── Warmer photos (10 photos) ─────────────────────────────────────
+        $warmerPhotos = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $warmerPhotos[] = 'img/sublimationPicture/warmerPicture/warmer' . $i . '.jpg';
+        }
+
+        // ── Short photos (10 photos) ──────────────────────────────────────
+        $shortPhotos = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $shortPhotos[] = 'img/sublimationPicture/shortPicture/short' . $i . '.jpg';
         }
 
         // ── Polo Shirt photos (10 photos) ─────────────────────────────────
@@ -128,8 +145,8 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/sublimationPicture/shortPicture/short1.jpg',
+                'photos'      => $shortPhotos,
                 'variants'    => [],
             ]),
             new product([
@@ -140,8 +157,8 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/sublimationPicture/warmerPicture/warmer1.jpg',
+                'photos'      => $warmerPhotos,
                 'variants'    => [],
             ]),
             new product([
@@ -152,8 +169,8 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/sublimationPicture/pantsPicture/pants1.jpg',
+                'photos'      => $pantsPhotos,
                 'variants'    => [],
             ]),
             new product([
@@ -219,7 +236,7 @@ class product {
                 'variants'    => [],
             ]),
 
-            // ── TARPAULIN ─────────────────────────────────────────────────
+            // ── CUSTOMIZE TARPAULIN ───────────────────────────────────────
             new product([
                 'id'          => 'birthday',
                 'name'        => 'Birthday Tarpaulin',
@@ -257,13 +274,13 @@ class product {
                 'variants'    => [],
             ]),
 
-            // ── SUBLIMATION MUGS ──────────────────────────────────────────
+            // ── CUSTOMIZE MUGS & TUMBLER ──────────────────────────────────
             new product([
                 'id'          => 'mug',
-                'name'        => 'Sublimation Mug',
+                'name'        => 'Mug',
                 'category'    => 'mug',
                 'description' => 'Full-wrap sublimation printed mugs with your custom design. Perfect for gifts, souvenirs, and corporate giveaways.',
-                'price'       => 150,  // Default price (White Mug)
+                'price'       => 150,
                 'icon'        => 'fa-mug-hot',
                 'bgGradient'  => 'linear-gradient(135deg,#fff3e0,#ffe0b2)',
                 'photo'       => 'img/sublimationMug/mug/mug1.jpg',
@@ -274,43 +291,31 @@ class product {
                     'img/sublimationMug/mug/mug4.jpg',
                 ],
                 'variants'    => [
-                    ['name' => 'White Mug',  'price' => 150],
-                    ['name' => 'Magic Mug',  'price' => 200],
+                    ['name' => 'White Mug', 'price' => 150],
+                    ['name' => 'Magic Mug', 'price' => 200],
                 ],
             ]),
-
-            // ── ID LANYARDS ───────────────────────────────────────────────
             new product([
-                'id'          => 'school-id',
-                'name'        => 'School ID Lanyard',
+                'id'          => 'tumbler',
+                'name'        => 'Tumbler',
+                'category'    => 'mug',
+                'description' => 'Custom sublimation printed tumblers. Keep your drinks hot or cold while showing off your unique design.',
+                'price'       => 0,
+                'icon'        => 'fa-mug-hot',
+                'bgGradient'  => 'linear-gradient(135deg,#fff3e0,#ffe0b2)',
+                'photo'       => '',
+                'photos'      => [],
+                'variants'    => [],
+            ]),
+
+            // ── CUSTOMIZE LANYARD ─────────────────────────────────────────
+            new product([
+                'id'          => 'lanyard',
+                'name'        => 'Lanyard',
                 'category'    => 'lanyard',
-                'description' => 'Custom printed school ID lanyards with your school logo and colors. Durable and comfortable.',
+                'description' => 'Custom printed lanyards with your logo and colors. Durable and comfortable.',
                 'price'       => 0,
                 'icon'        => 'fa-id-card',
-                'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
-                'photo'       => '',
-                'photos'      => [],
-                'variants'    => [],
-            ]),
-            new product([
-                'id'          => 'office-id',
-                'name'        => 'Office ID Lanyard',
-                'category'    => 'lanyard',
-                'description' => 'Professional office ID lanyards customized with your company branding.',
-                'price'       => 0,
-                'icon'        => 'fa-id-badge',
-                'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
-                'photo'       => '',
-                'photos'      => [],
-                'variants'    => [],
-            ]),
-            new product([
-                'id'          => 'professional-id',
-                'name'        => 'Professional ID Lanyard',
-                'category'    => 'lanyard',
-                'description' => 'High-quality lanyards for professionals, events, and conferences. Custom design and colors.',
-                'price'       => 0,
-                'icon'        => 'fa-id-card-alt',
                 'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
                 'photo'       => '',
                 'photos'      => [],
