@@ -49,11 +49,11 @@
     background: var(--red);
     color: var(--white);
     position: absolute;
-    height: 3rem;
-    width: 25rem;
+    text-align: center;
     align-items: center;
     border-radius: 1rem;
     top: 1rem;
+    max-width: 70%;
     animation: fadeOut 5s forwards;
     align-self: center;
 }
