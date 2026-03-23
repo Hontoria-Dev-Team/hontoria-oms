@@ -133,6 +133,11 @@ class StaffM {
     }
 
     public function removeAccount($id) {
+        $query = "DELETE FROM userRoles WHERE userID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
         $query = "DELETE FROM users WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
