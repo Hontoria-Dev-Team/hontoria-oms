@@ -77,6 +77,9 @@
                         <?php if (in_array("canCreateUserAccounts", $_SESSION['permissions'])): ?>
                             <a href="index.php?page=staff&action=create" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">Create Staff</a>
                         <?php endif; ?>
+                        <?php if (in_array("canAlterAccountRoles", $_SESSION['permissions'])): ?>
+                            <a href="index.php?page=staff&action=manageRoles" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">Manage Roles</a>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="gradientBorderDiag"></div>
@@ -236,7 +239,7 @@
 
         choiceRolesContainer = document.createElement("div");
         choiceRolesContainer.id = "choiceRolesContainer";
-        choiceRolesContainer.className = 'gridCenterHoriFlex minGap tempElement';
+        choiceRolesContainer.className = 'gridCenterVertFlex minGap tempElement';
         confirmationForm.appendChild(choiceRolesContainer);
 
         tempElement = document.createElement("b");
@@ -246,7 +249,7 @@
 
         currentRolesContainer = document.createElement("div");
         currentRolesContainer.id = "currentRolesContainer";
-        currentRolesContainer.className = 'gridCenterHoriFlex minGap tempElement';
+        currentRolesContainer.className = 'gridCenterVertFlex minGap tempElement';
         confirmationForm.appendChild(currentRolesContainer);
 
         setAssignedRoles();

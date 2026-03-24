@@ -178,7 +178,7 @@ class StaffM {
     }
 
     public function getUserPermissions($id) {
-        $query = "SELECT DISTINCT permissions.name
+        $query = "SELECT DISTINCT permissions.id, permissions.name
                       FROM userRoles
                       JOIN rolePermissions ON rolePermissions.roleID = userRoles.roleID
                       JOIN permissions ON permissions.id = rolePermissions.permissionID
@@ -187,7 +187,36 @@ class StaffM {
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
-        return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllPermissions() {
+        $query = "SELECT id, name FROM permissions ORDER BY id ASC";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllRolePermissions() {
+        $query = "SELECT rolePermissions.roleID, rolePermissions.permissionID, permissions.name FROM rolePermissions
+                  JOIN permissions ON permissions.id = rolePermissions.permissionID
+                  ORDER BY rolePermissions.roleID ASC, rolePermissions.permissionID ASC";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getRolePermissions($roleID) {
+        $query = "SELECT permissions.id, permissions.name FROM rolePermissions
+                  JOIN permissions ON permissions.id = rolePermissions.permissionID WHERE rolePermissions.roleID = :roleID
+                  ORDER BY rolePermissions.roleID ASC, rolePermissions.permissionID ASC";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':roleID', $roleID);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function grantPermissions($id, $permissions) {
@@ -227,19 +256,45 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
     }
 
+    public function getAllRolesTally($actorID) {
+        $unalterableRoles = [];
+        $params = [];
+
+        foreach ($this->getRoleManagementGovernance($this->getUserRoles($actorID)) as $rule) {
+            if (!$rule['canAlter']) {
+                $unalterableRoles[] = $rule['roleSubjectID'];
+            }
+        }
+
+        $query = "SELECT roles.id, roles.name, COUNT(userRoles.userID) AS count FROM roles LEFT JOIN userRoles ON roles.id = userRoles.roleID";
+
+        if (!empty($unalterableRoles)) {
+            $placeholders = implode(',', array_fill(0, count($unalterableRoles), '?'));
+            $query .= " WHERE roles.id NOT IN ($placeholders)";
+            $params = $unalterableRoles;
+        }
+
+        $query .= " GROUP BY roles.id, roles.name
+            ORDER BY COUNT(userRoles.userID) DESC";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getRoleManagementGovernance($roles) {
         $placeholders = implode(',', array_fill(0, count($roles), '?'));
 
-        $query = "SELECT roleSubjectID, canGrant, canRevoke, canAlter, canDelete
-          FROM roleManagementGovernance
-          WHERE roleAgentID IN ($placeholders)";
+        $query = "SELECT roleSubjectID, MAX(canGrant)  AS canGrant, MAX(canRevoke) AS canRevoke, MAX(canAlter)  AS canAlter, MAX(canDelete) AS canDelete
+                  FROM roleManagementGovernance WHERE roleAgentID IN ($placeholders) GROUP BY roleSubjectID";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute($roles);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getGovernanceRules($subjectID, $actorID) {
+    public function getGovernanceRulesBetweenUsers($subjectID, $actorID) {
         $subjectRoles = $this->getUserRoles($subjectID);
         $roleGovernance = $this->getRoleManagementGovernance($this->getUserRoles($actorID));
 
@@ -248,17 +303,17 @@ class StaffM {
         });
 
         $governanceRules = [
-            'canGrant'  => 1,
-            'canRevoke' => 1,
-            'canAlter'  => 1,
-            'canDelete' => 1
+            'canGrant'  => 0,
+            'canRevoke' => 0,
+            'canAlter'  => 0,
+            'canDelete' => 0
         ];
 
         foreach ($governances as $gov) {
-            if ((int)$gov['canGrant'] !== 1)  $governanceRules['canGrant'] = 0;
-            if ((int)$gov['canRevoke'] !== 1) $governanceRules['canRevoke'] = 0;
-            if ((int)$gov['canAlter'] !== 1)  $governanceRules['canAlter'] = 0;
-            if ((int)$gov['canDelete'] !== 1) $governanceRules['canDelete'] = 0;
+            if ((int)$gov['canGrant'] === 1)  $governanceRules['canGrant'] = 1;
+            if ((int)$gov['canRevoke'] === 1) $governanceRules['canRevoke'] = 1;
+            if ((int)$gov['canAlter'] === 1)  $governanceRules['canAlter'] = 1;
+            if ((int)$gov['canDelete'] === 1) $governanceRules['canDelete'] = 1;
         }
 
         return $governanceRules;
@@ -282,6 +337,29 @@ class StaffM {
                 $stmt->execute([
                     ':userID' => $userID,
                     ':roleID' => $userRoles[$i]
+                ]);
+            }
+        }
+    }
+
+    public function clearRolePermissions($roleID) {
+        $query = "DELETE FROM rolePermissions WHERE roleID = :roleID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':roleID', $roleID);
+        return $stmt->execute();
+    }
+
+    public function updateRolePermissions($roleID, $permissions) {
+        $this->clearRolePermissions($roleID);
+
+        if (!empty($permissions)) {
+            $query = "INSERT INTO rolePermissions (roleID, permissionID) VALUES (:roleID, :permissionID)";
+            $stmt = $this->pdo->prepare($query);
+
+            for ($i = 0; $i < count($permissions); $i++) {
+                $stmt->execute([
+                    ':roleID' => $roleID,
+                    ':permissionID' => $permissions[$i]
                 ]);
             }
         }

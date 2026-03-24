@@ -24,6 +24,21 @@ class AuthorizationC {
         }
     }
 
+    public function showRoleManagementPage() {
+        if (in_array('canAlterRoles', $_SESSION['permissions'])) {
+            $page = "staff";
+            $lastPage = 'staff';
+            $backLink = 'index.php?page=staff';
+            $userPermissionsList = $this->staffModel->getUserPermissions($_SESSION['id']);
+            $roleList = $this->staffModel->getAllRolesTally($_SESSION['id']);
+            $rolePermissionsList = $this->staffModel->getAllRolePermissions();
+
+            require_once __DIR__ . '/../Views/Staff/RoleManagement.php';
+        } else {
+            header("Location: index.php?page=staff");
+        }
+    }
+
     public function checkUserExists() {
         $existence = $this->staffModel->getAccount($_SESSION['id']);
         if (!$existence) {
@@ -82,7 +97,7 @@ class AuthorizationC {
 
     public function getPermissions() {
         $permissions = $this->staffModel->getUserPermissions($_SESSION['id']);
-        $_SESSION['permissions'] = $permissions;
+        $_SESSION['permissions'] = array_column($permissions, 'name');
     }
 
     public function setUserRoles() {
@@ -97,12 +112,12 @@ class AuthorizationC {
             $userPastRoles = array_map('intval', $userPastRoles);
 
             $removedRoles = array_diff($userPastRoles, $userNewRoles);
-            $addedRoles   = array_diff($userNewRoles, $userPastRoles);
+            $addedRoles = array_diff($userNewRoles, $userPastRoles);
 
             $isRevoking = !empty($removedRoles);
-            $isGranting   = !empty($addedRoles);
+            $isGranting = !empty($addedRoles);
 
-            $governanceRules = $this->staffModel->getGovernanceRules($userID, $_SESSION['id']);
+            $governanceRules = $this->staffModel->getGovernanceRulesBetweenUsers($userID, $_SESSION['id']);
 
             if ($isRevoking && !$governanceRules['canRevoke']) {
                 $_SESSION['error'] = "You dont have the authority to revoke roles from this user because of their role";
@@ -115,6 +130,53 @@ class AuthorizationC {
             $_SESSION['error'] = "You dont have permission to alter user roles";
         }
         header("Location: index.php?page=staff");
+    }
+
+    public function setRolePermissions() {
+        $error = '';
+        if (in_array('canAlterRoles', $_SESSION['permissions'])) {
+            $roleID = $_POST['selectedID'];
+            $governanceRules = $this->staffModel->getRoleManagementGovernance($this->staffModel->getUserRoles($_SESSION['id']));
+
+            $canAlter = true;
+
+            foreach ($governanceRules as $rule) {
+                if ($rule['roleSubjectID'] == $roleID) {
+                    $canAlter = $rule['canAlter'];
+                    break;
+                }
+            }
+
+            $newRolePermissions = $_POST['newPermissions'] ?? [];
+            $oldRolePermissions =  array_column($this->staffModel->getRolePermissions($roleID), 'id');
+
+            $newRolePermissions = array_map('intval', $newRolePermissions);
+            $oldRolePermissions = array_map('intval', $oldRolePermissions);
+
+            $revokedPermissions = array_diff($oldRolePermissions, $newRolePermissions);
+            $grantedPermissions = array_diff($newRolePermissions, $oldRolePermissions);
+
+            $userPermissions = array_column($this->staffModel->getUserPermissions($_SESSION['id']), 'id');
+            $userPermissions = array_map('intval', $userPermissions);
+
+            $hasUnauthorizedRevocation = !empty(array_diff($revokedPermissions, $userPermissions));
+            $hasUnauthorizedGrant = !empty(array_diff($grantedPermissions, $userPermissions));
+
+            var_dump($revokedPermissions, $userPermissions, array_diff($revokedPermissions, $userPermissions));
+
+            if ($canAlter && !$hasUnauthorizedRevocation && !$hasUnauthorizedGrant) {
+                $this->staffModel->updateRolePermissions($roleID, $newRolePermissions);
+            } else if (!$canAlter) {
+                $_SESSION['error'] = "You dont have the authority to alter this role";
+            } else if ($hasUnauthorizedRevocation) {
+                $_SESSION['error'] = "You dont have the authority to revoke permissions you have tried to revoke";
+            } else if ($hasUnauthorizedGrant) {
+                $_SESSION['error'] = "You dont have the authority to grant permissions you have tried to grant";
+            }
+        } else {
+            $_SESSION['error'] = "You dont have permission to alter roles";
+        }
+        header("Location: index.php?page=staff&action=manageRoles");
     }
 
     public function createAccount() {
@@ -143,7 +205,7 @@ class AuthorizationC {
         if (in_array('canDeleteUserAccounts', $_SESSION['permissions'])) {
             $id = $_POST['deletedID'];
 
-            $governanceRules = $this->staffModel->getGovernanceRules($id, $_SESSION['id']);
+            $governanceRules = $this->staffModel->getGovernanceRulesBetweenUsers($id, $_SESSION['id']);
 
             if (!$governanceRules['canDelete']) {
                 $_SESSION['error'] = "You dont have the authority to delete this user because of their role";

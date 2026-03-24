@@ -53,6 +53,10 @@ switch ($page) {
             $authorization->showAccountCreationPage();
         } else if ($action === 'createFinal') {
             $authorization->createAccount();
+        } else if ($action === 'manageRoles') {
+            $authorization->showRoleManagementPage();
+        } else if ($action === 'changeRolePermissions') {
+            $authorization->setRolePermissions();
         } else if ($action === 'delete') {
             $authorization->deleteAccount();
         } else {

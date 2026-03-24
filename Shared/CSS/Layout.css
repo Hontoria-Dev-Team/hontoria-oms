@@ -187,14 +187,29 @@
     height: 20rem !important;
 }
 
+.fitHeight {
+    height: fit-content !important;
+}
+
 .midMaxHeight {
     max-height: 5rem !important;
 }
 
-.gridCenterHoriFlex {
+.halfMaxHeight {
+    max-height: 50% !important;
+}
+
+.gridCenterVertFlex {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+}
+
+.gridCenterFlex {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
 }
 
 .gridFlexMid {
@@ -301,4 +316,24 @@
 
 .noShrink {
     flex-shrink: 0;
+}
+
+.noGrow {
+    flex-grow: 0;
+}
+
+.topZ {
+    z-index: 5 !important;
+}
+
+.midZ {
+    z-index: 3 !important;
+}
+
+.noMinHeight {
+    min-height: 0;
+}
+
+.noFlexBasis {
+    flex-basis: 0;
 }

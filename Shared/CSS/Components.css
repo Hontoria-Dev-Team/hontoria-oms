@@ -224,6 +224,14 @@
     transform: scaleX(-1);
 }
 
+.gradientDiagBG {
+    background: var(--gradientDiag);
+}
+
+.whiteBG {
+    background: var(--white);
+}
+
 .darkTransBG {
     background: var(--darkTrans);
 }
@@ -298,4 +306,24 @@
 
 .faded {
     opacity: 0.5;
+}
+
+.skewedXPosBG {
+    transform: skewX(15deg);
+    padding-left: -10%;
+    margin-left: 10%;
+}
+
+.skewedXPosBG>* {
+    transform: skewX(-15deg);
+}
+
+.skewedXNegBG {
+    transform: skewX(-15deg);
+    padding-left: 10%;
+    margin-left: -10%;
+}
+
+.skewedXNegBG>* {
+    transform: skewX(15deg);
 }
