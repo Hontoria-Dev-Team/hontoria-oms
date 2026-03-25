@@ -46,6 +46,7 @@ hr {
     margin: 0.3rem 0;
     width: 100%;
     background: var(--dark);
+    border: none;
 }
 
 label {
