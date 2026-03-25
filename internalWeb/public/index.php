@@ -57,6 +57,8 @@ switch ($page) {
             $authorization->showRoleManagementPage();
         } else if ($action === 'changeRolePermissions') {
             $authorization->setRolePermissions();
+        } else if ($action === 'changeManagementRules') {
+            $authorization->setRoleManagementGovernance();
         } else if ($action === 'createRole') {
             $authorization->createRole();
         } else if ($action === 'deleteRole') {

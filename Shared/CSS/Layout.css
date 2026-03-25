@@ -297,6 +297,10 @@
     left: 0.3rem;
 }
 
+.eastAbsolute.edgeCorner {
+    right: 0;
+}
+
 *:has(> .eastAbsolute),
 *:has(> .norWestAbsolute),
 *:has(> .norEastAbsolute),

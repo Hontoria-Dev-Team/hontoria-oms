@@ -283,6 +283,13 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllRoleManagementGovernance() {
+        $query = "SELECT * FROM roleManagementGovernance ORDER BY roleAgentID ASC";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getRoleManagementGovernance($roles) {
         $placeholders = implode(',', array_fill(0, count($roles), '?'));
 
@@ -370,6 +377,34 @@ class StaffM {
                 $stmt->execute([
                     ':roleID' => $roleID,
                     ':permissionID' => $permissions[$i]
+                ]);
+            }
+        }
+    }
+
+    public function clearRoleManagementGovernance($roleID) {
+        $query = "DELETE FROM roleManagementGovernance WHERE roleAgentID = :roleID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':roleID', $roleID);
+        return $stmt->execute();
+    }
+
+    public function updateRoleManagementGovernance($roleID, $rules) {
+        $this->clearRoleManagementGovernance($roleID);
+
+        if (!empty($rules)) {
+            $query = "INSERT INTO roleManagementGovernance (roleSubjectID, roleAgentID, canGrant, canRevoke, canAlter, canDelete) VALUES
+                      (:roleSubjectID, :roleAgentID, :canGrant, :canRevoke, :canAlter, :canDelete)";
+            $stmt = $this->pdo->prepare($query);
+
+            for ($i = 0; $i < count($rules); $i++) {
+                $stmt->execute([
+                    ':roleSubjectID' => $rules[$i]['roleSubjectID'],
+                    ':roleAgentID' => $roleID,
+                    ':canGrant' => $rules[$i]['canGrant'],
+                    ':canRevoke' => $rules[$i]['canRevoke'],
+                    ':canAlter' => $rules[$i]['canAlter'],
+                    ':canDelete' => $rules[$i]['canDelete'],
                 ]);
             }
         }

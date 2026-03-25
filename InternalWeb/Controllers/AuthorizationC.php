@@ -30,8 +30,10 @@ class AuthorizationC {
             $lastPage = 'staff';
             $backLink = 'index.php?page=staff';
             $userPermissionsList = $this->staffModel->getUserPermissions($_SESSION['id']);
-            $roleList = $this->staffModel->getAllRolesTally($_SESSION['id']);
+            $roleTally = $this->staffModel->getAllRolesTally($_SESSION['id']);
+            $roleList = $this->staffModel->getAllRoles();
             $rolePermissionsList = $this->staffModel->getAllRolePermissions();
+            $roleGovernanceList = $this->staffModel->getAllRoleManagementGovernance();
 
             require_once __DIR__ . '/../Views/Staff/RoleManagement.php';
         } else {
@@ -162,8 +164,6 @@ class AuthorizationC {
             $hasUnauthorizedRevocation = !empty(array_diff($revokedPermissions, $userPermissions));
             $hasUnauthorizedGrant = !empty(array_diff($grantedPermissions, $userPermissions));
 
-            var_dump($revokedPermissions, $userPermissions, array_diff($revokedPermissions, $userPermissions));
-
             if ($canAlter && !$hasUnauthorizedRevocation && !$hasUnauthorizedGrant) {
                 $this->staffModel->updateRolePermissions($roleID, $newRolePermissions);
             } else if (!$canAlter) {
@@ -172,6 +172,97 @@ class AuthorizationC {
                 $_SESSION['error'] = "You dont have the authority to revoke permissions you have tried to revoke";
             } else if ($hasUnauthorizedGrant) {
                 $_SESSION['error'] = "You dont have the authority to grant permissions you have tried to grant";
+            }
+        } else {
+            $_SESSION['error'] = "You dont have permission to alter roles";
+        }
+        header("Location: index.php?page=staff&action=manageRoles");
+    }
+
+    public function setRoleManagementGovernance() {
+        if (in_array('canAlterRoles', $_SESSION['permissions'])) {
+            $roleID = intval($_POST['selectedID']);
+            $roleSubjects = $_POST['roleSubjects'];
+            $canGrants = $_POST['canGrants'];
+            $canRevokes = $_POST['canRevokes'];
+            $canAlters = $_POST['canAlters'];
+            $canDeletes = $_POST['canDeletes'];
+
+            $newGovernanceRows = [];
+            foreach ($roleSubjects as $index => $subjectId) {
+                $newGovernanceRows[] = [
+                    'roleSubjectID' => $subjectId,
+                    'canGrant' => $canGrants[$index] ?? 0,
+                    'canRevoke' => $canRevokes[$index] ?? 0,
+                    'canAlter' => $canAlters[$index] ?? 0,
+                    'canDelete' => $canDeletes[$index] ?? 0,
+                ];
+            }
+
+            $oldIndex = [];
+            foreach ($this->staffModel->getRoleManagementGovernance([$roleID]) as $row) {
+                $oldIndex[(int)$row['roleSubjectID']] = [
+                    'canGrant' => (int)$row['canGrant'],
+                    'canRevoke' => (int)$row['canRevoke'],
+                    'canAlter' => (int)$row['canAlter'],
+                    'canDelete' => (int)$row['canDelete'],
+                ];
+            }
+
+            $createdIDs  = [];
+            $modifiedIDs = [];
+            $deletedIDs  = [];
+
+            foreach ($newGovernanceRows as $row) {
+                $subjectId = (int)$row['roleSubjectID'];
+
+                if (!isset($oldIndex[$subjectId])) {
+                    $createdIDs[] = $subjectId;
+                    continue;
+                }
+
+                $oldFlags = $oldIndex[$subjectId];
+                if (
+                    (int)$row['canGrant'] !== $oldFlags['canGrant'] ||
+                    (int)$row['canRevoke'] !== $oldFlags['canRevoke'] ||
+                    (int)$row['canAlter'] !== $oldFlags['canAlter'] ||
+                    (int)$row['canDelete'] !== $oldFlags['canDelete']
+                ) {
+                    $modifiedIDs[] = $subjectId;
+                }
+
+                unset($oldIndex[$subjectId]);
+            }
+
+            $deletedIDs = array_keys($oldIndex);
+
+            $alterableRoles = array_column($this->staffModel->getAllRolesTally($_SESSION['id']), 'id');
+
+            $hasUnauthorizedCreation = !empty(array_diff($createdIDs, $alterableRoles));
+            $hasUnauthorizedModification = !empty(array_diff($modifiedIDs, $alterableRoles));
+            $hasUnauthorizedDeletion = !empty(array_diff($deletedIDs, $alterableRoles));
+
+            $governanceRules = $this->staffModel->getRoleManagementGovernance($this->staffModel->getUserRoles($_SESSION['id']));
+
+            $canAlter = true;
+
+            foreach ($governanceRules as $rule) {
+                if ($rule['roleSubjectID'] == $roleID) {
+                    $canAlter = $rule['canAlter'];
+                    break;
+                }
+            }
+
+            if ($canAlter && !$hasUnauthorizedCreation && !$hasUnauthorizedModification && !$hasUnauthorizedDeletion) {
+                $this->staffModel->updateRoleManagementGovernance($roleID, $newGovernanceRows);
+            } else if (!$canAlter) {
+                $_SESSION['error'] = "You dont have the authority to alter this role";
+            } else if ($hasUnauthorizedCreation) {
+                $_SESSION['error'] = "You dont have the authority to create specific management rules on one or many rules you have tried to create";
+            } else if ($hasUnauthorizedModification) {
+                $_SESSION['error'] = "You dont have the authority to modify specific management rules on one or many rules you have tried to modify";
+            } else if ($hasUnauthorizedDeletion) {
+                $_SESSION['error'] = "You dont have the authority to delete specific management rules on one or many rules you have tried to delete";
             }
         } else {
             $_SESSION['error'] = "You dont have permission to alter roles";
