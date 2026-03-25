@@ -296,11 +296,21 @@ class StaffM {
 
     public function getGovernanceRulesBetweenUsers($subjectID, $actorID) {
         $subjectRoles = $this->getUserRoles($subjectID);
+
         $roleGovernance = $this->getRoleManagementGovernance($this->getUserRoles($actorID));
 
         $governances = array_filter($roleGovernance, function ($gov) use ($subjectRoles) {
             return in_array((int)$gov['roleSubjectID'], $subjectRoles);
         });
+
+        if (empty($subjectRoles) || empty($governances)) {
+            return [
+                'canGrant'  => 1,
+                'canRevoke' => 1,
+                'canAlter'  => 1,
+                'canDelete' => 1
+            ];
+        }
 
         $governanceRules = [
             'canGrant'  => 0,
