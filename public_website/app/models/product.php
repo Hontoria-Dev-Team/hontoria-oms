@@ -104,10 +104,10 @@ class product {
             $longsleevePhotos[] = 'img/sublimationPicture/longsleveePicture/longslevee' . $i . '.jpg';
         }
 
-        // ── Polo Shirt photos (10 photos) ─────────────────────────────────
+        // ── Polo Shirt photos (9 photos) ─────────────────────────────────
         $poloshirtPhotos = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $poloshirtPhotos[] = 'img/sublimationPicture/poloshirtPicture/polo' . $i . '.jpg';
+        for ($i = 1; $i <= 9; $i++) {
+            $poloshirtPhotos[] = 'img/sublimationPicture/poloshirtPicture/poloshirt' . $i . '.jpg';
         }
 
         return [
@@ -193,7 +193,7 @@ class product {
                 'price'       => 430,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => 'img/sublimationPicture/poloshirtPicture/polo1.jpg',
+                'photo'       => 'img/sublimationPicture/poloshirtPicture/poloshirt1.jpg',
                 'photos'      => $poloshirtPhotos,
                 'variants'    => [],
             ]),
