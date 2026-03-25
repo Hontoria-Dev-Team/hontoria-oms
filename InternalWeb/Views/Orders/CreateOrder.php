@@ -288,7 +288,7 @@
                 <input type="text" name="groupDescriptions[]" required="true" class="fullWidth">
             </div>
             <div class="flexMin">
-                <label for="groupQuantities[]">Quantity</label>
+                <label for="groupQuantities[]">Units</label>
                 <input type="number" name="groupQuantities[]" required="true" class="fullWidth orderGroupPrice" min="1" value="1">
             </div>
         `;
