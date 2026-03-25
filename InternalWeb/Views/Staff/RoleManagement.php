@@ -30,16 +30,30 @@
                             </div>
                         <?php endforeach; ?>
                     </div>
+                    <div class="rowLayout minGap souEastAbsolute">
+                        <?php if (in_array("canCreateRoles", $_SESSION['permissions'])): ?>
+                            <a href="#" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText" id="createRoleButton">Create Role</a>
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <div class="gradientBorderDiag"></div>
             </section>
             <section class="columnLayout midGap flexMid">
+                <section class="centerColumnLayout roundedMid minGap">
+                    <div class="centerHoriRowLayout minGap box roundedMid fullHeight fullWidth">
+                        <h1 id="selectedRoleTitle" class="capitalFirst">No Role Selected</h1>
+                        <?php if (in_array("canDeleteRoles", $_SESSION['permissions'])): ?>
+                            <button type="button" class="criticalInput centerColumnLayout eastAbsolute hidden" id="deleteButton">
+                                <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                    <div class="gradientBorderDiag"></div>
+                </section>
                 <section class="centerColumnLayout roundedMid minGap flexMid">
                     <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
-                        <h1 id="selectedRoleTitle" class="capitalFirst"></h1>
                         <h2>Permissions:</h2>
                         <div class="flexMax columnLayout minGap">
-                            <!-- <h1>No Role Selected</h1> -->
                             <div class="fullWidth columnLayout tinGap noMinHeight flexMin noFlexBasis">
                                 <h3>Assigned:</h3>
                                 <div class="gridCenterFlex minGap scrollable flexMax" id="assignedPermsContainer">
@@ -77,6 +91,8 @@
     const assignedPermsContainer = document.getElementById('assignedPermsContainer');
     const availablePermsContainer = document.getElementById('availablePermsContainer');
     const submitRolePermissionsButton = document.getElementById('submitRolePermissionsButton');
+    const createRoleButton = document.getElementById('createRoleButton');
+    const deleteButton = document.getElementById('deleteButton');
     const rolePermissionsList = <?php echo json_encode($rolePermissionsList); ?>;
     const userPermissionsList = <?php echo json_encode($userPermissionsList); ?>;
 
@@ -117,6 +133,7 @@
                 selectedID.value = elem.dataset.id;
 
                 submitRolePermissionsButton.classList.remove("hidden");
+                deleteButton.classList.remove("hidden");
 
                 setAvailablePerms();
                 setAssignedPerms();
@@ -232,6 +249,51 @@
         confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
 
         confirmation.style.display = 'flex';
+    });
+
+    //Role creation logic functionality
+    createRoleButton.addEventListener('click', function() {
+        confirmationTitle.innerHTML = "Create Service";
+        confirmationForm.action = "index.php?page=staff&action=createRole";
+
+        confirmationText.innerHTML = "Please enter a unique role name.";
+        confirmationSubmit.value = "Create";
+        confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
+
+        tempElement = document.createElement("input");
+        tempElement.type = "text";
+        tempElement.name = "name";
+        tempElement.placeholder = "Role Name";
+        tempElement.id = "nameInput";
+        tempElement.classList.add("tempElement");
+        confirmationForm.appendChild(tempElement);
+
+        confirmation.style.display = 'flex';
+    });
+
+    //Role deletion logic functionality
+    deleteButton.addEventListener('click', function() {
+        confirmationForm.action = "index.php?page=staff&action=deleteRole"
+
+        confirmationTitle.innerHTML = "Delete Role";
+        confirmationText.innerHTML = 'Are you sure to delete the <span class="capitalFirst">' + selectedRoleName + '</span> role?';
+        confirmationSubmit.value = "Yes Delete";
+        confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
+
+        confirmation.style.display = 'flex';
+    });
+
+    // Added cancellation events
+    confirmationCancel.addEventListener('click', function() {
+        document.querySelectorAll('.tempElement').forEach(function(elem) {
+            elem.remove();
+        });
+    });
+
+    confirmationBG.addEventListener('click', function() {
+        document.querySelectorAll('.tempElement').forEach(function(elem) {
+            elem.remove();
+        });
     });
 </script>
 

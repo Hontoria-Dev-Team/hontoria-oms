@@ -200,6 +200,45 @@ class AuthorizationC {
         }
     }
 
+    public function createRole() {
+        if (in_array('canCreateRoles', $_SESSION['permissions'])) {
+            $name = strtolower(trim($_POST['name']));
+            $creation = $this->staffModel->insertRole($name);
+
+            if (!$creation) {
+                $_SESSION['error'] = "Role name already exists";
+            }
+        } else {
+            $_SESSION['error'] = "You dont have permission to create roles";
+        }
+        header("Location: index.php?page=staff&action=manageRoles");
+    }
+
+    public function deleteRole() {
+        if (in_array('canDeleteRoles', $_SESSION['permissions'])) {
+            $roleID = $_POST['selectedID'];
+            $governanceRules = $this->staffModel->getRoleManagementGovernance($this->staffModel->getUserRoles($_SESSION['id']));
+
+            $canDelete = true;
+
+            foreach ($governanceRules as $rule) {
+                if ($rule['roleSubjectID'] == $roleID) {
+                    $canDelete = $rule['canDelete'];
+                    break;
+                }
+            }
+
+            if ($canDelete) {
+                $this->staffModel->removeRole($roleID);
+            } else {
+                $_SESSION['error'] = "You dont have the authority to delete this role";
+            }
+        } else {
+            $_SESSION['error'] = "You dont have permission to delete roles";
+        }
+        header("Location: index.php?page=staff&action=manageRoles");
+    }
+
     public function deleteAccount() {
         $error = '';
         if (in_array('canDeleteUserAccounts', $_SESSION['permissions'])) {

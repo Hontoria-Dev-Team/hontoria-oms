@@ -364,4 +364,53 @@ class StaffM {
             }
         }
     }
+
+    public function getRoleByName($name) {
+        $query = "SELECT id FROM roles WHERE name = :name LIMIT 1";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':name', $name);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function insertRole($name) {
+        $role = $this->getRoleByName($name);
+
+        if ($role) {
+            return false;
+        }
+
+        $query = "INSERT INTO roles (name) VALUES (:name)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':name', $name);
+        return $stmt->execute();
+    }
+
+    public function removeRole($id) {
+        $query = "DELETE FROM rolePermissions WHERE roleID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        $query = "DELETE FROM roleProcessTasks WHERE roleID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        $query = "DELETE FROM roleManagementGovernance WHERE roleSubjectID = :id OR roleAgentID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        $query = "DELETE FROM userRoles WHERE roleID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        $query = "DELETE FROM roles WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
 }
