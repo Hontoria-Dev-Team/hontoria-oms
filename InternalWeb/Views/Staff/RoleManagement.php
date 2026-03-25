@@ -38,7 +38,7 @@
                 </div>
                 <div class="gradientBorderDiag"></div>
             </section>
-            <section class="columnLayout midGap flexMid">
+            <section class="columnLayout midGap flexMax">
                 <section class="centerColumnLayout roundedMid minGap">
                     <div class="centerHoriRowLayout minGap box roundedMid fullHeight fullWidth">
                         <h1 id="selectedRoleTitle" class="capitalFirst">No Role Selected</h1>
@@ -50,35 +50,45 @@
                     </div>
                     <div class="gradientBorderDiag"></div>
                 </section>
-                <section class="centerColumnLayout roundedMid minGap flexMid">
-                    <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
-                        <h2>Permissions:</h2>
-                        <div class="flexMax columnLayout minGap">
-                            <div class="fullWidth columnLayout tinGap noMinHeight flexMin noFlexBasis">
-                                <h3>Assigned:</h3>
-                                <div class="gridCenterFlex minGap scrollable flexMax" id="assignedPermsContainer">
-                                    <h2 class="selfCenter">No Role Selected</h2>
+                <div class="rowLayout flexMax midGap">
+                    <section class="centerColumnLayout roundedMid minGap flexMid">
+                        <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
+                            <h2>Permissions:</h2>
+                            <div class="flexMax columnLayout minGap">
+                                <div class="fullWidth columnLayout tinGap noMinHeight flexMin noFlexBasis">
+                                    <h3>Assigned:</h3>
+                                    <div class="gridCenterFlex minGap scrollable flexMax" id="assignedPermsContainer">
+                                        <h2 class="selfCenter">No Role Selected</h2>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="fullWidth columnLayout tinGap noMinHeight flexMin noFlexBasis">
-                                <h3>Available:</h3>
-                                <div class="gridCenterFlex minGap scrollable flexMax" id="availablePermsContainer">
-                                    <h2 class="selfCenter">No Role Selected</h2>
+                                <div class="fullWidth columnLayout tinGap noMinHeight flexMin noFlexBasis">
+                                    <h3>Available:</h3>
+                                    <div class="gridCenterFlex minGap scrollable flexMax" id="availablePermsContainer">
+                                        <h2 class="selfCenter">No Role Selected</h2>
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <button type="button" class="importantInput fullWidth hidden" id="submitRolePermissionsButton">Confirm Changes</button>
+                                <div>
+                                    <button type="button" class="importantInput fullWidth hidden" id="submitRolePermissionsButton">Confirm Changes</button>
+                                </div>
                             </div>
                         </div>
+                        <div class="gradientBorderDiag"></div>
+                    </section>
+                    <div class="columnLayout flexMin midGap hidden">
+                        <section class="centerColumnLayout roundedMid minGap flexMid">
+                            <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
+                                <h3>Management Rules:</h3>
+                            </div>
+                            <div class="gradientBorderDiag"></div>
+                        </section>
+                        <section class="centerColumnLayout roundedMid minGap flexMid">
+                            <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
+                                <h3>Process Task Access:</h3>
+                            </div>
+                            <div class="gradientBorderDiag"></div>
+                        </section>
                     </div>
-                    <div class="gradientBorderDiag"></div>
-                </section>
-                <section class="centerColumnLayout roundedMid flexMin hidden">
-                    <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
-                        <h2>Management Governance Rules:</h2>
-                    </div>
-                    <div class="gradientBorderDiag"></div>
-                </section>
+                </div>
             </section>
         </section>
     </main>
