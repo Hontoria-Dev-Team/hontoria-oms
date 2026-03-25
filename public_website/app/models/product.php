@@ -80,16 +80,10 @@ class product {
             $tshirtPhotos[] = 'img/sublimationPicture/tshirtPicture/tshirtPicture' . $i . '.jpg';
         }
 
-        // ── Longsleeve photos (6 photos) ─────────────────────────────────
-        $longsleevePhotos = [];
-        for ($i = 1; $i <= 6; $i++) {
-            $longsleevePhotos[] = 'img/sublimationPicture/longsleveePicture/longslevee' . $i . '.jpg';
-        }
-
-        // ── Jogging Pants photos (5 photos) ──────────────────────────────
-        $pantsPhotos = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $pantsPhotos[] = 'img/sublimationPicture/pantsPicture/pants' . $i . '.jpg';
+        // ── Short photos (10 photos) ──────────────────────────────────────
+        $shortPhotos = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $shortPhotos[] = 'img/sublimationPicture/shortPicture/short' . $i . '.jpg';
         }
 
         // ── Warmer photos (10 photos) ─────────────────────────────────────
@@ -98,16 +92,22 @@ class product {
             $warmerPhotos[] = 'img/sublimationPicture/warmerPicture/warmer' . $i . '.jpg';
         }
 
-        // ── Short photos (10 photos) ──────────────────────────────────────
-        $shortPhotos = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $shortPhotos[] = 'img/sublimationPicture/shortPicture/short' . $i . '.jpg';
+        // ── Jogging Pants photos (5 photos) ──────────────────────────────
+        $pantsPhotos = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $pantsPhotos[] = 'img/sublimationPicture/pantsPicture/pants' . $i . '.jpg';
         }
 
-        // ── Polo Shirt photos (10 photos) ─────────────────────────────────
+        // ── Longsleeve photos (6 photos) ──────────────────────────────────
+        $longsleevePhotos = [];
+        for ($i = 1; $i <= 6; $i++) {
+            $longsleevePhotos[] = 'img/sublimationPicture/longsleveePicture/longslevee' . $i . '.jpg';
+        }
+
+        // ── Polo Shirt photos (9 photos) ─────────────────────────────────
         $poloshirtPhotos = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $poloshirtPhotos[] = 'img/sublimationPicture/poloshirtPicture/polo' . $i . '.jpg';
+        for ($i = 1; $i <= 9; $i++) {
+            $poloshirtPhotos[] = 'img/sublimationPicture/poloshirtPicture/poloshirt' . $i . '.jpg';
         }
 
         return [
@@ -142,7 +142,7 @@ class product {
                 'name'        => 'Short',
                 'category'    => 'sublimation',
                 'description' => 'Vibrant sublimation printed shorts. Matched perfectly with our jerseys for a complete team uniform.',
-                'price'       => 0,
+                'price'       => 300,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => 'img/sublimationPicture/shortPicture/short1.jpg',
@@ -166,7 +166,7 @@ class product {
                 'name'        => 'Jogging Pants',
                 'category'    => 'sublimation',
                 'description' => 'Full sublimation jogging pants with any design. Comfortable, durable, and eye-catching.',
-                'price'       => 0,
+                'price'       => 450,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
                 'photo'       => 'img/sublimationPicture/pantsPicture/pants1.jpg',
@@ -193,7 +193,7 @@ class product {
                 'price'       => 430,
                 'icon'        => 'fa-tshirt',
                 'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => 'img/sublimationPicture/poloshirtPicture/polo1.jpg',
+                'photo'       => 'img/sublimationPicture/poloshirtPicture/poloshirt1.jpg',
                 'photos'      => $poloshirtPhotos,
                 'variants'    => [],
             ]),
