@@ -1,7 +1,3 @@
-#servicesList {
-    max-height: 35.5rem;
-}
-
 .serviceElement,
 .subserviceElement {
     border: 0.1rem solid var(--red);

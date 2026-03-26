@@ -128,15 +128,15 @@
 }
 
 .flexMin {
-    flex: 1;
+    flex: 1 !important;
 }
 
 .flexMid {
-    flex: 3;
+    flex: 3 !important;
 }
 
 .flexMax {
-    flex: 6;
+    flex: 6 !important;
 }
 
 .scrollable {

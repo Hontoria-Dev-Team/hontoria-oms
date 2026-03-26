@@ -15,8 +15,8 @@
         </h1>
         <section class="rowLayout flexMax midGap">
             <section class="centerColumnLayout roundedMid flexMid">
-                <div class="box fullHeight fullWidth roundedMid">
-                    <section class="minGap gridFlexMid scrollable" id="servicesList">
+                <div class="box fullHeight fullWidth roundedMid columnLayout">
+                    <section class="minGap gridFlexMid scrollable flexMax noFlexBasis noMinHeight" id="servicesList">
                         <?php foreach ($servicesList as $service): ?>
                             <?php
                             $name = trim("{$service['name']}");
@@ -41,6 +41,7 @@
                                 </div>
                             </div>
                         <?php endforeach; ?>
+                        <div class="tinHeight"></div>
                     </section>
                 </div>
                 <div class="rowLayout minGap souEastAbsolute">
