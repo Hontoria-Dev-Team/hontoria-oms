@@ -37,6 +37,10 @@
     position: relative;
 }
 
+.roundedTin {
+    border-radius: 0.3rem !important;
+}
+
 .roundedMin {
     border-radius: 0.5rem;
 }
