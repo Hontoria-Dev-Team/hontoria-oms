@@ -22,18 +22,19 @@
                             $name = trim("{$service['name']}");
                             $status = $service['isActive'] ? 'active' : 'disabled';
                             $statusInvert = $service['isActive'] ? 'Disable' : 'Activate';
+                            $bgClass = $service['isActive'] ? 'yellowTransBG' : 'redTransBG';
                             ?>
-                            <div class="midHeight minPadding roundedMin rowLayout minGap flexStatic serviceElement columnLayout <?= $status ?>">
+                            <div class="midHeight minPadding roundedMin rowLayout minGap flexStatic serviceElement columnLayout <?= $status ?> <?= $bgClass ?> shadowed">
                                 <div class="serviceImage fullWidth roundedMin"></div>
                                 <h2 class="centerHoriRowLayout minGap capitalFirst"><?= $name ?><span>(Active Orders: 100)</span></h2>
                                 <div class="rowLayout minGap">
-                                    <a href="index.php?page=services&service=<?= $service['id'] ?>" class="importantInput flexMid buttonLike centerColumnLayout">
+                                    <a href="index.php?page=services&service=<?= $service['id'] ?>" class="importantInput flexMid buttonLike centerColumnLayout shadowed">
                                         Modify Service
                                     </a>
-                                    <button type="button" class="statusButton flexMin capitalFirst"
+                                    <button type="button" class="statusButton flexMin capitalFirst shadowed"
                                         data-id="<?= $service['id'] ?>" data-name="<?= htmlspecialchars($name) ?>" data-status-invert="<?= $statusInvert ?>"><?= $status ?></button>
                                     <?php if ($status === 'disabled'): ?>
-                                        <button type="button" class="deleteButton criticalInput centerColumnLayout"
+                                        <button type="button" class="deleteButton criticalInput centerColumnLayout shadowed"
                                             data-id="<?= $service['id'] ?>" data-name="<?= $name ?>">
                                             <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
                                         </button>
