@@ -354,9 +354,6 @@
         processesContainer = document.createElement("div");
         processesContainer.id = "processesContainer";
         processesContainer.className = 'midHeight scrollable columnLayout minGap';
-        processesContainer.innerHTML = `
-            <a class="tinHeight noShrink roundedMin centerColumnLayout importantInput" id="createProcessButton">Create New Process</a>
-        `;
 
         processes.forEach((item) => {
             if (currentProcesses.has(item.name)) return;
@@ -370,39 +367,6 @@
         });
 
         confirmationForm.appendChild(processesContainer);
-
-        document.getElementById('createProcessButton').addEventListener('click', function() {
-            document.getElementById("processesContainer").remove();
-
-            confirmationTitle.innerHTML = "Create Process";
-            confirmationForm.action = "index.php?page=services&service=<?= $serviceID ?>&action=createProcess";
-
-            processNameInput = document.createElement("input");
-            processNameInput.type = "text";
-            processNameInput.name = "name";
-            processNameInput.placeholder = "Process Name";
-            processNameInput.id = "processNameInput";
-            confirmationForm.appendChild(processNameInput);
-
-            confirmationText.innerHTML = "To create a process to be used in services, please enter a unique process name."
-            confirmationSubmit.value = "Create Processes";
-            confirmationSubmit.classList.remove("hidden");
-            confirmationSubmit.classList.add("active");
-
-            cancelProcessCreationButton = document.createElement("input");
-            cancelProcessCreationButton.type = "button";
-            cancelProcessCreationButton.className = 'importantInput flexMax';
-            cancelProcessCreationButton.id = "cancelProcessCreationButton";
-            cancelProcessCreationButton.value = "No Cancel";
-
-            cancelProcessCreationButton.addEventListener('click', function() {
-                addProcessBox();
-            });
-
-            confirmationButtons.appendChild(cancelProcessCreationButton);
-
-            confirmationCancel.classList.add("hidden");
-        });
 
         document.querySelectorAll('.addProcessElement').forEach(function(elem) {
             elem.addEventListener('click', function() {
