@@ -127,6 +127,10 @@ switch ($page) {
         }
         break;
 
+    case 'tasks':
+        $orders->showTasks();
+        break;
+
     default:
         require_once __DIR__ . '/../Views/.Misc/ErrorPage.php';
         break;

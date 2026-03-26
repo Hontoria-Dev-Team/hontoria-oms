@@ -31,6 +31,7 @@ html {
     --yellowGreenTrans: #efff115e;
     --green: #70ff11;
     --greenTrans: #70ff1159;
+    --blue: #088bfd;
     --gradientDiag: linear-gradient(to left, #F20505, #FFB611);
     --gradientVert: linear-gradient(to top, #F20505, #FFB611);
 }

@@ -81,6 +81,11 @@ class OrdersC {
         require __DIR__ . '/../Views/Orders/CreateOrder.php';
     }
 
+    public function showTasks() {
+        $page = "tasks";
+        require __DIR__ . '/../Views/Tasks/Page.php';
+    }
+
     public function createOrder() {
         $subserviceID = $_POST['subserviceType'];
         $customerName = $_POST['customerName'];

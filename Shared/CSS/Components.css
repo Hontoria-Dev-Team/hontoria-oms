@@ -138,6 +138,10 @@
     text-indent: 1.5em;
 }
 
+.indentText {
+    text-indent: 0.75rem;
+}
+
 .iconInput>img {
     position: absolute;
     left: 0.5em;
@@ -236,6 +240,10 @@
     background: var(--white);
 }
 
+.blueBG {
+    background: var(--blue);
+}
+
 .darkTransBG {
     background: var(--darkTrans);
 }
@@ -266,6 +274,18 @@
 
 .whiteText {
     color: var(--white) !important;
+}
+
+.yellowText {
+    color: var(--yellow) !important;
+}
+
+.greenText {
+    color: var(--green) !important;
+}
+
+.redText {
+    color: var(--red) !important;
 }
 
 .hidden {

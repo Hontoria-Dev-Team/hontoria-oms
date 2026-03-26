@@ -232,6 +232,21 @@
     width: 32.5%;
 }
 
+.gridFlex {
+    display: flex;
+    flex-wrap: wrap;
+    flex: auto;
+    height: unset;
+}
+
+.gridFlex.minGrids>* {
+    width: 49%;
+}
+
+.contentFlexStart {
+    align-content: flex-start;
+}
+
 .flexStatic {
     flex-grow: 0;
 }

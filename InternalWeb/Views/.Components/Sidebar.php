@@ -21,6 +21,11 @@ $navLinks = [
         'icon'  => '../../Shared/Img/PeopleIcon.png',
         'permission' => 'canViewStaffList',
     ],
+    'tasks' => [
+        'label' => 'Tasks',
+        'icon'  => '../../Shared/Img/CheckBoxIcon.png',
+        'permission' => null,
+    ],
 ];
 ?>
 <aside id="sidebar" class="columnLayout">
