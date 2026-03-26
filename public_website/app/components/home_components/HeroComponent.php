@@ -95,13 +95,14 @@ class HeroComponent extends \Component {
                     <?php foreach ($slides as $i => $slide): ?>
                         <div class="pc-slide <?php echo $i === 0 ? 'active' : ''; ?>">
                             <?php if (!empty($slide['image'])): ?>
-                                <img src="<?php echo $this->escape($slide['image']); ?>" 
-                                     class="pc-img" alt="<?php echo $this->escape($slide['label']); ?>">
+                                <img src="<?php echo $this->escape($slide['image']); ?>"
+                                     class="pc-img" alt="Hontoria Printing Services"
+                                     style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;">
                             <?php else: ?>
                                 <div class="pc-placeholder <?php echo $this->escape($slide['bgClass']); ?>">
-                                    <i class="fas <?php echo $this->escape($slide['icon']); ?> pc-icon"></i>
-                                    <p class="pc-label"><?php echo $this->escape($slide['label']); ?></p>
-                                    <span class="pc-hint"><?php echo $this->escape($slide['hint']); ?></span>
+                                    <i class="fas fa-image pc-icon"></i>
+                                    <p class="pc-label">HONTORIA</p>
+                                    <span class="pc-hint">Quality Printing Services</span>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -126,47 +127,19 @@ class HeroComponent extends \Component {
     }
 
     private function getDefaultSlides(): array {
-        // Get absolute path for carousel images
         $scriptPath = dirname($_SERVER['SCRIPT_NAME']);
-        $publicPath = defined('PUBLIC_PATH') ? PUBLIC_PATH : $_SERVER['DOCUMENT_ROOT'] . $scriptPath;
-        $photoDir = $publicPath . '/img/carouselPhoto/';
-        
+
         $slides = [];
-        
-        // Slide 1 - Use highlight_photo1.jpg
-        $slide1Photo = null;
-        if (file_exists($photoDir . 'highlight_photo1.jpg')) {
-            $slide1Photo = $scriptPath . '/img/carouselPhoto/highlight_photo1.jpg';
-        }
-        
-        $slides[] = [
-            'image' => $slide1Photo,
-            'bgClass' => 'pc-bg1',
-            'icon' => 'fa-image',
-            'label' => 'HONTORIA',
-            'hint' => 'Quality Printing Services'
-        ];
-        
-        // For other slides
-        for ($i = 2; $i <= 4; $i++) {
-            $photo = null;
-            
-            if (is_dir($photoDir)) {
-                $files = glob($photoDir . 'slide-' . $i . '.*');
-                if (!empty($files)) {
-                    $photo = $scriptPath . '/img/carouselPhoto/' . basename($files[0]);
-                }
-            }
-            
+        for ($i = 1; $i <= 8; $i++) {
             $slides[] = [
-                'image' => $photo,
-                'bgClass' => 'pc-bg' . $i,
-                'icon' => ['fa-tshirt', 'fa-flag', 'fa-star'][$i-2],
-                'label' => ['SUBLIMATION', 'TARPAULIN', 'OUR BEST WORK'][$i-2],
-                'hint' => ['Jerseys · T-Shirts · Shorts', 'Birthday · Graduation · Congrats', 'Quality prints every time'][$i-2]
+                'image'   => $scriptPath . '/img/carouselPhoto/carousel' . $i . '.jpg',
+                'bgClass' => 'pc-bg1',
+                'icon'    => 'fa-image',
+                'label'   => '',
+                'hint'    => '',
             ];
         }
-        
+
         return $slides;
     }
 }
