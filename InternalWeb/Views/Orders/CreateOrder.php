@@ -212,6 +212,7 @@
             processHead.textContent = serviceProcesses[i].name;
             processParagraph = document.createElement('p');
             processParagraph.textContent = hasFirstProcess ? '(Pending)' : '(Active)';
+            processParagraph.className = "norWestAbsolute closeCorner";
 
             processDiv.appendChild(processHead);
             processDiv.appendChild(processParagraph);
