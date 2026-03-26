@@ -198,7 +198,7 @@ class ServicesM {
     }
 
     public function getAllProcesses() {
-        $query = "SELECT id, name FROM processes ORDER BY name";
+        $query = "SELECT id, name, minAssignDefault, maxAssignDefault FROM processes ORDER BY name";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();

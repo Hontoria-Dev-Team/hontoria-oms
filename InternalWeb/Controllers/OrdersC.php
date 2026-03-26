@@ -40,6 +40,7 @@ class OrdersC {
         $page = "orders";
         $lastPage = 'orders';
         $backLink = 'index.php?page=orders';
+        $processList = $this->servicesModel->getAllProcesses();
 
         $serviceList = array_filter(
             $this->servicesModel->getServices(),
@@ -88,7 +89,19 @@ class OrdersC {
         $priceTotal = $_POST['priceTotal'];
         $groupDescriptions = $_POST['groupDescriptions'];
         $groupQuantities = $_POST['groupQuantities'];
-        $orderProcess = $_POST['orderProcess'];
+        $processStatuses = $_POST['orderProcessStatus'];
+        $minAssigns = $_POST['minAssigns'];
+        $maxAssigns = $_POST['maxAssigns'];
+
+        $orderProcess = [];
+
+        foreach (array_keys($processStatuses) as $index) {
+            $orderProcess[] = [
+                'status' => $processStatuses[$index],
+                'minAssign' => $minAssigns[$index],
+                'maxAssign' => $maxAssigns[$index],
+            ];
+        }
 
         $this->ordersModel->insertOrder($subserviceID, $customerName, $messengerGCLink, $deadlineAt, $priceTotal, $groupDescriptions, $groupQuantities, $orderProcess);
         header('Location: index.php?page=orders');

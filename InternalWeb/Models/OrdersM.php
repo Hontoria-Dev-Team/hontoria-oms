@@ -51,14 +51,16 @@ class OrdersM {
             ]);
         }
 
-        $query = "INSERT INTO orderProcess (orderID, phase, status) VALUES (:orderID, :phase, :status)";
+        $query = "INSERT INTO orderProcess (orderID, phase, minAssign, maxAssign, status) VALUES (:orderID, :phase, :minAssign, :maxAssign, :status)";
         $stmt = $this->pdo->prepare($query);
 
         for ($i = 0; $i < count($orderProcess); $i++) {
             $stmt->execute([
                 ':orderID' => $orderID,
                 ':phase' => $i + 1,
-                ':status' => $orderProcess[$i],
+                ':minAssign' =>  $orderProcess[$i]['minAssign'],
+                ':maxAssign' => $orderProcess[$i]['maxAssign'],
+                ':status' => $orderProcess[$i]['status'],
             ]);
         }
     }
@@ -85,6 +87,8 @@ class OrdersM {
                       orderProcess.orderID,
                       processes.name AS processName,
                       orderProcess.phase,
+                      orderProcess.minAssign,
+                      orderProcess.maxAssign,
                       orderProcess.status
                   FROM orderProcess
                   JOIN orders ON orderProcess.orderID = orders.id

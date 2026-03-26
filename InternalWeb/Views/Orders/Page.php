@@ -87,8 +87,8 @@
                 </section>
                 <section class="centerColumnLayout roundedMid flexMax fullHeight">
                     <section class="box columnLayout roundedMid minGap fullDimensions">
-                        <h5>Order Process</h5>
-                        <div class="centerHoriRowLayout minGap flexMax" id="orderProcess">
+                        <h5>Order Task Process</h5>
+                        <div class="centerHoriRowLayout tinGap flexMax" id="orderProcess">
                             <h3 class="flexMin centerText">No Service Selected</h3>
                         </div>
                     </section>
@@ -128,7 +128,7 @@
 
     // Due time calculation
     document.querySelectorAll('.dueInText').forEach(function(elem) {
-        elem.textContent = elem.dataset.dueDate == '' ? "No due date" : getDueTime(elem.dataset.dueDate) + " (" + formatDate(elem.dataset.dueDate) + ")";
+        elem.textContent = elem.dataset.dueDate == '0000-00-00 00:00:00' ? "No due date" : getDueTime(elem.dataset.dueDate) + " (" + formatDate(elem.dataset.dueDate) + ")";
     });
 
     // Order Process Graph Show Function
@@ -137,6 +137,7 @@
     let hasFirstProcess;
     let processHead;
     let processParagraph;
+    let tempElement;
 
     document.querySelectorAll('.orderElement').forEach(function(elem) {
         elem.addEventListener('click', function() {
@@ -160,11 +161,12 @@
             }
 
             processDiv = document.createElement('div');
-            processDiv.className = 'flexMin minHeight bordered roundedMin centerColumnLayout';
+            processDiv.className = 'flexMin minHeight bordered roundedMin centerColumnLayout tinGap';
 
             processHead = document.createElement('h3');
             processHead.textContent = orderProcesses[i].processName;
             processParagraph = document.createElement('p');
+            processParagraph.className = "norWestAbsolute closeCorner";
 
             switch (orderProcesses[i].status) {
                 case 'complete':
@@ -185,8 +187,21 @@
                     break;
             }
 
+            tempElement = document.createElement('div');
+            tempElement.className = "centerHoriRowLayout tinGap unitHeight assignRange"
+            tempElement.innerHTML = `
+                <img src="../../Shared/Img/PeopleIcon.png" alt="People" class="unitHeight">
+                <div class="centerHoriRowLayout tinGap">
+                    <p>Min: ${orderProcesses[i].minAssign}</p>
+                </div>
+                <div class="centerHoriRowLayout tinGap">
+                    <p>Max: ${orderProcesses[i].maxAssign}</p>
+                </div>
+            `;
+
             processDiv.appendChild(processHead);
             processDiv.appendChild(processParagraph);
+            processDiv.appendChild(tempElement);
 
             orderProcess.appendChild(processDiv);
 

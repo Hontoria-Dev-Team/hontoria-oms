@@ -19,7 +19,7 @@
         <?php include("../Views/.Components/ErrorBox.php"); ?>
         <section>
             <form method="POST" action="index.php?page=orders&action=createFinal" class="centerHoriRowLayout midGap fullHeight">
-                <div class="centerColumnLayout flexMax fullHeight midGap">
+                <div class="centerColumnLayout flexMid fullHeight midGap">
                     <section class="flexMin fullWidth roundedMid centerColumnLayout">
                         <div class="box fullDimensions roundedMid columnLayout minGap">
                             <h3>Service Details</h3>
@@ -70,12 +70,12 @@
                     <section class="flexMax fullWidth roundedMid centerColumnLayout">
                         <div class="box fullDimensions roundedMid columnLayout minGap">
                             <h3>Order Process</h3>
-                            <div class="centerHoriRowLayout minGap flexMax" id="serviceProcess"></div>
+                            <div class="centerHoriRowLayout tinGap flexMax" id="serviceProcess"></div>
                         </div>
                         <div class="gradientBorderDiag"></div>
                     </section>
                 </div>
-                <div class="centerColumnLayout flexMid roundedMid fullHeight midGap">
+                <div class="centerColumnLayout flexMin roundedMid fullHeight midGap">
                     <section class="flexMin fullWidth roundedMid centerColumnLayout">
                         <div class="box fullDimensions roundedMid columnLayout minGap">
                             <h3>Order Pricing</h3>
@@ -136,6 +136,20 @@
     const priceDiscount = document.getElementById('priceDiscount');
     const subservices = <?php echo json_encode($subserviceList); ?>;
     const serviceProcesses = <?php echo json_encode($serviceProcessList); ?>;
+    const processList = <?php echo json_encode($processList); ?>;
+
+    const processMap = {}
+
+    processList.forEach(item => {
+        if (!processMap[item.id]) {
+            processMap[item.id] = [];
+        }
+
+        processMap[item.id].push({
+            minAssign: item.minAssignDefault,
+            maxAssign: item.maxAssignDefault
+        });
+    });
 
     // Service and subservice selection functionality
     let option;
@@ -183,6 +197,7 @@
     let tempStatusInput;
     let processHead;
     let processParagraph;
+    let tempElement;
 
     function setProcess(serviceID) {
         serviceProcess.innerHTML = '';
@@ -202,7 +217,7 @@
             }
 
             processDiv = document.createElement('div');
-            processDiv.className = 'flexMin minHeight bordered roundedMin centerColumnLayout processElement clickable unselectable';
+            processDiv.className = 'flexMin minHeight bordered roundedMin centerColumnLayout tinGap processElement clickable unselectable';
             processDiv.classList.add(hasFirstProcess ? 'redTransBG' : 'yellowTransBG');
             processDiv.dataset.status = hasFirstProcess ? 'pending' : 'active';
             processDiv.dataset.name = serviceProcesses[i].name;
@@ -222,9 +237,26 @@
 
             tempStatusInput = document.createElement('input');
             tempStatusInput.type = "hidden";
-            tempStatusInput.name = "orderProcess[]";
+            tempStatusInput.name = "orderProcessStatus[]";
             tempStatusInput.value = hasFirstProcess ? 'pending' : 'active';
             processDiv.appendChild(tempStatusInput);
+
+            tempElement = document.createElement('div');
+            tempElement.className = "centerHoriRowLayout tinGap unitHeight assignRange"
+            tempElement.innerHTML = `
+                <img src="../../Shared/Img/PeopleIcon.png" alt="People" class="unitHeight">
+                <div class="centerHoriRowLayout tinGap">
+                    <label for="minAssigns[]">Min</label>
+                    <input type="number" name="minAssigns[]" required="true" class="unitHeight unitWidth regTinPadding centerText roundedTin minAssign"
+                        value="${processMap[serviceProcesses[i].id][0].minAssign}" min="1" max="50">
+                </div>
+                <div class="centerHoriRowLayout tinGap">
+                    <label for="maxAssigns[]">Max</label>
+                    <input type="number" name="maxAssigns[]" required="true" class="unitHeight unitWidth regTinPadding centerText roundedTin maxAssign"
+                        value="${processMap[serviceProcesses[i].id][0].maxAssign}" max="50">
+                </div>
+            `;
+            processDiv.appendChild(tempElement);
 
             hasFirstProcess = true;
         }
@@ -330,6 +362,12 @@
         showPrice();
     });
 
+    document.querySelectorAll('.orderGroupPrice').forEach(function(elem) {
+        elem.addEventListener('change', function() {
+            showPrice();
+        });
+    });
+
     function showPrice() {
         subserviceMatch = subservices.find(
             subservice => subservice.id === subserviceType.value
@@ -352,6 +390,24 @@
     }
 
     showPrice();
+
+    document.addEventListener('input', function(e) {
+        const container = e.target.closest('.assignRange');
+        if (!container) return;
+
+        const minInput = container.querySelector('.minAssign');
+        const maxInput = container.querySelector('.maxAssign');
+
+        if (!minInput || !maxInput) return;
+
+        const minVal = parseInt(minInput.value) || 1;
+
+        maxInput.min = minVal;
+
+        if (parseInt(maxInput.value) < minVal) {
+            maxInput.value = minVal;
+        }
+    });
 </script>
 
 </html>
