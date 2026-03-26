@@ -15,7 +15,6 @@ class HomeController {
 
         $header   = (new \HeaderComponent(['logoPath' => $logo, 'fbLink' => $fb, 'navItems' => $nav]))->render();
         $hero     = (new \HeroComponent(['fbLink' => $fb, 'slides' => []]))->render();
-        $services = (new \ServicesPreviewComponent(['services' => []]))->render();
         $whyUs    = (new \WhyUsComponent(['items' => []]))->render();
         $footer   = (new \FooterComponent(['logoPath' => $logo, 'fbLink' => $fb, 'address' => $address, 'navLinks' => $nav]))->render();
         ?>
@@ -34,7 +33,6 @@ class HomeController {
             <?php echo $header; ?>
             <main>
                 <?php echo $hero; ?>
-                <?php echo $services; ?>
                 <?php echo $whyUs; ?>
             </main>
             <?php echo $footer; ?>
