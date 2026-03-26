@@ -59,6 +59,8 @@ switch ($page) {
             $authorization->setRolePermissions();
         } else if ($action === 'changeManagementRules') {
             $authorization->setRoleManagementGovernance();
+        } else if ($action === 'changeProcessTasks') {
+            $authorization->setRoleProcessTasks();
         } else if ($action === 'createRole') {
             $authorization->createRole();
         } else if ($action === 'deleteRole') {

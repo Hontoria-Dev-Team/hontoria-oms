@@ -458,4 +458,36 @@ class StaffM {
         $stmt->bindParam(':id', $id);
         return $stmt->execute();
     }
+
+    public function getAllRoleProcessTasks() {
+        $query = "SELECT roleProcessTasks.roleID, roleProcessTasks.processID, processes.name FROM roleProcessTasks
+                  JOIN processes ON roleProcessTasks.processID = processes.id
+                  ORDER BY roleProcessTasks.roleID ASC, processes.name ASC";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function clearRoleProcessTasks($roleID) {
+        $query = "DELETE FROM roleProcessTasks WHERE roleID = :roleID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':roleID', $roleID);
+        return $stmt->execute();
+    }
+
+    public function updateRoleProcessTasks($roleID, $processes) {
+        $this->clearRoleProcessTasks($roleID);
+
+        if (!empty($processes)) {
+            $query = "INSERT INTO roleProcessTasks (roleID, processID) VALUES (:roleID, :processID)";
+            $stmt = $this->pdo->prepare($query);
+
+            for ($i = 0; $i < count($processes); $i++) {
+                $stmt->execute([
+                    ':roleID' => $roleID,
+                    ':processID' => $processes[$i],
+                ]);
+            }
+        }
+    }
 }

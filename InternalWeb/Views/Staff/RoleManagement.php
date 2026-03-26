@@ -86,10 +86,12 @@
                         <section class="centerColumnLayout roundedMid minGap flexMid" id="processTaskContainer">
                             <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
                                 <h3 class="centerHoriRowLayout">Process Task Access:
-                                    <button type="button" id="addTaskButton" class="importantInput eastAbsolute edgeCorner">Add Task</button>
+                                    <button type="button" id="addTaskButton" class="importantInput eastAbsolute edgeCorner hidden">Add Task</button>
                                 </h3>
-                                <div class="flexMax" style="background-color: red;"></div>
-                                <button type="button" class="importantInput fullWidth">Confirm Changes</button>
+                                <div class="flexMax columnLayout minGap scrollable container">
+                                    <h2 class="selfCenter centerMarginsSelf">No Role Selected</h2>
+                                </div>
+                                <button type="button" class="importantInput fullWidth hidden" id="confirmTaskChangesButton">Confirm Changes</button>
                             </div>
                             <div class="gradientBorderDiag"></div>
                         </section>
@@ -113,11 +115,15 @@
     const deleteButton = document.getElementById('deleteButton');
     const addRuleButton = document.getElementById('addRuleButton');
     const confirmRuleChangesButton = document.getElementById('confirmRuleChangesButton');
+    const confirmTaskChangesButton = document.getElementById('confirmTaskChangesButton');
+    const addTaskButton = document.getElementById('addTaskButton');
     const roleList = <?php echo json_encode($roleList); ?>;
     const roleTally = <?php echo json_encode($roleTally); ?>;
     const rolePermissionsList = <?php echo json_encode($rolePermissionsList); ?>;
     const userPermissionsList = <?php echo json_encode($userPermissionsList); ?>;
     const roleGovernanceList = <?php echo json_encode($roleGovernanceList); ?>;
+    const processTaskList = <?php echo json_encode($processTaskList); ?>;
+    const processList = <?php echo json_encode($processList); ?>;
 
     const rolesName = {};
 
@@ -154,11 +160,25 @@
         });
     });
 
+    const processTaskMap = {};
+
+    processTaskList.forEach(item => {
+        if (!processTaskMap[item.roleID]) {
+            processTaskMap[item.roleID] = [];
+        }
+
+        processTaskMap[item.roleID].push({
+            id: item.processID,
+            name: item.name
+        });
+    });
+
     const alterableRoles = roleTally.map(item => item.id);
 
     let selectedRolePermissions;
     let selectedRoleName;
     let selectedRoleGovernance;
+    let selectedRoleProcessTasks;
     let currentUserRoleGovernance;
     let tempElement;
 
@@ -180,11 +200,14 @@
 
                 selectedRolePermissions = [...(rolePermissionsMap[elem.dataset.id] || [])];
                 selectedRoleGovernance = [...(roleGovernanceMap[elem.dataset.id] || [])];
+                selectedRoleProcessTasks = [...(processTaskMap[elem.dataset.id] || [])];
 
                 selectedID.value = elem.dataset.id;
 
                 submitRolePermissionsButton.classList.remove("hidden");
+                confirmTaskChangesButton.classList.remove("hidden");
                 deleteButton.classList.remove("hidden");
+                addTaskButton.classList.remove("hidden");
 
                 updateSelection();
             });
@@ -201,6 +224,7 @@
         setAvailablePerms();
         setAssignedPerms();
         setGovernanceRules();
+        setProcessTasks();
     }
 
     let tempDiv;
@@ -560,6 +584,123 @@
 
         confirmationTitle.innerHTML = "Change Rules?";
         confirmationText.innerHTML = 'Are you sure to change the management rules of the <span class="capitalFirst">' + selectedRoleName + '</span> role?';
+        confirmationSubmit.value = "Yes Change";
+        confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
+
+        confirmation.style.display = 'flex';
+    });
+
+    // Show process tasks of the role function
+    function setProcessTasks() {
+        processTaskContainer.querySelector('.container').innerHTML = '';
+
+        document.querySelectorAll('.processTasks').forEach(function(elem) {
+            elem.remove();
+        });
+
+        if (selectedRoleProcessTasks.length == 0) {
+            tempElement = document.createElement("h2");
+            tempElement.textContent = "No Processes Assigned";
+            tempElement.className = "selfCenter centerMarginsSelf";
+            processTaskContainer.querySelector('.container').appendChild(tempElement);
+        }
+
+        for (let i = 0; i < selectedRoleProcessTasks.length; i++) {
+            tempDiv = document.createElement("div");
+            tempDiv.className = "yellowTransBG roundedMin bordered centerColumnLayout regMinPadding tinHeight noShrink";
+
+            tempElement = document.createElement("b");
+            tempElement.className = "flexMax centerColumnLayout capitalFirst";
+            tempElement.textContent = selectedRoleProcessTasks[i].name;
+            tempDiv.appendChild(tempElement);
+
+            tempElement = document.createElement("input");
+            tempElement.type = "hidden";
+            tempElement.name = "processTasks[]";
+            tempElement.className = "processTasks";
+            tempElement.value = selectedRoleProcessTasks[i].id;
+            confirmationForm.appendChild(tempElement);
+
+            tempElement = document.createElement("a");
+            tempElement.className = "squareSize unitHeight centerColumnLayout norWestAbsolute closeCorner removeTask";
+            tempElement.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X">';
+            tempElement.dataset.index = i;
+            tempDiv.appendChild(tempElement);
+
+            processTaskContainer.querySelector('.container').appendChild(tempDiv);
+        };
+
+        document.querySelectorAll('.removeTask').forEach(function(elem) {
+            elem.addEventListener('click', function() {
+                selectedRoleProcessTasks.splice(elem.dataset.index, 1);
+                updateSelection();
+            });
+        });
+    }
+
+    // Rule addition logic functionality
+    addTaskButton.addEventListener('click', function() {
+        confirmationTitle.innerHTML = "Add Process Task";
+
+        confirmationText.innerHTML = "Please select the processes you want to add to the role's process task list.";
+        confirmationSubmit.classList.add("hidden");
+
+        showRoleTaskAdditionBox();
+    });
+
+    function showRoleTaskAdditionBox() {
+        document.querySelectorAll('.tempElement').forEach(function(elem) {
+            elem.remove();
+        });
+
+        tempDiv = document.createElement("div");
+        tempDiv.className = 'midHeight scrollable columnLayout minGap tempElement';
+
+        const currentTasks = new Set(selectedRoleProcessTasks.map(g => g.id));
+        let hasSelection = false;
+
+        processList.forEach((item) => {
+            if (currentTasks.has(item.id)) return;
+
+            tempElement = document.createElement('div');
+            tempElement.className = 'tinHeight noShrink roundedMin centerColumnLayout bordered darkFadedBG emphasizedText capitalFirst tempElement addTaskElement';
+            tempElement.textContent = item.name;
+            tempElement.dataset.name = item.name;
+            tempElement.dataset.id = item.id;
+            tempDiv.appendChild(tempElement);
+
+            hasSelection = true;
+        });
+
+        if (!hasSelection) {
+            tempElement = document.createElement("h2");
+            tempElement.textContent = "No Roles to Add";
+            tempElement.className = "selfCenter centerMarginsSelf";
+            tempDiv.appendChild(tempElement);
+        }
+
+        confirmationForm.appendChild(tempDiv);
+
+        confirmation.style.display = 'flex';
+
+        document.querySelectorAll('.addTaskElement').forEach(function(elem) {
+            elem.addEventListener('click', function() {
+                selectedRoleProcessTasks.push({
+                    name: elem.dataset.name,
+                    id: elem.dataset.id
+                });
+                updateSelection();
+                showRoleTaskAdditionBox();
+            });
+        });
+    }
+
+    // Process Task submission logic functionality
+    confirmTaskChangesButton.addEventListener('click', function() {
+        confirmationForm.action = "index.php?page=staff&action=changeProcessTasks"
+
+        confirmationTitle.innerHTML = "Change Process Tasks?";
+        confirmationText.innerHTML = 'Are you sure to change the process tasks of the <span class="capitalFirst">' + selectedRoleName + '</span> role?';
         confirmationSubmit.value = "Yes Change";
         confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
 

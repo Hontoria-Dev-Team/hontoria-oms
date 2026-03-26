@@ -1,10 +1,13 @@
 <?php
 class AuthorizationC {
     private $staffModel;
+    private $servicesModel;
 
     public function __construct($pdo) {
         require_once __DIR__ . '/../Models/StaffM.php';
+        require_once __DIR__ . '/../Models/ServicesM.php';
         $this->staffModel = new StaffM($pdo);
+        $this->servicesModel = new ServicesM($pdo);
     }
 
     public function showLogin() {
@@ -34,6 +37,8 @@ class AuthorizationC {
             $roleList = $this->staffModel->getAllRoles();
             $rolePermissionsList = $this->staffModel->getAllRolePermissions();
             $roleGovernanceList = $this->staffModel->getAllRoleManagementGovernance();
+            $processTaskList = $this->staffModel->getAllRoleProcessTasks();
+            $processList = $this->servicesModel->getAllProcesses();
 
             require_once __DIR__ . '/../Views/Staff/RoleManagement.php';
         } else {
@@ -263,6 +268,32 @@ class AuthorizationC {
                 $_SESSION['error'] = "You dont have the authority to modify specific management rules on one or many rules you have tried to modify";
             } else if ($hasUnauthorizedDeletion) {
                 $_SESSION['error'] = "You dont have the authority to delete specific management rules on one or many rules you have tried to delete";
+            }
+        } else {
+            $_SESSION['error'] = "You dont have permission to alter roles";
+        }
+        header("Location: index.php?page=staff&action=manageRoles");
+    }
+
+    public function setRoleProcessTasks() {
+        if (in_array('canAlterRoles', $_SESSION['permissions'])) {
+            $roleID = $_POST['selectedID'];
+            $processes = $_POST['processTasks'];
+            $governanceRules = $this->staffModel->getRoleManagementGovernance($this->staffModel->getUserRoles($_SESSION['id']));
+
+            $canAlter = true;
+
+            foreach ($governanceRules as $rule) {
+                if ($rule['roleSubjectID'] == $roleID) {
+                    $canAlter = $rule['canAlter'];
+                    break;
+                }
+            }
+
+            if ($canAlter) {
+                $this->staffModel->updateRoleProcessTasks($roleID, $processes);
+            } else {
+                $_SESSION['error'] = "You dont have the authority to alter this role";
             }
         } else {
             $_SESSION['error'] = "You dont have permission to alter roles";
