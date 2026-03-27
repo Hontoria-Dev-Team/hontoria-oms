@@ -53,7 +53,7 @@ class ServicesSidebarComponent extends \Component {
                 <i class="fas fa-home sb-icon"></i> HOME
             </a>
             <div class="sb-group">
-                <button class="sb-link sb-toggle active-group" id="toggleServices" data-filter="all">
+                <button class="sb-link sb-toggle" id="toggleServices" data-filter="all">
                     <i class="fas fa-print sb-icon"></i> SERVICES
                     <i class="fas fa-chevron-down sb-chevron" id="chevServices"></i>
                 </button>
@@ -93,7 +93,7 @@ class ServicesSidebarComponent extends \Component {
                 'id'    => 'mug',
                 'icon'  => 'fa-mug-hot',
                 'label' => 'CUSTOMIZE MUGS & TUMBLER',
-                'items' => ['Mug', 'Tumbler'],
+                'items' => ['Sublimation Mug', 'Tumbler'],
             ],
             [
                 'id'    => 'lanyard',
@@ -112,6 +112,30 @@ class ServicesSidebarComponent extends \Component {
                 'icon'  => 'fa-tags',
                 'label' => 'STICKERS & DECALS',
                 'items' => ['Motorcycle Decals', 'Truck Decals', 'Car Decals'],
+            ],
+            [
+                'id'    => 'sintra',
+                'icon'  => 'fa-border-all',
+                'label' => 'CUSTOMIZE SINTRA BOARD',
+                'items' => ['Sintra Board'],
+            ],
+            [
+                'id'    => 'photoframe',
+                'icon'  => 'fa-image',
+                'label' => 'CUSTOMIZE PHOTO FRAME',
+                'items' => ['Photo Frame'],
+            ],
+            [
+                'id'    => 'refmagnet',
+                'icon'  => 'fa-magnet',
+                'label' => 'CUSTOMIZE REF MAGNET',
+                'items' => ['Ref Magnet'],
+            ],
+            [
+                'id'    => 'plaque',
+                'icon'  => 'fa-award',
+                'label' => 'CUSTOMIZE PLAQUE & MEDAL',
+                'items' => ['Plaque', 'Medal'],
             ],
         ];
 

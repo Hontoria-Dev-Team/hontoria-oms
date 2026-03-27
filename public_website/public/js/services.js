@@ -35,6 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
     'Motorcycle Decals':       { desc:'High-quality waterproof motorcycle decals in any shape and design. Weather-resistant and long-lasting.',                            icon:'fa-motorcycle',     bg:'linear-gradient(135deg,#fce4ec,#f8bbd0)' },
     'Truck Decals':            { desc:'Large-format truck decals and vinyl wraps. Bold, vibrant, and built to withstand the elements.',                                    icon:'fa-truck',          bg:'linear-gradient(135deg,#fce4ec,#f8bbd0)' },
     'Car Decals':              { desc:'Custom car decals and stickers. Perfect for business branding, personal style, or promotional use.',                                icon:'fa-car',            bg:'linear-gradient(135deg,#fce4ec,#f8bbd0)' },
+    // Sintra Board
+    'Sintra Board':            { desc:'Custom printed sintra boards for signage, displays, and advertising. Lightweight, durable, and weather-resistant.',                 icon:'fa-border-all',     bg:'linear-gradient(135deg,#e3f2fd,#bbdefb)' },
+    // Photo Frame
+    'Photo Frame':             { desc:'Custom sublimation printed photo frames. Perfect for gifts, events, and keepsakes. Available in various sizes.',                   icon:'fa-image',          bg:'linear-gradient(135deg,#f3e5f5,#e1bee7)' },
+    // Ref Magnet
+    'Ref Magnet':              { desc:'Personalized refrigerator magnets with custom designs. Great for souvenirs, giveaways, and promotional items.',                    icon:'fa-magnet',         bg:'linear-gradient(135deg,#e8f5e9,#c8e6c9)' },
+    // Plaque & Medal
+    'Plaque':                  { desc:'Custom engraved plaques for awards, recognition, and achievements. Professional finish with personalized text and design.',         icon:'fa-award',          bg:'linear-gradient(135deg,#fff8e1,#ffecb3)' },
+    'Medal':                   { desc:'Custom medals for sports events, competitions, and recognition ceremonies. Available in gold, silver, and bronze.',                 icon:'fa-medal',          bg:'linear-gradient(135deg,#fff8e1,#ffecb3)' },
   };
 
   // ── FILTER ENGINE ─────────────────────────────────────────────────────
@@ -67,20 +76,57 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.sb-item,.sb-sub-toggle,.sb-toggle').forEach(el => el.classList.remove('sb-active'));
   }
 
-  // ── SIDEBAR: SERVICES master toggle ──────────────────────────────────
+  // ── SIDEBAR STATE MANAGEMENT ──────────────────────────────────────────
+  // Two states:
+  //   COLLAPSED (initial): #subServices is open (categories visible) but
+  //                        all .sb-sub-items are hidden (no product items shown).
+  //   EXPANDED  (after clicking SERVICES): all .sb-sub-items are open.
+
   const toggleServices = document.getElementById('toggleServices');
   const subServices    = document.getElementById('subServices');
   const chevServices   = document.getElementById('chevServices');
 
-  toggleServices?.addEventListener('click', () => {
-    const isOpen = subServices.classList.toggle('open');
-    chevServices?.classList.toggle('open', isOpen);
-    showAll();
-    clearActive();
-    toggleServices.classList.add('sb-active');
-  });
+  // Track whether sub-items are currently expanded
+  let subItemsExpanded = false;
+
+  function collapseAllSubItems() {
+    document.querySelectorAll('.sb-sub-items').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.sb-sub-toggle .sb-chevron').forEach(chev => chev.classList.remove('open'));
+    subItemsExpanded = false;
+  }
+
+  function expandAllSubItems() {
+    document.querySelectorAll('.sb-sub-items').forEach(el => el.classList.add('open'));
+    document.querySelectorAll('.sb-sub-toggle .sb-chevron').forEach(chev => chev.classList.add('open'));
+    subItemsExpanded = true;
+  }
+
+  // ── INITIAL STATE: show category list, hide sub-items ────────────────
+  // Open #subServices so categories are visible
   subServices?.classList.add('open');
   chevServices?.classList.add('open');
+  // But keep all product sub-items collapsed
+  collapseAllSubItems();
+  // Mark SERVICES as active on page load
+  toggleServices?.classList.add('active-group', 'sb-active');
+
+  // ── SERVICES master toggle click ──────────────────────────────────────
+  toggleServices?.addEventListener('click', () => {
+    // Always ensure the categories panel stays open
+    subServices?.classList.add('open');
+    chevServices?.classList.add('open');
+
+    // Toggle expand/collapse of all sub-items
+    if (subItemsExpanded) {
+      collapseAllSubItems();
+    } else {
+      expandAllSubItems();
+    }
+
+    showAll();
+    clearActive();
+    toggleServices.classList.add('active-group', 'sb-active');
+  });
 
   // ── SIDEBAR: Each category toggle ────────────────────────────────────
   document.querySelectorAll('.sb-sub-toggle').forEach(btn => {
@@ -88,12 +134,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const subEl  = document.getElementById('sub_' + catId);
     const chevEl = document.getElementById('chev_' + catId);
 
-    subEl?.classList.add('open');
-    chevEl?.classList.add('open');
-
     btn.addEventListener('click', () => {
       const isOpen = subEl?.classList.toggle('open');
       chevEl?.classList.toggle('open', isOpen);
+
+      // Update subItemsExpanded: true only if ALL sub-items are open
+      const allSubItems = document.querySelectorAll('.sb-sub-items');
+      subItemsExpanded = [...allSubItems].every(el => el.classList.contains('open'));
+
       clearActive();
       filterByCategory(catId);
       btn.classList.add('sb-active');
