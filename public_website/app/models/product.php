@@ -114,6 +114,12 @@ class product {
             $poloshirtPhotos[] = 'img/sublimationPicture/poloshirtPicture/poloshirt' . $i . '.jpg';
         }
 
+        // ── Birthday Tarpaulin photos (10 photos) ─────────────────────────
+        $bdayPhotos = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $bdayPhotos[] = 'img/tarpaulin/birthdayTarpaulin/bday' . $i . '.jpg';
+        }
+
         return [
 
             // ── SUBLIMATION ───────────────────────────────────────────────
@@ -249,8 +255,8 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-birthday-cake',
                 'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/tarpaulin/birthdayTarpaulin/bday1.jpg',
+                'photos'      => $bdayPhotos,
                 'variants'    => [],
             ]),
             new product([
