@@ -254,18 +254,6 @@ class product {
                 'variants'    => [],
             ]),
             new product([
-                'id'          => 'graduation',
-                'name'        => 'Graduation Tarpaulin',
-                'category'    => 'tarpaulin',
-                'description' => 'Celebrate achievements with stunning graduation tarpaulins. Custom designs that make the moment unforgettable.',
-                'price'       => 0,
-                'icon'        => 'fa-graduation-cap',
-                'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
-                'photo'       => '',
-                'photos'      => [],
-                'variants'    => [],
-            ]),
-            new product([
                 'id'          => 'congratulation',
                 'name'        => 'Congratulation Tarpaulin',
                 'category'    => 'tarpaulin',

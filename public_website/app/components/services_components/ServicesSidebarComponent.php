@@ -87,7 +87,7 @@ class ServicesSidebarComponent extends \Component {
                 'id'    => 'tarpaulin',
                 'icon'  => 'fa-scroll',
                 'label' => 'CUSTOMIZE TARPAULIN',
-                'items' => ['Birthday Tarpaulin', 'Graduation Tarpaulin', 'Congratulation Tarpaulin'],
+                'items' => ['Birthday Tarpaulin', 'Congratulation Tarpaulin'],
             ],
             [
                 'id'    => 'mug',
