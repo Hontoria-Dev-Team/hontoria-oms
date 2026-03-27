@@ -13,10 +13,11 @@ class HomeController {
         $address = $config->get('site.address');
         $nav     = $config->get('navigation');
 
-        $header   = (new \HeaderComponent(['logoPath' => $logo, 'fbLink' => $fb, 'navItems' => $nav]))->render();
-        $hero     = (new \HeroComponent(['fbLink' => $fb, 'slides' => []]))->render();
-        $whyUs    = (new \WhyUsComponent(['items' => []]))->render();
-        $footer   = (new \FooterComponent(['logoPath' => $logo, 'fbLink' => $fb, 'address' => $address, 'navLinks' => $nav]))->render();
+        $header      = (new \HeaderComponent(['logoPath' => $logo, 'fbLink' => $fb, 'navItems' => $nav]))->render();
+        $hero        = (new \HeroComponent(['fbLink' => $fb, 'slides' => []]))->render();
+        $whyUs       = (new \WhyUsComponent(['items' => []]))->render();
+        $missionVision = (new \MissionVisionComponent([]))->render();
+        $footer      = (new \FooterComponent(['logoPath' => $logo, 'fbLink' => $fb, 'address' => $address, 'navLinks' => $nav]))->render();
         ?>
         <!DOCTYPE html>
         <html lang="en">
@@ -34,6 +35,7 @@ class HomeController {
             <main>
                 <?php echo $hero; ?>
                 <?php echo $whyUs; ?>
+                <?php echo $missionVision; ?>
             </main>
             <?php echo $footer; ?>
             <script src="js/shared.js"></script>
