@@ -257,7 +257,13 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
                 'photo'       => 'img/tarpaulin/birthdayTarpaulin/bday1.jpg',
                 'photos'      => $bdayPhotos,
-                'variants'    => [],
+                'variants'    => [
+                    ['name' => '2x3 ft.', 'price' => 72],
+                    ['name' => '3x4 ft.', 'price' => 144],
+                    ['name' => '3x5 ft.', 'price' => 180],
+                    ['name' => '4x6 ft.', 'price' => 288],
+                    ['name' => '4x8 ft.', 'price' => 384],
+                ],
             ]),
             new product([
                 'id'          => 'congratulation',
