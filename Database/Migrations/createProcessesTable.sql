@@ -3,6 +3,9 @@ CREATE TABLE processes (
     name VARCHAR(50) NOT NULL UNIQUE,
     minAssignDefault TINYINT NOT NULL DEFAULT 1,
     maxAssignDefault TINYINT NOT NULL DEFAULT 10,
+    hasGCAccess BOOLEAN DEFAULT FALSE,
+    designAccess VARCHAR(20) DEFAULT 'no access',
+    variableListAccess VARCHAR(20) DEFAULT 'no access',
     description TEXT
 );
 

@@ -105,6 +105,18 @@ class ServicesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllServiceProcesses() {
+        $query = "SELECT serviceProcess.serviceID, serviceProcess.phase, processes.name, processes.id
+                  FROM serviceProcess
+                  JOIN processes ON serviceProcess.processesID = processes.id
+                  ORDER BY serviceProcess.serviceID ASC, serviceProcess.phase ASC";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getSingleProcessByName($name) {
         $query = "SELECT id FROM processes WHERE name = :name";
 
@@ -198,11 +210,43 @@ class ServicesM {
     }
 
     public function getAllProcesses() {
-        $query = "SELECT id, name, minAssignDefault, maxAssignDefault FROM processes ORDER BY name";
+        $query = "SELECT * FROM processes ORDER BY name";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function removeProcess($id) {
+        $query = "DELETE FROM roleProcessTasks WHERE processID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        $query = "DELETE FROM processes WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
+    public function updateProcess($id, $minAssignDefault, $maxAssignDefault, $hasGCAccess, $designAccess, $variableListAccess) {
+        $query = "UPDATE processes
+                  SET minAssignDefault = :minAssignDefault,
+                      maxAssignDefault = :maxAssignDefault,
+                      hasGCAccess = :hasGCAccess,
+                      designAccess = :designAccess,
+                      variableListAccess = :variableListAccess
+                  WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':minAssignDefault', $minAssignDefault);
+        $stmt->bindParam(':maxAssignDefault', $maxAssignDefault);
+        $stmt->bindParam(':hasGCAccess', $hasGCAccess);
+        $stmt->bindParam(':designAccess', $designAccess);
+        $stmt->bindParam(':variableListAccess', $variableListAccess);
+
+        return $stmt->execute();
     }
 }

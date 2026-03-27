@@ -168,6 +168,10 @@
     border: 0.1rem solid var(--red);
 }
 
+.yellowBorder {
+    border: 0.1rem solid var(--yellow);
+}
+
 .capitalFirst {
     text-transform: capitalize;
 }
@@ -350,4 +354,8 @@
 
 .skewedXNegBG>* {
     transform: skewX(15deg);
+}
+
+.scaledUpMin {
+    transform: scale(1.25);
 }

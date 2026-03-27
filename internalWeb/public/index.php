@@ -95,8 +95,6 @@ switch ($page) {
                 $services->setServiceProcess($service);
             } else if ($action === 'create') {
                 $services->createSubservice($service);
-            } else if ($action === 'createProcess') {
-                $services->createProcess($service);
             } else if ($action === 'delete') {
                 $services->deleteSubservice($service);
             } else {
@@ -108,6 +106,14 @@ switch ($page) {
             $services->createService();
         } else if ($action === 'delete') {
             $services->deleteService();
+        } else if ($action === 'manageProcesses') {
+            $services->showProcessesManagementPage();
+        } else if ($action === 'createProcess') {
+            $services->createProcess();
+        } else if ($action === 'updateProcess') {
+            $services->setProcess();
+        } else if ($action === 'deleteProcess') {
+            $services->deleteProcess();
         } else {
             $services->showServices();
         }

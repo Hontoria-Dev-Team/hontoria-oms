@@ -391,6 +391,7 @@
 
     showPrice();
 
+    // Limit max assign minumum equal to min assign logic
     document.addEventListener('input', function(e) {
         const container = e.target.closest('.assignRange');
         if (!container) return;

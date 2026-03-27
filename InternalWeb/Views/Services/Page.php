@@ -46,8 +46,8 @@
                     </section>
                 </div>
                 <div class="rowLayout minGap souEastAbsolute">
-                    <a id="createButton" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">
-                        Create Service</a>
+                    <a id="createButton" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">Create Service</a>
+                    <a href="index.php?page=services&action=manageProcesses" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">Manage Processes</a>
                 </div>
                 <div class="gradientBorderDiag"></div>
             </section>

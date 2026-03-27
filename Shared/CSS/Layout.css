@@ -115,6 +115,10 @@
     padding: 0.3rem !important;
 }
 
+.regMidPadding {
+    padding: 0.6rem !important;
+}
+
 .regPadding {
     padding: 1rem;
 }
@@ -140,7 +144,7 @@
 }
 
 .scrollable {
-    overflow-y: scroll;
+    overflow-y: scroll !important;
 }
 
 .fixedScreen {
@@ -241,6 +245,14 @@
 
 .gridFlex.minGrids>* {
     width: 49%;
+}
+
+.gridFlex.midGrids>* {
+    width: 32.5%;
+}
+
+.gridFlex.maxGrids>* {
+    width: 24.4%;
 }
 
 .contentFlexStart {
@@ -358,9 +370,9 @@
 }
 
 .noMinHeight {
-    min-height: 0;
+    min-height: 0 !important;
 }
 
 .noFlexBasis {
-    flex-basis: 0;
+    flex-basis: 0 !important;
 }

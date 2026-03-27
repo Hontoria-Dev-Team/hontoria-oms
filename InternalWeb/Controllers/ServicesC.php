@@ -13,6 +13,14 @@ class ServicesC {
         require __DIR__ . '/../Views/Services/Page.php';
     }
 
+    public function showProcessesManagementPage() {
+        $page = "services";
+        $lastPage = 'services';
+        $backLink = 'index.php?page=services';
+        $processList = $this->servicesModel->getAllProcesses();
+        require __DIR__ . '/../Views/Services/ProcessManagement.php';
+    }
+
     public function toggleServiceStatus() {
         $selectedID = $_POST['selectedID'];
         $this->servicesModel->updateServiceStatus($selectedID);
@@ -108,23 +116,58 @@ class ServicesC {
         exit();
     }
 
-    public function createProcess($serviceID) {
-        $processName = $_POST['name'];
-        $creation = $this->servicesModel->insertProcess($processName);
+    public function createProcess() {
+        if (in_array('canCreateServiceProcesses', $_SESSION['permissions'])) {
+            $processName = $_POST['name'];
+            $creation = $this->servicesModel->insertProcess($processName);
 
-        if ($creation) {
-            header("Location: index.php?page=services&service=" . $serviceID);
-            exit();
+            if (!$creation) {
+                $_SESSION['error'] = "Process name already exists";
+            }
         } else {
-            $page = "services";
-            $lastPage = "services";
-            $backLink = "index.php?page=services";
-            $error = "Process name already exists.";
-            $service = $this->servicesModel->getServiceByID($serviceID);
-            $processList = $this->servicesModel->getServiceProcess($serviceID);
-            $subservicesList = $this->servicesModel->getSubservices($serviceID);
-            $processes = $this->servicesModel->getAllProcesses();
-            require __DIR__ . '/../Views/Services/ServicePage.php';
+            $_SESSION['error'] = "You dont have permission to create processes";
         }
+        header("Location: index.php?page=services&action=manageProcesses");
+    }
+
+    public function deleteProcess() {
+        if (in_array('canCreateServiceProcesses', $_SESSION['permissions'])) {
+            $selectedID = (int) $_POST['selectedID'];
+            $serviceProcesses = $this->servicesModel->getAllServiceProcesses();
+
+            $canDelete = true;
+
+            foreach ($serviceProcesses as $serviceProcess) {
+                if ((int)$serviceProcess['id'] === $selectedID) {
+                    $canDelete = false;
+                    break;
+                }
+            }
+
+            if ($canDelete) {
+                $this->servicesModel->removeProcess($selectedID);
+            } else {
+                $_SESSION['error'] = "Cannot delete this process because it is in use in one or more services";
+            }
+        } else {
+            $_SESSION['error'] = "You dont have permission to delete processes";
+        }
+        header("Location: index.php?page=services&action=manageProcesses");
+    }
+
+    public function setProcess() {
+        if (in_array('canCreateServiceProcesses', $_SESSION['permissions'])) {
+            $selectedID = (int) $_POST['id'];
+            $minAssign = (int) $_POST['minAssign'];
+            $maxAssign = (int) $_POST['maxAssign'];
+            $hasGCAccess = $_POST['hasGCAccess'];
+            $designAccess = $_POST['designAccess'];
+            $variableListAccess = $_POST['variableListAccess'];
+
+            $this->servicesModel->updateProcess($selectedID, $minAssign, $maxAssign, $hasGCAccess, $designAccess, $variableListAccess);
+        } else {
+            $_SESSION['error'] = "You dont have permission to modify processes";
+        }
+        header("Location: index.php?page=services&action=manageProcesses");
     }
 }
