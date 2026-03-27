@@ -62,6 +62,10 @@ class product {
             'lanyard'     => 'lanyard-img',
             'stitching'   => 'stitching-img',
             'sticker'     => 'sticker-img',
+            'sintra'      => 'sintra-img',
+            'photoframe'  => 'photoframe-img',
+            'refmagnet'   => 'refmagnet-img',
+            'plaque'      => 'plaque-img',
         ];
         return $map[$this->category] ?? 'sublim-img';
     }
@@ -369,6 +373,74 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-car',
                 'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
+                'photo'       => '',
+                'photos'      => [],
+                'variants'    => [],
+            ]),
+
+            // ── CUSTOMIZE SINTRA BOARD ────────────────────────────────────
+            new product([
+                'id'          => 'sintra-board',
+                'name'        => 'Sintra Board',
+                'category'    => 'sintra',
+                'description' => 'Custom printed sintra boards for signage, displays, and advertising. Lightweight, durable, and weather-resistant.',
+                'price'       => 0,
+                'icon'        => 'fa-border-all',
+                'bgGradient'  => 'linear-gradient(135deg,#e3f2fd,#bbdefb)',
+                'photo'       => '',
+                'photos'      => [],
+                'variants'    => [],
+            ]),
+
+            // ── CUSTOMIZE PHOTO FRAME ─────────────────────────────────────
+            new product([
+                'id'          => 'photo-frame',
+                'name'        => 'Photo Frame',
+                'category'    => 'photoframe',
+                'description' => 'Custom sublimation printed photo frames. Perfect for gifts, events, and keepsakes. Available in various sizes.',
+                'price'       => 0,
+                'icon'        => 'fa-image',
+                'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
+                'photo'       => '',
+                'photos'      => [],
+                'variants'    => [],
+            ]),
+
+            // ── CUSTOMIZE REF MAGNET ──────────────────────────────────────
+            new product([
+                'id'          => 'ref-magnet',
+                'name'        => 'Ref Magnet',
+                'category'    => 'refmagnet',
+                'description' => 'Personalized refrigerator magnets with custom designs. Great for souvenirs, giveaways, and promotional items.',
+                'price'       => 0,
+                'icon'        => 'fa-magnet',
+                'bgGradient'  => 'linear-gradient(135deg,#e8f5e9,#c8e6c9)',
+                'photo'       => '',
+                'photos'      => [],
+                'variants'    => [],
+            ]),
+
+            // ── CUSTOMIZE PLAQUE & MEDAL ──────────────────────────────────
+            new product([
+                'id'          => 'plaque',
+                'name'        => 'Plaque',
+                'category'    => 'plaque',
+                'description' => 'Custom engraved plaques for awards, recognition, and achievements. Professional finish with personalized text and design.',
+                'price'       => 0,
+                'icon'        => 'fa-award',
+                'bgGradient'  => 'linear-gradient(135deg,#fff8e1,#ffecb3)',
+                'photo'       => '',
+                'photos'      => [],
+                'variants'    => [],
+            ]),
+            new product([
+                'id'          => 'medal',
+                'name'        => 'Medal',
+                'category'    => 'plaque',
+                'description' => 'Custom medals for sports events, competitions, and recognition ceremonies. Available in gold, silver, and bronze.',
+                'price'       => 0,
+                'icon'        => 'fa-medal',
+                'bgGradient'  => 'linear-gradient(135deg,#fff8e1,#ffecb3)',
                 'photo'       => '',
                 'photos'      => [],
                 'variants'    => [],

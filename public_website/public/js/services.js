@@ -35,6 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
     'Motorcycle Decals':       { desc:'High-quality waterproof motorcycle decals in any shape and design. Weather-resistant and long-lasting.',                            icon:'fa-motorcycle',     bg:'linear-gradient(135deg,#fce4ec,#f8bbd0)' },
     'Truck Decals':            { desc:'Large-format truck decals and vinyl wraps. Bold, vibrant, and built to withstand the elements.',                                    icon:'fa-truck',          bg:'linear-gradient(135deg,#fce4ec,#f8bbd0)' },
     'Car Decals':              { desc:'Custom car decals and stickers. Perfect for business branding, personal style, or promotional use.',                                icon:'fa-car',            bg:'linear-gradient(135deg,#fce4ec,#f8bbd0)' },
+    // Sintra Board
+    'Sintra Board':            { desc:'Custom printed sintra boards for signage, displays, and advertising. Lightweight, durable, and weather-resistant.',                 icon:'fa-border-all',     bg:'linear-gradient(135deg,#e3f2fd,#bbdefb)' },
+    // Photo Frame
+    'Photo Frame':             { desc:'Custom sublimation printed photo frames. Perfect for gifts, events, and keepsakes. Available in various sizes.',                   icon:'fa-image',          bg:'linear-gradient(135deg,#f3e5f5,#e1bee7)' },
+    // Ref Magnet
+    'Ref Magnet':              { desc:'Personalized refrigerator magnets with custom designs. Great for souvenirs, giveaways, and promotional items.',                    icon:'fa-magnet',         bg:'linear-gradient(135deg,#e8f5e9,#c8e6c9)' },
+    // Plaque & Medal
+    'Plaque':                  { desc:'Custom engraved plaques for awards, recognition, and achievements. Professional finish with personalized text and design.',         icon:'fa-award',          bg:'linear-gradient(135deg,#fff8e1,#ffecb3)' },
+    'Medal':                   { desc:'Custom medals for sports events, competitions, and recognition ceremonies. Available in gold, silver, and bronze.',                 icon:'fa-medal',          bg:'linear-gradient(135deg,#fff8e1,#ffecb3)' },
   };
 
   // ── FILTER ENGINE ─────────────────────────────────────────────────────

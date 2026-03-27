@@ -93,7 +93,7 @@ class ServicesSidebarComponent extends \Component {
                 'id'    => 'mug',
                 'icon'  => 'fa-mug-hot',
                 'label' => 'CUSTOMIZE MUGS & TUMBLER',
-                'items' => ['Mug', 'Tumbler'],
+                'items' => ['Sublimation Mug', 'Tumbler'],
             ],
             [
                 'id'    => 'lanyard',
@@ -112,6 +112,30 @@ class ServicesSidebarComponent extends \Component {
                 'icon'  => 'fa-tags',
                 'label' => 'STICKERS & DECALS',
                 'items' => ['Motorcycle Decals', 'Truck Decals', 'Car Decals'],
+            ],
+            [
+                'id'    => 'sintra',
+                'icon'  => 'fa-border-all',
+                'label' => 'CUSTOMIZE SINTRA BOARD',
+                'items' => ['Sintra Board'],
+            ],
+            [
+                'id'    => 'photoframe',
+                'icon'  => 'fa-image',
+                'label' => 'CUSTOMIZE PHOTO FRAME',
+                'items' => ['Photo Frame'],
+            ],
+            [
+                'id'    => 'refmagnet',
+                'icon'  => 'fa-magnet',
+                'label' => 'CUSTOMIZE REF MAGNET',
+                'items' => ['Ref Magnet'],
+            ],
+            [
+                'id'    => 'plaque',
+                'icon'  => 'fa-award',
+                'label' => 'CUSTOMIZE PLAQUE & MEDAL',
+                'items' => ['Plaque', 'Medal'],
             ],
         ];
 

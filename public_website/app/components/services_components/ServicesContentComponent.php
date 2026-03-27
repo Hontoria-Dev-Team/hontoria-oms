@@ -24,6 +24,10 @@ class ServicesContentComponent extends \Component {
             'lanyard'     => ['label' => 'CUSTOMIZE LANYARD',        'icon' => 'fa-id-card',     'badge' => 'lanyard-badge'],
             'stitching'   => ['label' => 'CUSTOM STITCHING',         'icon' => 'fa-cut',         'badge' => 'stitching-badge'],
             'sticker'     => ['label' => 'STICKERS & DECALS',        'icon' => 'fa-tags',        'badge' => 'sticker-badge'],
+            'sintra'      => ['label' => 'CUSTOMIZE SINTRA BOARD',   'icon' => 'fa-border-all',  'badge' => 'sintra-badge'],
+            'photoframe'  => ['label' => 'CUSTOMIZE PHOTO FRAME',    'icon' => 'fa-image',       'badge' => 'photoframe-badge'],
+            'refmagnet'   => ['label' => 'CUSTOMIZE REF MAGNET',     'icon' => 'fa-magnet',      'badge' => 'refmagnet-badge'],
+            'plaque'      => ['label' => 'CUSTOMIZE PLAQUE & MEDAL', 'icon' => 'fa-award',       'badge' => 'plaque-badge'],
         ];
 
         ob_start();
