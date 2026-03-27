@@ -26,7 +26,14 @@ class HistorySectionComponent extends \Component {
 
                     <!-- Image side -->
                     <div class="history-img-wrap">
-                        <div class="history-img-placeholder">
+                        <img
+                            src="img/g.jpg"
+                            alt="Hontoria Printing Services Shop"
+                            class="history-img"
+                            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                        />
+                        <!-- Fallback placeholder shown only if image fails to load -->
+                        <div class="history-img-placeholder" style="display:none;">
                             <i class="fas fa-store"></i>
                             <span>SHOP PHOTO</span>
                         </div>

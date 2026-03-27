@@ -76,20 +76,57 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.sb-item,.sb-sub-toggle,.sb-toggle').forEach(el => el.classList.remove('sb-active'));
   }
 
-  // ── SIDEBAR: SERVICES master toggle ──────────────────────────────────
+  // ── SIDEBAR STATE MANAGEMENT ──────────────────────────────────────────
+  // Two states:
+  //   COLLAPSED (initial): #subServices is open (categories visible) but
+  //                        all .sb-sub-items are hidden (no product items shown).
+  //   EXPANDED  (after clicking SERVICES): all .sb-sub-items are open.
+
   const toggleServices = document.getElementById('toggleServices');
   const subServices    = document.getElementById('subServices');
   const chevServices   = document.getElementById('chevServices');
 
-  toggleServices?.addEventListener('click', () => {
-    const isOpen = subServices.classList.toggle('open');
-    chevServices?.classList.toggle('open', isOpen);
-    showAll();
-    clearActive();
-    toggleServices.classList.add('sb-active');
-  });
+  // Track whether sub-items are currently expanded
+  let subItemsExpanded = false;
+
+  function collapseAllSubItems() {
+    document.querySelectorAll('.sb-sub-items').forEach(el => el.classList.remove('open'));
+    document.querySelectorAll('.sb-sub-toggle .sb-chevron').forEach(chev => chev.classList.remove('open'));
+    subItemsExpanded = false;
+  }
+
+  function expandAllSubItems() {
+    document.querySelectorAll('.sb-sub-items').forEach(el => el.classList.add('open'));
+    document.querySelectorAll('.sb-sub-toggle .sb-chevron').forEach(chev => chev.classList.add('open'));
+    subItemsExpanded = true;
+  }
+
+  // ── INITIAL STATE: show category list, hide sub-items ────────────────
+  // Open #subServices so categories are visible
   subServices?.classList.add('open');
   chevServices?.classList.add('open');
+  // But keep all product sub-items collapsed
+  collapseAllSubItems();
+  // Mark SERVICES as active on page load
+  toggleServices?.classList.add('active-group', 'sb-active');
+
+  // ── SERVICES master toggle click ──────────────────────────────────────
+  toggleServices?.addEventListener('click', () => {
+    // Always ensure the categories panel stays open
+    subServices?.classList.add('open');
+    chevServices?.classList.add('open');
+
+    // Toggle expand/collapse of all sub-items
+    if (subItemsExpanded) {
+      collapseAllSubItems();
+    } else {
+      expandAllSubItems();
+    }
+
+    showAll();
+    clearActive();
+    toggleServices.classList.add('active-group', 'sb-active');
+  });
 
   // ── SIDEBAR: Each category toggle ────────────────────────────────────
   document.querySelectorAll('.sb-sub-toggle').forEach(btn => {
@@ -97,12 +134,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const subEl  = document.getElementById('sub_' + catId);
     const chevEl = document.getElementById('chev_' + catId);
 
-    subEl?.classList.add('open');
-    chevEl?.classList.add('open');
-
     btn.addEventListener('click', () => {
       const isOpen = subEl?.classList.toggle('open');
       chevEl?.classList.toggle('open', isOpen);
+
+      // Update subItemsExpanded: true only if ALL sub-items are open
+      const allSubItems = document.querySelectorAll('.sb-sub-items');
+      subItemsExpanded = [...allSubItems].every(el => el.classList.contains('open'));
+
       clearActive();
       filterByCategory(catId);
       btn.classList.add('sb-active');

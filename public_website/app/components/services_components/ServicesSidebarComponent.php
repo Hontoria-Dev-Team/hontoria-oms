@@ -53,7 +53,7 @@ class ServicesSidebarComponent extends \Component {
                 <i class="fas fa-home sb-icon"></i> HOME
             </a>
             <div class="sb-group">
-                <button class="sb-link sb-toggle active-group" id="toggleServices" data-filter="all">
+                <button class="sb-link sb-toggle" id="toggleServices" data-filter="all">
                     <i class="fas fa-print sb-icon"></i> SERVICES
                     <i class="fas fa-chevron-down sb-chevron" id="chevServices"></i>
                 </button>
