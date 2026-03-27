@@ -97,6 +97,10 @@ switch ($page) {
                 $services->createSubservice($service);
             } else if ($action === 'delete') {
                 $services->deleteSubservice($service);
+            } else if ($action === 'toggleHasDesign') {
+                $services->toggleServiceBooleans($service, 0);
+            } else if ($action === 'toggleHasVariableList') {
+                $services->toggleServiceBooleans($service, 1);
             } else {
                 $services->showService($service);
             }

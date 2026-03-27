@@ -165,11 +165,11 @@
 }
 
 .redBorder {
-    border: 0.1rem solid var(--red);
+    border: 0.1rem solid var(--red) !important;
 }
 
 .yellowBorder {
-    border: 0.1rem solid var(--yellow);
+    border: 0.1rem solid var(--yellow) !important;
 }
 
 .capitalFirst {
@@ -193,7 +193,7 @@
 
 .emphasizedText {
     font-weight: 900;
-    font-size: 0.8rem;
+    font-size: 0.8rem !important;
 }
 
 .minFont {
@@ -257,7 +257,7 @@
 }
 
 .redTransBG {
-    background: var(--redTrans);
+    background: var(--redTrans) !important;
 }
 
 .greenTransBG {
@@ -269,7 +269,7 @@
 }
 
 .yellowTransBG {
-    background: var(--yellowTrans);
+    background: var(--yellowTrans) !important;
 }
 
 .yellowGreenTransBG {

@@ -16,7 +16,7 @@ class ServicesM {
     }
 
     public function getServiceByID($id) {
-        $query = "SELECT name, description FROM services WHERE id = :id";
+        $query = "SELECT name, hasDesign, hasVariableList FROM services WHERE id = :id";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
@@ -45,6 +45,20 @@ class ServicesM {
         $query = "INSERT INTO services (name) VALUES (:name);";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':name', $name);
+        return $stmt->execute();
+    }
+
+    public function toggleServiceHasDesign($id) {
+        $query = "UPDATE services SET hasDesign = !hasDesign WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
+    public function toggleServiceHasVariableList($id) {
+        $query = "UPDATE services SET hasVariableList = !hasVariableList WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
         return $stmt->execute();
     }
 

@@ -18,6 +18,16 @@
                     <h1 class="titleLogo minGap tinHeight">
                         <img src="../../Shared/Img/GearIcon.png" alt="Gear"> <?= $service['name'] ?> Service
                     </h1>
+                    <div class="norEastAbsolute rowLayout midGap">
+                        <form method="POST" action="index.php?page=services&service=<?= $serviceID ?>&action=toggleHasDesign">
+                            <input type="submit" name="submit" value="Design"
+                                class="<?= $service['hasDesign'] ? "yellowTransBG yellowBorder" : "redTransBG redBorder" ?> emphasizedText shadowed tinHeight">
+                        </form>
+                        <form method="POST" action="index.php?page=services&service=<?= $serviceID ?>&action=toggleHasVariableList">
+                            <input type="submit" name="submit" value="Variable List"
+                                class="<?= $service['hasVariableList'] ? "yellowTransBG yellowBorder" : "redTransBG redBorder" ?> emphasizedText shadowed tinHeight">
+                        </form>
+                    </div>
                     <h2>Service Process:</h2>
                     <div class="columnLayout minGap">
                         <div class="centerHoriRowLayout minGap" id="process"></div>

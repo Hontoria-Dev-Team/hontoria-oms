@@ -120,7 +120,7 @@
 }
 
 .regPadding {
-    padding: 1rem;
+    padding: 1rem !important;
 }
 
 .minPadding {

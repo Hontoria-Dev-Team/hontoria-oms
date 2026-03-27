@@ -80,6 +80,19 @@ class ServicesC {
         require __DIR__ . '/../Views/Services/ServicePage.php';
     }
 
+    public function toggleServiceBooleans($serviceID, $type) {
+        if (in_array('canCreateServices', $_SESSION['permissions'])) {
+            if ($type === 0) {
+                $this->servicesModel->toggleServiceHasDesign($serviceID);
+            } else {
+                $this->servicesModel->toggleServiceHasVariableList($serviceID);
+            }
+        } else {
+            $_SESSION['error'] = "You dont have permission to toggle this.";
+        }
+        header("Location: index.php?page=services&service=" . $serviceID);
+    }
+
     public function createSubservice($serviceID) {
         $name = $_POST['name'];
         $creation = $this->servicesModel->insertSubservice($name, $serviceID);

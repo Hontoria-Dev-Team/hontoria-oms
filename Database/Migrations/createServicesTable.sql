@@ -1,6 +1,8 @@
 CREATE TABLE services (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) UNIQUE NOT NULL,
+    hasDesign BOOLEAN DEFAULT FALSE,
+    hasVariableList BOOLEAN DEFAULT FALSE,
     isActive BOOLEAN DEFAULT FALSE,
     description TEXT
 );
