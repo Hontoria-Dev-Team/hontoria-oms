@@ -56,8 +56,9 @@
                             $statusClass = $staff['isOnline'] ? ($staff['isActive'] ? 'active' : 'idle') : '';
                             $roles = $userRolesMap[$staff['id']] ?? [];
                             $rolesText = !empty($roles) ? implode(', ', $roles) : 'Unset Role';
+                            $bgClass = $staff['isOnline'] ? ($staff['isActive'] ? 'yellowTransBG' : 'darkFadedBG') : 'redTransBG';
                             ?>
-                            <div class="minHeight minPadding roundedMin rowLayout minGap flexStatic staffElement <?= $statusClass ?>"
+                            <div class="minHeight minPadding roundedMin rowLayout minGap flexStatic staffElement shadowed <?= $statusClass ?> <?= $bgClass ?>"
                                 data-id="<?= $staff['id'] ?>" data-name="<?= htmlspecialchars($fullName) ?>" data-roles="<?= $rolesText ?>">
                                 <div style="background: var(--gray);" class="flexMid roundedMin centerColumnLayout">
                                     <img src="../../Shared/Img/PersonIcon.png" alt="Person">
@@ -66,7 +67,7 @@
                                     <h5><?= htmlspecialchars($fullName) ?></h5>
                                     <h6 class="capitalFirst">(<?= $rolesText ?>)</h6>
                                 </div>
-                                <div class="flexMin status roundedMin minPadding centerColumnLayout">
+                                <div class="flexMin status roundedMin minPadding centerColumnLayout shadowed">
                                     <h5><?= $status ?></h5>
                                 </div>
                             </div>
