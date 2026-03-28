@@ -16,7 +16,7 @@
         <section class="rowLayout flexMax midGap">
             <section class="centerColumnLayout roundedMid flexMid">
                 <div class="box fullHeight fullWidth roundedMid columnLayout">
-                    <section class="minGap gridFlexMid scrollable flexMax noFlexBasis noMinHeight" id="servicesList">
+                    <section class="minGap gridFlexMid scrollable flexMax noFlexBasis noMinHeight contentFlexStart" id="servicesList">
                         <?php foreach ($servicesList as $service): ?>
                             <?php
                             $name = trim("{$service['name']}");
@@ -24,9 +24,9 @@
                             $statusInvert = $service['isActive'] ? 'Disable' : 'Activate';
                             $bgClass = $service['isActive'] ? 'yellowTransBG' : 'redTransBG';
                             ?>
-                            <div class="midHeight minPadding roundedMin rowLayout minGap flexStatic serviceElement columnLayout <?= $status ?> <?= $bgClass ?> shadowed">
-                                <div class="serviceImage fullWidth roundedMin"></div>
-                                <h2 class="centerHoriRowLayout minGap capitalFirst"><?= $name ?><span>(Active Orders: 100)</span></h2>
+                            <div class="minHeight minPadding roundedMin centerHoriColumnLayout minGap flexStatic serviceElement columnLayout <?= $status ?> <?= $bgClass ?> shadowed">
+                                <h3 class="centerHoriRowLayout minGap capitalFirst"><?= $name ?><p>(Active Orders: 100)</p>
+                                </h3>
                                 <div class="rowLayout minGap">
                                     <a href="index.php?page=services&service=<?= $service['id'] ?>" class="importantInput flexMid buttonLike centerColumnLayout shadowed">
                                         Modify Service
