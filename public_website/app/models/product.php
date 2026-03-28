@@ -145,6 +145,12 @@ class product {
             $carDecalPhotos[] = 'img/sticker_decals/carDecals/car' . $i . '.jpg';
         }
 
+        // ── Motor Decals photos (7 photos) ────────────────────────────────
+        $motorDecalPhotos = [];
+        for ($i = 1; $i <= 7; $i++) {
+            $motorDecalPhotos[] = 'img/sticker_decals/motorDecals/motor' . $i . '.jpg';
+        }
+
         return [
 
             // ── SUBLIMATION ───────────────────────────────────────────────
@@ -374,8 +380,8 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-motorcycle',
                 'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/sticker_decals/motorDecals/motor1.jpg',
+                'photos'      => $motorDecalPhotos,
                 'variants'    => [],
             ]),
             new product([
