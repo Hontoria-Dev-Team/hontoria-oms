@@ -172,6 +172,10 @@
     border: 0.1rem solid var(--yellow) !important;
 }
 
+.greenBorder {
+    border: 0.1rem solid var(--green) !important;
+}
+
 .capitalFirst {
     text-transform: capitalize;
 }

@@ -140,6 +140,8 @@ switch ($page) {
     case 'tasks':
         if ($action === 'assignToTask') {
             $orders->assignToTask();
+        } else if ($action === 'updateTaskStatus') {
+            $orders->changeUserProcessTaskStatus();
         } else {
             $orders->showTasks();
         }

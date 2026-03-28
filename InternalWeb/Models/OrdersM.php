@@ -7,19 +7,30 @@ class OrdersM {
     }
 
     public function getAllOrders() {
-        $query = "SELECT
-                      orders.id,
-                      services.NAME AS serviceName,
-                      subservices.NAME AS subserviceName,
-                      orders.priceTotal,
-                      orders.customerName,
-                      orders.createdAt,
-                      orders.deadlineAt,
-                      orders.messengerGCLink
-                  FROM orders
-                  JOIN subservices ON orders.subserviceID = subservices.id
-                  JOIN services ON subservices.serviceID = services.id
-                  ORDER BY orders.id ASC";
+        $query = "
+            SELECT
+                orders.id,
+                services.name AS serviceName,
+                subservices.name AS subserviceName,
+                orders.priceTotal,
+                orders.customerName,
+                orders.createdAt,
+                orders.deadlineAt,
+                orders.messengerGCLink,
+                CASE
+                    WHEN EXISTS (
+                        SELECT 1
+                        FROM orderProcess op
+                        JOIN userProcessTasks upt ON upt.orderProcessID = op.id
+                        WHERE op.orderID = orders.id
+                    ) THEN 'Active'
+                    ELSE 'Idle'
+                END AS status
+            FROM orders
+            JOIN subservices ON orders.subserviceID = subservices.id
+            JOIN services ON subservices.serviceID = services.id
+            ORDER BY orders.id ASC
+        ";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
@@ -133,6 +144,7 @@ class OrdersM {
                 orders.deadlineAt,
                 orders.messengerGCLink,
                 processes.name AS processName,
+                userProcessTasks.status AS taskStatus,
                 COUNT(userProcessTasks.orderProcessID) AS assignedNum,
                 CASE WHEN userCheck.userID IS NOT NULL THEN TRUE ELSE FALSE END AS isAssigned,
                 CASE WHEN COUNT(userProcessTasks.orderProcessID) >= orderProcess.maxAssign THEN TRUE ELSE FALSE END AS isFull
@@ -148,7 +160,7 @@ class OrdersM {
             LEFT JOIN userProcessTasks userCheck ON orderProcess.id = userCheck.orderProcessID
                 AND userCheck.userID = :userID
             WHERE processes.id IN (:processIDs)
-            AND STATUS IN ('active', 'partially complete')
+            AND orderProcess.status IN ('active', 'partially complete')
             GROUP BY orderProcess.id, orderProcess.orderID, processes.id
             ORDER BY orderProcess.orderID, orderProcess.phase
         ";
@@ -165,6 +177,31 @@ class OrdersM {
     public function insertUserProcessTask($userID, $orderProcessID) {
         $query = "INSERT INTO userProcessTasks (userID, orderProcessID) VALUES (:userID, :orderProcessID)";
         $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        $stmt->bindParam(':orderProcessID', $orderProcessID);
+        return $stmt->execute();
+    }
+
+    public function getAllTaskAssigneeList() {
+        $query = "
+            SELECT
+                userProcessTasks.userID,
+                userProcessTasks.orderProcessID,
+                users.firstName,
+                users.middleName,
+                users.lastName
+            FROM userProcessTasks
+            JOIN users ON userProcessTasks.userID = users.id
+        ";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function updateUserProcessTaskStatus($userID, $orderProcessID, $status) {
+        $query = "UPDATE userProcessTasks SET status = :status WHERE userID = :userID AND orderProcessID = :orderProcessID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':status', $status);
         $stmt->bindParam(':userID', $userID);
         $stmt->bindParam(':orderProcessID', $orderProcessID);
         return $stmt->execute();

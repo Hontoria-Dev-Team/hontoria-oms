@@ -89,6 +89,7 @@ class OrdersC {
         $page = "tasks";
         $roleProcessTasks = $this->staffModel->getUserRoleProcessTasks($_SESSION['id']);
         $availableTasks =  $this->ordersModel->getAvailableOrderTasks($_SESSION['id'], $roleProcessTasks);
+        $assigneeList =  $this->ordersModel->getAllTaskAssigneeList();
         require __DIR__ . '/../Views/Tasks/Page.php';
     }
 
@@ -136,6 +137,15 @@ class OrdersC {
     public function assignToTask() {
         $orderProcessID = $_POST['orderProcessID'];
         $assign = $this->ordersModel->insertUserProcessTask($_SESSION['id'], $orderProcessID);
+
+        header('Location: index.php?page=tasks');
+    }
+
+    public function changeUserProcessTaskStatus() {
+        $orderProcessID = $_POST['selectedID'];
+        $taskStatus = $_POST['taskStatus'];
+
+        $this->ordersModel->updateUserProcessTaskStatus($_SESSION['id'], $orderProcessID, $taskStatus);
 
         header('Location: index.php?page=tasks');
     }
