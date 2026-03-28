@@ -151,6 +151,12 @@ class product {
             $motorDecalPhotos[] = 'img/sticker_decals/motorDecals/motor' . $i . '.jpg';
         }
 
+        // ── Tumbler photos (5 photos) ─────────────────────────────────────
+        $tumblerPhotos = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $tumblerPhotos[] = 'img/sublimationMug/tumbler/tumbler' . $i . '.jpg';
+        }
+
         return [
 
             // ── SUBLIMATION ───────────────────────────────────────────────
@@ -335,11 +341,11 @@ class product {
                 'name'        => 'Tumbler',
                 'category'    => 'mug',
                 'description' => 'Custom sublimation printed tumblers. Keep your drinks hot or cold while showing off your unique design.',
-                'price'       => 0,
+                'price'       => 350,
                 'icon'        => 'fa-mug-hot',
                 'bgGradient'  => 'linear-gradient(135deg,#fff3e0,#ffe0b2)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/sublimationMug/tumbler/tumbler1.jpg',
+                'photos'      => $tumblerPhotos,
                 'variants'    => [],
             ]),
 
