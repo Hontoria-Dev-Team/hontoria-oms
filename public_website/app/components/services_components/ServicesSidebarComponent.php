@@ -105,7 +105,7 @@ class ServicesSidebarComponent extends \Component {
                 'id'    => 'stitching',
                 'icon'  => 'fa-cut',
                 'label' => 'CUSTOM STITCHING',
-                'items' => ['Custom Stitched T-Shirt'],
+                'items' => ['Stitching'],
             ],
             [
                 'id'    => 'sticker',

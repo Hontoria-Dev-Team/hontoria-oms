@@ -366,7 +366,7 @@ class product {
             // ── CUSTOM STITCHING ──────────────────────────────────────────
             new product([
                 'id'          => 'stitching-tshirt',
-                'name'        => 'Custom Stitched T-Shirt',
+                'name'        => 'Stitching',
                 'category'    => 'stitching',
                 'description' => 'Tailored t-shirts with custom stitching and embroidery. Perfect for teams, events, and branded apparel.',
                 'price'       => 0,
