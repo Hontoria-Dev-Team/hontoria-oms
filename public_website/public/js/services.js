@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Ref Magnet
     'Ref Magnet':              { desc:'Personalized refrigerator magnets with custom designs. Great for souvenirs, giveaways, and promotional items.',                    icon:'fa-magnet',         bg:'linear-gradient(135deg,#e8f5e9,#c8e6c9)' },
     // Plaque & Medal
-    'Plaque':                  { desc:'Custom engraved plaques for awards, recognition, and achievements. Professional finish with personalized text and design.',         icon:'fa-award',          bg:'linear-gradient(135deg,#fff8e1,#ffecb3)' },
+    'Plaque and Trophies':    { desc:'Custom engraved plaques for awards, recognition, and achievements. Professional finish with personalized text and design.',         icon:'fa-award',          bg:'linear-gradient(135deg,#fff8e1,#ffecb3)' },
     'Medal':                   { desc:'Custom medals for sports events, competitions, and recognition ceremonies. Available in gold, silver, and bronze.',                 icon:'fa-medal',          bg:'linear-gradient(135deg,#fff8e1,#ffecb3)' },
   };
 

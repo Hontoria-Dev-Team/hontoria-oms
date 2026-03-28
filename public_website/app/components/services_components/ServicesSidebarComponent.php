@@ -135,7 +135,7 @@ class ServicesSidebarComponent extends \Component {
                 'id'    => 'plaque',
                 'icon'  => 'fa-award',
                 'label' => 'CUSTOMIZE PLAQUE & MEDAL',
-                'items' => ['Plaque', 'Medal'],
+                'items' => ['Plaque and Trophies', 'Medal'],
             ],
         ];
 

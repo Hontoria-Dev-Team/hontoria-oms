@@ -466,7 +466,7 @@ class product {
             // ── CUSTOMIZE PLAQUE & MEDAL ──────────────────────────────────
             new product([
                 'id'          => 'plaque',
-                'name'        => 'Plaque',
+                'name'        => 'Plaque and Trophies',
                 'category'    => 'plaque',
                 'description' => 'Custom engraved plaques for awards, recognition, and achievements. Professional finish with personalized text and design.',
                 'price'       => 0,
