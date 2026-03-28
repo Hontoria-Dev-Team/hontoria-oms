@@ -120,6 +120,19 @@ class product {
             $bdayPhotos[] = 'img/tarpaulin/birthdayTarpaulin/bday' . $i . '.jpg';
         }
 
+        // ── Congratulation Tarpaulin photos (9 photos, no grats8) ─────────
+        $gratsPhotos = [
+            'img/tarpaulin/congratulationTarpaulin/grats1.jpg',
+            'img/tarpaulin/congratulationTarpaulin/grats2.jpg',
+            'img/tarpaulin/congratulationTarpaulin/grats3.jpg',
+            'img/tarpaulin/congratulationTarpaulin/grats4.jpg',
+            'img/tarpaulin/congratulationTarpaulin/grats5.jpg',
+            'img/tarpaulin/congratulationTarpaulin/grats6.jpg',
+            'img/tarpaulin/congratulationTarpaulin/grats7.jpg',
+            'img/tarpaulin/congratulationTarpaulin/grats9.jpg',
+            'img/tarpaulin/congratulationTarpaulin/grats10.jpg',
+        ];
+
         // ── Lanyard photos (7 photos) ─────────────────────────────────────
         $lanyardPhotos = [];
         for ($i = 1; $i <= 7; $i++) {
@@ -279,9 +292,14 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-star',
                 'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
-                'photo'       => '',
-                'photos'      => [],
-                'variants'    => [],
+                'photo'       => 'img/tarpaulin/congratulationTarpaulin/grats1.jpg',
+                'photos'      => $gratsPhotos,
+                'variants'    => [
+                    ['name' => '2x3 ft.', 'price' => 72],
+                    ['name' => '3x4 ft.', 'price' => 144],
+                    ['name' => '3x5 ft.', 'price' => 180],
+                    ['name' => '4x6 ft.', 'price' => 288],
+                    ['name' => '4x8 ft.', 'price' => 384],],
             ]),
 
             // ── CUSTOMIZE MUGS & TUMBLER ──────────────────────────────────
