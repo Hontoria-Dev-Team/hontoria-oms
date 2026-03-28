@@ -248,6 +248,14 @@
     background: var(--blue);
 }
 
+.redBG {
+    background: var(--red) !important;
+}
+
+.yellowBG {
+    background: var(--yellow) !important;
+}
+
 .darkTransBG {
     background: var(--darkTrans);
 }
@@ -262,10 +270,6 @@
 
 .greenTransBG {
     background: var(--greenTrans);
-}
-
-.yellowBG {
-    background: var(--yellow) !important;
 }
 
 .yellowTransBG {

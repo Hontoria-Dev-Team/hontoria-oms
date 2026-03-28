@@ -45,17 +45,19 @@
                                 $activeProcesses .= $process['processName'] . ", ";
                             }
                             $activeProcesses = rtrim($activeProcesses, ", ");
+
+                            $divBgClass = $order['status'] === "Active" ? "yellowTransBG yellowBorder" : "redTransBG redBorder";
+                            $statusBgClass = $order['status'] === "Active" ? "yellowBG" : "redBG";
                             ?>
-                            <div class="midHeight regPadding roundedMin centerHoriColumnLayout minGap flexStatic orderElement bordered shadowed clickable"
+                            <div class="midHeight regPadding roundedMin centerHoriColumnLayout minGap flexStatic orderElement shadowed clickable <?= $divBgClass ?>"
                                 data-id="<?= $order['id'] ?>" data-due="<?= $order['deadlineAt'] ?>" data-customer="<?= $order['customerName'] ?>">
                                 <p class="norWestAbsolute closeCorner transText">Order #<?= $order['id'] ?></p>
-                                <div class="souEastAbsolute closeCorner minPadding bordered roundedMin">Status</div>
+                                <div class="souEastAbsolute minPadding roundedMin shadowed emphasizedText whiteText <?= $statusBgClass ?>"><?= $order['status'] ?></div>
                                 <h2 class="centerHoriRowLayout tinGap"><?= $order['subserviceName'] ?> <?= $order['serviceName'] ?> <b>(<?= $order['customerName'] ?>)</b></h2>
-                                <div>
-                                    <p>Due In: <span class="dueInText" data-due-date="<?= $order['deadlineAt'] ?>"></span></p>
-                                    <p>Value: ₱<?= $order['priceTotal'] ?></p>
-                                    <p>Current Process: <?= $activeProcesses ?></p>
-                                    <p>Workers: Aljun, Jhonna Mae, Kim</p>
+                                <div class="columnLayout">
+                                    <b>Due In: <span class="dueInText" data-due-date="<?= $order['deadlineAt'] ?>"></span></b>
+                                    <b>Value: ₱<?= $order['priceTotal'] ?></b>
+                                    <b>Current Process: <?= $activeProcesses ?></b>
                                 </div>
                             </div>
                         <?php endforeach; ?>
