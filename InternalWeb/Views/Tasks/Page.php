@@ -99,11 +99,7 @@
                     <div class="fullDimensions rowLayout minGap">
                         <div class="columnLayout tinGap flexMid">
                             <h3>Assigned to Task:</h3>
-                            <b class="columnLayout scrollable flexMax noFlexBasis noMinHeight" id="assigneesContainer">
-                                <span class="indentText greenText">Josh Rabia - ✓</span>
-                                <span class="indentText yellowText">John Hempon - 〇</span>
-                                <span class="indentText redText">Ace Galves - X</span>
-                            </b>
+                            <b class="columnLayout scrollable flexMax noFlexBasis noMinHeight" id="assigneesContainer"></b>
                         </div>
                         <div class="columnLayout tinGap flexMax">
                             <h3>Tasks Objectives</h3>
@@ -142,7 +138,8 @@
         }
 
         assigneeMap[item.orderProcessID].push({
-            name: item.firstName + " " + (item.middleName?.[0] + "." || "") + " " + item.lastName
+            name: item.firstName + " " + (item.middleName?.[0] + "." || "") + " " + item.lastName,
+            status: item.status
         });
     });
 
@@ -173,8 +170,23 @@
                 assigneesContainer.innerHTML = '';
                 selectedTaskAssignees.forEach(function(assignee) {
                     tempElement = document.createElement("span");
-                    tempElement.textContent = assignee.name + " - X";
-                    tempElement.classList.add("indentText", "redText");
+                    tempElement.classList.add("indentText");
+
+                    switch (assignee.status) {
+                        case 'pending':
+                            tempElement.textContent = assignee.name + " - X";
+                            tempElement.classList.add("redText");
+                            break;
+                        case 'partially complete':
+                            tempElement.textContent = assignee.name + " - 〇";
+                            tempElement.classList.add("yellowText");
+                            break;
+                        case 'complete':
+                            tempElement.textContent = assignee.name + " - ✓";
+                            tempElement.classList.add("greenText");
+                            break;
+                    }
+
                     assigneesContainer.appendChild(tempElement);
                 });
 

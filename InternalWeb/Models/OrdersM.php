@@ -144,7 +144,7 @@ class OrdersM {
                 orders.deadlineAt,
                 orders.messengerGCLink,
                 processes.name AS processName,
-                userProcessTasks.status AS taskStatus,
+                userCheck.status AS taskStatus,
                 COUNT(userProcessTasks.orderProcessID) AS assignedNum,
                 CASE WHEN userCheck.userID IS NOT NULL THEN TRUE ELSE FALSE END AS isAssigned,
                 CASE WHEN COUNT(userProcessTasks.orderProcessID) >= orderProcess.maxAssign THEN TRUE ELSE FALSE END AS isFull
@@ -189,7 +189,8 @@ class OrdersM {
                 userProcessTasks.orderProcessID,
                 users.firstName,
                 users.middleName,
-                users.lastName
+                users.lastName,
+                userProcessTasks.status
             FROM userProcessTasks
             JOIN users ON userProcessTasks.userID = users.id
         ";
