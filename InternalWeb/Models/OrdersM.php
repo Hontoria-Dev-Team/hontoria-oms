@@ -112,4 +112,61 @@ class OrdersM {
         $stmt->bindParam(':deadlineAt', $deadlineAt);
         return $stmt->execute();
     }
+
+    public function getAvailableOrderTasks($userID, $processTasks) {
+        $processIDs = array_column($processTasks, 'processID');
+
+        if (empty($processIDs)) {
+            return [];
+        }
+
+        $query = "
+            SELECT
+                orderProcess.id,
+                orderProcess.orderID,
+                processes.id AS processID,
+                services.name AS serviceName,
+                subservices.name AS subserviceName,
+                orders.customerName,
+                orderProcess.minAssign,
+                orderProcess.maxAssign,
+                orders.deadlineAt,
+                orders.messengerGCLink,
+                processes.name AS processName,
+                COUNT(userProcessTasks.orderProcessID) AS assignedNum,
+                CASE WHEN userCheck.userID IS NOT NULL THEN TRUE ELSE FALSE END AS isAssigned,
+                CASE WHEN COUNT(userProcessTasks.orderProcessID) >= orderProcess.maxAssign THEN TRUE ELSE FALSE END AS isFull
+            FROM orderProcess
+            JOIN orders ON orderProcess.orderID = orders.id
+            JOIN subservices ON orders.subserviceID = subservices.id
+            JOIN services ON subservices.serviceID = services.id
+            JOIN serviceProcess
+                ON subservices.serviceID = serviceProcess.serviceID
+                AND orderProcess.phase = serviceProcess.phase
+            JOIN processes ON serviceProcess.processesID = processes.id
+            LEFT JOIN userProcessTasks ON orderProcess.id = userProcessTasks.orderProcessID
+            LEFT JOIN userProcessTasks userCheck ON orderProcess.id = userCheck.orderProcessID
+                AND userCheck.userID = :userID
+            WHERE processes.id IN (:processIDs)
+            AND STATUS IN ('active', 'partially complete')
+            GROUP BY orderProcess.id, orderProcess.orderID, processes.id
+            ORDER BY orderProcess.orderID, orderProcess.phase
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute([
+            ':userID' => $userID,
+            ':processIDs' => implode(',', $processIDs)
+        ]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function insertUserProcessTask($userID, $orderProcessID) {
+        $query = "INSERT INTO userProcessTasks (userID, orderProcessID) VALUES (:userID, :orderProcessID)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        $stmt->bindParam(':orderProcessID', $orderProcessID);
+        return $stmt->execute();
+    }
 }

@@ -138,7 +138,11 @@ switch ($page) {
         break;
 
     case 'tasks':
-        $orders->showTasks();
+        if ($action === 'assignToTask') {
+            $orders->assignToTask();
+        } else {
+            $orders->showTasks();
+        }
         break;
 
     default:

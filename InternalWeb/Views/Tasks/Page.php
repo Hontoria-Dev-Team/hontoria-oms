@@ -18,17 +18,33 @@
                 <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
                     <h3>Available Tasks</h3>
                     <div class="gridFlex minGrids minGap scrollable flexMax noFlexBasis noMinHeight contentFlexStart">
-                        <div class="darkFadedBG midHeight"></div>
-                        <div class="darkFadedBG midHeight"></div>
-                        <div class="darkFadedBG midHeight"></div>
-                        <div class="darkFadedBG midHeight"></div>
-                        <div class="darkFadedBG midHeight"></div>
-                        <div class="darkFadedBG midHeight"></div>
-                        <div class="darkFadedBG midHeight"></div>
-                        <div class="darkFadedBG midHeight"></div>
-                        <div class="darkFadedBG midHeight"></div>
-                        <div class="darkFadedBG midHeight"></div>
-                        <div class="darkFadedBG midHeight"></div>
+                        <?php foreach ($availableTasks as $task): ?>
+                            <?php if (!$task['isAssigned'] && !$task['isFull']): ?>
+                                <div class="darkFadedBG centerHoriColumnLayout tinGap regPadding roundedMin shadowed bordered">
+                                    <h2 class="centerHoriRowLayout">
+                                        <span class="flexMax">Order #<?= $task['orderID'] ?></span>
+                                        <form method="POST" action="index.php?page=tasks&action=assignToTask">
+                                            <input type="hidden" name="orderProcessID" value="<?= $task['id'] ?>">
+                                            <input type="submit" name="submit" value="Assign" class="importantInput shadowed">
+                                        </form>
+                                    </h2>
+                                    <b>Service: <?= $task['serviceName'] ?> <?= $task['subserviceName'] ?></b>
+                                    <b>Task: <?= $task['processName'] ?></b>
+                                    <b>Customer: <?= $task['customerName'] ?></b>
+                                    <b>Due In: <span class="dueInText" data-due-date="<?= $task['deadlineAt'] ?>">4d 2h (March 31, 2026)</span></b>
+                                    <div class="rowLayout minGap">
+                                        <b class="centerHoriRowLayout tinGap">
+                                            Assigned: <?= $task['assignedNum'] ?>/<?= $task['maxAssign'] ?>
+                                            <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
+                                        </b>
+                                        <b class="centerHoriRowLayout tinGap">
+                                            Required: <?= $task['minAssign'] ?>
+                                            <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
+                                        </b>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
                     </div>
                 </div>
                 <div class="gradientBorderDiag"></div>
@@ -38,27 +54,38 @@
                     <div class="fullDimensions columnLayout minGap">
                         <h3>Assigned Tasks</h3>
                         <div class="columnLayout minGap scrollable flexMax noFlexBasis noMinHeight contentFlexStart">
-                            <div class="yellowTransBG columnLayout tinGap regPadding roundedMin">
-                                <div class="centerHoriRowLayout minGap">
-                                    <div class="flexMax">
-                                        <h3>Order #6</h3>
+                            <?php foreach ($availableTasks as $task): ?>
+                                <?php if ($task['isAssigned']): ?>
+                                    <div class="yellowTransBG yellowBorder columnLayout tinGap regPadding roundedMin shadowed">
                                         <div class="centerHoriRowLayout minGap">
-                                            <div class="flexMax columnLayout">
-                                                <b>Service: Jersey Sublimation</b>
-                                                <b>Task: Designing</b>
-                                                <b>Customer: Rheyan Remendia</b>
+                                            <div class="flexMax">
+                                                <h2>Order #<?= $task['orderID'] ?></h2>
+                                                <div class="centerHoriRowLayout minGap">
+                                                    <div class="flexMax columnLayout">
+                                                        <b>Service: <?= $task['serviceName'] ?> <?= $task['subserviceName'] ?></b>
+                                                        <b>Task: <?= $task['processName'] ?></b>
+                                                        <b>Customer: <?= $task['customerName'] ?></b>
+                                                    </div>
+                                                    <div class="flexMax columnLayout">
+                                                        <b>Due In: <span class="dueInText" data-due-date="<?= $task['deadlineAt'] ?>">4d 2h (March 31, 2026)</span></b>
+                                                        <b class="centerHoriRowLayout tinGap">
+                                                            Assigned: <?= $task['assignedNum'] ?>/<?= $task['maxAssign'] ?>
+                                                            <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
+                                                        </b>
+                                                        <b class="centerHoriRowLayout tinGap">
+                                                            Required: <?= $task['minAssign'] ?>
+                                                            <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
+                                                        </b>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="flexMax columnLayout">
-                                                <b>Due In: <span class="dueInText" data-due-date="2026-03-31 00:00:00">4d 2h (March 31, 2026)</span></b>
-                                                <b class="centerHoriRowLayout tinGap">Assigned: 2/3 <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight"></b>
-                                            </div>
+                                            <a href="<?= $task['messengerGCLink'] ?>" class="tinHeight squareSize regMinPadding blueBG roundedMin centerColumnLayout circle shadowed">
+                                                <img src="../../Shared/Img/MessengerIcon.png" alt="Messenger" class="invertColors">
+                                            </a>
                                         </div>
                                     </div>
-                                    <a class="tinHeight squareSize regMinPadding blueBG roundedMin centerColumnLayout circle">
-                                        <img src="../../Shared/Img/MessengerIcon.png" alt="Messenger" class="invertColors">
-                                    </a>
-                                </div>
-                            </div>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                     <div class="gradientBorderDiag"></div>
@@ -85,8 +112,12 @@
     <?php include("../Views/.Components/ConfirmationBox.php"); ?>
 </body>
 <script src="../.JS/ConfirmationBox.js"></script>
+<script src="../.JS/DueTimeCalculator.js"></script>
 <script>
-
+    // Due time calculation
+    document.querySelectorAll('.dueInText').forEach(function(elem) {
+        elem.textContent = elem.dataset.dueDate == '0000-00-00 00:00:00' ? "No due date" : getDueTime(elem.dataset.dueDate) + " (" + formatDate(elem.dataset.dueDate) + ")";
+    });
 </script>
 
 </html>

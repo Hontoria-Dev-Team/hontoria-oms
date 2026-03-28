@@ -468,6 +468,19 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getUserRoleProcessTasks($id) {
+        $roles = $this->getUserRoles($id);
+
+        $placeholders = implode(',', array_fill(0, count($roles), '?'));
+
+        $query = "SELECT roleProcessTasks.roleID, roleProcessTasks.processID, processes.name FROM roleProcessTasks
+                  JOIN processes ON roleProcessTasks.processID = processes.id WHERE roleProcessTasks.roleID IN ($placeholders)
+                  ORDER BY roleProcessTasks.roleID ASC, processes.name ASC";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute($roles);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function clearRoleProcessTasks($roleID) {
         $query = "DELETE FROM roleProcessTasks WHERE roleID = :roleID";
         $stmt = $this->pdo->prepare($query);

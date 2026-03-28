@@ -1,10 +1,14 @@
 <?php
 class OrdersC {
+    private $staffModel;
     private $ordersModel;
     private $servicesModel;
 
     public function __construct($pdo) {
+        require_once __DIR__ . '/../Models/StaffM.php';
         require_once __DIR__ . '/../Models/OrdersM.php';
+        require_once __DIR__ . '/../Models/ServicesM.php';
+        $this->staffModel = new StaffM($pdo);
         $this->ordersModel = new OrdersM($pdo);
         $this->servicesModel = new ServicesM($pdo);
     }
@@ -83,6 +87,8 @@ class OrdersC {
 
     public function showTasks() {
         $page = "tasks";
+        $roleProcessTasks = $this->staffModel->getUserRoleProcessTasks($_SESSION['id']);
+        $availableTasks =  $this->ordersModel->getAvailableOrderTasks($_SESSION['id'], $roleProcessTasks);
         require __DIR__ . '/../Views/Tasks/Page.php';
     }
 
@@ -125,5 +131,12 @@ class OrdersC {
 
         $this->ordersModel->updateDeadline($orderID, $newDeadline);
         header('Location: index.php?page=orders');
+    }
+
+    public function assignToTask() {
+        $orderProcessID = $_POST['orderProcessID'];
+        $assign = $this->ordersModel->insertUserProcessTask($_SESSION['id'], $orderProcessID);
+
+        header('Location: index.php?page=tasks');
     }
 }
