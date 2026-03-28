@@ -139,6 +139,12 @@ class product {
             $lanyardPhotos[] = 'img/idLanyards/lanyard/lanyard' . $i . '.jpg';
         }
 
+        // ── Car Decals photos (5 photos) ──────────────────────────────────
+        $carDecalPhotos = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $carDecalPhotos[] = 'img/sticker_decals/carDecals/car' . $i . '.jpg';
+        }
+
         return [
 
             // ── SUBLIMATION ───────────────────────────────────────────────
@@ -294,12 +300,7 @@ class product {
                 'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
                 'photo'       => 'img/tarpaulin/congratulationTarpaulin/grats1.jpg',
                 'photos'      => $gratsPhotos,
-                'variants'    => [
-                    ['name' => '2x3 ft.', 'price' => 72],
-                    ['name' => '3x4 ft.', 'price' => 144],
-                    ['name' => '3x5 ft.', 'price' => 180],
-                    ['name' => '4x6 ft.', 'price' => 288],
-                    ['name' => '4x8 ft.', 'price' => 384],],
+                'variants'    => [],
             ]),
 
             // ── CUSTOMIZE MUGS & TUMBLER ──────────────────────────────────
@@ -397,8 +398,8 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-car',
                 'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/sticker_decals/carDecals/car1.jpg',
+                'photos'      => $carDecalPhotos,
                 'variants'    => [],
             ]),
 
