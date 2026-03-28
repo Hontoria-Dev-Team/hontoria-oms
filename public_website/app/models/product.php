@@ -120,6 +120,12 @@ class product {
             $bdayPhotos[] = 'img/tarpaulin/birthdayTarpaulin/bday' . $i . '.jpg';
         }
 
+        // ── Lanyard photos (7 photos) ─────────────────────────────────────
+        $lanyardPhotos = [];
+        for ($i = 1; $i <= 7; $i++) {
+            $lanyardPhotos[] = 'img/idLanyards/lanyard/lanyard' . $i . '.jpg';
+        }
+
         return [
 
             // ── SUBLIMATION ───────────────────────────────────────────────
@@ -318,11 +324,11 @@ class product {
                 'name'        => 'Lanyard',
                 'category'    => 'lanyard',
                 'description' => 'Custom printed lanyards with your logo and colors. Durable and comfortable.',
-                'price'       => 0,
+                'price'       => 60,
                 'icon'        => 'fa-id-card',
                 'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/idLanyards/lanyard/lanyard1.jpg',
+                'photos'      => $lanyardPhotos,
                 'variants'    => [],
             ]),
 
