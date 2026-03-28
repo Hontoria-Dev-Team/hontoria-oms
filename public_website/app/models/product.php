@@ -151,6 +151,12 @@ class product {
             $motorDecalPhotos[] = 'img/sticker_decals/motorDecals/motor' . $i . '.jpg';
         }
 
+        // ── Truck Decals photos (5 photos) ────────────────────────────────
+        $truckDecalPhotos = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $truckDecalPhotos[] = 'img/sticker_decals/truckDecals/truck' . $i . '.jpg';
+        }
+
         // ── Tumbler photos (5 photos) ─────────────────────────────────────
         $tumblerPhotos = [];
         for ($i = 1; $i <= 5; $i++) {
@@ -398,8 +404,8 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-truck',
                 'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/sticker_decals/truckDecals/truck1.jpg',
+                'photos'      => $truckDecalPhotos,
                 'variants'    => [],
             ]),
             new product([
