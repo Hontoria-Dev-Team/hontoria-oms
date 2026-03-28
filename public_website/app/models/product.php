@@ -157,6 +157,12 @@ class product {
             $truckDecalPhotos[] = 'img/sticker_decals/truckDecals/truck' . $i . '.jpg';
         }
 
+        // ── Sintra Board photos (5 photos) ────────────────────────────────
+        $sintraBoardPhotos = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $sintraBoardPhotos[] = 'img/sintraBoard/board/board' . $i . '.jpg';
+        }
+
         // ── Tumbler photos (5 photos) ─────────────────────────────────────
         $tumblerPhotos = [];
         for ($i = 1; $i <= 5; $i++) {
@@ -430,9 +436,18 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-border-all',
                 'bgGradient'  => 'linear-gradient(135deg,#e3f2fd,#bbdefb)',
-                'photo'       => '',
-                'photos'      => [],
-                'variants'    => [],
+                'photo'       => 'img/sintraBoard/board/board1.jpg',
+                'photos'      => $sintraBoardPhotos,
+                'variants'    => [
+                    ['name' => 'A4 (flat)',           'price' => 150],
+                    ['name' => 'A4 (box)',            'price' => 200],
+                    ['name' => '18x24 inches (flat)', 'price' => 350],
+                    ['name' => '18x24 inches (box)',  'price' => 450],
+                    ['name' => '2x3 ft. (flat)',      'price' => 500],
+                    ['name' => '2x3 ft. (box)',       'price' => 750],
+                    ['name' => '3x4 ft. (flat)',      'price' => 1000],
+                    ['name' => '3x4 ft. (box)',       'price' => 1500],
+                ],
             ]),
 
             // ── CUSTOMIZE PHOTO FRAME ─────────────────────────────────────
