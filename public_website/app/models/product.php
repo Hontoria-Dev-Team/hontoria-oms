@@ -163,6 +163,12 @@ class product {
             $sintraBoardPhotos[] = 'img/sintraBoard/board/board' . $i . '.jpg';
         }
 
+        // ── Stitching photos (5 photos) ───────────────────────────────────
+        $stitchingPhotos = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $stitchingPhotos[] = 'img/customStitching/tshirt/stitching' . $i . '.jpg';
+        }
+
         // ── Tumbler photos (5 photos) ─────────────────────────────────────
         $tumblerPhotos = [];
         for ($i = 1; $i <= 5; $i++) {
@@ -378,14 +384,14 @@ class product {
             // ── CUSTOM STITCHING ──────────────────────────────────────────
             new product([
                 'id'          => 'stitching-tshirt',
-                'name'        => 'Stitching',
+                'name'        => 'Customize Stitching',
                 'category'    => 'stitching',
                 'description' => 'Tailored t-shirts with custom stitching and embroidery. Perfect for teams, events, and branded apparel.',
                 'price'       => 0,
                 'icon'        => 'fa-cut',
                 'bgGradient'  => 'linear-gradient(135deg,#e8f5e9,#c8e6c9)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/customStitching/tshirt/stitching1.jpg',
+                'photos'      => $stitchingPhotos,
                 'variants'    => [],
             ]),
 

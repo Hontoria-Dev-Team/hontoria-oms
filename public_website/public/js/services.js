@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Lanyards
     'Lanyard':                 { desc:'Custom printed lanyards with your logo and colors. Durable and comfortable.',                                                       icon:'fa-id-card',        bg:'linear-gradient(135deg,#f3e5f5,#e1bee7)' },
     // Stitching
-    'Stitching':              { desc:'Tailored t-shirts with custom stitching and embroidery. Perfect for teams, events, and branded apparel.',                           icon:'fa-cut',            bg:'linear-gradient(135deg,#e8f5e9,#c8e6c9)' },
+    'Customize Stitching':    { desc:'Tailored t-shirts with custom stitching and embroidery. Perfect for teams, events, and branded apparel.',                           icon:'fa-cut',            bg:'linear-gradient(135deg,#e8f5e9,#c8e6c9)' },
     // Stickers
     'Motorcycle Decals':       { desc:'High-quality waterproof motorcycle decals in any shape and design. Weather-resistant and long-lasting.',                            icon:'fa-motorcycle',     bg:'linear-gradient(135deg,#fce4ec,#f8bbd0)' },
     'Truck Decals':            { desc:'Large-format truck decals and vinyl wraps. Bold, vibrant, and built to withstand the elements.',                                    icon:'fa-truck',          bg:'linear-gradient(135deg,#fce4ec,#f8bbd0)' },
