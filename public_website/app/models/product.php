@@ -163,6 +163,12 @@ class product {
             $sintraBoardPhotos[] = 'img/sintraBoard/board/board' . $i . '.jpg';
         }
 
+        // ── Photo Frame photos (5 photos) ─────────────────────────────────
+        $photoFramePhotos = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $photoFramePhotos[] = 'img/photoFrame/frame/frame' . $i . '.jpg';
+        }
+
         // ── Stitching photos (5 photos) ───────────────────────────────────
         $stitchingPhotos = [];
         for ($i = 1; $i <= 5; $i++) {
@@ -465,8 +471,8 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-image',
                 'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/photoFrame/frame/frame1.jpg',
+                'photos'      => $photoFramePhotos,
                 'variants'    => [],
             ]),
 
