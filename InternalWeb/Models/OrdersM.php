@@ -131,6 +131,8 @@ class OrdersM {
             return [];
         }
 
+        $placeholders = implode(',', array_fill(0, count($processIDs), '?'));
+
         $query = "
             SELECT
                 orderProcess.id,
@@ -144,6 +146,7 @@ class OrdersM {
                 orders.deadlineAt,
                 orders.messengerGCLink,
                 processes.name AS processName,
+                processes.designAccess,
                 userCheck.status AS taskStatus,
                 COUNT(userProcessTasks.orderProcessID) AS assignedNum,
                 CASE WHEN userCheck.userID IS NOT NULL THEN TRUE ELSE FALSE END AS isAssigned,
@@ -158,18 +161,17 @@ class OrdersM {
             JOIN processes ON serviceProcess.processesID = processes.id
             LEFT JOIN userProcessTasks ON orderProcess.id = userProcessTasks.orderProcessID
             LEFT JOIN userProcessTasks userCheck ON orderProcess.id = userCheck.orderProcessID
-                AND userCheck.userID = :userID
-            WHERE processes.id IN (:processIDs)
+                AND userCheck.userID = ?
+            WHERE processes.id IN ($placeholders)
             AND orderProcess.status IN ('active', 'partially complete')
             GROUP BY orderProcess.id, orderProcess.orderID, processes.id
             ORDER BY orderProcess.orderID, orderProcess.phase
         ";
 
+        $params = array_merge([$userID], $processIDs);
+
         $stmt = $this->pdo->prepare($query);
-        $stmt->execute([
-            ':userID' => $userID,
-            ':processIDs' => implode(',', $processIDs)
-        ]);
+        $stmt->execute($params);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -206,5 +208,98 @@ class OrdersM {
         $stmt->bindParam(':userID', $userID);
         $stmt->bindParam(':orderProcessID', $orderProcessID);
         return $stmt->execute();
+    }
+
+    public function findSingleOrderDesignByID($orderID) {
+        $query = "SELECT imageName FROM orderDesigns WHERE orderID = :orderID LIMIT 1";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':orderID', $orderID);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function insertOrderDesign($orderID, $imageFile) {
+        $storageDir = __DIR__ . '/../../Storage/Designs/';
+
+        $existingDesign = $this->findSingleOrderDesignByID($orderID);
+
+        if (!is_dir($storageDir)) {
+            mkdir($storageDir, 0755, true);
+        }
+
+        $fileExtension = strtolower(pathinfo($imageFile['name'], PATHINFO_EXTENSION));
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        if (!in_array($fileExtension, $allowed)) {
+            return false;
+        }
+
+        $newFileName = bin2hex(random_bytes(10)) . '_' . time() . '.' . $fileExtension;
+        $targetPath = $storageDir . $newFileName;
+
+        if (move_uploaded_file($imageFile['tmp_name'], $targetPath)) {
+            try {
+                if ($existingDesign) {
+                    $query = "UPDATE orderDesigns SET imageName = :imageName WHERE orderID = :orderID";
+                } else {
+                    $query = "INSERT INTO orderDesigns (orderID, imageName) VALUES (:orderID, :imageName)";
+                }
+
+                $stmt = $this->pdo->prepare($query);
+                $success = $stmt->execute([
+                    ':orderID'   => $orderID,
+                    ':imageName' => $newFileName
+                ]);
+
+                if ($success && $existingDesign) {
+                    $oldFilePath = $storageDir . $existingDesign['imageName'];
+                    if (file_exists($oldFilePath)) {
+                        unlink($oldFilePath);
+                    }
+                }
+
+                return $success;
+            } catch (PDOException $e) {
+                if (file_exists($targetPath)) {
+                    unlink($targetPath);
+                }
+                error_log("Database error: " . $e->getMessage());
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    public function getAllOrderDesigns() {
+        $storageDir = __DIR__ . '/../../Storage/Designs/';
+
+        $query = "SELECT orderID, imageName FROM orderDesigns";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        $designs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $results = [];
+
+        foreach ($designs as $design) {
+            $filePath = $storageDir . $design['imageName'];
+
+            if (file_exists($filePath)) {
+                $fileData = file_get_contents($filePath);
+
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                $mimeType = $finfo->file($filePath);
+
+                $base64Image = 'data:' . $mimeType . ';base64,' . base64_encode($fileData);
+
+                $results[] = [
+                    'orderID' => $design['orderID'],
+                    'image'   => $base64Image
+                ];
+            }
+        }
+
+        return $results;
     }
 }

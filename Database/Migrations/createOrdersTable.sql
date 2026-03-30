@@ -28,3 +28,10 @@ CREATE TABLE orderProcess (
     FOREIGN KEY (orderID) REFERENCES orders(id)
 );
 
+CREATE TABLE orderDesigns (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    orderID BIGINT UNSIGNED UNIQUE NOT NULL,
+    imageName VARCHAR(255) NOT NULL,
+    approved BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (orderID) REFERENCES orders(id)
+);

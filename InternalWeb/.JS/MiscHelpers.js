@@ -23,3 +23,13 @@ function getArrayInter(arr1, arr2, key) {
     const valuesInArr2 = new Set(arr2.map(item => item[key]));
     return arr1.filter(item => valuesInArr2.has(item[key]));
 }
+
+function insertElementAt(parent, element, index) {
+    const children = parent.children;
+
+    if (index >= children.length) {
+        parent.appendChild(element);
+    } else {
+        parent.insertBefore(element, children[index]);
+    }
+}

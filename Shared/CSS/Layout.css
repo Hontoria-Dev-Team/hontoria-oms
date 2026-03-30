@@ -183,6 +183,10 @@
     height: 1rem !important;
 }
 
+.duoHeight {
+    height: 2rem !important;
+}
+
 .tinHeight {
     height: 3rem !important;
 }
@@ -306,6 +310,11 @@
     position: absolute;
     bottom: 1rem;
     left: 1rem;
+}
+
+.norEastAbsolute.distantCorner {
+    top: 1.5rem;
+    right: 1.5rem;
 }
 
 .eastAbsolute.closeCorner {

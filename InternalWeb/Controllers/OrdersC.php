@@ -90,6 +90,7 @@ class OrdersC {
         $roleProcessTasks = $this->staffModel->getUserRoleProcessTasks($_SESSION['id']);
         $availableTasks =  $this->ordersModel->getAvailableOrderTasks($_SESSION['id'], $roleProcessTasks);
         $assigneeList =  $this->ordersModel->getAllTaskAssigneeList();
+        $designList = $this->ordersModel->getAllOrderDesigns();
         require __DIR__ . '/../Views/Tasks/Page.php';
     }
 
@@ -146,6 +147,15 @@ class OrdersC {
         $taskStatus = $_POST['taskStatus'];
 
         $this->ordersModel->updateUserProcessTaskStatus($_SESSION['id'], $orderProcessID, $taskStatus);
+
+        header('Location: index.php?page=tasks');
+    }
+
+    public function uploadOrderDesign() {
+        $orderID = $_POST['selectedID'];
+        $designImage = $_FILES['designImage'];
+
+        $this->ordersModel->insertOrderDesign($orderID, $designImage);
 
         header('Location: index.php?page=tasks');
     }

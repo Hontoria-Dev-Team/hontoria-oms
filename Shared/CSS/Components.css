@@ -205,19 +205,24 @@
 }
 
 #confirmationBox,
-#confirmationContent {
+#confirmationContent,
+#imageBox,
+#imageBoxContent {
     position: absolute;
 }
 
-#confirmationContent>.gradientBorderDiag {
-    z-index: 2;
+#confirmationContent>.gradientBorderDiag,
+#imageBoxContent>.gradientBorderDiag {
+    z-index: 3 !important;
 }
 
-#confirmationContent>.box {
-    z-index: 3;
+#confirmationContent>.box,
+#imageBoxContent>.box {
+    z-index: 4 !important;
 }
 
-#confirmationBackground {
+#confirmationBackground,
+#imageBoxBackground {
     height: 100vh;
     width: 100vw;
     background: var(--darkTrans);
@@ -226,6 +231,18 @@
 #confirmationTitle,
 #confirmationText {
     text-align: center;
+}
+
+/* #imageBoxContent {
+    height: un;
+} */
+
+#imageBoxCloseButton {
+    z-index: 5;
+}
+
+#imageBoxImage {
+    height: 80vh;
 }
 
 .invertColors {

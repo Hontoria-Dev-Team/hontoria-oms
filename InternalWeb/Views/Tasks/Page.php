@@ -61,7 +61,7 @@
                                         "greenTransBG greenBorder" : "yellowTransBG yellowBorder");
                                     ?>
                                     <div class="<?= $statusClass ?> columnLayout tinGap regPadding roundedMin shadowed assignedTaskElement clickable"
-                                        data-id="<?= $task['id'] ?>" data-status="<?= $task['taskStatus'] ?>">
+                                        data-id="<?= $task['id'] ?>" data-order-id="<?= $task['orderID'] ?>" data-status="<?= $task['taskStatus'] ?>" data-design-access="<?= $task['designAccess'] ?>">
                                         <div class="centerHoriRowLayout minGap">
                                             <div class="flexMax">
                                                 <h2>Order #<?= $task['orderID'] ?></h2>
@@ -95,14 +95,25 @@
                     </div>
                     <div class="gradientBorderDiag"></div>
                 </section>
-                <section class="box centerColumnLayout roundedMid minGap flexMid">
-                    <div class="fullDimensions rowLayout minGap">
-                        <div class="columnLayout tinGap flexMid">
+                <div class="rowLayout roundedMid midGap flexMid">
+                    <section class="box centerColumnLayout tinGap flexMid roundedMid">
+                        <div class="columnLayout tinGap fullDimensions">
                             <h3>Assigned to Task:</h3>
                             <b class="columnLayout scrollable flexMax noFlexBasis noMinHeight" id="assigneesContainer"></b>
                         </div>
-                        <div class="columnLayout tinGap flexMax">
+                        <div class="gradientBorderDiag"></div>
+                    </section>
+                    <section class="box centerColumnLayout tinGap flexMax roundedMid">
+                        <div class="columnLayout tinGap fullDimensions">
                             <h3>Tasks Objectives</h3>
+                            <div class="centerHoriRowLayout minGap" id="designInputContainer">
+                                <b>Design: </b>
+                                <form method="POST" action="index.php?page=tasks&action=uploadDesign" enctype="multipart/form-data" class="centerHoriRowLayout minGap flexMax">
+                                    <input type="hidden" name="selectedID" class="selectedIDInput">
+                                    <input type="file" id="designInput" name="designImage" accept="image/*" class="flexMax" required>
+                                    <input type="submit" name="submit" value="Submit" class="importantInput">
+                                </form>
+                            </div>
                             <div class="centerHoriRowLayout minGap">
                                 <b>Task Status: </b>
                                 <select class="flexMax" id="taskStatusSelect">
@@ -113,22 +124,36 @@
                                 <button type="button" class="importantInput" id="updateStatusButton">Update</button>
                             </div>
                         </div>
-                    </div>
-                    <div class="gradientBorderDiag"></div>
-                </section>
+                        <div class="gradientBorderDiag"></div>
+                        <div class="souEastAbsolute rowLayout minGap">
+                            <a class="squareSize duoHeight centerColumnLayout importantInput roundedMin" id="designShowButton">
+                                <img src="../../Shared/Img/PhotoIcon.png" alt="Photo" class="invertColors">
+                            </a>
+                            <a class="squareSize duoHeight centerColumnLayout importantInput roundedMin">
+                                <img src="../../Shared/Img/BarsIcon.png" alt="Bars" class="invertColors">
+                            </a>
+                        </div>
+                    </section>
+                </div>
             </section>
         </section>
     </main>
     <?php include("../Views/.Components/ConfirmationBox.php"); ?>
+    <?php include("../Views/.Components/ImageBox.php"); ?>
 </body>
 <script src="../.JS/ConfirmationBox.js"></script>
+<script src="../.JS/ImageBox.js"></script>
 <script src="../.JS/DueTimeCalculator.js"></script>
+<script src="../.JS/MiscHelpers.js"></script>
 <script>
     const assignedTaskElement = document.querySelectorAll('.assignedTaskElement');
+    const selectedIDInput = document.querySelectorAll('.selectedIDInput');
     const assigneesContainer = document.getElementById('assigneesContainer');
     const taskStatusSelect = document.getElementById('taskStatusSelect');
     const updateStatusButton = document.getElementById('updateStatusButton');
+    const designShowButton = document.getElementById('designShowButton');
     const assigneeList = <?php echo json_encode($assigneeList); ?>;
+    const designList = <?php echo json_encode($designList); ?>;
 
     const assigneeMap = {};
 
@@ -141,6 +166,12 @@
             name: item.firstName + " " + (item.middleName?.[0] + "." || "") + " " + item.lastName,
             status: item.status
         });
+    });
+
+    const designMap = {};
+
+    designList.forEach(item => {
+        designMap[item.orderID] = item.image;
     });
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -161,16 +192,17 @@
 
     // Reactive clickable process task data script
     let selectedTaskAssignees;
+    let selectedTaskDesign;
 
     document.addEventListener('DOMContentLoaded', function() {
         assignedTaskElement.forEach(function(elem) {
             elem.addEventListener('click', function() {
                 selectedTaskAssignees = [...(assigneeMap[elem.dataset.id] || [])];
+                selectedTaskDesign = designMap[elem.dataset.orderId];
 
                 assigneesContainer.innerHTML = '';
                 selectedTaskAssignees.forEach(function(assignee) {
                     tempElement = document.createElement("span");
-                    tempElement.classList.add("indentText");
 
                     switch (assignee.status) {
                         case 'pending':
@@ -190,8 +222,18 @@
                     assigneesContainer.appendChild(tempElement);
                 });
 
+                selectedIDInput.forEach(function(selected) {
+                    selected.value = elem.dataset.orderId;
+                });
+
                 selectedID.value = elem.dataset.id;
                 taskStatusSelect.value = elem.dataset.status;
+
+                if (elem.dataset.designAccess == "view & update") {
+                    designInputContainer.classList.remove('hidden');
+                } else {
+                    designInputContainer.classList.add('hidden');
+                }
             });
         });
     });
@@ -215,6 +257,13 @@
         confirmation.style.display = 'flex';
     });
 
+    // Show Design logic functionality
+    designShowButton.addEventListener('click', function() {
+        if (selectedTaskDesign == null) return;
+
+        imageBoxImage.src = selectedTaskDesign;
+        imageBox.style.display = 'flex';
+    });
 
     // Added cancellation events
     confirmationCancel.addEventListener('click', function() {
@@ -227,6 +276,27 @@
         document.querySelectorAll('.tempElement').forEach(function(elem) {
             elem.remove();
         });
+    });
+
+    // UI Enforcement of file upload
+    designInput.addEventListener('change', () => {
+        const files = designInput.files;
+
+        if (files.length === 0) return;
+
+        if (files.length > 1) {
+            alert("Only one file allowed");
+            designInput.value = "";
+            return;
+        }
+
+        const design = files[0];
+
+        if (!design.type.startsWith("image/")) {
+            alert("Only images are allowed");
+            designInput.value = "";
+            return;
+        }
     });
 </script>
 
