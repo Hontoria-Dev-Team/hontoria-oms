@@ -216,7 +216,9 @@ class OrdersM {
         $stmt->bindParam(':status', $status);
         $stmt->bindParam(':userID', $userID);
         $stmt->bindParam(':orderProcessID', $orderProcessID);
-        return $stmt->execute();
+        $stmt->execute();
+
+        return $this->updateOrderProcess($orderProcessID);
     }
 
     public function findSingleOrderDesignByID($orderID) {
@@ -311,5 +313,68 @@ class OrdersM {
         }
 
         return $results;
+    }
+
+    public function getOrderProcessTaskStatus($orderProcessID) {
+        $query = "
+            SELECT
+                CASE
+                    WHEN COUNT(*) = SUM(status = 'complete') THEN 'complete'
+                    WHEN COUNT(*) = SUM(status = 'pending') THEN 'pending'
+                    ELSE 'partially complete'
+                END AS finalStatus
+            FROM userProcessTasks
+            WHERE orderProcessID = :orderProcessID
+            GROUP BY orderProcessID
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':orderProcessID', $orderProcessID);
+        $stmt->execute();
+
+        return $stmt->fetchColumn();
+    }
+
+    public function updateOrderProcess($orderProcessID) {
+        $status = $this->getOrderProcessTaskStatus($orderProcessID);
+
+        if ($status === 'pending') return;
+
+        $query = "UPDATE orderProcess SET status = :status WHERE id = :orderProcessID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':orderProcessID', $orderProcessID);
+        $stmt->execute();
+
+        $query = "SELECT phase, orderID FROM orderProcess WHERE id = :orderProcessID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':orderProcessID', $orderProcessID);
+        $stmt->execute();
+
+        $orderProcess = $stmt->fetch(PDO::FETCH_ASSOC);
+        $nextProcessPhase = $orderProcess['phase'] + 1;
+        $orderID = $orderProcess['orderID'];
+
+        $query = "SELECT id FROM orderProcess WHERE phase = :phase AND orderID = :orderID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':phase', $nextProcessPhase);
+        $stmt->bindParam(':orderID', $orderID);
+        $stmt->execute();
+
+        $result = $stmt->fetchColumn();
+
+        if ($result === false) return;
+
+        $query = "UPDATE orderProcess SET status = 'active' WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $result);
+        $stmt->execute();
+
+        if ($status !== 'complete') return;
+
+        $query = "DELETE FROM userProcessTasks WHERE orderProcessID = :orderProcessID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':orderProcessID', $orderProcessID);
+        return $stmt->execute();
     }
 }

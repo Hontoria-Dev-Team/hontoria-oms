@@ -236,7 +236,7 @@
                     selectedTaskDesignApproval = designMap[elem.dataset.orderId].approved;
                 } else {
                     selectedTaskDesign = '';
-                    selectedTaskDesignApproval = 0;
+                    selectedTaskDesignApproval = -1;
                 }
 
                 assigneesContainer.innerHTML = '';
@@ -286,20 +286,25 @@
                         break;
                 }
 
-                if (selectedTaskDesign) {
+                if (selectedTaskDesignApproval == 0) {
                     designButton.classList.add('redBorder', 'redText');
+                    designButton.classList.remove('bordered', 'greenBorder', 'greenText');
                     designButton.querySelector("div").classList.add('redBG');
-
-                    designButton.classList.remove('bordered');
-                    designButton.querySelector("div").classList.remove('darkBG');
+                    designButton.querySelector("div").classList.remove('darkBG', 'greenBG');
 
                     designButton.querySelector("b").textContent = 'Unapproved';
+                } else if (selectedTaskDesignApproval == 1) {
+                    designButton.classList.add('greenBorder', 'greenText');
+                    designButton.classList.remove('bordered', 'redBorder', 'redText');
+                    designButton.querySelector("div").classList.add('greenBG');
+                    designButton.querySelector("div").classList.remove('darkBG', 'redBG');
+
+                    designButton.querySelector("b").textContent = 'Approved';
                 } else {
                     designButton.classList.add('bordered');
+                    designButton.classList.remove('redBorder', 'redText', 'greenBorder', 'greenText');
                     designButton.querySelector("div").classList.add('darkBG');
-
-                    designButton.classList.remove('redBorder', 'redText');
-                    designButton.querySelector("div").classList.remove('redBG');
+                    designButton.querySelector("div").classList.remove('redBG', 'greenBG');
 
                     designButton.querySelector("b").textContent = 'Unset';
                 }
