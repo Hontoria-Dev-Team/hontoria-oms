@@ -175,6 +175,12 @@ class product {
             $refMagnetPhotos[] = 'img/refMagnet/magnet/magnet' . $i . '.jpg';
         }
 
+        // ── Plaque photos (10 photos) ─────────────────────────────────────
+        $plaquePhotos = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $plaquePhotos[] = 'img/plaque_medal/plaque/plaque' . $i . '.jpg';
+        }
+
         // ── Stitching photos (5 photos) ───────────────────────────────────
         $stitchingPhotos = [];
         for ($i = 1; $i <= 5; $i++) {
@@ -505,9 +511,16 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-award',
                 'bgGradient'  => 'linear-gradient(135deg,#fff8e1,#ffecb3)',
-                'photo'       => '',
-                'photos'      => [],
-                'variants'    => [],
+                'photo'       => 'img/plaque_medal/plaque/plaque1.jpg',
+                'photos'      => $plaquePhotos,
+                'variants'    => [
+                    ['name' => 'Acrylic Plaque - Small',              'price' => 350],
+                    ['name' => 'Acrylic Plaque - Medium',             'price' => 400],
+                    ['name' => 'Acrylic Plaque - Large',              'price' => 500],
+                    ['name' => 'Acrylic Plaque - XL',                 'price' => 650],
+                    ['name' => 'Glass Plaque - Standard thickness',   'price' => 400],
+                    ['name' => 'Glass Plaque - Thick',                'price' => 800],
+                ],
             ]),
             new product([
                 'id'          => 'medal',
