@@ -181,6 +181,12 @@ class product {
             $plaquePhotos[] = 'img/plaque_medal/plaque/plaque' . $i . '.jpg';
         }
 
+        // ── Medal photos (10 photos) ──────────────────────────────────────
+        $medalPhotos = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $medalPhotos[] = 'img/plaque_medal/medal/medal' . $i . '.jpg';
+        }
+
         // ── Stitching photos (5 photos) ───────────────────────────────────
         $stitchingPhotos = [];
         for ($i = 1; $i <= 5; $i++) {
@@ -526,12 +532,12 @@ class product {
                 'id'          => 'medal',
                 'name'        => 'Medal',
                 'category'    => 'plaque',
-                'description' => 'Custom medals for sports events, competitions, and recognition ceremonies. Available in gold, silver, and bronze.',
-                'price'       => 0,
+                'description' => 'Complete set medal with ribbon (6 cm). Perfect for sports events, competitions, and recognition ceremonies. Available in gold, silver, and bronze.',
+                'price'       => 50,
                 'icon'        => 'fa-medal',
                 'bgGradient'  => 'linear-gradient(135deg,#fff8e1,#ffecb3)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/plaque_medal/medal/medal1.jpg',
+                'photos'      => $medalPhotos,
                 'variants'    => [],
             ]),
 
