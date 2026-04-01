@@ -169,6 +169,24 @@ class product {
             $photoFramePhotos[] = 'img/photoFrame/frame/frame' . $i . '.jpg';
         }
 
+        // ── Ref Magnet photos (5 photos) ──────────────────────────────────
+        $refMagnetPhotos = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $refMagnetPhotos[] = 'img/refMagnet/magnet/magnet' . $i . '.jpg';
+        }
+
+        // ── Plaque photos (10 photos) ─────────────────────────────────────
+        $plaquePhotos = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $plaquePhotos[] = 'img/plaque_medal/plaque/plaque' . $i . '.jpg';
+        }
+
+        // ── Medal photos (10 photos) ──────────────────────────────────────
+        $medalPhotos = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $medalPhotos[] = 'img/plaque_medal/medal/medal' . $i . '.jpg';
+        }
+
         // ── Stitching photos (5 photos) ───────────────────────────────────
         $stitchingPhotos = [];
         for ($i = 1; $i <= 5; $i++) {
@@ -179,6 +197,12 @@ class product {
         $tumblerPhotos = [];
         for ($i = 1; $i <= 5; $i++) {
             $tumblerPhotos[] = 'img/sublimationMug/tumbler/tumbler' . $i . '.jpg';
+        }
+
+        // ── Mug photos (5 photos) ─────────────────────────────────────────
+        $mugPhotos = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $mugPhotos[] = 'img/sublimationMug/mug/mug' . $i . '.jpg';
         }
 
         return [
@@ -349,12 +373,7 @@ class product {
                 'icon'        => 'fa-mug-hot',
                 'bgGradient'  => 'linear-gradient(135deg,#fff3e0,#ffe0b2)',
                 'photo'       => 'img/sublimationMug/mug/mug1.jpg',
-                'photos'      => [
-                    'img/sublimationMug/mug/mug1.jpg',
-                    'img/sublimationMug/mug/mug2.jpg',
-                    'img/sublimationMug/mug/mug3.jpg',
-                    'img/sublimationMug/mug/mug4.jpg',
-                ],
+                'photos'      => $mugPhotos,
                 'variants'    => [
                     ['name' => 'White Mug', 'price' => 150],
                     ['name' => 'Magic Mug', 'price' => 200],
@@ -482,11 +501,10 @@ class product {
                 'name'        => 'Ref Magnet',
                 'category'    => 'refmagnet',
                 'description' => 'Personalized refrigerator magnets with custom designs. Great for souvenirs, giveaways, and promotional items.',
-                'price'       => 0,
-                'icon'        => 'fa-magnet',
+                'price'       => 35,
                 'bgGradient'  => 'linear-gradient(135deg,#e8f5e9,#c8e6c9)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/refMagnet/magnet/magnet1.jpg',
+                'photos'      => $refMagnetPhotos,
                 'variants'    => [],
             ]),
 
@@ -499,20 +517,27 @@ class product {
                 'price'       => 0,
                 'icon'        => 'fa-award',
                 'bgGradient'  => 'linear-gradient(135deg,#fff8e1,#ffecb3)',
-                'photo'       => '',
-                'photos'      => [],
-                'variants'    => [],
+                'photo'       => 'img/plaque_medal/plaque/plaque1.jpg',
+                'photos'      => $plaquePhotos,
+                'variants'    => [
+                    ['name' => 'Acrylic Plaque - Small',              'price' => 350],
+                    ['name' => 'Acrylic Plaque - Medium',             'price' => 400],
+                    ['name' => 'Acrylic Plaque - Large',              'price' => 500],
+                    ['name' => 'Acrylic Plaque - XL',                 'price' => 650],
+                    ['name' => 'Glass Plaque - Standard thickness',   'price' => 400],
+                    ['name' => 'Glass Plaque - Thick',                'price' => 800],
+                ],
             ]),
             new product([
                 'id'          => 'medal',
                 'name'        => 'Medal',
                 'category'    => 'plaque',
-                'description' => 'Custom medals for sports events, competitions, and recognition ceremonies. Available in gold, silver, and bronze.',
-                'price'       => 0,
+                'description' => 'Complete set medal with ribbon (6 cm). Perfect for sports events, competitions, and recognition ceremonies. Available in gold, silver, and bronze.',
+                'price'       => 50,
                 'icon'        => 'fa-medal',
                 'bgGradient'  => 'linear-gradient(135deg,#fff8e1,#ffecb3)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/plaque_medal/medal/medal1.jpg',
+                'photos'      => $medalPhotos,
                 'variants'    => [],
             ]),
 
