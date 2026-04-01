@@ -187,6 +187,12 @@ class product {
             $tumblerPhotos[] = 'img/sublimationMug/tumbler/tumbler' . $i . '.jpg';
         }
 
+        // ── Mug photos (5 photos) ─────────────────────────────────────────
+        $mugPhotos = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $mugPhotos[] = 'img/sublimationMug/mug/mug' . $i . '.jpg';
+        }
+
         return [
 
             // ── SUBLIMATION ───────────────────────────────────────────────
@@ -355,12 +361,7 @@ class product {
                 'icon'        => 'fa-mug-hot',
                 'bgGradient'  => 'linear-gradient(135deg,#fff3e0,#ffe0b2)',
                 'photo'       => 'img/sublimationMug/mug/mug1.jpg',
-                'photos'      => [
-                    'img/sublimationMug/mug/mug1.jpg',
-                    'img/sublimationMug/mug/mug2.jpg',
-                    'img/sublimationMug/mug/mug3.jpg',
-                    'img/sublimationMug/mug/mug4.jpg',
-                ],
+                'photos'      => $mugPhotos,
                 'variants'    => [
                     ['name' => 'White Mug', 'price' => 150],
                     ['name' => 'Magic Mug', 'price' => 200],
