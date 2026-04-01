@@ -169,6 +169,12 @@ class product {
             $photoFramePhotos[] = 'img/photoFrame/frame/frame' . $i . '.jpg';
         }
 
+        // ── Ref Magnet photos (5 photos) ──────────────────────────────────
+        $refMagnetPhotos = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $refMagnetPhotos[] = 'img/refMagnet/magnet/magnet' . $i . '.jpg';
+        }
+
         // ── Stitching photos (5 photos) ───────────────────────────────────
         $stitchingPhotos = [];
         for ($i = 1; $i <= 5; $i++) {
@@ -482,11 +488,10 @@ class product {
                 'name'        => 'Ref Magnet',
                 'category'    => 'refmagnet',
                 'description' => 'Personalized refrigerator magnets with custom designs. Great for souvenirs, giveaways, and promotional items.',
-                'price'       => 0,
-                'icon'        => 'fa-magnet',
+                'price'       => 35,
                 'bgGradient'  => 'linear-gradient(135deg,#e8f5e9,#c8e6c9)',
-                'photo'       => '',
-                'photos'      => [],
+                'photo'       => 'img/refMagnet/magnet/magnet1.jpg',
+                'photos'      => $refMagnetPhotos,
                 'variants'    => [],
             ]),
 
