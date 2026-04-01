@@ -76,6 +76,15 @@ class OrdersM {
         }
     }
 
+    public function getAllOrderGroups() {
+        $query = "SELECT orderID, description, quantity FROM orderGroups";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function removeOrder($id) {
         $query = "DELETE FROM orderGroups WHERE orderID = :id";
         $stmt = $this->pdo->prepare($query);
@@ -275,7 +284,7 @@ class OrdersM {
     public function getAllOrderDesigns() {
         $storageDir = __DIR__ . '/../../Storage/Designs/';
 
-        $query = "SELECT orderID, imageName FROM orderDesigns";
+        $query = "SELECT orderID, imageName, approved FROM orderDesigns";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
         $designs = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -295,7 +304,8 @@ class OrdersM {
 
                 $results[] = [
                     'orderID' => $design['orderID'],
-                    'image'   => $base64Image
+                    'image' => $base64Image,
+                    'approved' => $design['approved']
                 ];
             }
         }

@@ -233,10 +233,6 @@
     text-align: center;
 }
 
-/* #imageBoxContent {
-    height: un;
-} */
-
 #imageBoxCloseButton {
     z-index: 5;
 }
@@ -265,6 +261,10 @@
     background: var(--white);
 }
 
+.darkBG {
+    background: var(--dark);
+}
+
 .blueBG {
     background: var(--blue);
 }
@@ -275,6 +275,10 @@
 
 .yellowBG {
     background: var(--yellow) !important;
+}
+
+.greenBG {
+    background: var(--green) !important;
 }
 
 .darkTransBG {
@@ -290,7 +294,7 @@
 }
 
 .greenTransBG {
-    background: var(--greenTrans);
+    background: var(--greenTrans) !important;
 }
 
 .yellowTransBG {

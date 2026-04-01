@@ -91,6 +91,7 @@ class OrdersC {
         $availableTasks =  $this->ordersModel->getAvailableOrderTasks($_SESSION['id'], $roleProcessTasks);
         $assigneeList =  $this->ordersModel->getAllTaskAssigneeList();
         $designList = $this->ordersModel->getAllOrderDesigns();
+        $orderGroupList = $this->ordersModel->getAllOrderGroups();
         require __DIR__ . '/../Views/Tasks/Page.php';
     }
 

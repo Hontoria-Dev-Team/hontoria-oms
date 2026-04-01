@@ -123,6 +123,10 @@
     padding: 1rem !important;
 }
 
+.midHoriPadding {
+    padding: 0 1rem;
+}
+
 .minPadding {
     padding: 0.3rem 0.5rem;
 }

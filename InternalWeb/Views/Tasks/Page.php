@@ -61,7 +61,8 @@
                                         "greenTransBG greenBorder" : "yellowTransBG yellowBorder");
                                     ?>
                                     <div class="<?= $statusClass ?> columnLayout tinGap regPadding roundedMin shadowed assignedTaskElement clickable"
-                                        data-id="<?= $task['id'] ?>" data-order-id="<?= $task['orderID'] ?>" data-status="<?= $task['taskStatus'] ?>" data-design-access="<?= $task['designAccess'] ?>">
+                                        data-id="<?= $task['id'] ?>" data-order-id="<?= $task['orderID'] ?>" data-status="<?= $task['taskStatus'] ?>"
+                                        data-design-access="<?= $task['designAccess'] ?>">
                                         <div class="centerHoriRowLayout minGap">
                                             <div class="flexMax">
                                                 <h2>Order #<?= $task['orderID'] ?></h2>
@@ -95,26 +96,42 @@
                     </div>
                     <div class="gradientBorderDiag"></div>
                 </section>
-                <div class="rowLayout roundedMid midGap flexMid">
+                <div class="rowLayout roundedMid midGap flexMid noFlexBasis noMinHeight">
                     <section class="box centerColumnLayout tinGap flexMid roundedMid">
                         <div class="columnLayout tinGap fullDimensions">
                             <h3>Assigned to Task:</h3>
-                            <b class="columnLayout scrollable flexMax noFlexBasis noMinHeight" id="assigneesContainer"></b>
+                            <div class="columnLayout scrollable flexMax noFlexBasis noMinHeight minGap" id="assigneesContainer">
+                                <b class="centerMarginsSelf">No Task Selected</b>
+                            </div>
                         </div>
                         <div class="gradientBorderDiag"></div>
                     </section>
                     <section class="box centerColumnLayout tinGap flexMax roundedMid">
-                        <div class="columnLayout tinGap fullDimensions">
-                            <h3>Tasks Objectives</h3>
-                            <div class="centerHoriRowLayout minGap" id="designInputContainer">
-                                <b>Design: </b>
-                                <form method="POST" action="index.php?page=tasks&action=uploadDesign" enctype="multipart/form-data" class="centerHoriRowLayout minGap flexMax">
-                                    <input type="hidden" name="selectedID" class="selectedIDInput">
-                                    <input type="file" id="designInput" name="designImage" accept="image/*" class="flexMax" required>
-                                    <input type="submit" name="submit" value="Submit" class="importantInput">
-                                </form>
+                        <div class="columnLayout minGap fullDimensions">
+                            <div class="centerHoriRowLayout">
+                                <h3 class="flexMax">Tasks Objectives</h3>
+                                <a class="midHoriPadding shadowed redBG roundedMin emphasizedText hidden" id="statusButton">Pending</a>
                             </div>
-                            <div class="centerHoriRowLayout minGap">
+                            <b class="centerMarginsSelf noSelectText">No Task Selected</b>
+                            <div class="centerHoriRowLayout minGap duoHeight noSelectHidden hidden">
+                                <div class="bordered flexMin fullHeight roundedMin centerHoriRowLayout shadowed fixedScreen clickable" id="designButton">
+                                    <b class="flexMax centerText">Unset</b>
+                                    <div class="squareSize fullHeight centerColumnLayout darkBG shadowed">
+                                        <img src="../../Shared/Img/PhotoIcon.png" alt="Photo" class="invertColors">
+                                    </div>
+                                </div>
+                                <div class="redBorder flexMin fullHeight roundedMin centerHoriRowLayout shadowed fixedScreen">
+                                    <b class="flexMax centerText redText">Unapproved</b>
+                                    <div class="squareSize fullHeight centerColumnLayout redBG shadowed">
+                                        <img src="../../Shared/Img/BarsIcon.png" alt="Bars" class="invertColors">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flexMax bordered roundedMin centerHoriRowLayout shadowed fixedScreen noSelectHidden hidden">
+                                <div class="scrollable fullHeight flexMax gridCenterFlex minGap regMinPadding" id="orderGroupsContainer"></div>
+                                <b class="squareSize fullHeight centerColumnLayout darkBG shadowed whiteText regMinPadding">Groups</b>
+                            </div>
+                            <!-- <div class="centerHoriRowLayout minGap">
                                 <b>Task Status: </b>
                                 <select class="flexMax" id="taskStatusSelect">
                                     <option value="pending" selected>Pending</option>
@@ -122,17 +139,9 @@
                                     <option value="complete">Complete</option>
                                 </select>
                                 <button type="button" class="importantInput" id="updateStatusButton">Update</button>
-                            </div>
+                            </div> -->
                         </div>
                         <div class="gradientBorderDiag"></div>
-                        <div class="souEastAbsolute rowLayout minGap">
-                            <a class="squareSize duoHeight centerColumnLayout importantInput roundedMin" id="designShowButton">
-                                <img src="../../Shared/Img/PhotoIcon.png" alt="Photo" class="invertColors">
-                            </a>
-                            <a class="squareSize duoHeight centerColumnLayout importantInput roundedMin">
-                                <img src="../../Shared/Img/BarsIcon.png" alt="Bars" class="invertColors">
-                            </a>
-                        </div>
                     </section>
                 </div>
             </section>
@@ -149,11 +158,14 @@
     const assignedTaskElement = document.querySelectorAll('.assignedTaskElement');
     const selectedIDInput = document.querySelectorAll('.selectedIDInput');
     const assigneesContainer = document.getElementById('assigneesContainer');
-    const taskStatusSelect = document.getElementById('taskStatusSelect');
-    const updateStatusButton = document.getElementById('updateStatusButton');
-    const designShowButton = document.getElementById('designShowButton');
+    const statusButton = document.getElementById('statusButton');
+    // const taskStatusSelect = document.getElementById('taskStatusSelect');
+    // const updateStatusButton = document.getElementById('updateStatusButton');
+    const designButton = document.getElementById('designButton');
+    const orderGroupsContainer = document.getElementById('orderGroupsContainer');
     const assigneeList = <?php echo json_encode($assigneeList); ?>;
     const designList = <?php echo json_encode($designList); ?>;
+    const orderGroupList = <?php echo json_encode($orderGroupList); ?>;
 
     const assigneeMap = {};
 
@@ -171,7 +183,23 @@
     const designMap = {};
 
     designList.forEach(item => {
-        designMap[item.orderID] = item.image;
+        designMap[item.orderID] = {
+            image: item.image,
+            approved: item.approved
+        };
+    });
+
+    const orderGroupMap = {};
+
+    orderGroupList.forEach(item => {
+        if (!orderGroupMap[item.orderID]) {
+            orderGroupMap[item.orderID] = [];
+        }
+
+        orderGroupMap[item.orderID].push({
+            description: item.description,
+            quantity: item.quantity
+        });
     });
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -183,6 +211,7 @@
     selectedID.name = "selectedID";
     confirmationForm.appendChild(selectedID);
 
+    let tempDiv;
     let tempElement;
 
     // Due time calculation
@@ -193,111 +222,334 @@
     // Reactive clickable process task data script
     let selectedTaskAssignees;
     let selectedTaskDesign;
+    let selectedTaskDesignApproval;
+    let selectedTaskGroups;
 
     document.addEventListener('DOMContentLoaded', function() {
         assignedTaskElement.forEach(function(elem) {
             elem.addEventListener('click', function() {
                 selectedTaskAssignees = [...(assigneeMap[elem.dataset.id] || [])];
-                selectedTaskDesign = designMap[elem.dataset.orderId];
+                selectedTaskGroups = [...(orderGroupMap[elem.dataset.orderId] || [])];
+
+                if (designMap[elem.dataset.orderId]) {
+                    selectedTaskDesign = designMap[elem.dataset.orderId].image;
+                    selectedTaskDesignApproval = designMap[elem.dataset.orderId].approved;
+                } else {
+                    selectedTaskDesign = '';
+                    selectedTaskDesignApproval = 0;
+                }
 
                 assigneesContainer.innerHTML = '';
                 selectedTaskAssignees.forEach(function(assignee) {
-                    tempElement = document.createElement("span");
+                    tempElement = document.createElement("b");
+                    tempElement.textContent = assignee.name;
+                    tempElement.className = "centerText regMinPadding shadowed roundedTin";
 
                     switch (assignee.status) {
                         case 'pending':
-                            tempElement.textContent = assignee.name + " - X";
-                            tempElement.classList.add("redText");
+                            tempElement.classList.add("redTransBG", "redBorder");
                             break;
                         case 'partially complete':
-                            tempElement.textContent = assignee.name + " - 〇";
-                            tempElement.classList.add("yellowText");
+                            tempElement.classList.add("yellowTransBG", "yellowBorder");
                             break;
                         case 'complete':
-                            tempElement.textContent = assignee.name + " - ✓";
-                            tempElement.classList.add("greenText");
+                            tempElement.classList.add("greenTransBG", "greenBorder");
                             break;
                     }
 
                     assigneesContainer.appendChild(tempElement);
                 });
 
-                selectedIDInput.forEach(function(selected) {
-                    selected.value = elem.dataset.orderId;
-                });
+                // selectedIDInput.forEach(function(selected) {
+                //     selected.value = elem.dataset.orderId;
+                // });
 
                 selectedID.value = elem.dataset.id;
-                taskStatusSelect.value = elem.dataset.status;
+                designButton.dataset.id = elem.dataset.orderId;
+                statusButton.dataset.status = elem.dataset.status;
+
+                switch (elem.dataset.status) {
+                    case 'pending':
+                        statusButton.textContent = "Pending";
+                        statusButton.classList.add("redBG");
+                        statusButton.classList.remove("yellowBG", "greenBG");
+                        break;
+                    case 'partially complete':
+                        statusButton.textContent = "Partially Complete";
+                        statusButton.classList.add("yellowBG");
+                        statusButton.classList.remove("redBG", "greenBG");
+                        break;
+                    case 'complete':
+                        statusButton.textContent = "Complete";
+                        statusButton.classList.add("greenBG");
+                        statusButton.classList.remove("redBG", "yellowBG");
+                        break;
+                }
+
+                if (selectedTaskDesign) {
+                    designButton.classList.add('redBorder', 'redText');
+                    designButton.querySelector("div").classList.add('redBG');
+
+                    designButton.classList.remove('bordered');
+                    designButton.querySelector("div").classList.remove('darkBG');
+
+                    designButton.querySelector("b").textContent = 'Unapproved';
+                } else {
+                    designButton.classList.add('bordered');
+                    designButton.querySelector("div").classList.add('darkBG');
+
+                    designButton.classList.remove('redBorder', 'redText');
+                    designButton.querySelector("div").classList.remove('redBG');
+
+                    designButton.querySelector("b").textContent = 'Unset';
+                }
 
                 if (elem.dataset.designAccess == "view & update") {
-                    designInputContainer.classList.remove('hidden');
+                    designButton.classList.remove('hidden');
+
+                    if (selectedTaskDesignApproval == 1) {
+                        statusButton.classList.remove('unclickable', 'faded');
+                    } else {
+                        statusButton.classList.add('unclickable', 'faded');
+                    }
                 } else {
-                    designInputContainer.classList.add('hidden');
+                    designButton.classList.add('hidden');
                 }
+
+                document.querySelectorAll('.noSelectText').forEach(function(elem) {
+                    elem.remove();
+                });
+
+                document.querySelectorAll('.noSelectHidden').forEach(function(elem) {
+                    elem.classList.remove('hidden');
+                });
+
+                statusButton.classList.remove('hidden');
+
+                showOrderGroups();
             });
         });
     });
 
-    // Process Task submission logic functionality
-    updateStatusButton.addEventListener('click', function() {
+    // Process Task status submission logic functionality
+    // updateStatusButton.addEventListener('click', function() {
+    //     confirmationForm.action = "index.php?page=tasks&action=updateTaskStatus"
+
+    //     tempElement = document.createElement("input");
+    //     tempElement.type = "hidden";
+    //     tempElement.name = "taskStatus";
+    //     tempElement.className = "tempElement";
+    //     tempElement.value = taskStatusSelect.value;
+    //     confirmationForm.appendChild(tempElement);
+
+    //     confirmationTitle.innerHTML = "Change Task's Status?";
+    //     confirmationText.innerHTML = 'Are you sure to change the status of this task to <b class="capitalFirst">' + taskStatusSelect.value + '</b>?';
+    //     confirmationSubmit.value = "Yes Change";
+    //     confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
+
+    //     confirmation.style.display = 'flex';
+    // });
+
+    // Process Task status logic functionality
+    statusButton.addEventListener('click', function() {
         confirmationForm.action = "index.php?page=tasks&action=updateTaskStatus"
 
         tempElement = document.createElement("input");
-        tempElement.type = "hidden";
+        tempElement.type = "submit";
         tempElement.name = "taskStatus";
-        tempElement.className = "tempElement";
-        tempElement.value = taskStatusSelect.value;
+        tempElement.className = "tempElement tinHeight redTransBG redBorder centerColumnLayout capitalFirst emphasizedText shadowed";
+        tempElement.value = "pending";
         confirmationForm.appendChild(tempElement);
 
-        confirmationTitle.innerHTML = "Change Task's Status?";
-        confirmationText.innerHTML = 'Are you sure to change the status of this task to <b class="capitalFirst">' + taskStatusSelect.value + '</b>?';
-        confirmationSubmit.value = "Yes Change";
-        confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
+        if (statusButton.dataset.status == tempElement.value) {
+            tempElement.classList.add("hidden");
+        }
+
+        tempElement = document.createElement("input");
+        tempElement.type = "submit";
+        tempElement.name = "taskStatus";
+        tempElement.className = "tempElement tinHeight yellowTransBG yellowBorder centerColumnLayout capitalFirst emphasizedText shadowed";
+        tempElement.value = "partially complete";
+        confirmationForm.appendChild(tempElement);
+
+        if (statusButton.dataset.status == tempElement.value) {
+            tempElement.classList.add("hidden");
+        }
+
+        tempElement = document.createElement("input");
+        tempElement.type = "submit";
+        tempElement.name = "taskStatus";
+        tempElement.className = "tempElement tinHeight greenTransBG greenBorder centerColumnLayout capitalFirst emphasizedText shadowed";
+        tempElement.value = "complete";
+        confirmationForm.appendChild(tempElement);
+
+        if (statusButton.dataset.status == tempElement.value) {
+            tempElement.classList.add("hidden");
+        }
+
+        confirmationTitle.innerHTML = "Update Task Status";
+        confirmationText.innerHTML = 'Click on the status you want your task to update to.';
+        confirmationSubmit.classList.add("hidden");
 
         confirmation.style.display = 'flex';
     });
 
-    // Show Design logic functionality
-    designShowButton.addEventListener('click', function() {
-        if (selectedTaskDesign == null) return;
+    // Design Box logic function
+    let uploadedImage;
 
-        imageBoxImage.src = selectedTaskDesign;
-        imageBox.style.display = 'flex';
+    designButton.addEventListener('click', function() {
+        confirmationForm.action = "index.php?page=tasks&action=uploadDesign"
+
+        tempDiv = document.createElement("div");
+        tempDiv.className = "tempElement centerHoriRowLayout minGap";
+        confirmationForm.appendChild(tempDiv);
+
+        tempElement = document.createElement("b");
+        tempElement.textContent = "Upload File:";
+        tempDiv.appendChild(tempElement);
+
+        tempElement = document.createElement("input");
+        tempElement.type = "file";
+        tempElement.name = "designImage";
+        tempElement.accept = "image/*";
+        tempElement.required = "true";
+        tempElement.className = "flexMax";
+        tempDiv.appendChild(tempElement);
+
+        tempDiv = document.createElement("div");
+        tempDiv.className = "fullWidth tempElement hidden";
+        tempDiv.style.maxHeight = "50vh";
+        tempDiv.style.overflowY = "scroll";
+        confirmationForm.appendChild(tempDiv);
+
+        uploadedImage = document.createElement("img");
+        uploadedImage.className = "fullWidth";
+        uploadedImage.id = "imageUploaded";
+        tempDiv.appendChild(uploadedImage);
+
+        confirmationTitle.innerHTML = "Upload Design Image";
+        confirmationText.innerHTML = "Please upload a photo for this Order's design.";
+        confirmationSubmit.value = "Upload";
+        confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
+
+
+        selectedID.value = designButton.dataset.id;
+        confirmationForm.enctype = "multipart/form-data";
+        confirmation.style.display = 'flex';
+
+        if (selectedTaskDesign) {
+            uploadedImage.src = selectedTaskDesign;
+            tempDiv.classList.remove("hidden");
+        }
+
+        tempElement.addEventListener('change', () => {
+            const files = tempElement.files;
+
+            if (files.length === 0) return;
+
+            if (files.length > 1) {
+                alert("Only one file allowed");
+                tempElement.value = "";
+                return;
+            }
+
+            const design = files[0];
+
+            if (!design.type.startsWith("image/")) {
+                alert("Only images are allowed");
+                tempElement.value = "";
+                return;
+            }
+
+            const file = files[0];
+
+            if (file) {
+                uploadedImage.src = URL.createObjectURL(file);
+                tempDiv.classList.remove("hidden");
+            }
+        });
     });
+
+    // Show order groups function logic
+    function showOrderGroups() {
+        orderGroupsContainer.innerHTML = '';
+
+        selectedTaskGroups.forEach(group => {
+            tempElement = document.createElement("b");
+            tempElement.className = "noShrink fitHeight roundedMin centerRowLayout minGap darkTransBG regMinPadding bordered";
+            tempElement.textContent = group.description + ": " + group.quantity;
+            orderGroupsContainer.appendChild(tempElement);
+        });
+    }
+
+    // Show Design logic functionality
+    // designShowButton.addEventListener('click', function() {
+    //     if (selectedTaskDesign == null) return;
+
+    //     imageBoxImage.src = selectedTaskDesign;
+    //     imageBox.style.display = 'flex';
+    // });
 
     // Added cancellation events
     confirmationCancel.addEventListener('click', function() {
         document.querySelectorAll('.tempElement').forEach(function(elem) {
             elem.remove();
         });
+
+        confirmationForm.removeAttribute("enctype");
+        confirmationSubmit.classList.remove("hidden");
     });
 
     confirmationBG.addEventListener('click', function() {
         document.querySelectorAll('.tempElement').forEach(function(elem) {
             elem.remove();
         });
+
+        confirmationForm.removeAttribute("enctype");
+        confirmationSubmit.classList.remove("hidden");
     });
 
     // UI Enforcement of file upload
-    designInput.addEventListener('change', () => {
-        const files = designInput.files;
+    // designInput.addEventListener('change', () => {
+    //     const files = designInput.files;
 
-        if (files.length === 0) return;
+    //     if (files.length === 0) return;
 
-        if (files.length > 1) {
-            alert("Only one file allowed");
-            designInput.value = "";
-            return;
-        }
+    //     if (files.length > 1) {
+    //         alert("Only one file allowed");
+    //         designInput.value = "";
+    //         return;
+    //     }
 
-        const design = files[0];
+    //     const design = files[0];
 
-        if (!design.type.startsWith("image/")) {
-            alert("Only images are allowed");
-            designInput.value = "";
-            return;
-        }
-    });
+    //     if (!design.type.startsWith("image/")) {
+    //         alert("Only images are allowed");
+    //         designInput.value = "";
+    //         return;
+    //     }
+    // });
+
+    // UI Select Visual Change logic
+    // taskStatusSelect.addEventListener('change', () => {
+    //     switch (taskStatusSelect.value) {
+    //         case 'pending':
+    //             taskStatusSelect.classList.add("redTransBG", "redBorder");
+    //             taskStatusSelect.classList.remove("yellowTransBG", "yellowBorder");
+    //             taskStatusSelect.classList.remove("greenTransBG", "greenBorder");
+    //             break;
+    //         case 'partially complete':
+    //             taskStatusSelect.classList.add("yellowTransBG", "yellowBorder");
+    //             taskStatusSelect.classList.remove("redTransBG", "redBorder");
+    //             taskStatusSelect.classList.remove("greenTransBG", "greenBorder");
+    //             break;
+    //         case 'complete':
+    //             taskStatusSelect.classList.add("greenTransBG", "greenBorder");
+    //             taskStatusSelect.classList.remove("redTransBG", "redBorder");
+    //             taskStatusSelect.classList.remove("yellowTransBG", "yellowBorder");
+    //             break;
+    //     }
+    // });
 </script>
 
 </html>
