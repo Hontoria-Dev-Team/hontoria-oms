@@ -131,15 +131,6 @@
                                 <div class="scrollable fullHeight flexMax gridCenterFlex minGap regMinPadding" id="orderGroupsContainer"></div>
                                 <b class="squareSize fullHeight centerColumnLayout darkBG shadowed whiteText regMinPadding">Groups</b>
                             </div>
-                            <!-- <div class="centerHoriRowLayout minGap">
-                                <b>Task Status: </b>
-                                <select class="flexMax" id="taskStatusSelect">
-                                    <option value="pending" selected>Pending</option>
-                                    <option value="partially complete">Partially Complete</option>
-                                    <option value="complete">Complete</option>
-                                </select>
-                                <button type="button" class="importantInput" id="updateStatusButton">Update</button>
-                            </div> -->
                         </div>
                         <div class="gradientBorderDiag"></div>
                     </section>
@@ -159,8 +150,6 @@
     const selectedIDInput = document.querySelectorAll('.selectedIDInput');
     const assigneesContainer = document.getElementById('assigneesContainer');
     const statusButton = document.getElementById('statusButton');
-    // const taskStatusSelect = document.getElementById('taskStatusSelect');
-    // const updateStatusButton = document.getElementById('updateStatusButton');
     const designButton = document.getElementById('designButton');
     const orderGroupsContainer = document.getElementById('orderGroupsContainer');
     const assigneeList = <?php echo json_encode($assigneeList); ?>;
@@ -315,6 +304,7 @@
                     }
                 } else {
                     designButton.classList.add('hidden');
+                    statusButton.classList.remove('unclickable', 'faded');
                 }
 
                 document.querySelectorAll('.noSelectText').forEach(function(elem) {
