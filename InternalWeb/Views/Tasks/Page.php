@@ -260,10 +260,6 @@
                     assigneesContainer.appendChild(tempElement);
                 });
 
-                // selectedIDInput.forEach(function(selected) {
-                //     selected.value = elem.dataset.orderId;
-                // });
-
                 selectedID.value = elem.dataset.id;
                 designButton.dataset.id = elem.dataset.orderId;
                 statusButton.dataset.status = elem.dataset.status;
@@ -335,25 +331,6 @@
             });
         });
     });
-
-    // Process Task status submission logic functionality
-    // updateStatusButton.addEventListener('click', function() {
-    //     confirmationForm.action = "index.php?page=tasks&action=updateTaskStatus"
-
-    //     tempElement = document.createElement("input");
-    //     tempElement.type = "hidden";
-    //     tempElement.name = "taskStatus";
-    //     tempElement.className = "tempElement";
-    //     tempElement.value = taskStatusSelect.value;
-    //     confirmationForm.appendChild(tempElement);
-
-    //     confirmationTitle.innerHTML = "Change Task's Status?";
-    //     confirmationText.innerHTML = 'Are you sure to change the status of this task to <b class="capitalFirst">' + taskStatusSelect.value + '</b>?';
-    //     confirmationSubmit.value = "Yes Change";
-    //     confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
-
-    //     confirmation.style.display = 'flex';
-    // });
 
     // Process Task status logic functionality
     statusButton.addEventListener('click', function() {
@@ -487,14 +464,6 @@
         });
     }
 
-    // Show Design logic functionality
-    // designShowButton.addEventListener('click', function() {
-    //     if (selectedTaskDesign == null) return;
-
-    //     imageBoxImage.src = selectedTaskDesign;
-    //     imageBox.style.display = 'flex';
-    // });
-
     // Added cancellation events
     confirmationCancel.addEventListener('click', function() {
         document.querySelectorAll('.tempElement').forEach(function(elem) {
@@ -513,48 +482,6 @@
         confirmationForm.removeAttribute("enctype");
         confirmationSubmit.classList.remove("hidden");
     });
-
-    // UI Enforcement of file upload
-    // designInput.addEventListener('change', () => {
-    //     const files = designInput.files;
-
-    //     if (files.length === 0) return;
-
-    //     if (files.length > 1) {
-    //         alert("Only one file allowed");
-    //         designInput.value = "";
-    //         return;
-    //     }
-
-    //     const design = files[0];
-
-    //     if (!design.type.startsWith("image/")) {
-    //         alert("Only images are allowed");
-    //         designInput.value = "";
-    //         return;
-    //     }
-    // });
-
-    // UI Select Visual Change logic
-    // taskStatusSelect.addEventListener('change', () => {
-    //     switch (taskStatusSelect.value) {
-    //         case 'pending':
-    //             taskStatusSelect.classList.add("redTransBG", "redBorder");
-    //             taskStatusSelect.classList.remove("yellowTransBG", "yellowBorder");
-    //             taskStatusSelect.classList.remove("greenTransBG", "greenBorder");
-    //             break;
-    //         case 'partially complete':
-    //             taskStatusSelect.classList.add("yellowTransBG", "yellowBorder");
-    //             taskStatusSelect.classList.remove("redTransBG", "redBorder");
-    //             taskStatusSelect.classList.remove("greenTransBG", "greenBorder");
-    //             break;
-    //         case 'complete':
-    //             taskStatusSelect.classList.add("greenTransBG", "greenBorder");
-    //             taskStatusSelect.classList.remove("redTransBG", "redBorder");
-    //             taskStatusSelect.classList.remove("yellowTransBG", "yellowBorder");
-    //             break;
-    //     }
-    // });
 </script>
 
 </html>

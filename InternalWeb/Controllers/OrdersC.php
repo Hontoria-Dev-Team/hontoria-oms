@@ -18,6 +18,8 @@ class OrdersC {
 
         $orderList = $this->ordersModel->getAllOrders();
         $orderProcessList = $this->ordersModel->getAllOrderProcesses();
+        $taskAssigneeList = $this->ordersModel->getAllTaskAssigneeList();
+        $userProcessList = $this->staffModel->getAllUserProcessTasks();
 
         // if ($search !== '' || $status !== '') {
         //     $staffList = $this->staffModel->getfilteredStaff($search, $status);
@@ -138,9 +140,17 @@ class OrdersC {
 
     public function assignToTask() {
         $orderProcessID = $_POST['orderProcessID'];
-        $assign = $this->ordersModel->insertUserProcessTask($_SESSION['id'], $orderProcessID);
+        $this->ordersModel->insertUserProcessTask($_SESSION['id'], $orderProcessID);
 
         header('Location: index.php?page=tasks');
+    }
+
+    public function assignEmployeeToTask() {
+        $userID = $_POST['userID'];
+        $orderProcessID = $_POST['orderProcessID'];
+        $this->ordersModel->insertUserProcessTask($userID, $orderProcessID);
+
+        header('Location: index.php?page=orders');
     }
 
     public function changeUserProcessTaskStatus() {

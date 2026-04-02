@@ -72,8 +72,8 @@
 }
 
 .fullDimensions {
-    height: 100%;
-    width: 100%;
+    height: 100% !important;
+    width: 100% !important;
 }
 
 .leftAlign {
@@ -388,4 +388,12 @@
 
 .noFlexBasis {
     flex-basis: 0 !important;
+}
+
+.absoluted {
+    position: absolute;
+}
+
+.relatived {
+    position: relative;
 }

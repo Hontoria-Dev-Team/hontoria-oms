@@ -176,6 +176,12 @@
     border: 0.1rem solid var(--green) !important;
 }
 
+.bottomBorderOnly {
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
 .capitalFirst {
     text-transform: capitalize;
 }
@@ -363,6 +369,10 @@
 
 .faded {
     opacity: 0.5;
+}
+
+.invisible {
+    opacity: 0;
 }
 
 .skewedXPosBG {

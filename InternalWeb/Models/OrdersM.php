@@ -103,21 +103,31 @@ class OrdersM {
     }
 
     public function getAllOrderProcesses() {
-        $query = "SELECT
-                      orderProcess.orderID,
-                      processes.name AS processName,
-                      orderProcess.phase,
-                      orderProcess.minAssign,
-                      orderProcess.maxAssign,
-                      orderProcess.status
-                  FROM orderProcess
-                  JOIN orders ON orderProcess.orderID = orders.id
-                  JOIN subservices ON orders.subserviceID = subservices.id
-                  JOIN serviceProcess
-                      ON subservices.serviceID = serviceProcess.serviceID
-                      AND orderProcess.phase = serviceProcess.phase
-                  JOIN processes ON serviceProcess.processesID = processes.id
-                  ORDER BY orderProcess.orderID, orderProcess.phase";
+        $query = "
+            SELECT
+                orderProcess.id,
+                orderProcess.orderID,
+                processes.id AS processID,
+                processes.name AS processName,
+                orderProcess.phase,
+                orderProcess.minAssign,
+                orderProcess.maxAssign,
+                orderProcess.status,
+                COUNT(userProcessTasks.orderProcessID) AS assignedNum
+            FROM orderProcess
+            JOIN orders ON orderProcess.orderID = orders.id
+            JOIN subservices ON orders.subserviceID = subservices.id
+            JOIN serviceProcess
+                ON subservices.serviceID = serviceProcess.serviceID
+                AND orderProcess.phase = serviceProcess.phase
+            JOIN processes ON serviceProcess.processesID = processes.id
+            LEFT JOIN userProcessTasks
+                ON orderProcess.id = userProcessTasks.orderProcessID
+            GROUP BY
+                orderProcess.id,
+                orderProcess.orderID
+            ORDER BY orderProcess.orderID, orderProcess.phase
+        ";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
@@ -363,7 +373,7 @@ class OrdersM {
 
         $result = $stmt->fetchColumn();
 
-        if ($result === false) return;
+        if ($result === false) return; //FIX THIS
 
         $query = "UPDATE orderProcess SET status = 'active' WHERE id = :id";
         $stmt = $this->pdo->prepare($query);

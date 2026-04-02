@@ -132,6 +132,8 @@ switch ($page) {
             $orders->setDeadline();
         } else if ($action === 'delete') {
             $orders->deleteOrder();
+        } else if ($action === 'assignEmployeeToTask') {
+            $orders->assignEmployeeToTask();
         } else {
             $orders->showOrders();
         }

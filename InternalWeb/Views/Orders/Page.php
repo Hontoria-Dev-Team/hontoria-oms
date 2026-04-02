@@ -110,9 +110,53 @@
     const deadlineAt = document.getElementById('deadlineAt');
     const changeDeadlineButton = document.getElementById('changeDeadlineButton');
     const additionalSelectedInputs = document.getElementById('additionalSelectedInputs');
+    const assignEmployeesButton = document.getElementById('assignEmployeesButton');
     const deleteOrderButton = document.getElementById('deleteOrderButton');
     const orders = <?php echo json_encode($orderList); ?>;
     const orderProcesses = <?php echo json_encode($orderProcessList); ?>;
+    const userProcessList = <?php echo json_encode($userProcessList); ?>;
+    const taskAssigneeList = <?php echo json_encode($taskAssigneeList); ?>;
+
+    const orderProcessesMap = {};
+
+    orderProcesses.forEach(item => {
+        if (!orderProcessesMap[item.orderID]) {
+            orderProcessesMap[item.orderID] = [];
+        }
+
+        orderProcessesMap[item.orderID].push({
+            id: item.id,
+            processID: item.processID,
+            name: item.processName,
+            status: item.status,
+            maxAssign: item.maxAssign,
+            assignedNum: item.assignedNum
+        });
+    });
+
+    const userProcessMap = {};
+
+    userProcessList.forEach(item => {
+        if (!userProcessMap[item.processID]) {
+            userProcessMap[item.processID] = [];
+        }
+
+        userProcessMap[item.processID].push({
+            userID: item.userID,
+            name: item.firstName + " " + item.middleName[0] + ". " + item.lastName,
+            roles: item.roles
+        });
+    });
+
+    const taskAssigneeMap = {};
+
+    taskAssigneeList.forEach(item => {
+        if (!taskAssigneeMap[item.orderProcessID]) {
+            taskAssigneeMap[item.orderProcessID] = [];
+        }
+
+        taskAssigneeMap[item.orderProcessID].push(item.userID);
+    });
 
     document.addEventListener("DOMContentLoaded", () => {
         confirmationCancel.value = "No Cancel";
@@ -134,16 +178,20 @@
     });
 
     // Order Process Graph Show Function
+    let selectedOrderProcesses;
     let arrow;
     let processDiv;
     let hasFirstProcess;
     let processHead;
     let processParagraph;
+    let tempDiv;
     let tempElement;
 
     document.querySelectorAll('.orderElement').forEach(function(elem) {
         elem.addEventListener('click', function() {
             showProcess(elem.dataset.id);
+
+            selectedOrderProcesses = [...(orderProcessesMap[elem.dataset.id] || [])];
         });
     });
 
@@ -189,21 +237,21 @@
                     break;
             }
 
-            tempElement = document.createElement('div');
-            tempElement.className = "centerHoriRowLayout tinGap unitHeight assignRange"
-            tempElement.innerHTML = `
-                <img src="../../Shared/Img/PeopleIcon.png" alt="People" class="unitHeight">
-                <div class="centerHoriRowLayout tinGap">
-                    <p>Min: ${orderProcesses[i].minAssign}</p>
-                </div>
-                <div class="centerHoriRowLayout tinGap">
-                    <p>Max: ${orderProcesses[i].maxAssign}</p>
-                </div>
-            `;
-
             processDiv.appendChild(processHead);
             processDiv.appendChild(processParagraph);
-            processDiv.appendChild(tempElement);
+
+            if (!(orderProcesses[i].status == 'complete' || orderProcesses[i].status == 'pending')) {
+                tempElement = document.createElement('div');
+                tempElement.className = "centerHoriRowLayout tinGap unitHeight assignRange"
+                tempElement.innerHTML = `
+                    <img src="../../Shared/Img/PeopleIcon.png" alt="People" class="unitHeight">
+                    <div class="centerHoriRowLayout tinGap">
+                        <p>Assigned: ${orderProcesses[i].assignedNum}/${orderProcesses[i].maxAssign}</p>
+                    </div>
+                `;
+
+                processDiv.appendChild(tempElement);
+            }
 
             orderProcess.appendChild(processDiv);
 
@@ -253,13 +301,135 @@
 
     deleteOrderButton.addEventListener('click', function() {
         confirmationTitle.innerHTML = "Delete Order?";
-        confirmationForm.action = "index.php?page=orders&action=delete"
+        confirmationForm.action = "index.php?page=orders&action=delete";
 
         confirmationText.innerHTML = "Are you sure to delete Order #" + selectedID.value + "?";
         confirmationSubmit.value = "Yes Delete";
         confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
 
         confirmation.style.display = 'flex';
+    });
+
+    // Employee Assignment Box Function logic
+    let hasAvailableProcess;
+
+    assignEmployeesButton.addEventListener('click', function() {
+        hasAvailableProcess = false;
+
+        tempDiv = document.createElement('div');
+        tempDiv.className = "columnLayout minGap tempElement maxHeight scrollable regMinPadding";
+        tempDiv.id = "assignableEmployeesContainer";
+        confirmationForm.appendChild(tempDiv);
+
+        tempElement = document.createElement("div");
+        tempElement.innerHTML = "<b>No process selected.</b>";
+        tempElement.className = "centerColumnLayout regMinPadding shadowed roundedTin flexMax darkFadedBG bordered";
+        tempDiv.appendChild(tempElement);
+
+        tempElement = document.createElement('h3');
+        tempElement.textContent = "Assignable Employees:";
+        tempElement.className = "tempElement";
+        confirmationForm.appendChild(tempElement);
+
+        tempDiv = document.createElement('div');
+        tempDiv.className = "centerHoriRowLayout tinGap tempElement regMinPadding";
+        confirmationForm.appendChild(tempDiv);
+
+        selectedOrderProcesses.forEach(function(process) {
+            if (process.status == 'complete' || process.status == 'pending' || Number(process.maxAssign) <= Number(process.assignedNum)) return;
+
+            tempElement = document.createElement("b");
+            tempElement.textContent = process.name;
+            tempElement.className = "centerText regMinPadding shadowed roundedTin flexMax yellowTransBG yellowBorder selectedProcessTaskAssignment clickable";
+            tempElement.dataset.orderProcessID = process.id;
+            tempElement.dataset.processID = process.processID;
+            tempDiv.appendChild(tempElement);
+
+            hasAvailableProcess = true;
+        });
+
+        if (!hasAvailableProcess) {
+            tempElement = document.createElement("b");
+            tempElement.textContent = "No available process to assign.";
+            tempElement.className = "centerText regMinPadding shadowed roundedTin flexMax darkFadedBG bordered";
+            tempDiv.appendChild(tempElement);
+        }
+
+        tempElement = document.createElement('h3');
+        tempElement.textContent = "Available Processes:";
+        tempElement.className = "tempElement";
+        confirmationForm.appendChild(tempElement);
+
+        confirmationTitle.innerHTML = "Assign Employees";
+        confirmationForm.action = "index.php?page=orders&action=assignEmployee"
+
+        confirmationText.innerHTML = "To assign employees to tasks, first click on a task that is available for assignment; then select an applicable employee to the task.";
+        confirmationSubmit.classList.add("hidden");
+
+        confirmation.style.display = 'flex';
+
+        document.querySelectorAll('.selectedProcessTaskAssignment').forEach(function(elem) {
+            elem.addEventListener('click', function() {
+                const container = document.getElementById('assignableEmployeesContainer');
+
+                container.innerHTML = '';
+
+                const assignableEmployees = [...(userProcessMap[elem.dataset.processID] || [])];
+                const taskAssignees = [...(taskAssigneeMap[elem.dataset.orderProcessID] || [])];
+
+                let hasAssignableEmployee = false;
+
+                assignableEmployees.forEach(function(employee) {
+                    if (taskAssignees.includes(employee.userID)) return;
+
+                    tempElement = document.createElement("form");
+                    tempElement.method = "POST";
+                    tempElement.innerHTML = `
+                        <input type="hidden" name="userID" value="${employee.userID}">
+                        <input type="hidden" name="orderProcessID" value="${elem.dataset.orderProcessID}">
+                        <div class="rowLayout duoHeight">
+                            <b class="flexMax yellowBG whiteText fullHeight centerColumnLayout skewedXNegBG">
+                                <span>${employee.name}</span>
+                            </b>
+                            <b class="midHoriPadding fullHeight centerColumnLayout">Tasks: 10</b>
+                        </div>
+                        <div class="capitalFirst yellowTransBG centerColumnLayout">
+                            <b>${employee.roles}</b>
+                        </div>
+                        <input type="submit" name="submit" class="fullDimensions invisible absoluted">
+                    `;
+                    tempElement.className = "centerText relatived centerHoriColumnLayout shadowed roundedTin yellowBorder selectedEmployeeAssign fixedScreen";
+                    tempElement.action = "index.php?page=orders&action=assignEmployeeToTask";
+                    container.appendChild(tempElement);
+
+                    hasAssignableEmployee = true;
+                });
+
+                if (!hasAssignableEmployee) {
+                    tempElement = document.createElement("b");
+                    tempElement.innerHTML = "<b>No assignable employee for this process to assign.</b>";
+                    tempElement.className = "centerColumnLayout centerText regMinPadding shadowed roundedTin flexMax darkFadedBG bordered";
+                    container.appendChild(tempElement);
+                }
+            });
+        });
+    });
+
+    // Added cancellation events
+    confirmationCancel.addEventListener('click', function() {
+        document.querySelectorAll('.tempElement').forEach(function(elem) {
+            elem.remove();
+        });
+
+        confirmationSubmit.classList.remove("hidden");
+    });
+
+    confirmationBG.addEventListener('click', function() {
+        document.querySelectorAll('.tempElement').forEach(function(elem) {
+            elem.remove();
+        });
+
+        confirmationSubmit.classList.remove("hidden");
     });
 </script>
 

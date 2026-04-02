@@ -468,6 +468,35 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllUserProcessTasks() {
+        $query = "
+            SELECT
+                users.id AS userID,
+                users.firstName,
+                users.middleName,
+                users.lastName,
+                processes.id AS processID,
+                processes.name AS processName,
+                GROUP_CONCAT(DISTINCT roles.name ORDER BY roles.name SEPARATOR ', ') AS roles
+            FROM users
+            JOIN userRoles ON users.id = userRoles.userID
+            JOIN roles ON userRoles.roleID = roles.id
+            JOIN roleProcessTasks ON userRoles.roleID = roleProcessTasks.roleID
+            JOIN processes ON roleProcessTasks.processID = processes.id
+            GROUP BY
+                users.id,
+                users.firstName,
+                users.middleName,
+                users.lastName,
+                processes.id,
+                processes.name
+            ORDER BY processes.id ASC
+        ";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getUserRoleProcessTasks($id) {
         $roles = $this->getUserRoles($id);
 
