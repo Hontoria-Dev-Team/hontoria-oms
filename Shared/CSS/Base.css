@@ -29,8 +29,8 @@ html {
     --yellowTrans: #ffb8115e;
     --yellowGreen: #efff11;
     --yellowGreenTrans: #efff115e;
-    --green: #70ff11;
-    --greenTrans: #70ff1159;
+    --green: #2eef10;
+    --greenTrans: #2eef1057;
     --blue: #088bfd;
     --gradientDiag: linear-gradient(to left, #F20505, #FFB611);
     --gradientVert: linear-gradient(to top, #F20505, #FFB611);
@@ -149,14 +149,3 @@ b {
         opacity: 0;
     }
 }
-
-/* input[type="file"] {
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
-        sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    height: 1.7rem;
-    background: var(--lightGray);
-    border-radius: 0.5rem;
-    border: 0.1em solid var(--darkGray);
-    color: var(--darkGray);
-    cursor: pointer;
-} */
