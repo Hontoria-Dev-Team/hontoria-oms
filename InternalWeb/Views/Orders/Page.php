@@ -46,8 +46,10 @@
                             }
                             $activeProcesses = rtrim($activeProcesses, ", ");
 
-                            $divBgClass = $order['status'] === "Active" ? "yellowTransBG yellowBorder" : "redTransBG redBorder";
-                            $statusBgClass = $order['status'] === "Active" ? "yellowBG" : "redBG";
+                            $divBgClass = $order['status'] === "Active" ?
+                                "yellowTransBG yellowBorder" : ($order['status'] === "Idle" ? "redTransBG redBorder" : "greenTransBG greenBorder");
+                            $statusBgClass = $order['status'] === "Active" ?
+                                "yellowBG" : ($order['status'] === "Idle" ? "redBG" : "greenBG");
                             ?>
                             <div class="midHeight regPadding roundedMin centerHoriColumnLayout minGap flexStatic orderElement shadowed clickable <?= $divBgClass ?>"
                                 data-id="<?= $order['id'] ?>" data-due="<?= $order['deadlineAt'] ?>" data-customer="<?= $order['customerName'] ?>">
