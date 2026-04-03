@@ -377,12 +377,12 @@ class OrdersM {
 
         $result = $stmt->fetchColumn();
 
-        if ($result === false) return; //FIX THIS
-
-        $query = "UPDATE orderProcess SET status = 'active' WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $result);
-        $stmt->execute();
+        if ($result) {
+            $query = "UPDATE orderProcess SET status = 'active' WHERE id = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $result);
+            $stmt->execute();
+        }
 
         if ($status !== 'complete') return;
 
