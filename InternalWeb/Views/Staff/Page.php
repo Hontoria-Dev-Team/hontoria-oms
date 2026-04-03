@@ -115,6 +115,7 @@
     <?php include("../Views/.Components/ConfirmationBox.php"); ?>
 </body>
 <script src="../.JS/ConfirmationBox.js"></script>
+<script src="../.JS/DueTimeCalculator.js"></script>
 <script>
     const staffElements = document.querySelectorAll('.staffElement');
     const nameDisplay = document.getElementById('selectedStaffName');
@@ -264,6 +265,7 @@
                     <h6>Subservice: ${task.subserviceName}</h6>
                     <h6>Task: ${task.processName}</h6>
                     <h6>Customer: ${task.customerName}</h6>
+                    <h6>Assigned At: ${formatDate(task.assignedAt)}</h6>
                 </div>
             `;
             taskListContainer.appendChild(tempElement);
@@ -276,16 +278,6 @@
             taskListContainer.appendChild(tempElement);
         }
     }
-
-    // <div class="redTransBG redBorder centerHoriRowLayout minGap tinGap minPadding roundedMin shadowed assignedTaskElement">
-    //                         <h5 class="redBG whiteText roundedMin minPadding shadowed">Order #21</h5>
-    //                         <div class="columnLayout">
-    //                             <h6>Service: Stickers & Decals</h6>
-    //                             <h6>Subservice: Motorcycle</h6>
-    //                             <h6>Task: Designing</h6>
-    //                             <h6>Customer: Barangay Apokon</h6>
-    //                         </div>
-    //                     </div>
 
     // Delete employee confirmation and logic script
     const deletedID = document.createElement("input");
