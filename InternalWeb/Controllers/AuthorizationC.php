@@ -59,12 +59,36 @@ class AuthorizationC {
         $roleList = $this->staffModel->getAllRoles();
         $userRoles = $this->staffModel->getAllUserRoles();
         $roleGovernance = $this->staffModel->getRoleManagementGovernance($this->staffModel->getUserRoles($_SESSION['id']));
+        $userProcessTaskList = $this->staffModel->getAllUserProcessTasksDetailed();
 
         if ($search !== '' || $status !== '') {
             $staffList = $this->staffModel->getfilteredStaff($search, $status);
         } else {
             $staffList = $this->staffModel->getStaffList();
         }
+
+        $userTaskCountMap = [];
+
+        foreach ($this->staffModel->getAllUsersTaskCount() as $item) {
+            $userTaskCountMap[$item['userID']] = $item['taskCount'];
+        }
+
+        // $userProcessTaskMap = [];
+
+        // foreach ($this->staffModel->getAllUserProcessTasksDetailed() as $item) {
+        //     if (!isset($userProcessTaskMap[$item['userID']])) {
+        //         $userProcessTaskMap[$item['userID']] = [];
+        //     }
+
+        //     $userProcessTaskMap[$item['userID']][] = [
+        //         'status' => $item['status'],
+        //         'assignedAt' => $item['assignedAt'],
+        //         'orderID' => $item['orderID'],
+        //         'customerName' => $item['customerName'],
+        //         'subserviceName' => $item['subserviceName'],
+        //         'serviceName' => $item['serviceName']
+        //     ];
+        // }
 
         $currentUserId = $_SESSION['id'];
         $staffList = array_filter($staffList, function ($staff) use ($currentUserId) {

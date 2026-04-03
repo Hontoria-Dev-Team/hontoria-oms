@@ -52,11 +52,12 @@
                         <?php foreach ($staffList as $staff): ?>
                             <?php
                             $fullName = trim("{$staff['firstName']} " . ($staff['middleName'] ? substr($staff['middleName'], 0, 1) . '.' : '') . " {$staff['lastName']}");
-                            $status = $staff['isOnline'] ? ($staff['isActive'] ? 'Active' : 'Idle') : 'Offline';
-                            $statusClass = $staff['isOnline'] ? ($staff['isActive'] ? 'active' : 'idle') : '';
+                            $taskCount = $userTaskCountMap[$staff['id']] ?? 0;
+                            $status = $staff['isOnline'] ? ($taskCount > 0 ? 'Active' : 'Idle') : 'Offline';
+                            $statusClass = $staff['isOnline'] ? ($taskCount > 0 ? 'active' : 'idle') : '';
                             $roles = $userRolesMap[$staff['id']] ?? [];
                             $rolesText = !empty($roles) ? implode(', ', $roles) : 'Unset Role';
-                            $bgClass = $staff['isOnline'] ? ($staff['isActive'] ? 'yellowTransBG' : 'darkFadedBG') : 'redTransBG';
+                            $bgClass = $staff['isOnline'] ? ($taskCount > 0 ? 'yellowTransBG' : 'darkFadedBG') : 'redTransBG';
                             ?>
                             <div class="minHeight minPadding roundedMin rowLayout minGap flexStatic staffElement shadowed <?= $statusClass ?> <?= $bgClass ?>"
                                 data-id="<?= $staff['id'] ?>" data-name="<?= htmlspecialchars($fullName) ?>" data-roles="<?= $rolesText ?>">
@@ -66,6 +67,8 @@
                                 <div class="flexMax centerHoriColumnLayout">
                                     <h5><?= htmlspecialchars($fullName) ?></h5>
                                     <h6 class="capitalFirst">(<?= $rolesText ?>)</h6>
+                                    <h6 class="capitalFirst">Tasks: <?= $taskCount ?></h6>
+
                                 </div>
                                 <div class="flexMin status roundedMin minPadding centerColumnLayout shadowed">
                                     <h5><?= $status ?></h5>
@@ -99,7 +102,11 @@
                     </div>
                     <div class="gradientBorderDiag"></div>
                 </section>
-                <section class="box centerColumnLayout roundedMid flexMid">
+                <section class="box centerColumnLayout roundedMid flexMid noBasis noMinHeight minGap">
+                    <h5 class="leftStart">Assigned Tasks:</h5>
+                    <div id="taskListContainer" class="scrollable fullDimensions columnLayout minGap">
+                        <h2 class="centerMarginsSelf">No Staff Selected</h2>
+                    </div>
                     <div class="gradientBorderDiag"></div>
                 </section>
             </section>
@@ -115,9 +122,11 @@
     const rolesText = document.getElementById('rolesText');
     const modifyRolesButton = document.getElementById('modifyRolesButton');
     const deleteButton = document.getElementById('deleteButton');
+    const taskListContainer = document.getElementById('taskListContainer');
     const roles = <?php echo json_encode($roleList); ?>;
     const userRoles = <?php echo json_encode($userRoles); ?>;
     const roleGovernance = <?php echo json_encode($roleGovernance); ?>;
+    const userProcessTaskList = <?php echo json_encode($userProcessTaskList); ?>;
 
     const userRolesMap = {};
 
@@ -132,6 +141,24 @@
         });
     });
 
+    const userProcessTaskMap = {};
+
+    userProcessTaskList.forEach(item => {
+        if (!userProcessTaskMap[item.userID]) {
+            userProcessTaskMap[item.userID] = [];
+        }
+
+        userProcessTaskMap[item.userID].push({
+            status: item.status,
+            assignedAt: item.assignedAt,
+            orderID: item.orderID,
+            customerName: item.customerName,
+            subserviceName: item.subserviceName,
+            serviceName: item.serviceName,
+            processName: item.processName
+        });
+    });
+
     const noGrants = [];
 
     roleGovernance.forEach(item => {
@@ -143,6 +170,7 @@
     let name;
     let id;
     let selectedUserRoles;
+    let selectedUserTasks;
     let governances;
     let governanceRules;
 
@@ -168,6 +196,7 @@
                 nameDisplay.style.alignSelf = 'baseline';
 
                 selectedUserRoles = [...(userRolesMap[id] || [])];
+                selectedUserTasks = [...(userProcessTaskMap[id] || [])];
 
                 governances = roleGovernance.filter(gov =>
                     selectedUserRoles.some(role => role.roleID === gov.roleSubjectID)
@@ -196,9 +225,67 @@
                 }
 
                 rolesText.textContent = elem.dataset.roles;
+
+                showTasks();
             });
         });
     });
+
+    // Task List Display logic function
+    function showTasks() {
+        taskListContainer.innerHTML = '';
+
+        selectedUserTasks.forEach((task) => {
+            tempElement = document.createElement("div");
+            tempElement.className = "centerHoriRowLayout minGap tinGap minPadding roundedMin shadowed";
+
+            let headerClass;
+
+            switch (task.status) {
+                case 'pending':
+                    tempElement.classList.add('redTransBG', 'redBorder');
+                    headerClass = 'redBG';
+                    break;
+                case 'partially complete':
+                    tempElement.classList.add('yellowTransBG', 'yellowBorder');
+                    headerClass = 'yellowBG';
+                    break;
+                case 'complete':
+                    tempElement.classList.add('greenTransBG', 'greenBorder');
+                    headerClass = 'greenBG';
+                    break;
+            }
+
+            tempElement.innerHTML = `
+                <h5 class="${headerClass} whiteText roundedMin minPadding shadowed tinWidth centerText">Order #${task.orderID}</h5>
+                <div class="columnLayout">
+                    <h6 class="capitalFirst">Status: ${task.status}</h6>
+                    <h6>Service: ${task.serviceName}</h6>
+                    <h6>Subservice: ${task.subserviceName}</h6>
+                    <h6>Task: ${task.processName}</h6>
+                    <h6>Customer: ${task.customerName}</h6>
+                </div>
+            `;
+            taskListContainer.appendChild(tempElement);
+        });
+
+        if (selectedUserTasks.length == 0) {
+            tempElement = document.createElement("h2");
+            tempElement.className = "centerMarginsSelf";
+            tempElement.textContent = 'No Tasks Assigned';
+            taskListContainer.appendChild(tempElement);
+        }
+    }
+
+    // <div class="redTransBG redBorder centerHoriRowLayout minGap tinGap minPadding roundedMin shadowed assignedTaskElement">
+    //                         <h5 class="redBG whiteText roundedMin minPadding shadowed">Order #21</h5>
+    //                         <div class="columnLayout">
+    //                             <h6>Service: Stickers & Decals</h6>
+    //                             <h6>Subservice: Motorcycle</h6>
+    //                             <h6>Task: Designing</h6>
+    //                             <h6>Customer: Barangay Apokon</h6>
+    //                         </div>
+    //                     </div>
 
     // Delete employee confirmation and logic script
     const deletedID = document.createElement("input");

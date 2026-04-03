@@ -497,6 +497,32 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllUserProcessTasksDetailed() {
+        $query = "
+            SELECT
+                userProcessTasks.userID,
+                userProcessTasks.orderProcessID,
+                userProcessTasks.status,
+                userProcessTasks.assignedAt,
+                orders.id AS orderID,
+                orders.customerName,
+                subservices.name AS subserviceName,
+                services.name AS serviceName,
+                processes.name AS processName
+            FROM userProcessTasks
+            JOIN orderProcess ON userProcessTasks.orderProcessID = orderProcess.id
+            JOIN orders ON orderProcess.orderID = orders.id
+            JOIN subservices ON orders.subserviceID = subservices.id
+            JOIN services ON subservices.serviceID = services.id
+            JOIN serviceProcess ON subservices.serviceID = serviceProcess.serviceID
+                AND orderProcess.phase = serviceProcess.phase
+            JOIN processes ON serviceProcess.processesID = processes.id
+        ";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getUserRoleProcessTasks($id) {
         $roles = $this->getUserRoles($id);
 
