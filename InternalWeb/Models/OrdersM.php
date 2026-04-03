@@ -19,18 +19,16 @@ class OrdersM {
                 orders.messengerGCLink,
                 CASE
                     WHEN NOT EXISTS (
-                        SELECT 1
-                        FROM orderProcess
+                        SELECT 1 FROM orderProcess
+                        WHERE orderProcess.orderID = orders.id
+                        AND orderProcess.status != 'complete'
+                    ) THEN 'For Verification'
+                    WHEN NOT EXISTS (
+                        SELECT 1 FROM userProcessTasks
+                        JOIN orderProcess ON userProcessTasks.orderProcessID = orderProcess.id
                         WHERE orderProcess.orderID = orders.id
                     ) THEN 'Idle'
-                    WHEN EXISTS (
-                        SELECT 1
-                        FROM orderProcess op
-                        JOIN userProcessTasks upt ON upt.orderProcessID = op.id
-                        WHERE op.orderID = orders.id
-                        AND upt.status != 'complete'
-                    ) THEN 'Active'
-                    ELSE 'For Verification'
+                    ELSE 'Active'
                 END AS status
             FROM orders
             JOIN subservices ON orders.subserviceID = subservices.id
