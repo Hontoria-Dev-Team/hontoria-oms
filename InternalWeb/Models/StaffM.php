@@ -532,4 +532,11 @@ class StaffM {
             }
         }
     }
+
+    public function getAllUsersTaskCount() {
+        $query = "SELECT userID, COUNT(userID) AS taskCount FROM userProcessTasks GROUP BY userID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

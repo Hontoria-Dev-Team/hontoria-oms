@@ -118,6 +118,7 @@
     const orderProcesses = <?php echo json_encode($orderProcessList); ?>;
     const userProcessList = <?php echo json_encode($userProcessList); ?>;
     const taskAssigneeList = <?php echo json_encode($taskAssigneeList); ?>;
+    const userTaskCountTally = <?php echo json_encode($userTaskCountTally); ?>;
 
     const orderProcessesMap = {};
 
@@ -158,6 +159,12 @@
         }
 
         taskAssigneeMap[item.orderProcessID].push(item.userID);
+    });
+
+    const userTaskCountMap = {};
+
+    userTaskCountTally.forEach(item => {
+        userTaskCountMap[item.userID] = (item.taskCount);
     });
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -393,7 +400,7 @@
                             <b class="flexMax yellowBG whiteText fullHeight centerColumnLayout skewedXNegBG">
                                 <span>${employee.name}</span>
                             </b>
-                            <b class="midHoriPadding fullHeight centerColumnLayout">Tasks: 10</b>
+                            <b class="midHoriPadding fullHeight centerColumnLayout">Tasks: ${userTaskCountMap[employee.userID] || 0}</b>
                         </div>
                         <div class="capitalFirst yellowTransBG centerColumnLayout">
                             <b>${employee.roles}</b>

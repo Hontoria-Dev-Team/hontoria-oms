@@ -20,6 +20,7 @@ class OrdersC {
         $orderProcessList = $this->ordersModel->getAllOrderProcesses();
         $taskAssigneeList = $this->ordersModel->getAllTaskAssigneeList();
         $userProcessList = $this->staffModel->getAllUserProcessTasks();
+        $userTaskCountTally = $this->staffModel->getAllUsersTaskCount();
 
         // if ($search !== '' || $status !== '') {
         //     $staffList = $this->staffModel->getfilteredStaff($search, $status);
