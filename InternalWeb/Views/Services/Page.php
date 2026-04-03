@@ -28,7 +28,7 @@
                                 <h3 class="centerHoriRowLayout minGap capitalFirst"><?= $name ?><p>(Active Orders: 100)</p>
                                 </h3>
                                 <div class="rowLayout minGap">
-                                    <a href="index.php?page=services&service=<?= $service['id'] ?>" class="importantInput flexMid buttonLike centerColumnLayout shadowed">
+                                    <a href="index.php?page=services&service=<?= $service['id'] ?>" class="importantInput flexMid roundedMin centerColumnLayout shadowed">
                                         Modify Service
                                     </a>
                                     <button type="button" class="statusButton flexMin capitalFirst shadowed"
