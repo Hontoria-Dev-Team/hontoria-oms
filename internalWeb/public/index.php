@@ -134,6 +134,8 @@ switch ($page) {
             $orders->deleteOrder();
         } else if ($action === 'assignEmployeeToTask') {
             $orders->assignEmployeeToTask();
+        } else if ($action === 'removeAssignment') {
+            $orders->unassignEmployeeToTask();
         } else {
             $orders->showOrders();
         }

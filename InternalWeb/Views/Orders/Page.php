@@ -122,6 +122,7 @@
     const userProcessList = <?php echo json_encode($userProcessList); ?>;
     const taskAssigneeList = <?php echo json_encode($taskAssigneeList); ?>;
     const userTaskCountTally = <?php echo json_encode($userTaskCountTally); ?>;
+    const userProcessTasksList = <?php echo json_encode($userProcessTasksList); ?>;
 
     const orderProcessesMap = {};
 
@@ -168,6 +169,22 @@
 
     userTaskCountTally.forEach(item => {
         userTaskCountMap[item.userID] = (item.taskCount);
+    });
+
+    const userProcessTasksMap = {};
+
+    userProcessTasksList.forEach(item => {
+        if (!userProcessTasksMap[item.orderProcessID]) {
+            userProcessTasksMap[item.orderProcessID] = [];
+        }
+
+        userProcessTasksMap[item.orderProcessID].push({
+            userID: item.userID,
+            name: item.firstName + " " + item.middleName[0] + ". " + item.lastName,
+            status: item.status,
+            assignedAt: item.assignedAt,
+            roles: item.roles
+        });
     });
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -223,7 +240,10 @@
             }
 
             processDiv = document.createElement('div');
-            processDiv.className = 'flexMin minHeight bordered roundedMin centerColumnLayout tinGap';
+            processDiv.className = 'flexMin minHeight bordered roundedMin centerColumnLayout tinGap clickable processElement';
+            processDiv.dataset.orderProcessID = orderProcesses[i].id;
+            processDiv.dataset.name = orderProcesses[i].processName;
+            processDiv.dataset.status = orderProcesses[i].status;
 
             processHead = document.createElement('h3');
             processHead.textContent = orderProcesses[i].processName;
@@ -269,6 +289,61 @@
 
             hasFirstProcess = true;
         }
+
+        document.querySelectorAll('.processElement').forEach(function(elem) {
+            elem.addEventListener('click', function() {
+                confirmationTitle.innerHTML = "Order Process Assignees";
+
+                if (elem.dataset.status == 'complete') {
+                    confirmationText.innerHTML = "The process has already been completed.";
+                } else {
+                    const assignedEmployees = [...(userProcessTasksMap[elem.dataset.orderProcessID] || [])];
+                    let hasAssignees = false;
+
+                    confirmationText.innerHTML = "Here are the assignees for this order's " + elem.dataset.name +
+                        " process. You can unnassign employees by clicking on the X button next to them.";
+
+                    tempDiv = document.createElement('div');
+                    tempDiv.className = "columnLayout minGap tempElement maxHeight scrollable regMinPadding";
+                    tempDiv.id = "assignableEmployeesContainer";
+                    confirmationForm.appendChild(tempDiv);
+
+                    assignedEmployees.forEach(function(employee) {
+                        tempElement = document.createElement("div");
+                        tempElement.innerHTML = `
+                            <div class="flexMax columnLayout tinGap regMinPadding">
+                                <b>${employee.name}</b>
+                                <b class="capitalFirst">${employee.roles}</b>
+                                <b>Assigned At: ${formatDate(employee.assignedAt)}</b>
+                            </div>
+                            <form class="squareSize unitHeight norEastAbsolute centerColumnLayout closeCorner clickable"
+                                method="POST" action="index.php?page=orders&action=removeAssignment">
+                                <input type="hidden" name="userID" value="${employee.userID}">
+                                <input type="hidden" name="orderProcessID" value="${elem.dataset.orderProcessID}">
+                                <input type="submit" name="submit" class="absoluted fullDimensions invisible">
+                                <img src="../../Shared/Img/XIcon.png" alt="X">
+                            </form>
+                        `;
+                        tempElement.className = "centerText noShrink centerHoriColumnLayout shadowed roundedTin yellowBorder yellowTransBG selectedEmployeeAssign fixedScreen";
+                        tempDiv.appendChild(tempElement);
+
+                        hasAssignees = true;
+                    });
+
+                    if (!hasAssignees) {
+                        tempDiv.innerHTML = `
+                            <b class="centerColumnLayout centerText regMinPadding shadowed roundedTin flexMax darkFadedBG bordered">
+                                <b>No employees assigned for this process.</b>
+                            </b>
+                        `;
+                    }
+                }
+
+                confirmationSubmit.classList.add("hidden");
+
+                confirmation.style.display = 'flex';
+            });
+        });
     }
 
     // Editable deadline and delete order function logic

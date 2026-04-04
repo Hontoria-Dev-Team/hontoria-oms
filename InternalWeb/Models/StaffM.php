@@ -468,7 +468,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getAllUserProcessTasks() {
+    public function getAllUserAssignableProcessTasks() {
         $query = "
             SELECT
                 users.id AS userID,
@@ -491,6 +491,47 @@ class StaffM {
                 processes.id,
                 processes.name
             ORDER BY processes.id ASC
+        ";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllUserProcessTasks() {
+        $query = "
+            SELECT
+                users.id AS userID,
+                users.firstName,
+                users.middleName,
+                users.lastName,
+                userProcessTasks.orderProcessID,
+                userProcessTasks.status,
+                userProcessTasks.assignedAt,
+                (
+                    SELECT GROUP_CONCAT(DISTINCT roles.name ORDER BY roles.name SEPARATOR ', ')
+                    FROM userRoles
+                    JOIN roles ON userRoles.roleID = roles.id
+                    JOIN roleProcessTasks ON userRoles.roleID = roleProcessTasks.roleID
+                    JOIN processes ON roleProcessTasks.processID = processes.id
+                    WHERE userRoles.userID = users.id
+                    AND processes.id = (
+                        SELECT processes.id
+                        FROM orderProcess
+                        JOIN orders ON orderProcess.orderID = orders.id
+                        JOIN subservices ON orders.subserviceID = subservices.id
+                        JOIN serviceProcess ON subservices.serviceID = serviceProcess.serviceID AND orderProcess.phase = serviceProcess.phase
+                        JOIN processes ON serviceProcess.processesID = processes.id
+                        WHERE orderProcess.id = userProcessTasks.orderProcessID
+                        LIMIT 1
+                    )
+                ) AS roles
+            FROM userProcessTasks
+            JOIN orderProcess ON userProcessTasks.orderProcessID = orderProcess.id
+            JOIN users ON userProcessTasks.userID = users.id
+            JOIN orders ON orderProcess.orderID = orders.id
+            JOIN subservices ON orders.subserviceID = subservices.id
+            JOIN serviceProcess ON subservices.serviceID = serviceProcess.serviceID AND orderProcess.phase = serviceProcess.phase
+            JOIN processes ON serviceProcess.processesID = processes.id
         ";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();

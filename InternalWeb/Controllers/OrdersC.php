@@ -19,8 +19,9 @@ class OrdersC {
         $orderList = $this->ordersModel->getAllOrders();
         $orderProcessList = $this->ordersModel->getAllOrderProcesses();
         $taskAssigneeList = $this->ordersModel->getAllTaskAssigneeList();
-        $userProcessList = $this->staffModel->getAllUserProcessTasks();
+        $userProcessList = $this->staffModel->getAllUserAssignableProcessTasks();
         $userTaskCountTally = $this->staffModel->getAllUsersTaskCount();
+        $userProcessTasksList = $this->staffModel->getAllUserProcessTasks();
 
         $orderAssigneeCountMap = [];
 
@@ -156,6 +157,14 @@ class OrdersC {
         $userID = $_POST['userID'];
         $orderProcessID = $_POST['orderProcessID'];
         $this->ordersModel->insertUserProcessTask($userID, $orderProcessID);
+
+        header('Location: index.php?page=orders');
+    }
+
+    public function unassignEmployeeToTask() {
+        $userID = $_POST['userID'];
+        $orderProcessID = $_POST['orderProcessID'];
+        $this->ordersModel->removeUserProcessTask($userID, $orderProcessID);
 
         header('Location: index.php?page=orders');
     }

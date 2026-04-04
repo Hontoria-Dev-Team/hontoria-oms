@@ -207,6 +207,14 @@ class OrdersM {
         return $stmt->execute();
     }
 
+    public function removeUserProcessTask($userID, $orderProcessID) {
+        $query = "DELETE FROM userProcessTasks WHERE userID = :userID AND orderProcessID = :orderProcessID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        $stmt->bindParam(':orderProcessID', $orderProcessID);
+        return $stmt->execute();
+    }
+
     public function getAllTaskAssigneeList() {
         $query = "
             SELECT
