@@ -22,6 +22,12 @@ class OrdersC {
         $userProcessList = $this->staffModel->getAllUserProcessTasks();
         $userTaskCountTally = $this->staffModel->getAllUsersTaskCount();
 
+        $orderAssigneeCountMap = [];
+
+        foreach ($this->ordersModel->getAllOrdersAssigneeCount() as $item) {
+            $orderAssigneeCountMap[$item['orderID']] = $item['assigneeCount'];
+        }
+
         // if ($search !== '' || $status !== '') {
         //     $staffList = $this->staffModel->getfilteredStaff($search, $status);
         // } else {

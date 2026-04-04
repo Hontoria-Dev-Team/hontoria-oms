@@ -46,6 +46,7 @@
                             }
                             $activeProcesses = rtrim($activeProcesses, ", ");
 
+                            $assigneeCount = $orderAssigneeCountMap[$order['id']] ?? 0;
                             $divBgClass = $order['status'] === "Active" ?
                                 "yellowTransBG yellowBorder" : ($order['status'] === "Idle" ? "redTransBG redBorder" : "greenTransBG greenBorder");
                             $statusBgClass = $order['status'] === "Active" ?
@@ -60,6 +61,8 @@
                                     <b>Due In: <span class="dueInText" data-due-date="<?= $order['deadlineAt'] ?>"></span></b>
                                     <b>Value: ₱<?= $order['priceTotal'] ?></b>
                                     <b>Current Process: <?= $activeProcesses ?></b>
+                                    <b class="centerHoriRowLayout tinGap"><img src="../../Shared/Img/PeopleIcon.png" alt="People" class="unitHeight">
+                                        Assigned: <?= $assigneeCount ?></b>
                                 </div>
                             </div>
                         <?php endforeach; ?>

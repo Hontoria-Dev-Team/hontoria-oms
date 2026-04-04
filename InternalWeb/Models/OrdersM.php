@@ -391,4 +391,18 @@ class OrdersM {
         $stmt->bindParam(':orderProcessID', $orderProcessID);
         return $stmt->execute();
     }
+
+    public function getAllOrdersAssigneeCount() {
+        $query = "
+            SELECT
+                orderProcess.orderID,
+                COUNT(DISTINCT userProcessTasks.userID) AS assigneeCount
+            FROM userProcessTasks
+            JOIN orderProcess ON userProcessTasks.orderProcessID = orderProcess.id
+            GROUP BY orderProcess.orderID
+        ";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
