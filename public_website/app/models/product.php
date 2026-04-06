@@ -1,15 +1,18 @@
 <?php
 /**
  * product.php
- * Product Model — Single Responsibility: manages product data only.
+ * Single Responsibility: represents ONE product and exposes its data.
  *
- * HOW TO ADD A NEW PRODUCT:
- * 1. Copy one block below, change the values, save.
- * 2. Set 'price' to 0 for "Contact us for pricing"
- * 3. Set 'photo' to the first/main image path
- * 4. Set 'photos' to an array of all gallery image paths
- * 5. Set 'variants' for products with multiple price options
+ * This file only knows about ONE product at a time.
+ * It depends on the three support files to build the full catalog:
+ *   - PhotoLibrary.php   → photo arrays per product
+ *   - VariantLibrary.php → price variants per product
+ *   - ProductCatalog.php → product definitions (id, name, price, etc.)
  */
+require_once __DIR__ . '/PhotoLibrary.php';
+require_once __DIR__ . '/VariantLibrary.php';
+require_once __DIR__ . '/ProductCatalog.php';
+
 class product {
 
     private string $id;
@@ -28,7 +31,7 @@ class product {
         $this->name        = $data['name']        ?? '';
         $this->category    = $data['category']    ?? '';
         $this->description = $data['description'] ?? '';
-        $this->price       = $data['price']       ?? 0.0;
+        $this->price       = (float)($data['price'] ?? 0);
         $this->icon        = $data['icon']        ?? 'fa-image';
         $this->bgGradient  = $data['bgGradient']  ?? 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
         $this->photo       = $data['photo']       ?? '';
@@ -36,6 +39,7 @@ class product {
         $this->variants    = $data['variants']    ?? [];
     }
 
+    // ── Getters ───────────────────────────────────────────────────────
     public function getId(): string          { return $this->id; }
     public function getName(): string        { return $this->name; }
     public function getCategory(): string    { return $this->category; }
@@ -70,480 +74,33 @@ class product {
         return $map[$this->category] ?? 'sublim-img';
     }
 
+    // ── Factory — assembles all products from the three libraries ─────
     public static function getAllProducts(): array {
+        $photos   = \PhotoLibrary::build();
+        $variants = \VariantLibrary::build();
+        $products = [];
 
-        // ── Jersey photos (16 photos) ─────────────────────────────────────
-        $jerseyPhotos = [];
-        for ($i = 1; $i <= 16; $i++) {
-            $jerseyPhotos[] = 'img/sublimationPicture/jerseyPicture/jerseyPicture' . $i . '.jpg';
+        foreach (\ProductCatalog::definitions() as $def) {
+            [$id, $name, $category, $description, $price, $icon, $bgGradient, $photo] = $def;
+
+            $products[] = new self([
+                'id'          => $id,
+                'name'        => $name,
+                'category'    => $category,
+                'description' => $description,
+                'price'       => $price,
+                'icon'        => $icon,
+                'bgGradient'  => $bgGradient,
+                'photo'       => $photo,
+                'photos'      => $photos[$id]   ?? [],
+                'variants'    => $variants[$id] ?? [],
+            ]);
         }
 
-        // ── T-Shirt photos (25 photos) ────────────────────────────────────
-        $tshirtPhotos = [];
-        for ($i = 1; $i <= 25; $i++) {
-            $tshirtPhotos[] = 'img/sublimationPicture/tshirtPicture/tshirtPicture' . $i . '.jpg';
-        }
-
-        // ── Short photos (10 photos) ──────────────────────────────────────
-        $shortPhotos = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $shortPhotos[] = 'img/sublimationPicture/shortPicture/short' . $i . '.jpg';
-        }
-
-        // ── Warmer photos (10 photos) ─────────────────────────────────────
-        $warmerPhotos = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $warmerPhotos[] = 'img/sublimationPicture/warmerPicture/warmer' . $i . '.jpg';
-        }
-
-        // ── Jogging Pants photos (5 photos) ──────────────────────────────
-        $pantsPhotos = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $pantsPhotos[] = 'img/sublimationPicture/pantsPicture/pants' . $i . '.jpg';
-        }
-
-        // ── Longsleeve photos (6 photos) ──────────────────────────────────
-        $longsleevePhotos = [];
-        for ($i = 1; $i <= 6; $i++) {
-            $longsleevePhotos[] = 'img/sublimationPicture/longsleveePicture/longslevee' . $i . '.jpg';
-        }
-
-        // ── Polo Shirt photos (9 photos) ─────────────────────────────────
-        $poloshirtPhotos = [];
-        for ($i = 1; $i <= 9; $i++) {
-            $poloshirtPhotos[] = 'img/sublimationPicture/poloshirtPicture/poloshirt' . $i . '.jpg';
-        }
-
-        // ── Birthday Tarpaulin photos (10 photos) ─────────────────────────
-        $bdayPhotos = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $bdayPhotos[] = 'img/tarpaulin/birthdayTarpaulin/bday' . $i . '.jpg';
-        }
-
-        // ── Congratulation Tarpaulin photos (9 photos, no grats8) ─────────
-        $gratsPhotos = [
-            'img/tarpaulin/congratulationTarpaulin/grats1.jpg',
-            'img/tarpaulin/congratulationTarpaulin/grats2.jpg',
-            'img/tarpaulin/congratulationTarpaulin/grats3.jpg',
-            'img/tarpaulin/congratulationTarpaulin/grats4.jpg',
-            'img/tarpaulin/congratulationTarpaulin/grats5.jpg',
-            'img/tarpaulin/congratulationTarpaulin/grats6.jpg',
-            'img/tarpaulin/congratulationTarpaulin/grats7.jpg',
-            'img/tarpaulin/congratulationTarpaulin/grats9.jpg',
-            'img/tarpaulin/congratulationTarpaulin/grats10.jpg',
-        ];
-
-        // ── Lanyard photos (7 photos) ─────────────────────────────────────
-        $lanyardPhotos = [];
-        for ($i = 1; $i <= 7; $i++) {
-            $lanyardPhotos[] = 'img/idLanyards/lanyard/lanyard' . $i . '.jpg';
-        }
-
-        // ── Car Decals photos (5 photos) ──────────────────────────────────
-        $carDecalPhotos = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $carDecalPhotos[] = 'img/sticker_decals/carDecals/car' . $i . '.jpg';
-        }
-
-        // ── Motor Decals photos (7 photos) ────────────────────────────────
-        $motorDecalPhotos = [];
-        for ($i = 1; $i <= 7; $i++) {
-            $motorDecalPhotos[] = 'img/sticker_decals/motorDecals/motor' . $i . '.jpg';
-        }
-
-        // ── Truck Decals photos (5 photos) ────────────────────────────────
-        $truckDecalPhotos = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $truckDecalPhotos[] = 'img/sticker_decals/truckDecals/truck' . $i . '.jpg';
-        }
-
-        // ── Sintra Board photos (5 photos) ────────────────────────────────
-        $sintraBoardPhotos = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $sintraBoardPhotos[] = 'img/sintraBoard/board/board' . $i . '.jpg';
-        }
-
-        // ── Photo Frame photos (5 photos) ─────────────────────────────────
-        $photoFramePhotos = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $photoFramePhotos[] = 'img/photoFrame/frame/frame' . $i . '.jpg';
-        }
-
-        // ── Ref Magnet photos (5 photos) ──────────────────────────────────
-        $refMagnetPhotos = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $refMagnetPhotos[] = 'img/refMagnet/magnet/magnet' . $i . '.jpg';
-        }
-
-        // ── Plaque photos (10 photos) ─────────────────────────────────────
-        $plaquePhotos = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $plaquePhotos[] = 'img/plaque_medal/plaque/plaque' . $i . '.jpg';
-        }
-
-        // ── Medal photos (10 photos) ──────────────────────────────────────
-        $medalPhotos = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $medalPhotos[] = 'img/plaque_medal/medal/medal' . $i . '.jpg';
-        }
-
-        // ── Stitching photos (5 photos) ───────────────────────────────────
-        $stitchingPhotos = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $stitchingPhotos[] = 'img/customStitching/tshirt/stitching' . $i . '.jpg';
-        }
-
-        // ── Tumbler photos (5 photos) ─────────────────────────────────────
-        $tumblerPhotos = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $tumblerPhotos[] = 'img/sublimationMug/tumbler/tumbler' . $i . '.jpg';
-        }
-
-        // ── Mug photos (5 photos) ─────────────────────────────────────────
-        $mugPhotos = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $mugPhotos[] = 'img/sublimationMug/mug/mug' . $i . '.jpg';
-        }
-
-        return [
-
-            // ── SUBLIMATION ───────────────────────────────────────────────
-            new product([
-                'id'          => 'jersey',
-                'name'        => 'Jersey',
-                'category'    => 'sublimation',
-                'description' => 'High-quality full sublimation printing on jerseys. Perfect for sports teams, events, and uniforms. Fade-resistant and durable.',
-                'price'       => 300,
-                'icon'        => 'fa-tshirt',
-                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => 'img/sublimationPicture/jerseyPicture/jerseyPicture1.jpg',
-                'photos'      => $jerseyPhotos,
-                'variants'    => [],
-            ]),
-            new product([
-                'id'          => 'tshirt',
-                'name'        => 'T-Shirt',
-                'category'    => 'sublimation',
-                'description' => 'Custom sublimation printed t-shirts in any design. Great for organizations, teams, and personal use.',
-                'price'       => 300,
-                'icon'        => 'fa-tshirt',
-                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => 'img/sublimationPicture/tshirtPicture/tshirtPicture1.jpg',
-                'photos'      => $tshirtPhotos,
-                'variants'    => [],
-            ]),
-            new product([
-                'id'          => 'short',
-                'name'        => 'Short',
-                'category'    => 'sublimation',
-                'description' => 'Vibrant sublimation printed shorts. Matched perfectly with our jerseys for a complete team uniform.',
-                'price'       => 300,
-                'icon'        => 'fa-tshirt',
-                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => 'img/sublimationPicture/shortPicture/short1.jpg',
-                'photos'      => $shortPhotos,
-                'variants'    => [],
-            ]),
-            new product([
-                'id'          => 'warmer',
-                'name'        => 'Warmer',
-                'category'    => 'sublimation',
-                'description' => 'Sublimation warmers for players and athletes. Keeps you warm while looking professional.',
-                'price'       => 0,
-                'icon'        => 'fa-tshirt',
-                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => 'img/sublimationPicture/warmerPicture/warmer1.jpg',
-                'photos'      => $warmerPhotos,
-                'variants'    => [],
-            ]),
-            new product([
-                'id'          => 'joggingpants',
-                'name'        => 'Jogging Pants',
-                'category'    => 'sublimation',
-                'description' => 'Full sublimation jogging pants with any design. Comfortable, durable, and eye-catching.',
-                'price'       => 450,
-                'icon'        => 'fa-tshirt',
-                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => 'img/sublimationPicture/pantsPicture/pants1.jpg',
-                'photos'      => $pantsPhotos,
-                'variants'    => [],
-            ]),
-            new product([
-                'id'          => 'longsleeve',
-                'name'        => 'Long Sleeve',
-                'category'    => 'sublimation',
-                'description' => 'Full sublimation long sleeve shirts with vibrant custom designs. Perfect for teams, events, and everyday wear.',
-                'price'       => 400,
-                'icon'        => 'fa-tshirt',
-                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => 'img/sublimationPicture/longsleveePicture/longslevee1.jpg',
-                'photos'      => $longsleevePhotos,
-                'variants'    => [],
-            ]),
-            new product([
-                'id'          => 'poloshirt',
-                'name'        => 'Polo Shirt',
-                'category'    => 'sublimation',
-                'description' => 'Custom sublimation polo shirts with full color printing. Great for corporate events, teams, and casual wear.',
-                'price'       => 430,
-                'icon'        => 'fa-tshirt',
-                'bgGradient'  => 'linear-gradient(135deg,#fff5cc,#ffe57a)',
-                'photo'       => 'img/sublimationPicture/poloshirtPicture/poloshirt1.jpg',
-                'photos'      => $poloshirtPhotos,
-                'variants'    => [],
-            ]),
-
-            // ── UNIFORM ───────────────────────────────────────────────────
-            new product([
-                'id'          => 'school-uniform',
-                'name'        => 'School Uniform',
-                'category'    => 'uniform',
-                'description' => 'Custom-made school uniforms tailored to your school\'s specifications. Durable, comfortable, and neat.',
-                'price'       => 0,
-                'icon'        => 'fa-user-graduate',
-                'bgGradient'  => 'linear-gradient(135deg,#e8f0ff,#c8d8ff)',
-                'photo'       => '',
-                'photos'      => [],
-                'variants'    => [],
-            ]),
-            new product([
-                'id'          => 'office-uniform',
-                'name'        => 'Office Uniform',
-                'category'    => 'uniform',
-                'description' => 'Professional office uniforms tailored for a sharp, consistent look across your entire team.',
-                'price'       => 0,
-                'icon'        => 'fa-briefcase',
-                'bgGradient'  => 'linear-gradient(135deg,#e8f0ff,#c8d8ff)',
-                'photo'       => '',
-                'photos'      => [],
-                'variants'    => [],
-            ]),
-            new product([
-                'id'          => 'professional-uniform',
-                'name'        => 'Professional Uniform',
-                'category'    => 'uniform',
-                'description' => 'High-quality professional uniforms for healthcare, hospitality, and other industries.',
-                'price'       => 0,
-                'icon'        => 'fa-user-tie',
-                'bgGradient'  => 'linear-gradient(135deg,#e8f0ff,#c8d8ff)',
-                'photo'       => '',
-                'photos'      => [],
-                'variants'    => [],
-            ]),
-
-            // ── CUSTOMIZE TARPAULIN ───────────────────────────────────────
-            new product([
-                'id'          => 'birthday',
-                'name'        => 'Birthday Tarpaulin',
-                'category'    => 'tarpaulin',
-                'description' => 'Beautiful custom birthday tarpaulins. Any size, any design — bold and colorful.',
-                'price'       => 0,
-                'icon'        => 'fa-birthday-cake',
-                'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
-                'photo'       => 'img/tarpaulin/birthdayTarpaulin/bday1.jpg',
-                'photos'      => $bdayPhotos,
-                'variants'    => [
-                    ['name' => '2x3 ft.', 'price' => 72],
-                    ['name' => '3x4 ft.', 'price' => 144],
-                    ['name' => '3x5 ft.', 'price' => 180],
-                    ['name' => '4x6 ft.', 'price' => 288],
-                    ['name' => '4x8 ft.', 'price' => 384],
-                ],
-            ]),
-            new product([
-                'id'          => 'congratulation',
-                'name'        => 'Congratulation Tarpaulin',
-                'category'    => 'tarpaulin',
-                'description' => 'Vibrant congratulation tarpaulins for any milestone — promotions, awards, anniversaries, and more.',
-                'price'       => 0,
-                'icon'        => 'fa-star',
-                'bgGradient'  => 'linear-gradient(135deg,#ffe0e0,#ffb3b3)',
-                'photo'       => 'img/tarpaulin/congratulationTarpaulin/grats1.jpg',
-                'photos'      => $gratsPhotos,
-                'variants'    => [],
-            ]),
-
-            // ── CUSTOMIZE MUGS & TUMBLER ──────────────────────────────────
-            new product([
-                'id'          => 'mug',
-                'name'        => 'Mug',
-                'category'    => 'mug',
-                'description' => 'Full-wrap sublimation printed mugs with your custom design. Perfect for gifts, souvenirs, and corporate giveaways.',
-                'price'       => 150,
-                'icon'        => 'fa-mug-hot',
-                'bgGradient'  => 'linear-gradient(135deg,#fff3e0,#ffe0b2)',
-                'photo'       => 'img/sublimationMug/mug/mug1.jpg',
-                'photos'      => $mugPhotos,
-                'variants'    => [
-                    ['name' => 'White Mug', 'price' => 150],
-                    ['name' => 'Magic Mug', 'price' => 200],
-                ],
-            ]),
-            new product([
-                'id'          => 'tumbler',
-                'name'        => 'Tumbler',
-                'category'    => 'mug',
-                'description' => 'Custom sublimation printed tumblers. Keep your drinks hot or cold while showing off your unique design.',
-                'price'       => 350,
-                'icon'        => 'fa-mug-hot',
-                'bgGradient'  => 'linear-gradient(135deg,#fff3e0,#ffe0b2)',
-                'photo'       => 'img/sublimationMug/tumbler/tumbler1.jpg',
-                'photos'      => $tumblerPhotos,
-                'variants'    => [],
-            ]),
-
-            // ── CUSTOMIZE LANYARD ─────────────────────────────────────────
-            new product([
-                'id'          => 'lanyard',
-                'name'        => 'Lanyard',
-                'category'    => 'lanyard',
-                'description' => 'Custom printed lanyards with your logo and colors. Durable and comfortable.',
-                'price'       => 60,
-                'icon'        => 'fa-id-card',
-                'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
-                'photo'       => 'img/idLanyards/lanyard/lanyard1.jpg',
-                'photos'      => $lanyardPhotos,
-                'variants'    => [],
-            ]),
-
-            // ── CUSTOM STITCHING ──────────────────────────────────────────
-            new product([
-                'id'          => 'stitching-tshirt',
-                'name'        => 'Customize Stitching',
-                'category'    => 'stitching',
-                'description' => 'Tailored t-shirts with custom stitching and embroidery. Perfect for teams, events, and branded apparel.',
-                'price'       => 0,
-                'icon'        => 'fa-cut',
-                'bgGradient'  => 'linear-gradient(135deg,#e8f5e9,#c8e6c9)',
-                'photo'       => 'img/customStitching/tshirt/stitching1.jpg',
-                'photos'      => $stitchingPhotos,
-                'variants'    => [],
-            ]),
-
-            // ── STICKERS & DECALS ─────────────────────────────────────────
-            new product([
-                'id'          => 'motorcycle-decal',
-                'name'        => 'Motorcycle Decals',
-                'category'    => 'sticker',
-                'description' => 'High-quality waterproof motorcycle decals in any shape and design. Weather-resistant and long-lasting.',
-                'price'       => 0,
-                'icon'        => 'fa-motorcycle',
-                'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
-                'photo'       => 'img/sticker_decals/motorDecals/motor1.jpg',
-                'photos'      => $motorDecalPhotos,
-                'variants'    => [],
-            ]),
-            new product([
-                'id'          => 'truck-decal',
-                'name'        => 'Truck Decals',
-                'category'    => 'sticker',
-                'description' => 'Large-format truck decals and vinyl wraps. Bold, vibrant, and built to withstand the elements.',
-                'price'       => 0,
-                'icon'        => 'fa-truck',
-                'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
-                'photo'       => 'img/sticker_decals/truckDecals/truck1.jpg',
-                'photos'      => $truckDecalPhotos,
-                'variants'    => [],
-            ]),
-            new product([
-                'id'          => 'car-decal',
-                'name'        => 'Car Decals',
-                'category'    => 'sticker',
-                'description' => 'Custom car decals and stickers. Perfect for business branding, personal style, or promotional use.',
-                'price'       => 0,
-                'icon'        => 'fa-car',
-                'bgGradient'  => 'linear-gradient(135deg,#fce4ec,#f8bbd0)',
-                'photo'       => 'img/sticker_decals/carDecals/car1.jpg',
-                'photos'      => $carDecalPhotos,
-                'variants'    => [],
-            ]),
-
-            // ── CUSTOMIZE SINTRA BOARD ────────────────────────────────────
-            new product([
-                'id'          => 'sintra-board',
-                'name'        => 'Sintra Board',
-                'category'    => 'sintra',
-                'description' => 'Custom printed sintra boards for signage, displays, and advertising. Lightweight, durable, and weather-resistant.',
-                'price'       => 0,
-                'icon'        => 'fa-border-all',
-                'bgGradient'  => 'linear-gradient(135deg,#e3f2fd,#bbdefb)',
-                'photo'       => 'img/sintraBoard/board/board1.jpg',
-                'photos'      => $sintraBoardPhotos,
-                'variants'    => [
-                    ['name' => 'A4 (flat)',           'price' => 150],
-                    ['name' => 'A4 (box)',            'price' => 200],
-                    ['name' => '18x24 inches (flat)', 'price' => 350],
-                    ['name' => '18x24 inches (box)',  'price' => 450],
-                    ['name' => '2x3 ft. (flat)',      'price' => 500],
-                    ['name' => '2x3 ft. (box)',       'price' => 750],
-                    ['name' => '3x4 ft. (flat)',      'price' => 1000],
-                    ['name' => '3x4 ft. (box)',       'price' => 1500],
-                ],
-            ]),
-
-            // ── CUSTOMIZE PHOTO FRAME ─────────────────────────────────────
-            new product([
-                'id'          => 'photo-frame',
-                'name'        => 'Photo Frame',
-                'category'    => 'photoframe',
-                'description' => 'Custom sublimation printed photo frames. Perfect for gifts, events, and keepsakes. Available in various sizes.',
-                'price'       => 0,
-                'icon'        => 'fa-image',
-                'bgGradient'  => 'linear-gradient(135deg,#f3e5f5,#e1bee7)',
-                'photo'       => 'img/photoFrame/frame/frame1.jpg',
-                'photos'      => $photoFramePhotos,
-                'variants'    => [],
-            ]),
-
-            // ── CUSTOMIZE REF MAGNET ──────────────────────────────────────
-            new product([
-                'id'          => 'ref-magnet',
-                'name'        => 'Ref Magnet',
-                'category'    => 'refmagnet',
-                'description' => 'Personalized refrigerator magnets with custom designs. Great for souvenirs, giveaways, and promotional items.',
-                'price'       => 35,
-                'bgGradient'  => 'linear-gradient(135deg,#e8f5e9,#c8e6c9)',
-                'photo'       => 'img/refMagnet/magnet/magnet1.jpg',
-                'photos'      => $refMagnetPhotos,
-                'variants'    => [],
-            ]),
-
-            // ── CUSTOMIZE PLAQUE & MEDAL ──────────────────────────────────
-            new product([
-                'id'          => 'plaque',
-                'name'        => 'Plaque and Trophies',
-                'category'    => 'plaque',
-                'description' => 'Custom engraved plaques for awards, recognition, and achievements. Professional finish with personalized text and design.',
-                'price'       => 0,
-                'icon'        => 'fa-award',
-                'bgGradient'  => 'linear-gradient(135deg,#fff8e1,#ffecb3)',
-                'photo'       => 'img/plaque_medal/plaque/plaque1.jpg',
-                'photos'      => $plaquePhotos,
-                'variants'    => [
-                    ['name' => 'Acrylic Plaque - Small',              'price' => 350],
-                    ['name' => 'Acrylic Plaque - Medium',             'price' => 400],
-                    ['name' => 'Acrylic Plaque - Large',              'price' => 500],
-                    ['name' => 'Acrylic Plaque - XL',                 'price' => 650],
-                    ['name' => 'Glass Plaque - Standard thickness',   'price' => 400],
-                    ['name' => 'Glass Plaque - Thick',                'price' => 800],
-                ],
-            ]),
-            new product([
-                'id'          => 'medal',
-                'name'        => 'Medal',
-                'category'    => 'plaque',
-                'description' => 'Complete set medal with ribbon (6 cm). Perfect for sports events, competitions, and recognition ceremonies. Available in gold, silver, and bronze.',
-                'price'       => 50,
-                'icon'        => 'fa-medal',
-                'bgGradient'  => 'linear-gradient(135deg,#fff8e1,#ffecb3)',
-                'photo'       => 'img/plaque_medal/medal/medal1.jpg',
-                'photos'      => $medalPhotos,
-                'variants'    => [],
-            ]),
-
-        ];
+        return $products;
     }
 
+    // ── Queries ───────────────────────────────────────────────────────
     public static function getByCategory(string $category): array {
         return array_values(array_filter(
             self::getAllProducts(),
