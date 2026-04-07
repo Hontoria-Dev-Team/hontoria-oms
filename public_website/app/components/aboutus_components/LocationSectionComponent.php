@@ -17,10 +17,17 @@ class LocationSectionComponent extends \Component {
             <div class="section-inner">
                 <div class="location-layout">
 
-                    <!-- Map / Photo placeholder -->
-                    <div class="location-img-placeholder">
-                        <i class="fas fa-map-marked-alt"></i>
-                        <span>LOCATION PHOTO</span>
+                    <!-- Live Google Maps Embed -->
+                    <div class="location-map-wrap">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!4v1775546378932!6m8!1m7!1sb15YPSZyDOgxicNazUUiMw!2m2!1d7.528266967563585!2d125.6236165603115!3f81.551414!4f0!5f0.7820865974627469"
+                            width="100%"
+                            height="100%"
+                            style="border:0;"
+                            allowfullscreen=""
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
                     </div>
 
                     <!-- Details -->
