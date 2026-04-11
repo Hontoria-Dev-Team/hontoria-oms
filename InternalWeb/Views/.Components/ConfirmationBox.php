@@ -6,8 +6,8 @@
             <h4 id="confirmationText">Confirmation Text</h4>
             <form id="confirmationForm" method="POST" class="reverseColumnLayout fullWidth minGap">
                 <div id="confirmationButtons" class="rowLayout minGap">
-                    <input type="submit" class="criticalInput flexMax" id="submitConfimationButton" value="Yes">
-                    <input type="button" class="importantInput flexMax" id="cancelConfimationButton" value="No">
+                    <input type="submit" class="criticalInput flexMax shadowed noBorder" id="submitConfimationButton" value="Yes">
+                    <input type="button" class="importantInput flexMax shadowed noBorder" id="cancelConfimationButton" value="No">
                 </div>
             </form>
         </div>
