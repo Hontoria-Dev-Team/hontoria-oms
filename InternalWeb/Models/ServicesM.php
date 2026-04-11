@@ -409,9 +409,44 @@ class ServicesM {
     }
 
     public function deleteSubserviceImage($id) {
-        $query = "DELETE FROM subserviceImages WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        $storageDir = __DIR__ . '/../../Storage/SubserviceImages/';
+
+        try {
+            // Get the image filename
+            $query = "SELECT imageName FROM subserviceImages WHERE id = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+            $image = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$image) {
+                $_SESSION['error'] = "Image record not found.";
+                return false;
+            }
+
+            // Delete the physical file
+            $filePath = $storageDir . $image['imageName'];
+            if (file_exists($filePath)) {
+                if (!unlink($filePath)) {
+                    $_SESSION['error'] = "Failed to delete image file.";
+                    return false;
+                }
+            }
+
+            // Delete the database record
+            $query = "DELETE FROM subserviceImages WHERE id = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $id);
+            $result = $stmt->execute();
+
+            if (!$result) {
+                $_SESSION['error'] = "Failed to delete database record.";
+            }
+
+            return $result;
+        } catch (PDOException $e) {
+            $_SESSION['error'] = $e->getMessage();
+            return false;
+        }
     }
 }
