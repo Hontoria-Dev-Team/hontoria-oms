@@ -63,10 +63,58 @@ class ServicesM {
     }
 
     public function removeService($id) {
-        $query = "DELETE FROM services WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        try {
+            $this->pdo->beginTransaction();
+
+            $subservices = $this->getSubservices($id);
+
+            if (!empty($subservices)) {
+                $subserviceIds = array_column($subservices, 'id');
+                $placeholders = implode(',', array_fill(0, count($subserviceIds), '?'));
+
+                // Get all images to delete files first
+                $query = "SELECT imageName FROM subserviceImages WHERE subserviceID IN ($placeholders)";
+                $stmt = $this->pdo->prepare($query);
+                $stmt->execute($subserviceIds);
+                $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Delete image files from storage
+                $storageDir = __DIR__ . '/../../Storage/SubserviceImages/';
+                foreach ($images as $image) {
+                    $filePath = $storageDir . $image['imageName'];
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                }
+
+                // Delete subserviceImages records
+                $query = "DELETE FROM subserviceImages WHERE subserviceID IN ($placeholders)";
+                $stmt = $this->pdo->prepare($query);
+                $stmt->execute($subserviceIds);
+
+                // Delete subservices
+                $query = "DELETE FROM subservices WHERE serviceID = ?";
+                $stmt = $this->pdo->prepare($query);
+                $stmt->execute([$id]);
+            }
+
+            // Delete serviceProcess
+            $query = "DELETE FROM serviceProcess WHERE serviceID = ?";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([$id]);
+
+            // Delete service
+            $query = "DELETE FROM services WHERE id = ?";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([$id]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (PDOException $e) {
+            $this->pdo->rollBack();
+            $_SESSION["error"] = ($e->getMessage());
+            return false;
+        }
     }
 
     public function getSubservices($serviceID) {
