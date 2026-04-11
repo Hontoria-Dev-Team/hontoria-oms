@@ -4,7 +4,11 @@
         <a id="imageBoxCloseButton" class="norEastAbsolute distantCorner squareSize tinHeight centerColumnLayout importantInput roundedMin">
             <img src="../../Shared/Img/XIcon.png" alt="X" class="invertColors">
         </a>
-        <img class="box centerColumnLayout roundedMid fullWidth" id="imageBoxImage">
+        <div class="box roundedMid fullWidth">
+            <div class="columnLayout fullWidth scrollableX regMinPadding">
+                <img class="centerColumnLayout roundedMid fullWidth shadowed" id="imageBoxImage">
+            </div>
+        </div>
         <div class="gradientBorderDiag"></div>
     </div>
     <div id="imageBoxBackground"></div>
