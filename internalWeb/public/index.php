@@ -85,6 +85,8 @@ switch ($page) {
         break;
 
     case 'services':
+        $serviceID = $_GET['serviceID'] ?? -1;
+        $subserviceID = $_GET['subserviceID'] ?? -1;
         if ($action === 'toggleServiceStatus') {
             $services->toggleServiceStatus();
         } else if ($action === 'toggleSubserviceStatus') {
@@ -118,7 +120,7 @@ switch ($page) {
         } else if ($action === 'removeSubserviceImage') {
             $services->removeSubserviceImage();
         } else {
-            $services->showServices();
+            $services->showServices($serviceID, $subserviceID);
         }
         break;
 

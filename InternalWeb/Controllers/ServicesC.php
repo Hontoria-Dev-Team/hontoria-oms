@@ -7,7 +7,7 @@ class ServicesC {
         $this->servicesModel = new ServicesM($pdo);
     }
 
-    public function showServices() {
+    public function showServices($serviceID, $subserviceID) {
         $page = "services";
         $servicesList = $this->servicesModel->getServices();
         $serviceProcessList = $this->servicesModel->getAllServiceProcesses();
@@ -34,26 +34,29 @@ class ServicesC {
     }
 
     public function toggleServiceStatus() {
-        $selectedID = $_POST['selectedServiceID'];
-        $this->servicesModel->updateServiceStatus($selectedID);
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+        $this->servicesModel->updateServiceStatus($selectedServiceID);
 
-        header("Location: index.php?page=services");
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
         exit();
     }
 
     public function toggleHasDesign() {
-        $selectedID = $_POST['selectedServiceID'];
-        $this->servicesModel->toggleServiceHasDesign($selectedID);
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+        $this->servicesModel->toggleServiceHasDesign($selectedServiceID);
 
-        header("Location: index.php?page=services");
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
         exit();
     }
 
     public function toggleHasVariableList() {
-        $selectedID = $_POST['selectedServiceID'];
-        $this->servicesModel->toggleServiceHasVariableList($selectedID);
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+        $this->servicesModel->toggleServiceHasVariableList($selectedServiceID);
 
-        header("Location: index.php?page=services");
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
         exit();
     }
 
@@ -70,7 +73,10 @@ class ServicesC {
             }
         }
 
-        header('Location: index.php?page=services');
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
     public function deleteService() {
@@ -81,51 +87,28 @@ class ServicesC {
     }
 
     public function setSubserviceInfo() {
-        $subserviceID = $_POST['selectedID'];
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
         $description = $_POST['description'];
         $pricePerUnit = $_POST['pricePerUnit'];
-        $this->servicesModel->updateSubserviceInfo($subserviceID, $pricePerUnit, $description);
+        $this->servicesModel->updateSubserviceInfo($selectedSubserviceID, $pricePerUnit, $description);
 
-        header("Location: index.php?page=services");
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
         exit();
     }
 
-    public function showService($serviceID) {
-        $page = "services";
-        $lastPage = "services";
-        $backLink = "index.php?page=services";
-        $service = $this->servicesModel->getServiceByID($serviceID);
-        $processList = $this->servicesModel->getServiceProcess($serviceID);
-        $subservicesList = $this->servicesModel->getSubservices($serviceID);
-        $processes = $this->servicesModel->getAllProcesses();
-        require __DIR__ . '/../Views/Services/ServicePage.php';
-    }
-
-    public function toggleServiceBooleans($serviceID, $type) {
-        if (in_array('canCreateServices', $_SESSION['permissions'])) {
-            if ($type === 0) {
-                $this->servicesModel->toggleServiceHasDesign($serviceID);
-            } else {
-                $this->servicesModel->toggleServiceHasVariableList($serviceID);
-            }
-        } else {
-            $_SESSION['error'] = "You dont have permission to toggle this.";
-        }
-        header("Location: index.php?page=services&service=" . $serviceID);
-    }
-
     public function toggleSubserviceStatus() {
-        $selectedID = $_POST['selectedSubserviceID'];
-        $this->servicesModel->updateSubserviceStatus($selectedID);
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+        $this->servicesModel->updateSubserviceStatus($selectedSubserviceID);
 
-        header("Location: index.php?page=services");
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
         exit();
     }
 
     public function createSubservice() {
-        $serviceID = $_POST['selectedServiceID'];
-        $name = $_POST['name'];
-        $creation = $this->servicesModel->insertSubservice($name, $serviceID);
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
         $name = ucwords(strtolower(trim($_POST['name'])));
 
         if (empty($name)) {
@@ -138,23 +121,25 @@ class ServicesC {
             }
         }
 
-        header("Location: index.php?page=services");
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
     public function deleteSubservice() {
-        $subserviceID = $_POST['selectedSubserviceID'];
-        $this->servicesModel->removeSubservice($subserviceID);
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+        $this->servicesModel->removeSubservice($selectedSubserviceID);
 
-        header("Location: index.php?page=services");
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID);
         exit();
     }
 
     public function setServiceProcess() {
-        $serviceID = $_POST['selectedServiceID'];
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
         $processes = $_POST['processList'];
-        $this->servicesModel->updateServiceProcess($serviceID, $processes);
+        $this->servicesModel->updateServiceProcess($selectedServiceID, $processes);
 
-        header("Location: index.php?page=services");
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
     public function createProcess() {
@@ -213,19 +198,22 @@ class ServicesC {
     }
 
     public function uploadSubserviceImages() {
-        $subserviceID = $_POST['selectedSubserviceID'];
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
         $images = $_FILES['images'];
 
-        $this->servicesModel->insertSubserviceImages($subserviceID, $images);
+        $this->servicesModel->insertSubserviceImages($selectedSubserviceID, $images);
 
-        header("Location: index.php?page=services");
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
     public function removeSubserviceImage() {
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
         $selectedID = $_POST['selectedID'];
 
         $this->servicesModel->deleteSubserviceImage($selectedID);
 
-        header("Location: index.php?page=services");
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 }

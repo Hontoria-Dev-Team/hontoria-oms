@@ -108,7 +108,8 @@
                                     <h2 class="centerMarginsSelf">No Subservice Selected</h2>
                                     <div class="centerHoriRowLayout minGap fullHeight fullWidth hidden">
                                         <form method="POST" class="columnLayout minGap fullWidth flexMid fullHeight" action="index.php?page=services&action=updateSubserviceInfo">
-                                            <input type="hidden" name="selectedID">
+                                            <input type="hidden" name="selectedServiceID">
+                                            <input type="hidden" name="selectedSubserviceID">
                                             <div class="flexMax columnLayout tinGap">
                                                 <b>Description</b>
                                                 <textarea name="description" class="scrollableTextarea minHeight fullWidth flexMax minPadding justifiedText unresizeable"
@@ -164,6 +165,8 @@
     const subserviceOrderCountTally = <?php echo json_encode($subserviceOrderCountTally); ?>;
     const processesList = <?php echo json_encode($processesList); ?>;
     const subserviceImageList = <?php echo json_encode($subserviceImageList); ?>;
+    const lastServiceID = <?php echo $serviceID; ?>;
+    const lastSubserviceID = <?php echo $subserviceID; ?>;
 
     const serviceProcessMap = {};
 
@@ -220,11 +223,13 @@
     const selectedServiceIdInput = document.createElement("input");
     selectedServiceIdInput.type = "hidden";
     selectedServiceIdInput.name = "selectedServiceID";
+    selectedServiceIdInput.value = lastServiceID || -1;
     confirmationForm.appendChild(selectedServiceIdInput);
 
     const selectedSubserviceIdInput = document.createElement("input");
     selectedSubserviceIdInput.type = "hidden";
     selectedSubserviceIdInput.name = "selectedSubserviceID";
+    selectedSubserviceIdInput.value = lastSubserviceID || -1;
     confirmationForm.appendChild(selectedSubserviceIdInput);
 
     let tempElement;
@@ -264,10 +269,20 @@
                 ShowServiceStatusButtonsContainer(elem.dataset.isActive);
                 ShowObjectiveButtonsContainer(elem.dataset.hasDesign, elem.dataset.hasVariableList);
                 ShowServiceProcess();
-                ShowSubservices();
                 ResetSubserviceHeader();
+                ShowSubservices();
             });
         });
+
+        // Service Persistance Logic
+        if (lastServiceID != -1) {
+            for (const elem of serviceElements) {
+                if (elem.dataset.id == lastServiceID) {
+                    elem.click();
+                    break;
+                }
+            }
+        }
     });
 
     // Showing the service status buttons and delete button
@@ -605,8 +620,6 @@
             tempDiv = document.createElement("div");
             tempDiv.className = 'roundedMin centerHoriRowLayout flexStatic shadowed clickable fixedScreen noShrink subserviceElement';
             tempDiv.dataset.id = item.id;
-            tempDiv.dataset.name = item.name;
-            tempDiv.dataset.status = item.isActive;
             subservicesContainer.appendChild(tempDiv);
 
             tempElement = document.createElement("div");
@@ -626,22 +639,34 @@
             tempElement.className = 'capitalFirst centerText regMinPadding minWidth';
             tempElement.textContent = "Orders: " + (subserviceOrderCountMap[item.id] || 0);
             tempDiv.appendChild(tempElement);
-        });
 
-        // Logic when clicked on subservice element
-        document.querySelectorAll('.subserviceElement').forEach(function(elem) {
-            elem.addEventListener('click', function() {
-                selectedSubserviceID = elem.dataset.id;
-                selectedSubserviceName = elem.dataset.name;
+            // Logic when clicked on subservice element
+            tempDiv.addEventListener('click', function() {
+                selectedSubserviceID = item.id;
+                selectedSubserviceName = item.name;
 
                 selectedSubserviceIdInput.value = selectedSubserviceID;
 
                 document.getElementById('selectedSubserviceTitle').textContent = selectedSubserviceName;
 
-                ShowSubserviceStatusButtonsContainer(elem.dataset.status);
+                ShowSubserviceStatusButtonsContainer(item.isActive);
                 ShowSubserviceDataContainer();
                 ShowSubserviceImages();
             });
+
+            // Subservice Persistance Logic
+            if (lastSubserviceID != -1 && Number(item.id) == Number(lastSubserviceID)) {
+                selectedSubserviceID = item.id;
+                selectedSubserviceName = item.name;
+
+                selectedSubserviceIdInput.value = selectedSubserviceID;
+
+                document.getElementById('selectedSubserviceTitle').textContent = selectedSubserviceName;
+
+                ShowSubserviceStatusButtonsContainer(item.isActive);
+                ShowSubserviceDataContainer();
+                ShowSubserviceImages();
+            }
         });
     }
 
@@ -706,12 +731,14 @@
         const container = subserviceDataContainer.getElementsByTagName('div')[0];
         const formElement = container.getElementsByTagName('form')[0];
         const descriptionInput = formElement.getElementsByTagName('textarea')[0];
-        const selectedIDInput = formElement.getElementsByTagName('input')[0];
-        const pricePerUnitInput = formElement.getElementsByTagName('input')[1];
+        const selectedServiceIDInput = formElement.getElementsByTagName('input')[0];
+        const selectedSubserviceIDInput = formElement.getElementsByTagName('input')[1];
+        const pricePerUnitInput = formElement.getElementsByTagName('input')[2];
 
         container.classList.remove("hidden");
 
-        selectedIDInput.value = selectedSubserviceID;
+        selectedServiceIDInput.value = selectedServiceID;
+        selectedSubserviceIDInput.value = selectedSubserviceID;
         descriptionInput.value = selectedServiceSubservicesMap[selectedSubserviceID].description;
         descriptionInput.placeholder = descriptionInput.value;
         pricePerUnitInput.value = selectedServiceSubservicesMap[selectedSubserviceID].pricePerUnit;
