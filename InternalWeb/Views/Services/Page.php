@@ -886,6 +886,7 @@
         tempElement.placeholder = "Service Name";
         tempElement.id = "nameInput";
         tempElement.className = "tempElement";
+        tempElement.required = true;
         confirmationForm.appendChild(tempElement);
 
         confirmation.style.display = 'flex';
@@ -906,6 +907,7 @@
         tempElement.placeholder = "Subservice Name";
         tempElement.id = "nameInput";
         tempElement.className = "tempElement";
+        tempElement.required = true;
         confirmationForm.appendChild(tempElement);
 
         confirmation.style.display = 'flex';

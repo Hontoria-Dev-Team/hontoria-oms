@@ -60,10 +60,14 @@ class ServicesC {
     public function createService() {
         $name = ucwords(strtolower(trim($_POST['name'])));
 
-        $creation = $this->servicesModel->insertService($name);
+        if (empty($name)) {
+            $_SESSION['error'] = "Empty service name.";
+        } else {
+            $creation = $this->servicesModel->insertService($name);
 
-        if (!$creation) {
-            $_SESSION['error'] = "Service name already exists.";
+            if (!$creation) {
+                $_SESSION['error'] = "Service name already exists.";
+            }
         }
 
         header('Location: index.php?page=services');
@@ -122,9 +126,16 @@ class ServicesC {
         $serviceID = $_POST['selectedServiceID'];
         $name = $_POST['name'];
         $creation = $this->servicesModel->insertSubservice($name, $serviceID);
+        $name = ucwords(strtolower(trim($_POST['name'])));
 
-        if (!$creation) {
-            $_SESSION['error'] = "Subservice name already exists.";
+        if (empty($name)) {
+            $_SESSION['error'] = "Empty subservice name.";
+        } else {
+            $creation = $this->servicesModel->insertSubservice($name, $selectedServiceID);
+
+            if (!$creation) {
+                $_SESSION['error'] = "Subservice name already exists.";
+            }
         }
 
         header("Location: index.php?page=services");
