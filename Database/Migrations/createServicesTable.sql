@@ -17,3 +17,10 @@ CREATE TABLE subservices (
     UNIQUE KEY uniqueName (serviceID, NAME),
     FOREIGN KEY (serviceID) REFERENCES services(id)
 );
+
+CREATE TABLE subserviceImages (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    subserviceID INT UNSIGNED NOT NULL,
+    imageName VARCHAR(255) NOT NULL,
+    FOREIGN KEY (subserviceID) REFERENCES subservices(id)
+);

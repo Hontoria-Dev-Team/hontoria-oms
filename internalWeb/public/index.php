@@ -85,31 +85,24 @@ switch ($page) {
         break;
 
     case 'services':
-        $service = $_GET['service'] ?? null;
-        if ($service !== null) {
-            if ($action === 'updateStatus') {
-                $services->toggleSubserviceStatus($service);
-            } else if ($action === 'updateInfo') {
-                $services->setSubserviceInfo($service);
-            } else if ($action === 'updateProcess') {
-                $services->setServiceProcess($service);
-            } else if ($action === 'create') {
-                $services->createSubservice($service);
-            } else if ($action === 'delete') {
-                $services->deleteSubservice($service);
-            } else if ($action === 'toggleHasDesign') {
-                $services->toggleServiceBooleans($service, 0);
-            } else if ($action === 'toggleHasVariableList') {
-                $services->toggleServiceBooleans($service, 1);
-            } else {
-                $services->showService($service);
-            }
-        } else if ($action === 'updateStatus') {
+        if ($action === 'toggleServiceStatus') {
             $services->toggleServiceStatus();
-        } else if ($action === 'create') {
+        } else if ($action === 'toggleSubserviceStatus') {
+            $services->toggleSubserviceStatus();
+        } else if ($action === 'toggleHasDesign') {
+            $services->toggleHasDesign();
+        } else if ($action === 'toggleHasVariableList') {
+            $services->toggleHasVariableList();
+        } else if ($action === 'createService') {
             $services->createService();
-        } else if ($action === 'delete') {
+        } else if ($action === 'deleteService') {
             $services->deleteService();
+        } else if ($action === 'createSubservice') {
+            $services->createSubservice();
+        } else if ($action === 'deleteSubservice') {
+            $services->deleteSubservice();
+        } else if ($action === 'updateServiceProcess') {
+            $services->setServiceProcess();
         } else if ($action === 'manageProcesses') {
             $services->showProcessesManagementPage();
         } else if ($action === 'createProcess') {
@@ -118,6 +111,12 @@ switch ($page) {
             $services->setProcess();
         } else if ($action === 'deleteProcess') {
             $services->deleteProcess();
+        } else if ($action === 'updateSubserviceInfo') {
+            $services->setSubserviceInfo();
+        } else if ($action === 'uploadSubserviceImages') {
+            $services->uploadSubserviceImages();
+        } else if ($action === 'removeSubserviceImage') {
+            $services->removeSubserviceImage();
         } else {
             $services->showServices();
         }

@@ -10,6 +10,18 @@ class ServicesC {
     public function showServices() {
         $page = "services";
         $servicesList = $this->servicesModel->getServices();
+        $serviceProcessList = $this->servicesModel->getAllServiceProcesses();
+        $subserviceList = $this->servicesModel->getAllSubservices();
+        $subserviceOrderCountTally = $this->servicesModel->getAllSubservicesOrderCount();
+        $processesList = $this->servicesModel->getAllProcesses();
+        $subserviceImageList = $this->servicesModel->getAllSubserviceImages();
+
+        $serviceOrderCountMap = [];
+
+        foreach ($this->servicesModel->getAllServicesOrderCount() as $item) {
+            $serviceOrderCountMap[$item['serviceID']] = $item['orderCount'];
+        }
+
         require __DIR__ . '/../Views/Services/Page.php';
     }
 
@@ -22,8 +34,24 @@ class ServicesC {
     }
 
     public function toggleServiceStatus() {
-        $selectedID = $_POST['selectedID'];
+        $selectedID = $_POST['selectedServiceID'];
         $this->servicesModel->updateServiceStatus($selectedID);
+
+        header("Location: index.php?page=services");
+        exit();
+    }
+
+    public function toggleHasDesign() {
+        $selectedID = $_POST['selectedServiceID'];
+        $this->servicesModel->toggleServiceHasDesign($selectedID);
+
+        header("Location: index.php?page=services");
+        exit();
+    }
+
+    public function toggleHasVariableList() {
+        $selectedID = $_POST['selectedServiceID'];
+        $this->servicesModel->toggleServiceHasVariableList($selectedID);
 
         header("Location: index.php?page=services");
         exit();
@@ -33,39 +61,28 @@ class ServicesC {
         $name = ucwords(strtolower(trim($_POST['name'])));
 
         $creation = $this->servicesModel->insertService($name);
-        $error = null;
 
-        if ($creation) {
-            header('Location: index.php?page=services');
-        } else {
-            $page = 'services';
-            $error = "Service name already exists.";
-            require __DIR__ . '/../Views/Services/Page.php';
+        if (!$creation) {
+            $_SESSION['error'] = "Service name already exists.";
         }
+
+        header('Location: index.php?page=services');
     }
 
     public function deleteService() {
-        $serviceID = $_POST['selectedID'];
+        $serviceID = $_POST['selectedServiceID'];
         $this->servicesModel->removeService($serviceID);
 
         header('Location: index.php?page=services');
     }
 
-    public function toggleSubserviceStatus($serviceID) {
-        $selectedID = $_POST['selectedID'];
-        $this->servicesModel->updateSubserviceStatus($selectedID);
-
-        header("Location: index.php?page=services&service=" . $serviceID);
-        exit();
-    }
-
-    public function setSubserviceInfo($serviceID) {
+    public function setSubserviceInfo() {
         $subserviceID = $_POST['selectedID'];
-        $pricePerUnit = !empty($_POST['pricePerUnit']) ? $_POST['pricePerUnit'] : $_POST['setPricePerUnit'];
-        $description = !empty($_POST['description']) ? $_POST['description'] : $_POST['setDescription'];
+        $description = $_POST['description'];
+        $pricePerUnit = $_POST['pricePerUnit'];
         $this->servicesModel->updateSubserviceInfo($subserviceID, $pricePerUnit, $description);
 
-        header("Location: index.php?page=services&service=" . $serviceID);
+        header("Location: index.php?page=services");
         exit();
     }
 
@@ -93,40 +110,40 @@ class ServicesC {
         header("Location: index.php?page=services&service=" . $serviceID);
     }
 
-    public function createSubservice($serviceID) {
+    public function toggleSubserviceStatus() {
+        $selectedID = $_POST['selectedSubserviceID'];
+        $this->servicesModel->updateSubserviceStatus($selectedID);
+
+        header("Location: index.php?page=services");
+        exit();
+    }
+
+    public function createSubservice() {
+        $serviceID = $_POST['selectedServiceID'];
         $name = $_POST['name'];
         $creation = $this->servicesModel->insertSubservice($name, $serviceID);
 
-        if ($creation) {
-            header("Location: index.php?page=services&service=" . $serviceID);
-            exit();
-        } else {
-            $page = "services";
-            $lastPage = "services";
-            $backLink = "index.php?page=services";
-            $error = "Subservice name already exists.";
-            $service = $this->servicesModel->getServiceByID($serviceID);
-            $processList = $this->servicesModel->getServiceProcess($serviceID);
-            $subservicesList = $this->servicesModel->getSubservices($serviceID);
-            $processes = $this->servicesModel->getAllProcesses();
-            require __DIR__ . '/../Views/Services/ServicePage.php';
+        if (!$creation) {
+            $_SESSION['error'] = "Subservice name already exists.";
         }
+
+        header("Location: index.php?page=services");
     }
 
-    public function deleteSubservice($serviceID) {
-        $subserviceID = $_POST['selectedID'];
+    public function deleteSubservice() {
+        $subserviceID = $_POST['selectedSubserviceID'];
         $this->servicesModel->removeSubservice($subserviceID);
 
-        header("Location: index.php?page=services&service=" . $serviceID);
+        header("Location: index.php?page=services");
         exit();
     }
 
-    public function setServiceProcess($serviceID) {
+    public function setServiceProcess() {
+        $serviceID = $_POST['selectedServiceID'];
         $processes = $_POST['processList'];
         $this->servicesModel->updateServiceProcess($serviceID, $processes);
 
-        header("Location: index.php?page=services&service=" . $serviceID);
-        exit();
+        header("Location: index.php?page=services");
     }
 
     public function createProcess() {
@@ -182,5 +199,22 @@ class ServicesC {
             $_SESSION['error'] = "You dont have permission to modify processes";
         }
         header("Location: index.php?page=services&action=manageProcesses");
+    }
+
+    public function uploadSubserviceImages() {
+        $subserviceID = $_POST['selectedSubserviceID'];
+        $images = $_FILES['images'];
+
+        $this->servicesModel->insertSubserviceImages($subserviceID, $images);
+
+        header("Location: index.php?page=services");
+    }
+
+    public function removeSubserviceImage() {
+        $selectedID = $_POST['selectedID'];
+
+        $this->servicesModel->deleteSubserviceImage($selectedID);
+
+        header("Location: index.php?page=services");
     }
 }

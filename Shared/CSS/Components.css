@@ -247,6 +247,11 @@
     height: 80vh;
 }
 
+*:has(> #imageBoxImage) {
+    max-width: 80vw;
+}
+
+
 .invertColors {
     filter: invert(1);
 }
@@ -377,7 +382,7 @@
 
 .skewedXPosBG {
     transform: skewX(15deg);
-    padding-left: -10%;
+    padding-left: -10% !important;
     margin-left: 10%;
 }
 
@@ -387,7 +392,7 @@
 
 .skewedXNegBG {
     transform: skewX(-15deg);
-    padding-left: 10%;
+    padding-left: 10% !important;
     margin-left: -10%;
 }
 
@@ -397,4 +402,8 @@
 
 .scaledUpMin {
     transform: scale(1.25);
+}
+
+.unresizeable {
+    resize: none;
 }

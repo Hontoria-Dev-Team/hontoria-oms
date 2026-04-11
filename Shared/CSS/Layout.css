@@ -123,6 +123,10 @@
     padding: 1rem !important;
 }
 
+.minHoriPadding {
+    padding: 0 0.3rem;
+}
+
 .midHoriPadding {
     padding: 0 1rem;
 }
@@ -149,6 +153,10 @@
 
 .scrollable {
     overflow-y: scroll !important;
+}
+
+.scrollableX {
+    overflow-x: scroll !important;
 }
 
 .fixedScreen {
@@ -180,7 +188,7 @@
 }
 
 .fitWidth {
-    width: fit-content;
+    width: fit-content !important;
 }
 
 .unitHeight {
@@ -209,6 +217,18 @@
 
 .fitHeight {
     height: fit-content !important;
+}
+
+.halfScreenHeight {
+    height: 50vh !important;
+}
+
+.fullMinWidth {
+    min-width: 100% !important;
+}
+
+.halfScreenMaxWidth {
+    max-width: 50vw !important;
 }
 
 .midMaxHeight {
@@ -256,15 +276,23 @@
 }
 
 .gridFlex.midGrids>* {
-    width: 32.5%;
+    width: 32%;
 }
 
 .gridFlex.maxGrids>* {
     width: 24.4%;
 }
 
+.gridFlex.midGrids.minGap>* {
+    width: 30.25%;
+}
+
 .contentFlexStart {
     align-content: flex-start;
+}
+
+.contentFlexEnd {
+    justify-content: flex-end;
 }
 
 .flexStatic {
@@ -374,12 +402,20 @@
     flex-grow: 0;
 }
 
+.noPadding {
+    padding: 0 !important;
+}
+
 .topZ {
     z-index: 5 !important;
 }
 
 .midZ {
     z-index: 3 !important;
+}
+
+.minZ {
+    z-index: 1 !important;
 }
 
 .noMinHeight {

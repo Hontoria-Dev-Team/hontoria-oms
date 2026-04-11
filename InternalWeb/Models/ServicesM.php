@@ -7,7 +7,7 @@ class ServicesM {
     }
 
     public function getServices() {
-        $query = "SELECT id, name, isActive, description FROM services ORDER BY isActive DESC, name ASC";
+        $query = "SELECT * FROM services ORDER BY isActive DESC, name ASC";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
@@ -131,7 +131,7 @@ class ServicesM {
     }
 
     public function getAllSubservices() {
-        $query = "SELECT * FROM subservices";
+        $query = "SELECT * FROM subservices ORDER BY isActive DESC, name ASC";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
@@ -227,7 +227,7 @@ class ServicesM {
         }
 
         $query = "INSERT INTO subservices (name, serviceID, pricePerUnit) VALUES
-            (:name, :serviceID, 0);";
+            (:name, :serviceID, 1);";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':serviceID', $serviceID);
@@ -309,6 +309,109 @@ class ServicesM {
         $stmt->bindParam(':designAccess', $designAccess);
         $stmt->bindParam(':variableListAccess', $variableListAccess);
 
+        return $stmt->execute();
+    }
+
+    public function getAllServicesOrderCount() {
+        $query = "
+            SELECT
+                services.id AS serviceID,
+                COUNT(orders.id) AS orderCount
+            FROM orders
+            JOIN subservices ON orders.subserviceID = subservices.id
+            JOIN services ON subservices.serviceID = services.id
+            GROUP BY services.id
+        ";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllSubservicesOrderCount() {
+        $query = "
+            SELECT
+                subserviceID,
+                COUNT(orders.id) AS orderCount
+            FROM orders
+            GROUP BY subserviceID
+        ";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllSubserviceImages() {
+        $query = "SELECT * FROM subserviceImages";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function insertSubserviceImages($subserviceID, $images) {
+        $storageDir = __DIR__ . '/../../Storage/SubserviceImages/';
+
+        if (!is_dir($storageDir)) {
+            mkdir($storageDir, 0755, true);
+        }
+
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        for ($i = 0; $i < count($images['name']); $i++) {
+            $fileExtension = strtolower(pathinfo($images['name'][$i], PATHINFO_EXTENSION));
+            if (!in_array($fileExtension, $allowed)) {
+                return false;
+            }
+        }
+
+        $uploadedFiles = [];
+
+        for ($i = 0; $i < count($images['name']); $i++) {
+            $fileExtension = strtolower(pathinfo($images['name'][$i], PATHINFO_EXTENSION));
+            $newFileName = bin2hex(random_bytes(10)) . '_' . time() . '_' . $i . '.' . $fileExtension;
+            $targetPath = $storageDir . $newFileName;
+            $tmpName = $images['tmp_name'][$i];
+
+            if (move_uploaded_file($tmpName, $targetPath)) {
+                $uploadedFiles[] = $newFileName;
+            } else {
+                foreach ($uploadedFiles as $uploadedFile) {
+                    $filePath = $storageDir . $uploadedFile;
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                }
+                return false;
+            }
+        }
+
+        try {
+            $query = "INSERT INTO subserviceImages (subserviceID, imageName) VALUES (:subserviceID, :imageName)";
+            $stmt = $this->pdo->prepare($query);
+
+            foreach ($uploadedFiles as $imageName) {
+                $stmt->execute([
+                    ':subserviceID' => $subserviceID,
+                    ':imageName' => $imageName
+                ]);
+            }
+
+            return true;
+        } catch (PDOException $e) {
+            foreach ($uploadedFiles as $uploadedFile) {
+                $filePath = $storageDir . $uploadedFile;
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+            $_SESSION["error"] = ($e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteSubserviceImage($id) {
+        $query = "DELETE FROM subserviceImages WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
         return $stmt->execute();
     }
 }
