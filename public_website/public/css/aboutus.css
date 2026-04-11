@@ -178,3 +178,17 @@
   .page-hero{padding:48px 16px}
   .employees-header{flex-direction:column;align-items:flex-start}
 }
+/* Live Google Map */
+.location-map-wrap {
+    width: 100%;
+    aspect-ratio: 16/10;
+    border-radius: var(--radius-md);
+    border: 3px solid var(--dk);
+    box-shadow: 8px 8px 0 var(--y);
+    overflow: hidden;
+}
+.location-map-wrap iframe {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
