@@ -87,37 +87,38 @@ INSERT INTO roleManagementGovernance (roleSubjectID, roleAgentID, canGrant, canR
 
 INSERT INTO permissions (name) VALUES
 -- Staff Management Permissions
-('canViewStaffPage'), -- 1
-('canCreateUserAccounts'), -- 2
-('canDeleteUserAccounts'), -- 3
-('canAlterAccountRoles'), -- 4
+('canViewStaffPage'),                -- 1
+('canCreateUserAccounts'),           -- 2
+('canDeleteUserAccounts'),           -- 3
+('canAlterAccountRoles'),            -- 4
 
 -- Role Management Permissions
-('canViewRoleManagementPage'), -- 5
-('canCreateRoles'), -- 6
-('canDeleteRoles'), -- 7
-('canAlterRoles'), -- 8
+('canViewRoleManagementPage'),       -- 5
+('canCreateRoles'),                  -- 6
+('canDeleteRoles'),                  -- 7
+('canAlterRoles'),                   -- 8
 
 -- Service & Subservice Management Permissions
-('canViewServicesPage'), -- 9
-('canCreateServices'), -- 10
-('canDeleteServices'), -- 11
-('canAlterServices'), -- 12
-('canAlterServiceStatus'), -- 13
-('canCreateSubservices'), -- 14
-('canDeleteSubservices'), -- 15
-('canAlterSubservices'), -- 16
-('canAlterSubserviceStatus'), -- 17
+('canViewServicesPage'),             -- 9
+('canCreateServices'),               -- 10
+('canDeleteServices'),               -- 11
+('canAlterServices'),                -- 12
+('canAlterServiceStatus'),           -- 13
+('canManageServiceProcesses'),       -- 14
+('canCreateSubservices'),            -- 15
+('canDeleteSubservices'),            -- 16
+('canAlterSubservices'),             -- 17
+('canAlterSubserviceStatus'),        -- 18
 
 -- Order Management Permissions
-('canViewOrdersPage'), -- 18
-('canCreateOrders'), -- 19
-('canApplyDiscountToOrders'), -- 20
-('canDeleteOrders'), -- 21
-('canAlterOrders'), -- 22
-('canAssignStaffToOrders'), -- 23
-('canUnassignStaffToOrders'), -- 24
-('canVerifyOrderCompletion'); -- 25
+('canViewOrdersPage'),               -- 19
+('canCreateOrders'),                 -- 20
+('canApplyDiscountToOrders'),        -- 21
+('canDeleteOrders'),                 -- 22
+('canAlterOrders'),                  -- 23
+('canAssignStaffToOrders'),          -- 24
+('canUnassignStaffToOrders'),        -- 25
+('canVerifyOrderCompletion');        -- 26
 
 INSERT INTO rolePermissions (roleID, permissionID) VALUES
 -- Owner permissions
@@ -134,18 +135,19 @@ INSERT INTO rolePermissions (roleID, permissionID) VALUES
 (1, 11),  -- canDeleteServices
 (1, 12),  -- canAlterServices
 (1, 13),  -- canAlterServiceStatus
-(1, 14),  -- canCreateSubservices
-(1, 15),  -- canDeleteSubservices
-(1, 16),  -- canAlterSubservices
-(1, 17),  -- canAlterSubserviceStatus
-(1, 18),  -- canViewOrdersPage
-(1, 19),  -- canCreateOrders
-(1, 20),  -- canApplyDiscountToOrders
-(1, 21),  -- canDeleteOrders
-(1, 22),  -- canAlterOrders
-(1, 23),  -- canAssignStaffToOrders
-(1, 24),  -- canUnassignStaffToOrders
-(1, 25),  -- canVerifyOrderCompletion
+(1, 14),  -- canManageServiceProcesses
+(1, 15),  -- canCreateSubservices
+(1, 16),  -- canDeleteSubservices
+(1, 17),  -- canAlterSubservices
+(1, 18),  -- canAlterSubserviceStatus
+(1, 19),  -- canViewOrdersPage
+(1, 20),  -- canCreateOrders
+(1, 21),  -- canApplyDiscountToOrders
+(1, 22),  -- canDeleteOrders
+(1, 23),  -- canAlterOrders
+(1, 24),  -- canAssignStaffToOrders
+(1, 25),  -- canUnassignStaffToOrders
+(1, 26),  -- canVerifyOrderCompletion
 
 -- Admin permissions
 (2, 1),   -- canViewStaffPage
@@ -156,18 +158,18 @@ INSERT INTO rolePermissions (roleID, permissionID) VALUES
 (2, 8),   -- canAlterRoles
 (2, 9),   -- canViewServicesPage
 (2, 13),  -- canAlterServiceStatus
-(2, 16),  -- canAlterSubservices
-(2, 17),  -- canAlterSubserviceStatus
-(2, 18),  -- canViewOrdersPage
-(2, 19),  -- canCreateOrders
-(2, 20),  -- canApplyDiscountToOrders
-(2, 21),  -- canDeleteOrders
-(2, 22),  -- canAlterOrders
-(2, 23),  -- canAssignStaffToOrders
-(2, 24),  -- canUnassignStaffToOrders
+(2, 17),  -- canAlterSubservices
+(2, 18),  -- canAlterSubserviceStatus
+(2, 19),  -- canViewOrdersPage
+(2, 20),  -- canCreateOrders
+(2, 21),  -- canApplyDiscountToOrders
+(2, 22),  -- canDeleteOrders
+(2, 23),  -- canAlterOrders
+(2, 24),  -- canAssignStaffToOrders
+(2, 25),  -- canUnassignStaffToOrders
 
 -- Verifier permissions
-(7, 25);  -- canVerifyOrderCompletion
+(7, 26);  -- canVerifyOrderCompletion
 
 INSERT INTO roleProcessTasks (roleID, processID) VALUES
 (3, 1),
