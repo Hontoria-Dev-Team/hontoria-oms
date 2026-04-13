@@ -1,9 +1,9 @@
 <?php
 class AuthorizationMid {
     private static $pagePermissions = [
-        'services' => 'canViewServiceList',
-        'orders' => 'canViewOrders',
-        'staff' => 'canViewStaffList',
+        'services' => 'canViewServicesPage',
+        'orders' => 'canViewOrdersPage',
+        'staff' => 'canViewStaffPage',
     ];
 
     public static function check($page) {

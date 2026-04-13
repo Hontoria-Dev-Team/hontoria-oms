@@ -8,6 +8,11 @@ class ServicesC {
     }
 
     public function showServices($serviceID, $subserviceID) {
+        if (!in_array('canViewServicesPage', $_SESSION['permissions'])) {
+            require __DIR__ . '/../Views/.Misc/ErrorPage.php';
+            exit();
+        }
+
         $page = "services";
         $servicesList = $this->servicesModel->getServices();
         $serviceProcessList = $this->servicesModel->getAllServiceProcesses();
@@ -15,17 +20,17 @@ class ServicesC {
         $subserviceOrderCountTally = $this->servicesModel->getAllSubservicesOrderCount();
         $processesList = $this->servicesModel->getAllProcesses();
         $subserviceImageList = $this->servicesModel->getAllSubserviceImages();
-
-        $serviceOrderCountMap = [];
-
-        foreach ($this->servicesModel->getAllServicesOrderCount() as $item) {
-            $serviceOrderCountMap[$item['serviceID']] = $item['orderCount'];
-        }
+        $serviceOrderCountMap = $this->servicesModel->getAllServicesOrderCountMapped();
 
         require __DIR__ . '/../Views/Services/Page.php';
     }
 
     public function showProcessesManagementPage() {
+        if (!in_array('canViewServicesPage', $_SESSION['permissions'])) {
+            require __DIR__ . '/../Views/.Misc/ErrorPage.php';
+            exit();
+        }
+
         $page = "services";
         $lastPage = 'services';
         $backLink = 'index.php?page=services';
@@ -143,7 +148,7 @@ class ServicesC {
     }
 
     public function createProcess() {
-        if (in_array('canCreateServiceProcesses', $_SESSION['permissions'])) {
+        if (in_array('canAlterServices', $_SESSION['permissions'])) {
             $processName = $_POST['name'];
             $creation = $this->servicesModel->insertProcess($processName);
 
@@ -157,7 +162,7 @@ class ServicesC {
     }
 
     public function deleteProcess() {
-        if (in_array('canCreateServiceProcesses', $_SESSION['permissions'])) {
+        if (in_array('canAlterServices', $_SESSION['permissions'])) {
             $selectedID = (int) $_POST['selectedID'];
             $serviceProcesses = $this->servicesModel->getAllServiceProcesses();
 
@@ -182,7 +187,7 @@ class ServicesC {
     }
 
     public function setProcess() {
-        if (in_array('canCreateServiceProcesses', $_SESSION['permissions'])) {
+        if (in_array('canAlterServices', $_SESSION['permissions'])) {
             $selectedID = (int) $_POST['id'];
             $minAssign = (int) $_POST['minAssign'];
             $maxAssign = (int) $_POST['maxAssign'];

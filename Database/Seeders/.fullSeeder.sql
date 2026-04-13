@@ -5,7 +5,6 @@ TRUNCATE TABLE userProcessTasks;
 TRUNCATE TABLE userRoles;
 TRUNCATE TABLE roleProcessTasks;
 TRUNCATE TABLE rolePermissions;
-TRUNCATE TABLE userPermissions;
 TRUNCATE TABLE permissions;
 TRUNCATE TABLE roleManagementGovernance;
 TRUNCATE TABLE roles;
@@ -87,100 +86,88 @@ INSERT INTO roleManagementGovernance (roleSubjectID, roleAgentID, canGrant, canR
 (2, 2, 1, 0, 0, 0);
 
 INSERT INTO permissions (name) VALUES
-('canViewStaffList'),
-('isHiddenFromStaffList'),
-('canCreateUserAccounts'),
-('canDeleteUserAccounts'),
-('canAlterAccountRoles'),
+-- Staff Management Permissions
+('canViewStaffPage'), -- 1
+('canCreateUserAccounts'), -- 2
+('canDeleteUserAccounts'), -- 3
+('canAlterAccountRoles'), -- 4
 
-('canCreateRoles'),
-('canDeleteRoles'),
-('canAlterRoles'),
+-- Role Management Permissions
+('canViewRoleManagementPage'), -- 5
+('canCreateRoles'), -- 6
+('canDeleteRoles'), -- 7
+('canAlterRoles'), -- 8
 
-('canViewServiceList'),
-('canCreateServices'),
-('canDeleteServices'),
-('canAlterServiceStatus'),
-('canAlterServiceProcess'),
-('canCreateServiceProcesses'),
-('canCreateSubservices'),
-('canDeleteSubservices'),
-('canAlterSubservicePricing'),
-('canAlterSubserviceDescription'),
+-- Service & Subservice Management Permissions
+('canViewServicesPage'), -- 9
+('canCreateServices'), -- 10
+('canDeleteServices'), -- 11
+('canAlterServices'), -- 12
+('canAlterServiceStatus'), -- 13
+('canCreateSubservices'), -- 14
+('canDeleteSubservices'), -- 15
+('canAlterSubservices'), -- 16
+('canAlterSubserviceStatus'), -- 17
 
-('canViewOrders'),
-('canCreateOrders'),
-('canApplyDiscountToOrders'),
-('canDeleteOrders'),
-('canModifyOrders'),
-('canAssignStaffToOrders'),
-('canVerifyOrderCompletion');
+-- Order Management Permissions
+('canViewOrdersPage'), -- 18
+('canCreateOrders'), -- 19
+('canApplyDiscountToOrders'), -- 20
+('canDeleteOrders'), -- 21
+('canAlterOrders'), -- 22
+('canAssignStaffToOrders'), -- 23
+('canUnassignStaffToOrders'), -- 24
+('canVerifyOrderCompletion'); -- 25
 
 INSERT INTO rolePermissions (roleID, permissionID) VALUES
-(1, 1),
-(1, 2),
-(1, 3),
-(1, 4),
-(1, 5),
-(1, 6),
-(1, 7),
-(1, 8),
-(1, 9),
-(1, 10),
-(1, 11),
-(1, 12),
-(1, 13),
-(1, 14),
-(1, 15),
-(1, 16),
-(1, 17),
-(1, 18),
-(1, 19),
-(1, 20),
-(1, 21),
-(1, 22),
-(1, 23),
-(1, 24),
-(1, 25),
+-- Owner permissions
+(1, 1),   -- canViewStaffPage
+(1, 2),   -- canCreateUserAccounts
+(1, 3),   -- canDeleteUserAccounts
+(1, 4),   -- canAlterAccountRoles
+(1, 5),   -- canViewRoleManagementPage
+(1, 6),   -- canCreateRoles
+(1, 7),   -- canDeleteRoles
+(1, 8),   -- canAlterRoles
+(1, 9),   -- canViewServicesPage
+(1, 10),  -- canCreateServices
+(1, 11),  -- canDeleteServices
+(1, 12),  -- canAlterServices
+(1, 13),  -- canAlterServiceStatus
+(1, 14),  -- canCreateSubservices
+(1, 15),  -- canDeleteSubservices
+(1, 16),  -- canAlterSubservices
+(1, 17),  -- canAlterSubserviceStatus
+(1, 18),  -- canViewOrdersPage
+(1, 19),  -- canCreateOrders
+(1, 20),  -- canApplyDiscountToOrders
+(1, 21),  -- canDeleteOrders
+(1, 22),  -- canAlterOrders
+(1, 23),  -- canAssignStaffToOrders
+(1, 24),  -- canUnassignStaffToOrders
+(1, 25),  -- canVerifyOrderCompletion
 
-(2, 1),
-(2, 3),
-(2, 4),
-(2, 5),
-(2, 6),
-(2, 7),
-(2, 8),
-(2, 9),
-(2, 10),
-(2, 11),
-(2, 12),
-(2, 13),
-(2, 14),
-(2, 15),
-(2, 16),
-(2, 17),
-(2, 18),
-(2, 19),
-(2, 20),
-(2, 21),
-(2, 22),
-(2, 23),
-(2, 24),
-(2, 25),
+-- Admin permissions
+(2, 1),   -- canViewStaffPage
+(2, 2),   -- canCreateUserAccounts
+(2, 3),   -- canDeleteUserAccounts
+(2, 4),   -- canAlterAccountRoles
+(2, 5),   -- canViewRoleManagementPage
+(2, 8),   -- canAlterRoles
+(2, 9),   -- canViewServicesPage
+(2, 13),  -- canAlterServiceStatus
+(2, 16),  -- canAlterSubservices
+(2, 17),  -- canAlterSubserviceStatus
+(2, 18),  -- canViewOrdersPage
+(2, 19),  -- canCreateOrders
+(2, 20),  -- canApplyDiscountToOrders
+(2, 21),  -- canDeleteOrders
+(2, 22),  -- canAlterOrders
+(2, 23),  -- canAssignStaffToOrders
+(2, 24),  -- canUnassignStaffToOrders
 
-(3, 19),
-(3, 20),
-
-(4, 19),
-(4, 20),
-
-(5, 19),
-(5, 20),
-
-(6, 19),
-(6, 20),
-
-(7, 25);
+-- Verifier permissions
+(7, 25);  -- canVerifyOrderCompletion
 
 INSERT INTO roleProcessTasks (roleID, processID) VALUES
 (3, 1),
@@ -196,12 +183,3 @@ INSERT INTO userRoles (userID, roleID) VALUES
 (5, 5),
 (6, 6),
 (6, 7);
-
--- Seed orders last, after subservices exist
-INSERT INTO orders (subserviceID, customerName, messengerGCLink) VALUES
-(1, 'John Marc', 'https://m.me/j/AbbjSDFfpAcqXGez/?send_source=gc%3Acopy_invite_link_c'),
-(2, 'Adrian Newey', 'https://m.me/j/AbbjSDFfpAcqXGez/?send_source=gc%3Acopy_invite_link_c'),
-(2, 'Allysa', 'https://m.me/j/AbbjSDFfpAcqXGez/?send_source=gc%3Acopy_invite_link_c'),
-(2, 'Ben', 'https://m.me/j/AbbjSDFfpAcqXGez/?send_source=gc%3Acopy_invite_link_c'),
-(4, 'Villanueve', 'https://m.me/j/AbbjSDFfpAcqXGez/?send_source=gc%3Acopy_invite_link_c'),
-(4, 'Kilby Moro', 'https://m.me/j/AbbjSDFfpAcqXGez/?send_source=gc%3Acopy_invite_link_c');

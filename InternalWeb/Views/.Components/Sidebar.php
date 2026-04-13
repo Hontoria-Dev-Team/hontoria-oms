@@ -9,17 +9,17 @@ $navLinks = [
     'services' => [
         'label' => 'Services',
         'icon'  => '../../Shared/Img/GearIcon.png',
-        'permission' => 'canViewServiceList',
+        'permission' => 'canViewServicesPage',
     ],
     'orders' => [
         'label' => 'Orders',
         'icon'  => '../../Shared/Img/ListIcon.png',
-        'permission' => 'canViewOrders',
+        'permission' => 'canViewOrdersPage',
     ],
     'staff' => [
         'label' => 'Staff',
         'icon'  => '../../Shared/Img/PeopleIcon.png',
-        'permission' => 'canViewStaffList',
+        'permission' => 'canViewStaffPage',
     ],
     'tasks' => [
         'label' => 'Tasks',

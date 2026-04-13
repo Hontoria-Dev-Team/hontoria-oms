@@ -327,6 +327,16 @@ class ServicesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllServicesOrderCountMapped() {
+        $map = [];
+
+        foreach ($this->getAllServicesOrderCount() as $item) {
+            $map[$item['serviceID']] = $item['orderCount'];
+        }
+
+        return $map;
+    }
+
     public function getAllSubservicesOrderCount() {
         $query = "
             SELECT

@@ -14,7 +14,7 @@ INSERT INTO roleManagementGovernance (roleSubjectID, roleAgentID, canGrant, canR
 (2, 2, 1, 0, 0, 0);
 
 INSERT INTO permissions (name) VALUES
-('canViewStaffList'),
+('canViewStaffPage'),
 ('isHiddenFromStaffList'),
 ('canCreateUserAccounts'),
 ('canDeleteUserAccounts'),
@@ -24,18 +24,18 @@ INSERT INTO permissions (name) VALUES
 ('canDeleteRoles'),
 ('canAlterRoles'),
 
-('canViewServiceList'),
+('canViewServicesPage'),
 ('canCreateServices'),
 ('canDeleteServices'),
 ('canAlterServiceStatus'),
 ('canAlterServiceProcess'),
-('canCreateServiceProcesses'),
+('canAlterServices'),
 ('canCreateSubservices'),
 ('canDeleteSubservices'),
 ('canAlterSubservicePricing'),
 ('canAlterSubserviceDescription'),
 
-('canViewOrders'),
+('canViewOrdersPage'),
 ('canCreateOrders'),
 ('canApplyDiscountToOrders'),
 ('canDeleteOrders'),
