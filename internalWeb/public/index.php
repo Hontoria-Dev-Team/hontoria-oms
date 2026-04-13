@@ -98,11 +98,11 @@ switch ($page) {
         } else if ($action === 'createService') {
             $services->createService();
         } else if ($action === 'deleteService') {
-            $services->deleteService();
+            $services->removeService();
         } else if ($action === 'createSubservice') {
             $services->createSubservice();
         } else if ($action === 'deleteSubservice') {
-            $services->deleteSubservice();
+            $services->removeSubservice();
         } else if ($action === 'updateServiceProcess') {
             $services->setServiceProcess();
         } else if ($action === 'manageProcesses') {
@@ -112,7 +112,7 @@ switch ($page) {
         } else if ($action === 'updateProcess') {
             $services->setProcess();
         } else if ($action === 'deleteProcess') {
-            $services->deleteProcess();
+            $services->removeProcess();
         } else if ($action === 'updateSubserviceInfo') {
             $services->setSubserviceInfo();
         } else if ($action === 'uploadSubserviceImages') {

@@ -8,11 +8,6 @@ class ServicesC {
     }
 
     public function showServices($serviceID, $subserviceID) {
-        if (!in_array('canViewServicesPage', $_SESSION['permissions'])) {
-            require __DIR__ . '/../Views/.Misc/ErrorPage.php';
-            exit();
-        }
-
         $page = "services";
         $servicesList = $this->servicesModel->getServices();
         $serviceProcessList = $this->servicesModel->getAllServiceProcesses();
@@ -26,8 +21,9 @@ class ServicesC {
     }
 
     public function showProcessesManagementPage() {
-        if (!in_array('canViewServicesPage', $_SESSION['permissions'])) {
-            require __DIR__ . '/../Views/.Misc/ErrorPage.php';
+        if (!in_array('canManageServiceProcesses', $_SESSION['permissions'])) {
+            $_SESSION['error'] = "You do not have permission to manage service processes.";
+            header("Location: index.php?page=services");
             exit();
         }
 
@@ -35,31 +31,45 @@ class ServicesC {
         $lastPage = 'services';
         $backLink = 'index.php?page=services';
         $processList = $this->servicesModel->getAllProcesses();
+
         require __DIR__ . '/../Views/Services/ProcessManagement.php';
     }
 
     public function toggleServiceStatus() {
         $selectedServiceID = $_POST['selectedServiceID'];
         $selectedSubserviceID = $_POST['selectedSubserviceID'];
-        $this->servicesModel->updateServiceStatus($selectedServiceID);
+
+        if (!in_array('canAlterServiceStatus', $_SESSION['permissions'])) {
+            $_SESSION['error'] = "You do not have permission to alter the service's status.";
+        } else {
+            $this->servicesModel->updateServiceStatus($selectedServiceID);
+        }
 
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
-        exit();
     }
 
     public function toggleHasDesign() {
         $selectedServiceID = $_POST['selectedServiceID'];
         $selectedSubserviceID = $_POST['selectedSubserviceID'];
-        $this->servicesModel->toggleServiceHasDesign($selectedServiceID);
+
+        if (!in_array('canAlterServices', $_SESSION['permissions'])) {
+            $_SESSION['error'] = "You do not have permission to alter services.";
+        } else {
+            $this->servicesModel->toggleServiceHasDesign($selectedServiceID);
+        }
 
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
-        exit();
     }
 
     public function toggleHasVariableList() {
         $selectedServiceID = $_POST['selectedServiceID'];
         $selectedSubserviceID = $_POST['selectedSubserviceID'];
-        $this->servicesModel->toggleServiceHasVariableList($selectedServiceID);
+
+        if (!in_array('canAlterServices', $_SESSION['permissions'])) {
+            $_SESSION['error'] = "You do not have permission to alter services.";
+        } else {
+            $this->servicesModel->toggleServiceHasVariableList($selectedServiceID);
+        }
 
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
         exit();
@@ -68,14 +78,10 @@ class ServicesC {
     public function createService() {
         $name = ucwords(strtolower(trim($_POST['name'])));
 
-        if (empty($name)) {
-            $_SESSION['error'] = "Empty service name.";
+        if (!in_array('canCreateServices', $_SESSION['permissions'])) {
+            $_SESSION['error'] = "You do not have permission to create services.";
         } else {
-            $creation = $this->servicesModel->insertService($name);
-
-            if (!$creation) {
-                $_SESSION['error'] = "Service name already exists.";
-            }
+            $_SESSION['error'] = $this->servicesModel->insertService($name);
         }
 
         $selectedServiceID = $_POST['selectedServiceID'];
@@ -84,9 +90,14 @@ class ServicesC {
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
-    public function deleteService() {
+    public function removeService() {
         $serviceID = $_POST['selectedServiceID'];
-        $this->servicesModel->removeService($serviceID);
+
+        if (!in_array('canDeleteServices', $_SESSION['permissions'])) {
+            $_SESSION['error'] = "You do not have permission to delete services.";
+        } else {
+            $_SESSION['error'] = $this->servicesModel->deleteService($serviceID);
+        }
 
         header('Location: index.php?page=services');
     }
@@ -94,21 +105,29 @@ class ServicesC {
     public function setSubserviceInfo() {
         $selectedServiceID = $_POST['selectedServiceID'];
         $selectedSubserviceID = $_POST['selectedSubserviceID'];
-        $description = $_POST['description'];
-        $pricePerUnit = $_POST['pricePerUnit'];
-        $this->servicesModel->updateSubserviceInfo($selectedSubserviceID, $pricePerUnit, $description);
+
+        if (!in_array('canAlterSubservices', $_SESSION['permissions'])) {
+            $_SESSION['error'] = "You do not have permission to alter subservices.";
+        } else {
+            $description = $_POST['description'];
+            $pricePerUnit = $_POST['pricePerUnit'];
+            $_SESSION['error'] = $this->servicesModel->updateSubserviceInfo($selectedSubserviceID, $pricePerUnit, $description);
+        }
 
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
-        exit();
     }
 
     public function toggleSubserviceStatus() {
         $selectedServiceID = $_POST['selectedServiceID'];
         $selectedSubserviceID = $_POST['selectedSubserviceID'];
-        $this->servicesModel->updateSubserviceStatus($selectedSubserviceID);
+
+        if (!in_array('canAlterSubserviceStatus', $_SESSION['permissions'])) {
+            $_SESSION['error'] = "You do not have permission to alter the subservice's status.";
+        } else {
+            $_SESSION['error'] = $this->servicesModel->updateSubserviceStatus($selectedSubserviceID);
+        }
 
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
-        exit();
     }
 
     public function createSubservice() {
@@ -116,78 +135,67 @@ class ServicesC {
         $selectedSubserviceID = $_POST['selectedSubserviceID'];
         $name = ucwords(strtolower(trim($_POST['name'])));
 
-        if (empty($name)) {
-            $_SESSION['error'] = "Empty subservice name.";
+        if (!in_array('canCreateSubservices', $_SESSION['permissions'])) {
+            $_SESSION['error'] = "You do not have permission to create subservices.";
         } else {
-            $creation = $this->servicesModel->insertSubservice($name, $selectedServiceID);
-
-            if (!$creation) {
-                $_SESSION['error'] = "Subservice name already exists.";
-            }
+            $_SESSION['error'] = $this->servicesModel->insertSubservice($name, $selectedServiceID);
         }
 
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
-    public function deleteSubservice() {
+    public function removeSubservice() {
         $selectedServiceID = $_POST['selectedServiceID'];
         $selectedSubserviceID = $_POST['selectedSubserviceID'];
-        $this->servicesModel->removeSubservice($selectedSubserviceID);
+
+        if (!in_array('canDeleteSubservices', $_SESSION['permissions'])) {
+            $_SESSION['error'] = "You do not have permission to delete subservices.";
+        } else {
+            $_SESSION['error'] = $this->servicesModel->deleteSubservice($selectedSubserviceID);
+        }
 
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID);
-        exit();
     }
 
     public function setServiceProcess() {
         $selectedServiceID = $_POST['selectedServiceID'];
         $selectedSubserviceID = $_POST['selectedSubserviceID'];
-        $processes = $_POST['processList'];
-        $this->servicesModel->updateServiceProcess($selectedServiceID, $processes);
+
+        if (!in_array('canAlterServices', $_SESSION['permissions'])) {
+            $_SESSION['error'] = "You do not have permission to alter services.";
+        } else {
+            $processes = $_POST['processList'];
+            $_SESSION['error'] =  $this->servicesModel->updateServiceProcess($selectedServiceID, $processes);
+        }
 
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
     public function createProcess() {
-        if (in_array('canAlterServices', $_SESSION['permissions'])) {
+        if (in_array('canManageServiceProcesses', $_SESSION['permissions'])) {
             $processName = $_POST['name'];
             $creation = $this->servicesModel->insertProcess($processName);
 
-            if (!$creation) {
-                $_SESSION['error'] = "Process name already exists";
-            }
+            $_SESSION['error'] = $creation ? "Created process" : "Process name already exists.";
         } else {
-            $_SESSION['error'] = "You dont have permission to create processes";
+            $_SESSION['error'] = "You do not have permission to manage service processes.";
         }
         header("Location: index.php?page=services&action=manageProcesses");
     }
 
-    public function deleteProcess() {
-        if (in_array('canAlterServices', $_SESSION['permissions'])) {
+    public function removeProcess() {
+        if (in_array('canManageServiceProcesses', $_SESSION['permissions'])) {
             $selectedID = (int) $_POST['selectedID'];
-            $serviceProcesses = $this->servicesModel->getAllServiceProcesses();
 
-            $canDelete = true;
-
-            foreach ($serviceProcesses as $serviceProcess) {
-                if ((int)$serviceProcess['id'] === $selectedID) {
-                    $canDelete = false;
-                    break;
-                }
-            }
-
-            if ($canDelete) {
-                $this->servicesModel->removeProcess($selectedID);
-            } else {
-                $_SESSION['error'] = "Cannot delete this process because it is in use in one or more services";
-            }
+            $_SESSION['error'] = $this->servicesModel->deleteProcess($selectedID);
         } else {
-            $_SESSION['error'] = "You dont have permission to delete processes";
+            $_SESSION['error'] = "You do not have permission to manage service processes.";
         }
         header("Location: index.php?page=services&action=manageProcesses");
     }
 
     public function setProcess() {
-        if (in_array('canAlterServices', $_SESSION['permissions'])) {
+        if (in_array('canManageServiceProcesses', $_SESSION['permissions'])) {
             $selectedID = (int) $_POST['id'];
             $minAssign = (int) $_POST['minAssign'];
             $maxAssign = (int) $_POST['maxAssign'];
@@ -196,8 +204,10 @@ class ServicesC {
             $variableListAccess = $_POST['variableListAccess'];
 
             $this->servicesModel->updateProcess($selectedID, $minAssign, $maxAssign, $hasGCAccess, $designAccess, $variableListAccess);
+
+            $_SESSION['error'] = "Updated process.";
         } else {
-            $_SESSION['error'] = "You dont have permission to modify processes";
+            $_SESSION['error'] = "You do not have permission to manage service processes.";
         }
         header("Location: index.php?page=services&action=manageProcesses");
     }
@@ -205,9 +215,13 @@ class ServicesC {
     public function uploadSubserviceImages() {
         $selectedServiceID = $_POST['selectedServiceID'];
         $selectedSubserviceID = $_POST['selectedSubserviceID'];
-        $images = $_FILES['images'];
 
-        $this->servicesModel->insertSubserviceImages($selectedSubserviceID, $images);
+        if (!in_array('canAlterSubservices', $_SESSION['permissions'])) {
+            $_SESSION['error'] = "You do not have permission to alter subservices.";
+        } else {
+            $images = $_FILES['images'];
+            $_SESSION['error'] = $this->servicesModel->insertSubserviceImages($selectedSubserviceID, $images);
+        }
 
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
@@ -215,9 +229,13 @@ class ServicesC {
     public function removeSubserviceImage() {
         $selectedServiceID = $_POST['selectedServiceID'];
         $selectedSubserviceID = $_POST['selectedSubserviceID'];
-        $selectedID = $_POST['selectedID'];
 
-        $this->servicesModel->deleteSubserviceImage($selectedID);
+        if (!in_array('canAlterSubservices', $_SESSION['permissions'])) {
+            $_SESSION['error'] = "You do not have permission to alter subservices.";
+        } else {
+            $selectedID = $_POST['selectedID'];
+            $_SESSION['error'] = $this->servicesModel->deleteSubserviceImage($selectedID);
+        }
 
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }

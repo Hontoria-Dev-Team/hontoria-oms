@@ -36,16 +36,22 @@ class ServicesM {
     }
 
     public function insertService($name) {
+        if (empty($name)) {
+            return "Empty service name.";
+        }
+
         $service = $this->getServiceByName($name);
 
         if ($service) {
-            return false;
+            return "Service name already exists.";
         }
 
         $query = "INSERT INTO services (name) VALUES (:name);";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':name', $name);
-        return $stmt->execute();
+        $stmt->execute();
+
+        return "Created service.";
     }
 
     public function toggleServiceHasDesign($id) {
@@ -62,7 +68,7 @@ class ServicesM {
         return $stmt->execute();
     }
 
-    public function removeService($id) {
+    public function deleteService($id) {
         try {
             $this->pdo->beginTransaction();
 
@@ -109,11 +115,10 @@ class ServicesM {
             $stmt->execute([$id]);
 
             $this->pdo->commit();
-            return true;
+            return "Deleted service.";
         } catch (PDOException $e) {
             $this->pdo->rollBack();
-            $_SESSION["error"] = ($e->getMessage());
-            return false;
+            return "Failed. " . ($e->getMessage());
         }
     }
 
@@ -200,7 +205,9 @@ class ServicesM {
         $query = "UPDATE subservices SET isActive = !isActive WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        $stmt->execute();
+
+        return "Updated subservice status.";
     }
 
     public function updateSubserviceInfo($id, $pricePerUnit, $description) {
@@ -209,21 +216,57 @@ class ServicesM {
         $stmt->bindParam(':id', $id);
         $stmt->bindParam(':pricePerUnit', $pricePerUnit);
         $stmt->bindParam(':description', $description);
-        return $stmt->execute();
+        $stmt->execute();
+
+        return "Updated subservice.";
     }
 
-    public function removeSubservice($id) {
-        $query = "DELETE FROM subservices WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+    public function deleteSubservice($id) {
+        try {
+            $this->pdo->beginTransaction();
+
+            // Get all images for this subservice
+            $query = "SELECT imageName FROM subserviceImages WHERE subserviceID = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([':id' => $id]);
+            $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Delete image files from storage
+            $storageDir = __DIR__ . '/../../Storage/SubserviceImages/';
+            foreach ($images as $image) {
+                $filePath = $storageDir . $image['imageName'];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+
+            // Delete subserviceImages records
+            $query = "DELETE FROM subserviceImages WHERE subserviceID = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([':id' => $id]);
+
+            // Delete the subservice
+            $query = "DELETE FROM subservices WHERE id = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([':id' => $id]);
+
+            $this->pdo->commit();
+            return "Deleted subservice.";
+        } catch (PDOException $e) {
+            $this->pdo->rollBack();
+            return "Failed. " . $e->getMessage();
+        }
     }
 
     public function insertSubservice($name, $serviceID) {
+        if (empty($name)) {
+            return "Empty subservice name.";
+        }
+
         $user = $this->getSingleSubserviceByName($name, $serviceID);
 
         if ($user) {
-            return false;
+            return "Service name already exists.";
         }
 
         $query = "INSERT INTO subservices (name, serviceID, pricePerUnit) VALUES
@@ -231,7 +274,9 @@ class ServicesM {
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':serviceID', $serviceID);
-        return $stmt->execute();
+        $stmt->execute();
+
+        return "Created subservice.";
     }
 
     public function clearServiceProcess($id) {
@@ -256,6 +301,8 @@ class ServicesM {
                 ]);
             }
         }
+
+        return "Updated service process.";
     }
 
     public function insertProcess($name) {
@@ -280,7 +327,21 @@ class ServicesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function removeProcess($id) {
+    public function deleteProcess($id) {
+        $serviceProcesses = $this->getAllServiceProcesses();
+        $canDelete = true;
+
+        foreach ($serviceProcesses as $serviceProcess) {
+            if ((int)$serviceProcess['id'] === $id) {
+                $canDelete = false;
+                break;
+            }
+        }
+
+        if (!$canDelete) {
+            return "Cannot delete this process because it is in use in one or more services";
+        }
+
         $query = "DELETE FROM roleProcessTasks WHERE processID = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
@@ -289,7 +350,9 @@ class ServicesM {
         $query = "DELETE FROM processes WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        $stmt->execute();
+
+        return "Deleted process.";
     }
 
     public function updateProcess($id, $minAssignDefault, $maxAssignDefault, $hasGCAccess, $designAccess, $variableListAccess) {
@@ -369,7 +432,7 @@ class ServicesM {
         for ($i = 0; $i < count($images['name']); $i++) {
             $fileExtension = strtolower(pathinfo($images['name'][$i], PATHINFO_EXTENSION));
             if (!in_array($fileExtension, $allowed)) {
-                return false;
+                return "Invalid file format.";
             }
         }
 
@@ -390,7 +453,7 @@ class ServicesM {
                         unlink($filePath);
                     }
                 }
-                return false;
+                return "Upload failed.";
             }
         }
 
@@ -405,7 +468,7 @@ class ServicesM {
                 ]);
             }
 
-            return true;
+            return "Upload successful.";
         } catch (PDOException $e) {
             foreach ($uploadedFiles as $uploadedFile) {
                 $filePath = $storageDir . $uploadedFile;
@@ -413,8 +476,7 @@ class ServicesM {
                     unlink($filePath);
                 }
             }
-            $_SESSION["error"] = ($e->getMessage());
-            return false;
+            return "Failed. " . $e->getMessage();
         }
     }
 
@@ -430,16 +492,14 @@ class ServicesM {
             $image = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$image) {
-                $_SESSION['error'] = "Image record not found.";
-                return false;
+                return "Image record not found.";
             }
 
             // Delete the physical file
             $filePath = $storageDir . $image['imageName'];
             if (file_exists($filePath)) {
                 if (!unlink($filePath)) {
-                    $_SESSION['error'] = "Failed to delete image file.";
-                    return false;
+                    return "Failed to delete image file.";
                 }
             }
 
@@ -450,13 +510,12 @@ class ServicesM {
             $result = $stmt->execute();
 
             if (!$result) {
-                $_SESSION['error'] = "Failed to delete database record.";
+                return "Failed to delete database record.";
             }
 
-            return $result;
+            return "Deletion successful.";;
         } catch (PDOException $e) {
-            $_SESSION['error'] = $e->getMessage();
-            return false;
+            return "Failed. " . $e->getMessage();
         }
     }
 }
