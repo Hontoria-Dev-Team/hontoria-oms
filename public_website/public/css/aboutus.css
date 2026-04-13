@@ -119,9 +119,9 @@
 
 /* ========== LOCATION ========== */
 .location-section{background:var(--white)}
-.location-layout{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
-.location-img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:var(--radius-md);border:3px solid var(--dk);box-shadow:8px 8px 0 var(--y)}
-.location-img-placeholder{width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,#e8f4e8,#c8f0c8);border-radius:var(--radius-md);border:3px solid var(--dk);box-shadow:8px 8px 0 var(--y);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.location-layout{display:grid;grid-template-columns:3fr 2fr;gap:48px;align-items:center}
+.location-img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:var(--radius-md);border:3px solid var(--dk);box-shadow:8px 8px 0 var(--y)}
+.location-img-placeholder{width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,#e8f4e8,#c8f0c8);border-radius:var(--radius-md);border:3px solid var(--dk);box-shadow:8px 8px 0 var(--y);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
 .location-img-placeholder i{font-size:52px;color:rgba(26,8,0,0.2)}
 .location-img-placeholder span{font-size:13px;font-weight:700;letter-spacing:1px;color:rgba(26,8,0,0.35)}
 .location-details{display:flex;flex-direction:column;gap:16px}
@@ -178,10 +178,12 @@
   .page-hero{padding:48px 16px}
   .employees-header{flex-direction:column;align-items:flex-start}
 }
-/* Live Google Map */
+
+/* ========== LIVE GOOGLE MAP ========== */
 .location-map-wrap {
     width: 100%;
-    aspect-ratio: 16/10;
+    aspect-ratio: 4/3;          /* ← changed from 16/10 — taller map */
+    min-height: 380px;           /* ← ensures a decent size on wide screens */
     border-radius: var(--radius-md);
     border: 3px solid var(--dk);
     box-shadow: 8px 8px 0 var(--y);
