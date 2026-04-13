@@ -18,7 +18,7 @@
                 </a>
             </div>
         </h1>
-        <?php include("../Views/.Components/ErrorBox.php"); ?>
+        <?php include("../Views/.Components/MessageBox.php"); ?>
         <section class="rowLayout flexMax midGap">
             <div class="flexMid columnLayout midGap">
                 <section class="centerColumnLayout roundedMid flexMid">

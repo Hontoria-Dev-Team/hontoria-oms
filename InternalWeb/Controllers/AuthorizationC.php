@@ -151,14 +151,14 @@ class AuthorizationC {
             $governanceRules = $this->staffModel->getGovernanceRulesBetweenUsers($userID, $_SESSION['id']);
 
             if ($isRevoking && !$governanceRules['canRevoke']) {
-                $_SESSION['error'] = "You dont have the authority to revoke roles from this user because of their role";
+                $_SESSION['message'] = "You dont have the authority to revoke roles from this user because of their role";
             } else if ($isGranting && !$governanceRules['canGrant']) {
-                $_SESSION['error'] = "You dont have the authority to grant roles for this user because of their role";
+                $_SESSION['message'] = "You dont have the authority to grant roles for this user because of their role";
             } else {
                 $this->staffModel->updateUserRoles($userID, $userNewRoles);
             }
         } else {
-            $_SESSION['error'] = "You dont have permission to alter user roles";
+            $_SESSION['message'] = "You dont have permission to alter user roles";
         }
         header("Location: index.php?page=staff");
     }
@@ -196,14 +196,14 @@ class AuthorizationC {
             if ($canAlter && !$hasUnauthorizedRevocation && !$hasUnauthorizedGrant) {
                 $this->staffModel->updateRolePermissions($roleID, $newRolePermissions);
             } else if (!$canAlter) {
-                $_SESSION['error'] = "You dont have the authority to alter this role";
+                $_SESSION['message'] = "You dont have the authority to alter this role";
             } else if ($hasUnauthorizedRevocation) {
-                $_SESSION['error'] = "You dont have the authority to revoke permissions you have tried to revoke";
+                $_SESSION['message'] = "You dont have the authority to revoke permissions you have tried to revoke";
             } else if ($hasUnauthorizedGrant) {
-                $_SESSION['error'] = "You dont have the authority to grant permissions you have tried to grant";
+                $_SESSION['message'] = "You dont have the authority to grant permissions you have tried to grant";
             }
         } else {
-            $_SESSION['error'] = "You dont have permission to alter roles";
+            $_SESSION['message'] = "You dont have permission to alter roles";
         }
         header("Location: index.php?page=staff&action=manageRoles");
     }
@@ -285,16 +285,16 @@ class AuthorizationC {
             if ($canAlter && !$hasUnauthorizedCreation && !$hasUnauthorizedModification && !$hasUnauthorizedDeletion) {
                 $this->staffModel->updateRoleManagementGovernance($roleID, $newGovernanceRows);
             } else if (!$canAlter) {
-                $_SESSION['error'] = "You dont have the authority to alter this role";
+                $_SESSION['message'] = "You dont have the authority to alter this role";
             } else if ($hasUnauthorizedCreation) {
-                $_SESSION['error'] = "You dont have the authority to create specific management rules on one or many rules you have tried to create";
+                $_SESSION['message'] = "You dont have the authority to create specific management rules on one or many rules you have tried to create";
             } else if ($hasUnauthorizedModification) {
-                $_SESSION['error'] = "You dont have the authority to modify specific management rules on one or many rules you have tried to modify";
+                $_SESSION['message'] = "You dont have the authority to modify specific management rules on one or many rules you have tried to modify";
             } else if ($hasUnauthorizedDeletion) {
-                $_SESSION['error'] = "You dont have the authority to delete specific management rules on one or many rules you have tried to delete";
+                $_SESSION['message'] = "You dont have the authority to delete specific management rules on one or many rules you have tried to delete";
             }
         } else {
-            $_SESSION['error'] = "You dont have permission to alter roles";
+            $_SESSION['message'] = "You dont have permission to alter roles";
         }
         header("Location: index.php?page=staff&action=manageRoles");
     }
@@ -317,10 +317,10 @@ class AuthorizationC {
             if ($canAlter) {
                 $this->staffModel->updateRoleProcessTasks($roleID, $processes);
             } else {
-                $_SESSION['error'] = "You dont have the authority to alter this role";
+                $_SESSION['message'] = "You dont have the authority to alter this role";
             }
         } else {
-            $_SESSION['error'] = "You dont have permission to alter roles";
+            $_SESSION['message'] = "You dont have permission to alter roles";
         }
         header("Location: index.php?page=staff&action=manageRoles");
     }
@@ -352,10 +352,10 @@ class AuthorizationC {
             $creation = $this->staffModel->insertRole($name);
 
             if (!$creation) {
-                $_SESSION['error'] = "Role name already exists";
+                $_SESSION['message'] = "Role name already exists";
             }
         } else {
-            $_SESSION['error'] = "You dont have permission to create roles";
+            $_SESSION['message'] = "You dont have permission to create roles";
         }
         header("Location: index.php?page=staff&action=manageRoles");
     }
@@ -377,10 +377,10 @@ class AuthorizationC {
             if ($canDelete) {
                 $this->staffModel->removeRole($roleID);
             } else {
-                $_SESSION['error'] = "You dont have the authority to delete this role";
+                $_SESSION['message'] = "You dont have the authority to delete this role";
             }
         } else {
-            $_SESSION['error'] = "You dont have permission to delete roles";
+            $_SESSION['message'] = "You dont have permission to delete roles";
         }
         header("Location: index.php?page=staff&action=manageRoles");
     }
@@ -393,12 +393,12 @@ class AuthorizationC {
             $governanceRules = $this->staffModel->getGovernanceRulesBetweenUsers($id, $_SESSION['id']);
 
             if (!$governanceRules['canDelete']) {
-                $_SESSION['error'] = "You dont have the authority to delete this user because of their role";
+                $_SESSION['message'] = "You dont have the authority to delete this user because of their role";
             } else {
                 $this->staffModel->removeAccount($id);
             }
         } else {
-            $_SESSION['error'] = "You dont have permission to delete accounts";
+            $_SESSION['message'] = "You dont have permission to delete accounts";
         }
         header("Location: index.php?page=staff");
     }

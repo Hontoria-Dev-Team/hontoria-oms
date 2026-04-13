@@ -19,7 +19,7 @@
                 <div class="gradientBorderDiag"></div>
             </section>
         </section>
-        <?php include("../Views/.Components/ErrorBox.php"); ?>
+        <?php include("../Views/.Components/MessageBox.php"); ?>
     </main>
 </body>
 

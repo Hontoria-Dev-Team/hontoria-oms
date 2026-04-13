@@ -16,7 +16,7 @@
                 <img src="../../Shared/Img/PeopleIcon.png" alt="People"> Role Management
             </h1>
         </span>
-        <?php include("../Views/.Components/ErrorBox.php"); ?>
+        <?php include("../Views/.Components/MessageBox.php"); ?>
         <section class="rowLayout flexMax midGap">
             <section class="flexMid roundedMid centerColumnLayout">
                 <div class="columnLayout minGap box roundedMid fullHeight fullWidth">

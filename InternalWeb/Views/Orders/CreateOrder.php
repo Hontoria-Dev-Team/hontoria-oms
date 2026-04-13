@@ -16,7 +16,7 @@
                 <img src="../../Shared/Img/ListIcon.png" alt="List"> Order Creation
             </h1>
         </span>
-        <?php include("../Views/.Components/ErrorBox.php"); ?>
+        <?php include("../Views/.Components/MessageBox.php"); ?>
         <section>
             <form method="POST" action="index.php?page=orders&action=createFinal" class="centerHoriRowLayout midGap fullHeight">
                 <div class="centerColumnLayout flexMid fullHeight midGap">

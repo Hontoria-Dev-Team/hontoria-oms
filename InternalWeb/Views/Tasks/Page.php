@@ -12,7 +12,7 @@
         <h1 class="titleLogo minGap tinHeight">
             <img src="../../Shared/Img/CheckBoxIcon.png" alt="CheckBox"> Tasks Panel
         </h1>
-        <?php include("../Views/.Components/ErrorBox.php"); ?>
+        <?php include("../Views/.Components/MessageBox.php"); ?>
         <section class="rowLayout flexMax midGap">
             <section class="flexMid roundedMid centerColumnLayout">
                 <div class="columnLayout minGap box roundedMid fullHeight fullWidth">

@@ -13,7 +13,7 @@
         <h1 class="titleLogo minGap tinHeight">
             <img src="../../Shared/Img/AccountSettingsIcon.png" alt="AccountSettings"> Account Settings
         </h1>
-        <?php include("../Views/.Components/ErrorBox.php"); ?>
+        <?php include("../Views/.Components/MessageBox.php"); ?>
         <div class="centerColumnLayout midGap flexMax">
             <section class="centerColumnLayout box roundedMid extraWidth centerHoriSelf">
                 <form method="POST" action="index.php?page=account&action=rename" class="centerColumnLayout minGap fullWidth">

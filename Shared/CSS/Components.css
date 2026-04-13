@@ -49,15 +49,13 @@
     border-radius: 1rem;
 }
 
-.errorMessage {
-    background: var(--red);
-    color: var(--white);
+#messageBox {
     position: absolute;
     text-align: center;
     align-items: center;
     border-radius: 1rem;
     top: 1rem;
-    max-width: 70%;
+    max-width: 75%;
     animation: fadeOut 5s forwards;
     align-self: center;
 }

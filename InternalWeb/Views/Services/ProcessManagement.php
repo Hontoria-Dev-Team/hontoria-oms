@@ -16,7 +16,7 @@
                 <img src="../../Shared/Img/PeopleIcon.png" alt="People"> Process Management
             </h1>
         </span>
-        <?php include("../Views/.Components/ErrorBox.php"); ?>
+        <?php include("../Views/.Components/MessageBox.php"); ?>
         <section class="rowLayout flexMax midGap">
             <section class="flexMax roundedMid centerColumnLayout">
                 <div class="box roundedMid fullHeight fullWidth columnLayout">
