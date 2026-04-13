@@ -125,7 +125,9 @@ class ServicesM {
         $query = "UPDATE services SET isActive = !isActive WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        $stmt->execute();
+
+        return "Success: Updated service status.";
     }
 
     // Toggle design capability for service
@@ -133,7 +135,9 @@ class ServicesM {
         $query = "UPDATE services SET hasDesign = !hasDesign WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        $stmt->execute();
+
+        return "Success: Updated service objectives.";
     }
 
     // Toggle variable list capability for service
@@ -141,7 +145,9 @@ class ServicesM {
         $query = "UPDATE services SET hasVariableList = !hasVariableList WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        $stmt->execute();
+
+        return "Success: Updated service objectives.";
     }
 
     // Get processes associated with a service, ordered by phase

@@ -58,7 +58,7 @@ class ServicesC {
         if (!in_array('canAlterServiceStatus', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to alter the service's status.";
         } else {
-            $this->servicesModel->updateServiceStatus($selectedServiceID);
+            $_SESSION['message'] = $this->servicesModel->updateServiceStatus($selectedServiceID);
         }
 
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
@@ -72,7 +72,7 @@ class ServicesC {
         if (!in_array('canAlterServices', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to alter services.";
         } else {
-            $this->servicesModel->toggleServiceHasDesign($selectedServiceID);
+            $_SESSION['message'] = $this->servicesModel->toggleServiceHasDesign($selectedServiceID);
         }
 
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
@@ -86,7 +86,7 @@ class ServicesC {
         if (!in_array('canAlterServices', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to alter services.";
         } else {
-            $this->servicesModel->toggleServiceHasVariableList($selectedServiceID);
+            $_SESSION['message'] = $this->servicesModel->toggleServiceHasVariableList($selectedServiceID);
         }
 
         header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
