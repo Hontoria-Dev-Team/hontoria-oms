@@ -37,13 +37,13 @@ class ServicesM {
 
     public function insertService($name) {
         if (empty($name)) {
-            return "Empty service name.";
+            return "Error: Empty service name.";
         }
 
         $service = $this->getServiceByName($name);
 
         if ($service) {
-            return "Service name already exists.";
+            return "Error: Service name already exists.";
         }
 
         $query = "INSERT INTO services (name) VALUES (:name);";
@@ -51,7 +51,7 @@ class ServicesM {
         $stmt->bindParam(':name', $name);
         $stmt->execute();
 
-        return "Created service.";
+        return "Success: Created service.";
     }
 
     public function toggleServiceHasDesign($id) {
@@ -115,10 +115,10 @@ class ServicesM {
             $stmt->execute([$id]);
 
             $this->pdo->commit();
-            return "Deleted service.";
+            return "Success: Deleted service.";
         } catch (PDOException $e) {
             $this->pdo->rollBack();
-            return "Failed. " . ($e->getMessage());
+            return "Error: Failed. " . ($e->getMessage());
         }
     }
 
@@ -207,7 +207,7 @@ class ServicesM {
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
-        return "Updated subservice status.";
+        return "Success: Updated subservice status.";
     }
 
     public function updateSubserviceInfo($id, $pricePerUnit, $description) {
@@ -218,7 +218,7 @@ class ServicesM {
         $stmt->bindParam(':description', $description);
         $stmt->execute();
 
-        return "Updated subservice.";
+        return "Success: Updated subservice.";
     }
 
     public function deleteSubservice($id) {
@@ -251,22 +251,22 @@ class ServicesM {
             $stmt->execute([':id' => $id]);
 
             $this->pdo->commit();
-            return "Deleted subservice.";
+            return "Success: Deleted subservice.";
         } catch (PDOException $e) {
             $this->pdo->rollBack();
-            return "Failed. " . $e->getMessage();
+            return "Error: Failed. " . $e->getMessage();
         }
     }
 
     public function insertSubservice($name, $serviceID) {
         if (empty($name)) {
-            return "Empty subservice name.";
+            return "Error: Empty subservice name.";
         }
 
         $user = $this->getSingleSubserviceByName($name, $serviceID);
 
         if ($user) {
-            return "Service name already exists.";
+            return "Error: Service name already exists.";
         }
 
         $query = "INSERT INTO subservices (name, serviceID, pricePerUnit) VALUES
@@ -276,7 +276,7 @@ class ServicesM {
         $stmt->bindParam(':serviceID', $serviceID);
         $stmt->execute();
 
-        return "Created subservice.";
+        return "Success: Created subservice.";
     }
 
     public function clearServiceProcess($id) {
@@ -302,7 +302,7 @@ class ServicesM {
             }
         }
 
-        return "Updated service process.";
+        return "Success: Updated service process.";
     }
 
     public function insertProcess($name) {
@@ -339,7 +339,7 @@ class ServicesM {
         }
 
         if (!$canDelete) {
-            return "Cannot delete this process because it is in use in one or more services";
+            return "Error: Cannot delete this process because it is in use in one or more services";
         }
 
         $query = "DELETE FROM roleProcessTasks WHERE processID = :id";
@@ -352,7 +352,7 @@ class ServicesM {
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
-        return "Deleted process.";
+        return "Success: Deleted process.";
     }
 
     public function updateProcess($id, $minAssignDefault, $maxAssignDefault, $hasGCAccess, $designAccess, $variableListAccess) {
@@ -432,7 +432,7 @@ class ServicesM {
         for ($i = 0; $i < count($images['name']); $i++) {
             $fileExtension = strtolower(pathinfo($images['name'][$i], PATHINFO_EXTENSION));
             if (!in_array($fileExtension, $allowed)) {
-                return "Invalid file format.";
+                return "Error: Invalid file format.";
             }
         }
 
@@ -453,7 +453,7 @@ class ServicesM {
                         unlink($filePath);
                     }
                 }
-                return "Upload failed.";
+                return "Error: Upload failed.";
             }
         }
 
@@ -468,7 +468,7 @@ class ServicesM {
                 ]);
             }
 
-            return "Upload successful.";
+            return "Success: Upload successful.";
         } catch (PDOException $e) {
             foreach ($uploadedFiles as $uploadedFile) {
                 $filePath = $storageDir . $uploadedFile;
@@ -476,7 +476,7 @@ class ServicesM {
                     unlink($filePath);
                 }
             }
-            return "Failed. " . $e->getMessage();
+            return "Error: Failed. " . $e->getMessage();
         }
     }
 
@@ -492,14 +492,14 @@ class ServicesM {
             $image = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$image) {
-                return "Image record not found.";
+                return "Error: Image record not found.";
             }
 
             // Delete the physical file
             $filePath = $storageDir . $image['imageName'];
             if (file_exists($filePath)) {
                 if (!unlink($filePath)) {
-                    return "Failed to delete image file.";
+                    return "Error: Failed to delete image file.";
                 }
             }
 
@@ -510,12 +510,12 @@ class ServicesM {
             $result = $stmt->execute();
 
             if (!$result) {
-                return "Failed to delete database record.";
+                return "Error: Failed to delete database record.";
             }
 
-            return "Deletion successful.";;
+            return "Success: Deletion successful.";
         } catch (PDOException $e) {
-            return "Failed. " . $e->getMessage();
+            return "Error: Failed. " . $e->getMessage();
         }
     }
 }
