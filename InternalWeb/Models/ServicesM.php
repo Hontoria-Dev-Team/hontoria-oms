@@ -1,11 +1,16 @@
 <?php
 class ServicesM {
     private $pdo;
+    private $storageDir; // Directory path for storing subservice images
 
     public function __construct($pdo) {
         $this->pdo = $pdo;
+        $this->storageDir = __DIR__ . '/../../Storage/SubserviceImages/'; // Initialize storage directory path
     }
 
+    // Service Getters
+
+    // Retrieve all services ordered by active status and name
     public function getServices() {
         $query = "SELECT * FROM services ORDER BY isActive DESC, name ASC";
 
@@ -15,6 +20,7 @@ class ServicesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get service details by ID
     public function getServiceByID($id) {
         $query = "SELECT name, hasDesign, hasVariableList FROM services WHERE id = :id";
 
@@ -25,6 +31,7 @@ class ServicesM {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // Get service by name
     public function getServiceByName($name) {
         $query = "SELECT id, description FROM services WHERE name = :name";
 
@@ -35,6 +42,9 @@ class ServicesM {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // Service Operations
+
+    // Insert a new service, checking for duplicates
     public function insertService($name) {
         if (empty($name)) {
             return "Error: Empty service name.";
@@ -54,24 +64,13 @@ class ServicesM {
         return "Success: Created service.";
     }
 
-    public function toggleServiceHasDesign($id) {
-        $query = "UPDATE services SET hasDesign = !hasDesign WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
-    }
-
-    public function toggleServiceHasVariableList($id) {
-        $query = "UPDATE services SET hasVariableList = !hasVariableList WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
-    }
-
+    // Delete a service and all its related data (subservices, images, processes)
+    // Uses transaction to ensure data integrity
     public function deleteService($id) {
         try {
             $this->pdo->beginTransaction();
 
+            // Get all subservices for this service
             $subservices = $this->getSubservices($id);
 
             if (!empty($subservices)) {
@@ -85,9 +84,8 @@ class ServicesM {
                 $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 // Delete image files from storage
-                $storageDir = __DIR__ . '/../../Storage/SubserviceImages/';
                 foreach ($images as $image) {
-                    $filePath = $storageDir . $image['imageName'];
+                    $filePath = $this->storageDir . $image['imageName'];
                     if (file_exists($filePath)) {
                         unlink($filePath);
                     }
@@ -104,12 +102,12 @@ class ServicesM {
                 $stmt->execute([$id]);
             }
 
-            // Delete serviceProcess
+            // Delete serviceProcess associations
             $query = "DELETE FROM serviceProcess WHERE serviceID = ?";
             $stmt = $this->pdo->prepare($query);
             $stmt->execute([$id]);
 
-            // Delete service
+            // Delete the service
             $query = "DELETE FROM services WHERE id = ?";
             $stmt = $this->pdo->prepare($query);
             $stmt->execute([$id]);
@@ -122,42 +120,31 @@ class ServicesM {
         }
     }
 
-    public function getSubservices($serviceID) {
-        $query = "SELECT id, name, isActive, description, pricePerUnit
-                  FROM subservices
-                  WHERE serviceID = :id
-                  ORDER BY isActive DESC, name ASC";
-
+    // Toggle service active status
+    public function updateServiceStatus($id) {
+        $query = "UPDATE services SET isActive = !isActive WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $serviceID);
-        $stmt->execute();
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
     }
 
-    public function getAllSubservices() {
-        $query = "SELECT * FROM subservices ORDER BY isActive DESC, name ASC";
-
+    // Toggle design capability for service
+    public function toggleServiceHasDesign($id) {
+        $query = "UPDATE services SET hasDesign = !hasDesign WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
-        $stmt->execute();
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
     }
 
-    public function getSingleSubserviceByName($name, $serviceID) {
-        $query = "SELECT isActive, description, pricePerUnit
-                  FROM subservices
-                  WHERE serviceID = :serviceID AND name = :name
-                  LIMIT 1";
-
+    // Toggle variable list capability for service
+    public function toggleServiceHasVariableList($id) {
+        $query = "UPDATE services SET hasVariableList = !hasVariableList WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':serviceID', $serviceID);
-        $stmt->execute();
-
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
     }
 
+    // Get processes associated with a service, ordered by phase
     public function getServiceProcess($serviceID) {
         $query = "SELECT processes.id, processes.name, serviceProcess.phase
                   FROM serviceProcess
@@ -172,6 +159,37 @@ class ServicesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Clear all process associations for a service
+    public function clearServiceProcess($id) {
+        $query = "DELETE FROM serviceProcess WHERE serviceID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
+    // Update process associations for a service
+    public function updateServiceProcess($id, $processes) {
+        $this->clearServiceProcess($id);
+
+        if (!empty($processes)) {
+            $query = "INSERT INTO serviceProcess (serviceID, processesID, phase) VALUES (:serviceID, :processID, :phase)";
+            $stmt = $this->pdo->prepare($query);
+
+            for ($i = 0; $i < count($processes); $i++) {
+                $stmt->execute([
+                    ':serviceID' => $id,
+                    ':processID' => $processes[$i],
+                    ':phase' => $i + 1
+                ]);
+            }
+        }
+
+        return "Success: Updated service process.";
+    }
+
+    // Process Getters
+
+    // Get all service-process associations with process details
     public function getAllServiceProcesses() {
         $query = "SELECT serviceProcess.serviceID, serviceProcess.phase, processes.name, processes.id
                   FROM serviceProcess
@@ -184,6 +202,17 @@ class ServicesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get all processes ordered by name
+    public function getAllProcesses() {
+        $query = "SELECT * FROM processes ORDER BY name";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Check if a process exists by name
     public function getSingleProcessByName($name) {
         $query = "SELECT id FROM processes WHERE name = :name";
 
@@ -194,33 +223,142 @@ class ServicesM {
         return $stmt->fetch(PDO::FETCH_COLUMN);
     }
 
-    public function updateServiceStatus($id) {
-        $query = "UPDATE services SET isActive = !isActive WHERE id = :id";
+    // Process Operations
+
+    // Insert a new process, checking for duplicates
+    public function insertProcess($name) {
+        $process = $this->getSingleProcessByName($name);
+
+        if ($process) {
+            return false;
+        }
+
+        $query = "INSERT INTO processes (name) VALUES (:name);";
         $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':name', $name);
         return $stmt->execute();
     }
 
-    public function updateSubserviceStatus($id) {
-        $query = "UPDATE subservices SET isActive = !isActive WHERE id = :id";
+    // Delete a process if not in use by any service
+    public function deleteProcess($id) {
+        $serviceProcesses = $this->getAllServiceProcesses();
+        $canDelete = true;
+
+        // Check if process is used in any service
+        foreach ($serviceProcesses as $serviceProcess) {
+            if ((int)$serviceProcess['id'] === $id) {
+                $canDelete = false;
+                break;
+            }
+        }
+
+        if (!$canDelete) {
+            return "Error: Cannot delete this process because it is in use in one or more services";
+        }
+
+        // Remove role associations
+        $query = "DELETE FROM roleProcessTasks WHERE processID = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
-        return "Success: Updated subservice status.";
-    }
-
-    public function updateSubserviceInfo($id, $pricePerUnit, $description) {
-        $query = "UPDATE subservices SET pricePerUnit = :pricePerUnit, description = :description WHERE id = :id";
+        // Delete the process
+        $query = "DELETE FROM processes WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
-        $stmt->bindParam(':pricePerUnit', $pricePerUnit);
-        $stmt->bindParam(':description', $description);
         $stmt->execute();
 
-        return "Success: Updated subservice.";
+        return "Success: Deleted process.";
     }
 
+    // Update process settings
+    public function updateProcess($id, $minAssignDefault, $maxAssignDefault, $hasGCAccess, $designAccess, $variableListAccess) {
+        $query = "UPDATE processes
+                  SET minAssignDefault = :minAssignDefault,
+                      maxAssignDefault = :maxAssignDefault,
+                      hasGCAccess = :hasGCAccess,
+                      designAccess = :designAccess,
+                      variableListAccess = :variableListAccess
+                  WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':minAssignDefault', $minAssignDefault);
+        $stmt->bindParam(':maxAssignDefault', $maxAssignDefault);
+        $stmt->bindParam(':hasGCAccess', $hasGCAccess);
+        $stmt->bindParam(':designAccess', $designAccess);
+        $stmt->bindParam(':variableListAccess', $variableListAccess);
+
+        return $stmt->execute();
+    }
+
+    // Subservice Getters
+
+    // Get all subservices for a specific service
+    public function getSubservices($serviceID) {
+        $query = "SELECT id, name, isActive, description, pricePerUnit
+                  FROM subservices
+                  WHERE serviceID = :id
+                  ORDER BY isActive DESC, name ASC";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $serviceID);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Get all subservices across all services
+    public function getAllSubservices() {
+        $query = "SELECT * FROM subservices ORDER BY isActive DESC, name ASC";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Check if a subservice exists by name and service
+    public function getSingleSubserviceByName($name, $serviceID) {
+        $query = "SELECT isActive, description, pricePerUnit
+                  FROM subservices
+                  WHERE serviceID = :serviceID AND name = :name
+                  LIMIT 1";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':serviceID', $serviceID);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Subservice Operations
+
+    // Insert a new subservice under a service
+    public function insertSubservice($name, $serviceID) {
+        if (empty($name)) {
+            return "Error: Empty subservice name.";
+        }
+
+        $user = $this->getSingleSubserviceByName($name, $serviceID);
+
+        if ($user) {
+            return "Error: Service name already exists.";
+        }
+
+        $query = "INSERT INTO subservices (name, serviceID, pricePerUnit) VALUES
+            (:name, :serviceID, 1);";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':serviceID', $serviceID);
+        $stmt->execute();
+
+        return "Success: Created subservice.";
+    }
+
+    // Delete a subservice and its associated images
+    // Uses transaction for data integrity
     public function deleteSubservice($id) {
         try {
             $this->pdo->beginTransaction();
@@ -232,9 +370,8 @@ class ServicesM {
             $images = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // Delete image files from storage
-            $storageDir = __DIR__ . '/../../Storage/SubserviceImages/';
             foreach ($images as $image) {
-                $filePath = $storageDir . $image['imageName'];
+                $filePath = $this->storageDir . $image['imageName'];
                 if (file_exists($filePath)) {
                     unlink($filePath);
                 }
@@ -258,123 +395,31 @@ class ServicesM {
         }
     }
 
-    public function insertSubservice($name, $serviceID) {
-        if (empty($name)) {
-            return "Error: Empty subservice name.";
-        }
-
-        $user = $this->getSingleSubserviceByName($name, $serviceID);
-
-        if ($user) {
-            return "Error: Service name already exists.";
-        }
-
-        $query = "INSERT INTO subservices (name, serviceID, pricePerUnit) VALUES
-            (:name, :serviceID, 1);";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':serviceID', $serviceID);
-        $stmt->execute();
-
-        return "Success: Created subservice.";
-    }
-
-    public function clearServiceProcess($id) {
-        $query = "DELETE FROM serviceProcess WHERE serviceID = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
-    }
-
-    public function updateServiceProcess($id, $processes) {
-        $this->clearServiceProcess($id);
-
-        if (!empty($processes)) {
-            $query = "INSERT INTO serviceProcess (serviceID, processesID, phase) VALUES (:serviceID, :processID, :phase)";
-            $stmt = $this->pdo->prepare($query);
-
-            for ($i = 0; $i < count($processes); $i++) {
-                $stmt->execute([
-                    ':serviceID' => $id,
-                    ':processID' => $processes[$i],
-                    ':phase' => $i + 1
-                ]);
-            }
-        }
-
-        return "Success: Updated service process.";
-    }
-
-    public function insertProcess($name) {
-        $process = $this->getSingleProcessByName($name);
-
-        if ($process) {
-            return false;
-        }
-
-        $query = "INSERT INTO processes (name) VALUES (:name);";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':name', $name);
-        return $stmt->execute();
-    }
-
-    public function getAllProcesses() {
-        $query = "SELECT * FROM processes ORDER BY name";
-
-        $stmt = $this->pdo->prepare($query);
-        $stmt->execute();
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function deleteProcess($id) {
-        $serviceProcesses = $this->getAllServiceProcesses();
-        $canDelete = true;
-
-        foreach ($serviceProcesses as $serviceProcess) {
-            if ((int)$serviceProcess['id'] === $id) {
-                $canDelete = false;
-                break;
-            }
-        }
-
-        if (!$canDelete) {
-            return "Error: Cannot delete this process because it is in use in one or more services";
-        }
-
-        $query = "DELETE FROM roleProcessTasks WHERE processID = :id";
+    // Toggle subservice active status
+    public function updateSubserviceStatus($id) {
+        $query = "UPDATE subservices SET isActive = !isActive WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
-        $query = "DELETE FROM processes WHERE id = :id";
+        return "Success: Updated subservice status.";
+    }
+
+    // Update subservice price and description
+    public function updateSubserviceInfo($id, $pricePerUnit, $description) {
+        $query = "UPDATE subservices SET pricePerUnit = :pricePerUnit, description = :description WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':pricePerUnit', $pricePerUnit);
+        $stmt->bindParam(':description', $description);
         $stmt->execute();
 
-        return "Success: Deleted process.";
+        return "Success: Updated subservice.";
     }
 
-    public function updateProcess($id, $minAssignDefault, $maxAssignDefault, $hasGCAccess, $designAccess, $variableListAccess) {
-        $query = "UPDATE processes
-                  SET minAssignDefault = :minAssignDefault,
-                      maxAssignDefault = :maxAssignDefault,
-                      hasGCAccess = :hasGCAccess,
-                      designAccess = :designAccess,
-                      variableListAccess = :variableListAccess
-                  WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
+    // Utility Functions
 
-        $stmt->bindParam(':id', $id);
-        $stmt->bindParam(':minAssignDefault', $minAssignDefault);
-        $stmt->bindParam(':maxAssignDefault', $maxAssignDefault);
-        $stmt->bindParam(':hasGCAccess', $hasGCAccess);
-        $stmt->bindParam(':designAccess', $designAccess);
-        $stmt->bindParam(':variableListAccess', $variableListAccess);
-
-        return $stmt->execute();
-    }
-
+    // Get order count for each service (used for statistics)
     public function getAllServicesOrderCount() {
         $query = "
             SELECT
@@ -390,6 +435,7 @@ class ServicesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get order count mapped by service ID
     public function getAllServicesOrderCountMapped() {
         $map = [];
 
@@ -400,6 +446,7 @@ class ServicesM {
         return $map;
     }
 
+    // Get order count for each subservice
     public function getAllSubservicesOrderCount() {
         $query = "
             SELECT
@@ -413,6 +460,7 @@ class ServicesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get all subservice images
     public function getAllSubserviceImages() {
         $query = "SELECT * FROM subserviceImages";
         $stmt = $this->pdo->prepare($query);
@@ -420,15 +468,16 @@ class ServicesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Upload multiple images for a subservice
+    // Validates file types, generates unique names, handles errors
     public function insertSubserviceImages($subserviceID, $images) {
-        $storageDir = __DIR__ . '/../../Storage/SubserviceImages/';
-
-        if (!is_dir($storageDir)) {
-            mkdir($storageDir, 0755, true);
+        if (!is_dir($this->storageDir)) {
+            mkdir($this->storageDir, 0755, true);
         }
 
         $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
+        // Validate all files first
         for ($i = 0; $i < count($images['name']); $i++) {
             $fileExtension = strtolower(pathinfo($images['name'][$i], PATHINFO_EXTENSION));
             if (!in_array($fileExtension, $allowed)) {
@@ -438,17 +487,19 @@ class ServicesM {
 
         $uploadedFiles = [];
 
+        // Upload files
         for ($i = 0; $i < count($images['name']); $i++) {
             $fileExtension = strtolower(pathinfo($images['name'][$i], PATHINFO_EXTENSION));
             $newFileName = bin2hex(random_bytes(10)) . '_' . time() . '_' . $i . '.' . $fileExtension;
-            $targetPath = $storageDir . $newFileName;
+            $targetPath = $this->storageDir . $newFileName;
             $tmpName = $images['tmp_name'][$i];
 
             if (move_uploaded_file($tmpName, $targetPath)) {
                 $uploadedFiles[] = $newFileName;
             } else {
+                // Clean up already uploaded files on failure
                 foreach ($uploadedFiles as $uploadedFile) {
-                    $filePath = $storageDir . $uploadedFile;
+                    $filePath = $this->storageDir . $uploadedFile;
                     if (file_exists($filePath)) {
                         unlink($filePath);
                     }
@@ -458,6 +509,7 @@ class ServicesM {
         }
 
         try {
+            // Insert records into database
             $query = "INSERT INTO subserviceImages (subserviceID, imageName) VALUES (:subserviceID, :imageName)";
             $stmt = $this->pdo->prepare($query);
 
@@ -470,8 +522,9 @@ class ServicesM {
 
             return "Success: Upload successful.";
         } catch (PDOException $e) {
+            // Clean up files if database insert fails
             foreach ($uploadedFiles as $uploadedFile) {
-                $filePath = $storageDir . $uploadedFile;
+                $filePath = $this->storageDir . $uploadedFile;
                 if (file_exists($filePath)) {
                     unlink($filePath);
                 }
@@ -480,9 +533,9 @@ class ServicesM {
         }
     }
 
+    // Delete a specific subservice image
+    // Removes both file and database record
     public function deleteSubserviceImage($id) {
-        $storageDir = __DIR__ . '/../../Storage/SubserviceImages/';
-
         try {
             // Get the image filename
             $query = "SELECT imageName FROM subserviceImages WHERE id = :id";
@@ -496,7 +549,7 @@ class ServicesM {
             }
 
             // Delete the physical file
-            $filePath = $storageDir . $image['imageName'];
+            $filePath = $this->storageDir . $image['imageName'];
             if (file_exists($filePath)) {
                 if (!unlink($filePath)) {
                     return "Error: Failed to delete image file.";
