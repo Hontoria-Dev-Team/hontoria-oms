@@ -137,6 +137,10 @@ switch ($page) {
             $orders->assignEmployeeToTask();
         } else if ($action === 'removeAssignment') {
             $orders->unassignEmployeeToTask();
+        } else if ($action === 'verifyComplete') {
+            $orders->verifyCompleteOrder();
+        } else if ($action === 'viewArchive') {
+            $orders->showArchive();
         } else {
             $orders->showOrders();
         }

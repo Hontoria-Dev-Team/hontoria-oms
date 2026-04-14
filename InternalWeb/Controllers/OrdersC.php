@@ -50,6 +50,19 @@ class OrdersC {
         require __DIR__ . '/../Views/Orders/Page.php';
     }
 
+    public function showArchive($search = '') {
+        $page = "orders";
+        $lastPage = 'orders';
+        $backLink = 'index.php?page=orders';
+
+        $orderList = $this->ordersModel->getAllArchivedOrders();
+        $orderDesignList = $this->ordersModel->getAllArchivedOrderDesigns();
+        $orderGroupList = $this->ordersModel->getAllArchivedOrderGroups();
+        $orderAssignmentList = $this->ordersModel->getAllArchivedOrderAssignments();
+
+        require __DIR__ . '/../Views/Orders/Archive.php';
+    }
+
     public function showOrderCreation() {
         $page = "orders";
         $lastPage = 'orders';
@@ -134,7 +147,8 @@ class OrdersC {
     public function deleteOrder() {
         $orderID = $_POST['selectedID'];
 
-        $this->ordersModel->removeOrder($orderID);
+        $_SESSION['message'] = $this->ordersModel->archiveOrder($orderID, false);
+
         header('Location: index.php?page=orders');
     }
 
@@ -185,5 +199,13 @@ class OrdersC {
         $this->ordersModel->insertOrderDesign($orderID, $designImage);
 
         header('Location: index.php?page=tasks');
+    }
+
+    public function verifyCompleteOrder() {
+        $orderID = $_POST['selectedID'];
+
+        $_SESSION['message'] = $this->ordersModel->archiveOrder($orderID, true);
+
+        header('Location: index.php?page=orders');
     }
 }

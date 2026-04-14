@@ -11,7 +11,16 @@
     <main class="columnLayout midGap">
         <h1 class="titleLogo minGap tinHeight">
             <img src="../../Shared/Img/ListIcon.png" alt="List"> Orders Panel
+            <div class="rowLayout minGap flexMax contentFlexEnd">
+                <a href="index.php?page=orders&action=create" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText shadowed">
+                    Create Order
+                </a>
+                <a href="index.php?page=orders&action=viewArchive" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText shadowed">
+                    Order Archive
+                </a>
+            </div>
         </h1>
+        <?php include("../Views/.Components/MessageBox.php"); ?>
         <section class="columnLayout flexMax midGap">
             <section class="centerColumnLayout roundedMid flexMid minHeight">
                 <div class="box fullHeight fullWidth roundedMid columnLayout minGap">
@@ -32,7 +41,7 @@
 
                         <input type="submit" value="Search" class="importantInput">
                     </form>
-                    <section class="minGap gridFlexMid scrollable" id="orderList">
+                    <section class="minGap gridFlexMid scrollable flexMax regMinPadding" id="orderList">
                         <?php foreach ($orderList as $order): ?>
                             <?php
                             $activeProcesses = "";
@@ -49,13 +58,16 @@
                             $assigneeCount = $orderAssigneeCountMap[$order['id']] ?? 0;
                             $divBgClass = $order['status'] === "Active" ?
                                 "yellowTransBG yellowBorder" : ($order['status'] === "Idle" ? "redTransBG redBorder" : "greenTransBG greenBorder");
-                            $statusBgClass = $order['status'] === "Active" ?
-                                "yellowBG" : ($order['status'] === "Idle" ? "redBG" : "greenBG");
+                            $statusStyleClass = $order['status'] === "Active" ?
+                                "yellowBG" : ($order['status'] === "Idle" ? "redBG" : "greenBG clickable");
                             ?>
                             <div class="midHeight regPadding roundedMin centerHoriColumnLayout minGap flexStatic orderElement shadowed clickable <?= $divBgClass ?>"
                                 data-id="<?= $order['id'] ?>" data-due="<?= $order['deadlineAt'] ?>" data-customer="<?= $order['customerName'] ?>">
                                 <p class="norWestAbsolute closeCorner transText">Order #<?= $order['id'] ?></p>
-                                <div class="souEastAbsolute minPadding roundedMin shadowed emphasizedText whiteText <?= $statusBgClass ?>"><?= $order['status'] ?></div>
+                                <div class="orderStatusElement souEastAbsolute minPadding roundedMin shadowed emphasizedText whiteText <?= $statusStyleClass ?>"
+                                    data-status="<?= $order['status'] ?>" data-id="<?= $order['id'] ?>">
+                                    <?= $order['status'] ?>
+                                </div>
                                 <h2 class="centerHoriRowLayout tinGap"><?= $order['subserviceName'] ?> <?= $order['serviceName'] ?> <b>(<?= $order['customerName'] ?>)</b></h2>
                                 <div class="columnLayout">
                                     <b>Due In: <span class="dueInText" data-due-date="<?= $order['deadlineAt'] ?>"></span></b>
@@ -68,9 +80,6 @@
                         <?php endforeach; ?>
                         <div class="tinHeight"></div>
                     </section>
-                </div>
-                <div class="rowLayout minGap souEastAbsolute">
-                    <a href="index.php?page=orders&action=create" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">Create Order</a>
                 </div>
                 <div class="gradientBorderDiag"></div>
             </section>
@@ -218,6 +227,8 @@
 
     document.querySelectorAll('.orderElement').forEach(function(elem) {
         elem.addEventListener('click', function() {
+            selectedID.value = elem.dataset.id;
+
             showProcess(elem.dataset.id);
 
             selectedOrderProcesses = [...(orderProcessesMap[elem.dataset.id] || [])];
@@ -363,7 +374,6 @@
             selectedText.innerHTML = "Order #" + elem.dataset.id + " <b>(" + elem.dataset.customer + ")</b>";
 
             deadlineAt.value = elem.dataset.due.split(' ')[0];
-            selectedID.value = elem.dataset.id;
             deadlineForm.classList.remove("hidden");
 
             deleteOrderButton.dataset.selectedId = elem.dataset.id;
@@ -502,13 +512,31 @@
         });
     });
 
+    // Order Verifying Function Logic
+    document.querySelectorAll('.orderStatusElement.clickable').forEach(function(elem) {
+        elem.addEventListener('click', function() {
+            ShowVerificationBox(elem.dataset.id);
+        });
+    });
+
+    function ShowVerificationBox(id) {
+        confirmationTitle.innerHTML = "Verify Order Completion?";
+        confirmationForm.action = "index.php?page=orders&action=verifyComplete";
+
+        confirmationText.innerHTML = "Are you sure to verify the completion of Order #" + id + "? You are fully held responsible for false reporting.";
+        confirmationSubmit.value = "Yes Verify";
+        confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
+
+        confirmation.style.display = 'flex';
+    }
+
     // Added cancellation events
     confirmationCancel.addEventListener('click', function() {
         document.querySelectorAll('.tempElement').forEach(function(elem) {
             elem.remove();
         });
 
-        confirmationSubmit.classList.remove("hidden");
+        confirmationSubmit.classList.remove("hidden", "yellowBG", "whiteText", "noBorder");
     });
 
     confirmationBG.addEventListener('click', function() {
@@ -516,7 +544,7 @@
             elem.remove();
         });
 
-        confirmationSubmit.classList.remove("hidden");
+        confirmationSubmit.classList.remove("hidden", "yellowBG", "whiteText", "noBorder");
     });
 </script>
 

@@ -42,6 +42,131 @@ class OrdersM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getOrderByID($id) {
+        $query = "
+            SELECT
+                services.name AS serviceName,
+                subservices.name AS subserviceName,
+                orders.priceTotal,
+                orders.customerName,
+                orders.createdAt,
+                orders.deadlineAt,
+                orders.messengerGCLink,
+                CASE
+                    WHEN NOT EXISTS (
+                        SELECT 1 FROM orderProcess
+                        WHERE orderProcess.orderID = orders.id
+                        AND orderProcess.status != 'complete'
+                    ) THEN 'For Verification'
+                    WHEN NOT EXISTS (
+                        SELECT 1 FROM userProcessTasks
+                        JOIN orderProcess ON userProcessTasks.orderProcessID = orderProcess.id
+                        WHERE orderProcess.orderID = orders.id
+                    ) THEN 'Idle'
+                    ELSE 'Active'
+                END AS status
+            FROM orders
+            JOIN subservices ON orders.subserviceID = subservices.id
+            JOIN services ON subservices.serviceID = services.id
+            WHERE orders.id = :id
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getOrderGroupsByID($id) {
+        $query = "SELECT * FROM orderGroups WHERE orderID = :id";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getOrderDesignByID($id) {
+        $query = "SELECT * FROM orderDesigns WHERE orderID =  :id";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getOrderProcessByID($id) {
+        $query = "
+            SELECT
+                orderProcess.id,
+                orderProcess.orderID,
+                processes.id AS processID,
+                processes.name AS processName,
+                orderProcess.phase,
+                orderProcess.minAssign,
+                orderProcess.maxAssign,
+                orderProcess.status,
+                COUNT(userProcessTasks.orderProcessID) AS assignedNum
+            FROM orderProcess
+            JOIN orders ON orderProcess.orderID = orders.id
+            JOIN subservices ON orders.subserviceID = subservices.id
+            JOIN serviceProcess
+                ON subservices.serviceID = serviceProcess.serviceID
+                AND orderProcess.phase = serviceProcess.phase
+            JOIN processes ON serviceProcess.processesID = processes.id
+            LEFT JOIN userProcessTasks
+                ON orderProcess.id = userProcessTasks.orderProcessID
+            WHERE orderProcess.orderID = :id
+            GROUP BY
+                orderProcess.id,
+                orderProcess.orderID
+            ORDER BY orderProcess.phase
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAssignedUsersToOrderByID($id) {
+        $query = "
+            SELECT
+                users.firstName,
+                users.middleName,
+                users.lastName,
+                processes.name AS processName,
+                orderProcess.phase,
+                userProcessTasks.assignedAt
+            FROM userProcessTasks
+            JOIN users
+                ON userProcessTasks.userID = users.id
+            JOIN orderProcess
+                ON userProcessTasks.orderProcessID = orderProcess.id
+            JOIN orders
+                ON orderProcess.orderID = orders.id
+            JOIN subservices
+                ON orders.subserviceID = subservices.id
+            JOIN serviceProcess
+                ON subservices.serviceID = serviceProcess.serviceID
+                AND orderProcess.phase = serviceProcess.phase
+            JOIN processes
+                ON serviceProcess.processesID = processes.id
+            WHERE orders.id = :id
+            ORDER BY PHASE ASC
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function insertOrder($subserviceID, $customerName, $messengerGCLink, $deadlineAt, $priceTotal, $groupDescriptions, $groupQuantities, $orderProcess) {
         $query = "INSERT INTO orders (subserviceID, customerName, messengerGCLink, priceTotal, deadlineAt) VALUES
             (:subserviceID, :customerName, :messengerGCLink, :priceTotal, :deadlineAt)";
@@ -100,7 +225,25 @@ class OrdersM {
         $stmt->bindParam(':id', $id);
         $stmt->execute();
 
+        $query = "DELETE FROM orderDesigns WHERE orderID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
         $query = "DELETE FROM orders WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
+    public function deleteAllAssignmentsFromOrderByID($id) {
+        $query = "
+            DELETE userProcessTasks
+            FROM userProcessTasks
+            JOIN orderProcess ON userProcessTasks.orderProcessID = orderProcess.id
+            WHERE orderProcess.orderID = :id
+        ";
+
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
         return $stmt->execute();
@@ -391,13 +534,6 @@ class OrdersM {
             $stmt->bindParam(':id', $result);
             $stmt->execute();
         }
-
-        if ($status !== 'complete') return;
-
-        $query = "DELETE FROM userProcessTasks WHERE orderProcessID = :orderProcessID";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':orderProcessID', $orderProcessID);
-        return $stmt->execute();
     }
 
     public function getAllOrdersAssigneeCount() {
@@ -409,6 +545,125 @@ class OrdersM {
             JOIN orderProcess ON userProcessTasks.orderProcessID = orderProcess.id
             GROUP BY orderProcess.orderID
         ";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function archiveOrder($id, $isCompleted) {
+        try {
+            $this->pdo->beginTransaction();
+
+            $order = $this->getOrderByID($id);
+
+            if ($order['status'] !== 'For Verification' && $isCompleted) {
+                $this->pdo->rollBack();
+                return "Error: This order is not yet ready to be archived. Current status: " . $order['status'];
+            }
+
+            // Insert into orderArchive
+            $query = "
+                INSERT INTO orderArchive
+                    (id, serviceName, subserviceName, customerName, messengerGCLink, priceTotal, createdAt, deadlineAt, isCompleted)
+                VALUES
+                    (:id, :serviceName, :subserviceName, :customerName, :messengerGCLink, :priceTotal, :createdAt, :deadlineAt, :isCompleted)
+            ";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([
+                ':id' => $id,
+                ':serviceName' => $order['serviceName'],
+                ':subserviceName' => $order['subserviceName'],
+                ':customerName' => $order['customerName'],
+                ':messengerGCLink' => $order['messengerGCLink'],
+                ':priceTotal' => $order['priceTotal'],
+                ':createdAt' => $order['createdAt'],
+                ':deadlineAt' => $order['deadlineAt'],
+                ':isCompleted' => $isCompleted ? 1 : 0
+            ]);
+
+            // Archive design if exists
+            $design = $this->getOrderDesignByID($id);
+            if ($design) {
+                $query = "INSERT INTO orderDesignArchive (orderArchiveID, imageName) VALUES (:orderArchiveID, :imageName)";
+                $stmt = $this->pdo->prepare($query);
+                $stmt->execute([
+                    ':orderArchiveID' => $id,
+                    ':imageName' => $design['imageName']
+                ]);
+            }
+
+            // Archive groups
+            $groups = $this->getOrderGroupsByID($id);
+            if (!empty($groups)) {
+                $query = "INSERT INTO orderGroupArchive (orderArchiveID, description, units) VALUES (:orderArchiveID, :description, :units)";
+                $stmt = $this->pdo->prepare($query);
+                foreach ($groups as $group) {
+                    $stmt->execute([
+                        ':orderArchiveID' => $id,
+                        ':description' => $group['description'],
+                        ':units' => $group['quantity']
+                    ]);
+                }
+            }
+
+            // Archive task assignments
+            $assignees = $this->getAssignedUsersToOrderByID($id);
+            if (!empty($assignees)) {
+                $query = "
+                    INSERT INTO orderTasksAssignmentArchive
+                        (orderArchiveID, userFirstName, userMiddleName, userLastName, processName, processPhase, assignedAt)
+                    VALUES
+                        (:orderArchiveID, :userFirstName, :userMiddleName, :userLastName, :processName, :processPhase, :assignedAt)
+                ";
+                $stmt = $this->pdo->prepare($query);
+                foreach ($assignees as $assignee) {
+                    $stmt->execute([
+                        ':orderArchiveID' => $id,
+                        ':userFirstName' => $assignee['firstName'],
+                        ':userMiddleName' => $assignee['middleName'] ?? null,
+                        ':userLastName' => $assignee['lastName'],
+                        ':processName' => $assignee['processName'],
+                        ':processPhase' => $assignee['phase'],
+                        ':assignedAt' => $assignee['assignedAt']
+                    ]);
+                }
+            }
+
+            // Delete original data only after all archives succeeded
+            $this->deleteAllAssignmentsFromOrderByID($id);
+            $this->removeOrder($id);
+
+            $this->pdo->commit();
+            return $isCompleted ? "Success: Order has been verified and archived." : "Success: Order has been deleted and archived.";
+        } catch (PDOException $e) {
+            $this->pdo->rollBack();
+            return "Error: Failed. " . $e->getMessage();
+        }
+    }
+
+    public function getAllArchivedOrders() {
+        $query = "SELECT * FROM orderArchive";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllArchivedOrderDesigns() {
+        $query = "SELECT * FROM orderDesignArchive";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllArchivedOrderGroups() {
+        $query = "SELECT * FROM orderGroupArchive";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllArchivedOrderAssignments() {
+        $query = "SELECT * FROM orderTasksAssignmentArchive ORDER BY processPhase ASC";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

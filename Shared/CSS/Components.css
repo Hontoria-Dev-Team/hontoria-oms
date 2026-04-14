@@ -405,3 +405,7 @@
 .unresizeable {
     resize: none;
 }
+
+.fontWeightNormal {
+    font-weight: 400 !important;
+}

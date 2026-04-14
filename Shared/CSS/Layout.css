@@ -92,15 +92,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: row;
 }
 
 .centerHoriRowLayout {
     display: flex;
     align-items: center;
+    flex-direction: row;
 }
 
 .rowLayout {
     display: flex;
+    flex-direction: row;
 }
 
 .flexStretch {
@@ -432,4 +435,8 @@
 
 .relatived {
     position: relative;
+}
+
+.marginRightMin {
+    margin-right: 0.3rem;
 }
