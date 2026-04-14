@@ -1,6 +1,6 @@
 <?php
 // Require configuration (which gives us the $pdo variable)
-
+require_once __DIR__ . '/../../Config/config.php';
 
 // Require the public controller
 require_once __DIR__ . '/../Controllers/PublicC.php';
@@ -11,7 +11,7 @@ session_start();
 $page = $_GET['page'] ?? 'home';
 
 // Instantiate the controller, passing the $pdo connection
-$controller = new \PublicC($pdo);
+$controller = new PublicC($pdo);
 
 // Route to the correct method
 switch ($page) {
@@ -32,4 +32,3 @@ switch ($page) {
         require_once __DIR__ . '/../Views/.Misc/ErrorPage.php';
         break;
 }
-?>
