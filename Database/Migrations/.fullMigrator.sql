@@ -21,6 +21,10 @@ DROP TABLE IF EXISTS subserviceImages;
 DROP TABLE IF EXISTS subservices;
 DROP TABLE IF EXISTS services;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS orderTasksAssignmentArchive;
+DROP TABLE IF EXISTS orderDesignArchive;
+DROP TABLE IF EXISTS orderGroupArchive;
+DROP TABLE IF EXISTS orderArchive;
 
 CREATE TABLE users (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -186,4 +190,43 @@ CREATE TABLE userProcessTasks (
     PRIMARY KEY (userID, orderProcessID),
     FOREIGN KEY (userID) REFERENCES users(id),
     FOREIGN KEY (orderProcessID) REFERENCES orderProcess(id)
+);
+
+CREATE TABLE orderArchive (
+    id BIGINT UNSIGNED PRIMARY KEY,
+    serviceName VARCHAR(50) NOT NULL,
+    subserviceName VARCHAR(50) NOT NULL,
+    customerName VARCHAR(100) NOT NULL,
+    messengerGCLink VARCHAR(255) NOT NULL,
+    priceTotal DECIMAL(10, 2) NOT NULL,
+    createdAt TIMESTAMP NULL,
+    deadlineAt TIMESTAMP NULL,
+    archivedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    isCompleted BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE orderTasksAssignmentArchive (
+    orderArchiveID BIGINT UNSIGNED NOT NULL,
+    userFirstName VARCHAR(100) NOT NULL,
+    userMiddleName VARCHAR(100) NULL,
+    userLastName VARCHAR(100) NOT NULL,
+    processName VARCHAR(50) NOT NULL,
+    processPhase VARCHAR(50) NOT NULL,
+    assignedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (orderArchiveID) REFERENCES orderArchive(id)
+);
+
+CREATE TABLE orderDesignArchive (
+    orderArchiveID BIGINT UNSIGNED NOT NULL,
+    imageName VARCHAR(255) NOT NULL,
+    PRIMARY KEY (orderArchiveID, imageName),
+    FOREIGN KEY (orderArchiveID) REFERENCES orderArchive(id)
+);
+
+CREATE TABLE orderGroupArchive (
+    orderArchiveID BIGINT UNSIGNED NOT NULL,
+    DESCRIPTION VARCHAR(255) NOT NULL,
+    units INT UNSIGNED NOT NULL,
+    PRIMARY KEY (orderArchiveID, DESCRIPTION),
+    FOREIGN KEY (orderArchiveID) REFERENCES orderArchive(id)
 );
