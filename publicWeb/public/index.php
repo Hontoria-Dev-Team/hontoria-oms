@@ -1,6 +1,6 @@
 <?php
 // Require configuration (which gives us the $pdo variable)
-require_once __DIR__ . '/Views/.Components/SharedComponents/config.php';
+
 
 // Require the public controller
 require_once __DIR__ . '/../Controllers/PublicC.php';
