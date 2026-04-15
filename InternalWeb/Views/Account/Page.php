@@ -141,7 +141,7 @@
         previewContainer.appendChild(uploadedImage);
 
         // Show image if account image is set
-        if (userImageContainer.dataset.image) {
+        if (userImageContainer.dataset.image != "../../Storage/AccountImages/") {
             uploadedImage.src = userImageContainer.dataset.image;
             previewContainer.classList.remove("hidden");
         }
