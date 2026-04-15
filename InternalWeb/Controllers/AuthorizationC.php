@@ -46,6 +46,12 @@ class AuthorizationC {
         }
     }
 
+    public function showAccountManagementPage() {
+        $page = "account";
+        $accountImage = $this->staffModel->getAccountImage($_SESSION['id']);
+        require_once __DIR__ . '/../Views/Account/Page.php';
+    }
+
     public function checkUserExists() {
         $existence = $this->staffModel->getAccount($_SESSION['id']);
         if (!$existence) {
@@ -468,5 +474,13 @@ class AuthorizationC {
 
     public function keepOnline() {
         $this->staffModel->updateOnlineStatus($_SESSION['id'], true);
+    }
+
+    public function uploadAccountImage() {
+        $image = $_FILES['image'];
+
+        $_SESSION['message'] = $this->staffModel->insertAccountImage($_SESSION['id'], $image);
+
+        header("Location: index.php?page=account");
     }
 }

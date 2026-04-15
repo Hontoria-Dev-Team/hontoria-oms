@@ -409,3 +409,9 @@
 .fontWeightNormal {
     font-weight: 400 !important;
 }
+
+.imageCoverFull {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

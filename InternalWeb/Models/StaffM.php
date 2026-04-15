@@ -606,4 +606,89 @@ class StaffM {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function findSingleAccountImageByID($userID) {
+        $query = "SELECT imageName FROM userImages WHERE userID = :userID LIMIT 1";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function insertAccountImage($userID, $imageFile) {
+        $storageDir = __DIR__ . '/../../Storage/AccountImages/';
+
+        // Ensure storage directory exists
+        if (!is_dir($storageDir)) {
+            mkdir($storageDir, 0755, true);
+        }
+
+        // Validate file extension
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $fileExtension = strtolower(pathinfo($imageFile['name'], PATHINFO_EXTENSION));
+        if (!in_array($fileExtension, $allowed)) {
+            return "Error: Invalid file format.";
+        }
+
+        // Check for existing image
+        $existing = $this->findSingleAccountImageByID($userID);
+
+        // Generate unique filename
+        $newFileName = bin2hex(random_bytes(10)) . '_' . time() . '.' . $fileExtension;
+        $targetPath = $storageDir . $newFileName;
+
+        // Move uploaded file
+        if (!move_uploaded_file($imageFile['tmp_name'], $targetPath)) {
+            return "Error: Upload failed.";
+        }
+
+        try {
+            // Insert or update database record
+            if ($existing) {
+                $query = "UPDATE userImages SET imageName = :imageName WHERE userID = :userID";
+            } else {
+                $query = "INSERT INTO userImages (userID, imageName) VALUES (:userID, :imageName)";
+            }
+            $stmt = $this->pdo->prepare($query);
+            $success = $stmt->execute([
+                ':userID'   => $userID,
+                ':imageName' => $newFileName
+            ]);
+
+            if (!$success) {
+                // DB failed – delete the newly uploaded file
+                if (file_exists($targetPath)) {
+                    unlink($targetPath);
+                }
+                return "Error: Database operation failed.";
+            }
+
+            // If updating, delete the old image file
+            if ($existing && !empty($existing['imageName'])) {
+                $oldFilePath = $storageDir . $existing['imageName'];
+                if (file_exists($oldFilePath)) {
+                    unlink($oldFilePath);
+                }
+            }
+
+            return "Success: Upload successful.";
+        } catch (PDOException $e) {
+            // On exception, clean up the newly uploaded file
+            if (file_exists($targetPath)) {
+                unlink($targetPath);
+            }
+            return "Error: " . $e->getMessage();
+        }
+    }
+
+    public function getAccountImage($userID) {
+        $query = "SELECT imageName FROM userImages WHERE userID = :userID LIMIT 1";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result['imageName'] : null;
+    }
 }

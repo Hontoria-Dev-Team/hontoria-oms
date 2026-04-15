@@ -79,8 +79,10 @@ switch ($page) {
             $authorization->setContacts();
         } else if ($action === 'changePassword') {
             $authorization->setPassword();
+        } else if ($action === 'uploadImage') {
+            $authorization->uploadAccountImage();
         } else {
-            require_once __DIR__ . '/../Views/Account/Page.php';
+            $authorization->showAccountManagementPage();
         }
         break;
 
