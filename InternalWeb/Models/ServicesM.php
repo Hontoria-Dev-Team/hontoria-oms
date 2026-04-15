@@ -22,7 +22,7 @@ class ServicesM {
 
     // Get service details by ID
     public function getServiceByID($id) {
-        $query = "SELECT name, hasDesign, hasVariableList FROM services WHERE id = :id";
+        $query = "SELECT name, hasDesign, hasVariableList, isActive FROM services WHERE id = :id";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
@@ -149,9 +149,9 @@ class ServicesM {
         $subservices = $this->getSubservices($id);
 
         if (empty($process)) {
-            return "Error: The Service has an empty process to be activated.";
+            return "Error: The service has an empty process to be activated.";
         } else if (empty($subservices) || !$subservices[0]['isActive']) {
-            return "Error: The Service has no active subservices to be activated.";
+            return "Error: The service has no active subservices to be activated.";
         }
 
         $query = "UPDATE services SET isActive = !isActive WHERE id = :id";
@@ -164,6 +164,12 @@ class ServicesM {
 
     // Toggle design capability for service
     public function toggleServiceHasDesign($id) {
+        if ($this->getServiceOrderCount($id) > 0) {
+            return "Error: The service cannot be edited since it has active orders.";
+        } else if ($this->getServiceByID($id)['isActive'] == 1) {
+            return "Error: The service cannot be edited since it is active.";
+        }
+
         $query = "UPDATE services SET hasDesign = !hasDesign WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
@@ -174,6 +180,12 @@ class ServicesM {
 
     // Toggle variable list capability for service
     public function toggleServiceHasVariableList($id) {
+        if ($this->getServiceOrderCount($id) > 0) {
+            return "Error: The service cannot be edited since it has active orders.";
+        } else if ($this->getServiceByID($id)['isActive'] == 1) {
+            return "Error: The service cannot be edited since it is active.";
+        }
+
         $query = "UPDATE services SET hasVariableList = !hasVariableList WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);

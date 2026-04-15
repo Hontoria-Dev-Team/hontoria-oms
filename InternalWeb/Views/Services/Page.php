@@ -268,7 +268,7 @@
                 });
 
                 ShowServiceStatusButtonsContainer(elem.dataset.isActive, elem.dataset.orderCount);
-                ShowObjectiveButtonsContainer(elem.dataset.hasDesign, elem.dataset.hasVariableList);
+                ShowObjectiveButtonsContainer(elem.dataset.isActive, elem.dataset.hasDesign, elem.dataset.hasVariableList, elem.dataset.orderCount);
                 ShowServiceProcess();
                 ResetSubserviceHeader();
                 ShowSubservices();
@@ -354,7 +354,7 @@
     }
 
     // Showing the objective buttons
-    function ShowObjectiveButtonsContainer(hasDesign, hasVariableList) {
+    function ShowObjectiveButtonsContainer(status, hasDesign, hasVariableList, orderCount) {
         objectiveButtonsContainer.innerHTML = '';
 
         tempElement = document.createElement("button");
@@ -385,39 +385,45 @@
         tempElement.id = "hasVariableListButton";
         objectiveButtonsContainer.appendChild(tempElement);
 
-        // Has Design Button Toggle Logic
-        document.getElementById('hasDesignButton').addEventListener('click', function() {
-            confirmationTitle.innerHTML = "Toggle Design Objective?";
-            confirmationForm.action = "index.php?page=services&action=toggleHasDesign"
+        // If the service has active orders or is active then dont let service edits
+        if (orderCount == 0 && status == 0) {
+            // Has Design Button Toggle Logic
+            document.getElementById('hasDesignButton').addEventListener('click', function() {
+                confirmationTitle.innerHTML = "Toggle Design Objective?";
+                confirmationForm.action = "index.php?page=services&action=toggleHasDesign"
 
-            if (this.textContent == "No Design") {
-                confirmationSubmit.classList.add("yellowBG");
-                confirmationText.innerHTML = "Are you sure to active the design objective?";
-                confirmationSubmit.value = "Yes Active";
-            } else {
-                confirmationText.innerHTML = "Are you sure to disable the design objective?";
-                confirmationSubmit.value = "Yes Disable";
-            }
+                if (this.textContent == "No Design") {
+                    confirmationSubmit.classList.add("yellowBG");
+                    confirmationText.innerHTML = "Are you sure to active the design objective?";
+                    confirmationSubmit.value = "Yes Active";
+                } else {
+                    confirmationText.innerHTML = "Are you sure to disable the design objective?";
+                    confirmationSubmit.value = "Yes Disable";
+                }
 
-            confirmation.style.display = 'flex';
-        });
+                confirmation.style.display = 'flex';
+            });
 
-        // Has Variable List Button Toggle Logic
-        document.getElementById('hasVariableListButton').addEventListener('click', function() {
-            confirmationTitle.innerHTML = "Toggle Design Objective?";
-            confirmationForm.action = "index.php?page=services&action=toggleHasVariableList"
+            // Has Variable List Button Toggle Logic
+            document.getElementById('hasVariableListButton').addEventListener('click', function() {
+                confirmationTitle.innerHTML = "Toggle Design Objective?";
+                confirmationForm.action = "index.php?page=services&action=toggleHasVariableList"
 
-            if (this.textContent == "No Variable List") {
-                confirmationSubmit.classList.add("yellowBG");
-                confirmationText.innerHTML = "Are you sure to active the variable list objective?";
-                confirmationSubmit.value = "Yes Active";
-            } else {
-                confirmationText.innerHTML = "Are you sure to disable the variable list objective?";
-                confirmationSubmit.value = "Yes Disable";
-            }
+                if (this.textContent == "No Variable List") {
+                    confirmationSubmit.classList.add("yellowBG");
+                    confirmationText.innerHTML = "Are you sure to active the variable list objective?";
+                    confirmationSubmit.value = "Yes Active";
+                } else {
+                    confirmationText.innerHTML = "Are you sure to disable the variable list objective?";
+                    confirmationSubmit.value = "Yes Disable";
+                }
 
-            confirmation.style.display = 'flex';
-        });
+                confirmation.style.display = 'flex';
+            });
+        } else {
+            document.getElementById('hasDesignButton').classList.add("faded", "unclickable");
+            document.getElementById('hasVariableListButton').classList.add("faded", "unclickable");
+        }
     }
 
     // Show the service process function
