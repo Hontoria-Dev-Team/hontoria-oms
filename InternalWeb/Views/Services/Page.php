@@ -305,6 +305,11 @@
             tempElement.id = "serviceStatusButton";
             serviceStatusButtonsContainer.appendChild(tempElement);
 
+            // If a service has no process and no active subservice then dont let be active
+            if (!(selectedServiceProcess.length > 0 && selectedServiceSubservices.length > 0 && selectedServiceSubservices[0].isActive == 1)) {
+                tempElement.classList.add("faded", "unclickable");
+            }
+
             tempElement = document.createElement("button");
             tempElement.type = "button";
             tempElement.className = "redBG noBorder shadowed centerColumnLayout fullHeight";
@@ -331,17 +336,20 @@
 
         // Service Status Button Toggle Logic
         document.getElementById('serviceStatusButton').addEventListener('click', function() {
-            confirmationTitle.innerHTML = "Toggle Service Status?";
-            confirmationForm.action = "index.php?page=services&action=toggleServiceStatus"
+            // If a service has no process and no active subservice then dont let be active
+            if (selectedServiceProcess.length > 0 && selectedServiceSubservices.length > 0 && selectedServiceSubservices[0].isActive == 1) {
+                confirmationTitle.innerHTML = "Toggle Service Status?";
+                confirmationForm.action = "index.php?page=services&action=toggleServiceStatus"
 
-            confirmationText.innerHTML = "Are you sure to " + this.textContent + " the " + selectedServiceName + " service?";
-            confirmationSubmit.value = "Yes " + this.textContent;
+                confirmationText.innerHTML = "Are you sure to " + this.textContent + " the " + selectedServiceName + " service?";
+                confirmationSubmit.value = "Yes " + this.textContent;
 
-            if (this.textContent == "Activate") {
-                confirmationSubmit.classList.add("yellowBG");
+                if (this.textContent == "Activate") {
+                    confirmationSubmit.classList.add("yellowBG");
+                }
+
+                confirmation.style.display = 'flex';
             }
-
-            confirmation.style.display = 'flex';
         });
     }
 

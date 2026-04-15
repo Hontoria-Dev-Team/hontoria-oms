@@ -145,6 +145,15 @@ class ServicesM {
 
     // Toggle service active status
     public function updateServiceStatus($id) {
+        $process = $this->getServiceProcess($id);
+        $subservices = $this->getSubservices($id);
+
+        if (empty($process)) {
+            return "Error: The Service has an empty process to be activated.";
+        } else if (empty($subservices) || !$subservices[0]['isActive']) {
+            return "Error: The Service has no active subservices to be activated.";
+        }
+
         $query = "UPDATE services SET isActive = !isActive WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
