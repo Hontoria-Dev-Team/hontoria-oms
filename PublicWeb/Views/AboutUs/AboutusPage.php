@@ -28,8 +28,8 @@ $navItems = [
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
     
-    <link rel="stylesheet" href="/.CSS/Shared.css"/>
-    <link rel="stylesheet" href="/.CSS/AboutUsPage.css"/>
+    <link rel="stylesheet" href="../.CSS/Shared.css"/>
+    <link rel="stylesheet" href="../.CSS/AboutUsPage.css"/>
 </head>
 <body>
     
@@ -37,8 +37,7 @@ $navItems = [
     
     <main>
         <section class="about-container">
-            <h1>About Us</h1>
-            <p>Welcome to Hontoria Printing Services.</p>
+            
         </section>
     </main>
     
