@@ -31,8 +31,8 @@ $navItems = [
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
     
-    <link rel="stylesheet" href="/.CSS/Shared.css"/>
-    <link rel="stylesheet" href="/.CSS/ServicesPage.css"/>
+    <link rel="stylesheet" href="../.CSS/Shared.css"/>
+    <link rel="stylesheet" href="../.CSS/ServicesPage.css"/>
 </head>
 <body>
     
