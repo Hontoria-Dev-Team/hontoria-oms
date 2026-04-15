@@ -25,6 +25,7 @@ DROP TABLE IF EXISTS orderTasksAssignmentArchive;
 DROP TABLE IF EXISTS orderDesignArchive;
 DROP TABLE IF EXISTS orderGroupArchive;
 DROP TABLE IF EXISTS orderArchive;
+DROP TABLE IF EXISTS userImages;
 
 CREATE TABLE users (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -39,6 +40,13 @@ CREATE TABLE users (
     isOnline BOOLEAN DEFAULT FALSE,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     lastLoginAt TIMESTAMP NULL
+);
+
+CREATE TABLE userImages (
+    userID BIGINT UNSIGNED NOT NULL,
+    imageName VARCHAR(255) NOT NULL,
+    PRIMARY KEY (userID, imageName),
+    FOREIGN KEY (userID) REFERENCES users(id)
 );
 
 CREATE TABLE services (
