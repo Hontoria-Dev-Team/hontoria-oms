@@ -42,6 +42,25 @@ class ServicesM {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // Get order count for a service
+    public function getServiceOrderCount($id) {
+        $query = "
+            SELECT
+                COUNT(orders.id) AS orderCount
+            FROM orders
+            JOIN subservices ON orders.subserviceID = subservices.id
+            JOIN services ON subservices.serviceID = services.id
+            WHERE services.id = :id
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? (int)$result['orderCount'] : 0;
+    }
+
     // Service Operations
 
     // Insert a new service, checking for duplicates
@@ -67,6 +86,10 @@ class ServicesM {
     // Delete a service and all its related data (subservices, images, processes)
     // Uses transaction to ensure data integrity
     public function deleteService($id) {
+        if ($this->getServiceOrderCount($id) > 0) {
+            return "Error: The service cannot be deleted since it has active orders.";
+        }
+
         try {
             $this->pdo->beginTransaction();
 

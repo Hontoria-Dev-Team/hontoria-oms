@@ -41,7 +41,8 @@
                                 ?>
                                 <div class="roundedMin centerHoriRowLayout flexStatic serviceElement <?= $borderClass ?> shadowed clickable fixedScreen noShrink"
                                     data-id="<?= $service['id'] ?>" data-name="<?= $service['name'] ?>" data-is-active="<?= $service['isActive'] ?>"
-                                    data-has-design="<?= $service['hasDesign'] ?>" data-has-variable-list="<?= $service['hasVariableList'] ?>">
+                                    data-has-design="<?= $service['hasDesign'] ?>" data-has-variable-list="<?= $service['hasVariableList'] ?>"
+                                    data-order-count="<?= $orderCount ?>">
                                     <div class="capitalFirst centerText regMinPadding flexMax skewedXNegBG shadowed <?= $bgClass ?>">
                                         <h3><?= $name ?></h3>
                                     </div>
@@ -266,7 +267,7 @@
                     };
                 });
 
-                ShowServiceStatusButtonsContainer(elem.dataset.isActive);
+                ShowServiceStatusButtonsContainer(elem.dataset.isActive, elem.dataset.orderCount);
                 ShowObjectiveButtonsContainer(elem.dataset.hasDesign, elem.dataset.hasVariableList);
                 ShowServiceProcess();
                 ResetSubserviceHeader();
@@ -286,7 +287,7 @@
     });
 
     // Showing the service status buttons and delete button
-    function ShowServiceStatusButtonsContainer(status) {
+    function ShowServiceStatusButtonsContainer(status, orderCount) {
         serviceStatusButtonsContainer.innerHTML = '';
 
         if (status == 1) {
@@ -311,16 +312,21 @@
             tempElement.id = "deleteServiceButton";
             serviceStatusButtonsContainer.appendChild(tempElement);
 
-            // Delete Service Button Logic
-            document.getElementById('deleteServiceButton').addEventListener('click', function() {
-                confirmationTitle.innerHTML = "Delete Service?";
-                confirmationForm.action = "index.php?page=services&action=deleteService"
+            // If a service has active orders, then dont let it be deleted
+            if (orderCount > 0) {
+                tempElement.classList.add("faded", "unclickable");
+            } else {
+                // Delete Service Button Logic
+                document.getElementById('deleteServiceButton').addEventListener('click', function() {
+                    confirmationTitle.innerHTML = "Delete Service?";
+                    confirmationForm.action = "index.php?page=services&action=deleteService"
 
-                confirmationText.innerHTML = "Are you sure to delete the " + selectedServiceName + " service?";
-                confirmationSubmit.value = "Yes delete";
+                    confirmationText.innerHTML = "Are you sure to delete the " + selectedServiceName + " service?";
+                    confirmationSubmit.value = "Yes delete";
 
-                confirmation.style.display = 'flex';
-            });
+                    confirmation.style.display = 'flex';
+                });
+            }
         }
 
         // Service Status Button Toggle Logic
