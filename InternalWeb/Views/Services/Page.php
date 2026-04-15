@@ -269,7 +269,7 @@
 
                 ShowServiceStatusButtonsContainer(elem.dataset.isActive, elem.dataset.orderCount);
                 ShowObjectiveButtonsContainer(elem.dataset.isActive, elem.dataset.hasDesign, elem.dataset.hasVariableList, elem.dataset.orderCount);
-                ShowServiceProcess();
+                ShowServiceProcess(elem.dataset.isActive, elem.dataset.orderCount);
                 ResetSubserviceHeader();
                 ShowSubservices();
             });
@@ -427,7 +427,16 @@
     }
 
     // Show the service process function
-    function ShowServiceProcess() {
+    function ShowServiceProcess(status, orderCount) {
+        // Dont let users edit the service process when the service is active and has active orders
+        if (orderCount == 0 && status == 0) {
+            updateServiceProcessButton.classList.remove("faded", "unclickable");
+            updateServiceProcessButton.dataset.interactable = 1;
+        } else {
+            updateServiceProcessButton.classList.add("faded", "unclickable");
+            updateServiceProcessButton.dataset.interactable = 0;
+        }
+
         serviceProcess.innerHTML = '';
         updateServiceProcessButton.classList.remove("hidden");
 
@@ -437,15 +446,18 @@
             tempElement.innerHTML = "<b>No Service Process</b>"
             serviceProcess.appendChild(tempElement);
 
-            tempElement = document.createElement("div");
-            tempElement.className = "circle squareSize duoHeight darkBG roundedMin shadowed centerRowLayout regMinPadding";
-            tempElement.innerHTML = '<img src="../../Shared/Img/CrossIcon.png" alt="Cross" class="invertColors">'
-            tempElement.id = "addProcessButton";
-            serviceProcess.appendChild(tempElement);
+            // Dont let users edit the service process when the service is active and has active orders
+            if (orderCount == 0 && status == 0) {
+                tempElement = document.createElement("div");
+                tempElement.className = "circle squareSize duoHeight darkBG roundedMin shadowed centerRowLayout regMinPadding";
+                tempElement.innerHTML = '<img src="../../Shared/Img/CrossIcon.png" alt="Cross" class="invertColors">'
+                tempElement.id = "addProcessButton";
+                serviceProcess.appendChild(tempElement);
 
-            document.getElementById('addProcessButton').addEventListener('click', function() {
-                ShowAddProcessesBox();
-            });
+                document.getElementById('addProcessButton').addEventListener('click', function() {
+                    ShowAddProcessesBox(status, orderCount);
+                });
+            }
 
             return;
         }
@@ -512,42 +524,60 @@
             serviceProcess.appendChild(tempElement);
         }
 
-        tempElement = document.createElement("div");
-        tempElement.className = "circle squareSize duoHeight darkBG roundedMin shadowed centerRowLayout regMinPadding";
-        tempElement.innerHTML = '<img src="../../Shared/Img/CrossIcon.png" alt="Cross" class="invertColors">';
-        tempElement.id = "addProcessButton";
-        serviceProcess.appendChild(tempElement);
+        // Dont let users edit the service process when the service is active and has active orders
+        if (orderCount == 0 && status == 0) {
+            tempElement = document.createElement("div");
+            tempElement.className = "circle squareSize duoHeight darkBG roundedMin shadowed centerRowLayout regMinPadding";
+            tempElement.innerHTML = '<img src="../../Shared/Img/CrossIcon.png" alt="Cross" class="invertColors">';
+            tempElement.id = "addProcessButton";
+            serviceProcess.appendChild(tempElement);
+
+            document.getElementById('addProcessButton').addEventListener('click', function() {
+                ShowAddProcessesBox(status, orderCount);
+            });
+        }
 
         document.querySelectorAll('.processRemove').forEach(function(elem) {
-            elem.addEventListener('click', function() {
-                selectedServiceProcess.splice(elem.dataset.index, 1);
-                ShowServiceProcess();
-            });
+            // Dont let users edit the service process when the service is active and has active orders
+            if (orderCount == 0 && status == 0) {
+                elem.addEventListener('click', function() {
+                    selectedServiceProcess.splice(elem.dataset.index, 1);
+                    ShowServiceProcess(status, orderCount);
+                });
+            } else {
+                elem.classList.add("hidden");
+            }
         });
 
         document.querySelectorAll('.swapRight').forEach(function(elem) {
-            elem.addEventListener('click', function() {
-                const index = Number(elem.dataset.index);
-                [selectedServiceProcess[index], selectedServiceProcess[index + 1]] = [selectedServiceProcess[index + 1], selectedServiceProcess[index]];
-                ShowServiceProcess();
-            });
+            // Dont let users edit the service process when the service is active and has active orders
+            if (orderCount == 0 && status == 0) {
+                elem.addEventListener('click', function() {
+                    const index = Number(elem.dataset.index);
+                    [selectedServiceProcess[index], selectedServiceProcess[index + 1]] = [selectedServiceProcess[index + 1], selectedServiceProcess[index]];
+                    ShowServiceProcess(status, orderCount);
+                });
+            } else {
+                elem.classList.add("hidden");
+            }
         });
 
         document.querySelectorAll('.swapLeft').forEach(function(elem) {
-            elem.addEventListener('click', function() {
-                const index = Number(elem.dataset.index);
-                [selectedServiceProcess[index], selectedServiceProcess[index - 1]] = [selectedServiceProcess[index - 1], selectedServiceProcess[index]];
-                ShowServiceProcess();
-            });
-        });
-
-        document.getElementById('addProcessButton').addEventListener('click', function() {
-            ShowAddProcessesBox();
+            // Dont let users edit the service process when the service is active and has active orders
+            if (orderCount == 0 && status == 0) {
+                elem.addEventListener('click', function() {
+                    const index = Number(elem.dataset.index);
+                    [selectedServiceProcess[index], selectedServiceProcess[index - 1]] = [selectedServiceProcess[index - 1], selectedServiceProcess[index]];
+                    ShowServiceProcess(status, orderCount);
+                });
+            } else {
+                elem.classList.add("hidden");
+            }
         });
     }
 
     // Show add processes to service process box
-    function ShowAddProcessesBox() {
+    function ShowAddProcessesBox(status, orderCount) {
         const currentProcesses = new Set(selectedServiceProcess.map(p => p.name));
         let hasAddableProcesses = false;
 
@@ -594,8 +624,8 @@
                     name: elem.dataset.name
                 });
 
-                ShowServiceProcess();
-                ShowAddProcessesBox();
+                ShowServiceProcess(status, orderCount);
+                ShowAddProcessesBox(status, orderCount);
             });
         });
 
@@ -604,6 +634,8 @@
 
     // Update Process Function Logic
     updateServiceProcessButton.addEventListener('click', function() {
+        if (updateServiceProcessButton.dataset.interactable == 0) return;
+
         confirmationTitle.innerHTML = "Update Service Process?";
         confirmationForm.action = "index.php?page=services&action=updateServiceProcess";
 

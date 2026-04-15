@@ -219,6 +219,12 @@ class ServicesM {
 
     // Update process associations for a service
     public function updateServiceProcess($id, $processes) {
+        if ($this->getServiceOrderCount($id) > 0) {
+            return "Error: The service cannot be edited since it has active orders.";
+        } else if ($this->getServiceByID($id)['isActive'] == 1) {
+            return "Error: The service cannot be edited since it is active.";
+        }
+
         $this->clearServiceProcess($id);
 
         if (!empty($processes)) {
