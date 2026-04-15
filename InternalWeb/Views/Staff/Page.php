@@ -42,7 +42,7 @@
 
                         <input type="submit" value="Search" class="importantInput">
                     </form>
-                    <section class="minGap scrollable gridFlexMid" id="staffList">
+                    <section class="minGap scrollable gridFlexMid regMinPadding" id="staffList">
                         <?php
                         $userRolesMap = [];
                         foreach ($userRoles as $role) {
@@ -58,11 +58,15 @@
                             $roles = $userRolesMap[$staff['id']] ?? [];
                             $rolesText = !empty($roles) ? implode(', ', $roles) : 'Unset Role';
                             $bgClass = $staff['isOnline'] ? ($taskCount > 0 ? 'yellowTransBG' : 'darkFadedBG') : 'redTransBG';
+                            $userImage = isset($accountImageMap[$staff['id']]) ?
+                                "../../Storage/AccountImages/" . $accountImageMap[$staff['id']] : "../../Shared/Img/PersonIcon.png";
+                            $userImageStyle = isset($accountImageMap[$staff['id']]) ?
+                                "imageCoverFull" : "";
                             ?>
                             <div class="minHeight minPadding roundedMin rowLayout minGap flexStatic staffElement shadowed <?= $statusClass ?> <?= $bgClass ?>"
                                 data-id="<?= $staff['id'] ?>" data-name="<?= htmlspecialchars($fullName) ?>" data-roles="<?= $rolesText ?>">
-                                <div style="background: var(--gray);" class="flexMid roundedMin centerColumnLayout">
-                                    <img src="../../Shared/Img/PersonIcon.png" alt="Person">
+                                <div class="flexMid roundedMin centerColumnLayout grayBG shadowed fixedScreen">
+                                    <img src="<?= $userImage ?>" alt="User Photo" class="<?= $userImageStyle ?> squareSize">
                                 </div>
                                 <div class="flexMax centerHoriColumnLayout">
                                     <h5><?= htmlspecialchars($fullName) ?></h5>

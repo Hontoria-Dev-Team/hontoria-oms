@@ -691,4 +691,21 @@ class StaffM {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result ? $result['imageName'] : null;
     }
+
+    public function getAllAccountImages() {
+        $query = "SELECT * FROM userImages";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllAccountImagesMapped() {
+        $map = [];
+
+        foreach ($this->getAllAccountImages() as $item) {
+            $map[$item['userID']] = $item['imageName'];
+        }
+
+        return $map;
+    }
 }
