@@ -241,6 +241,8 @@
     let selectedSubserviceImages;
     let selectedServiceID;
     let selectedServiceName;
+    let selectedServiceStatus;
+    let selectedServiceOrderCount;
     let selectedSubserviceID;
     let selectedSubserviceName;
 
@@ -250,6 +252,8 @@
             elem.addEventListener('click', function() {
                 selectedServiceID = elem.dataset.id;
                 selectedServiceName = elem.dataset.name;
+                selectedServiceStatus = elem.dataset.isActive;
+                selectedServiceOrderCount = elem.dataset.orderCount;
 
                 selectedServiceIdInput.value = selectedServiceID;
 
@@ -267,9 +271,9 @@
                     };
                 });
 
-                ShowServiceStatusButtonsContainer(elem.dataset.isActive, elem.dataset.orderCount);
-                ShowObjectiveButtonsContainer(elem.dataset.isActive, elem.dataset.hasDesign, elem.dataset.hasVariableList, elem.dataset.orderCount);
-                ShowServiceProcess(elem.dataset.isActive, elem.dataset.orderCount);
+                ShowServiceStatusButtonsContainer();
+                ShowObjectiveButtonsContainer(elem.dataset.hasDesign, elem.dataset.hasVariableList);
+                ShowServiceProcess();
                 ResetSubserviceHeader();
                 ShowSubservices();
             });
@@ -287,10 +291,10 @@
     });
 
     // Showing the service status buttons and delete button
-    function ShowServiceStatusButtonsContainer(status, orderCount) {
+    function ShowServiceStatusButtonsContainer() {
         serviceStatusButtonsContainer.innerHTML = '';
 
-        if (status == 1) {
+        if (selectedServiceStatus == 1) {
             tempElement = document.createElement("button");
             tempElement.type = "button";
             tempElement.className = "redBG emphasizedText noBorder shadowed whiteText centerColumnLayout flexMax noPadding fullHeight";
@@ -318,7 +322,7 @@
             serviceStatusButtonsContainer.appendChild(tempElement);
 
             // If a service has active orders, then dont let it be deleted
-            if (orderCount > 0) {
+            if (selectedServiceOrderCount > 0) {
                 tempElement.classList.add("faded", "unclickable");
             } else {
                 // Delete Service Button Logic
@@ -354,7 +358,7 @@
     }
 
     // Showing the objective buttons
-    function ShowObjectiveButtonsContainer(status, hasDesign, hasVariableList, orderCount) {
+    function ShowObjectiveButtonsContainer(hasDesign, hasVariableList) {
         objectiveButtonsContainer.innerHTML = '';
 
         tempElement = document.createElement("button");
@@ -386,7 +390,7 @@
         objectiveButtonsContainer.appendChild(tempElement);
 
         // If the service has active orders or is active then dont let service edits
-        if (orderCount == 0 && status == 0) {
+        if (selectedServiceOrderCount == 0 && selectedServiceStatus == 0) {
             // Has Design Button Toggle Logic
             document.getElementById('hasDesignButton').addEventListener('click', function() {
                 confirmationTitle.innerHTML = "Toggle Design Objective?";
@@ -427,9 +431,9 @@
     }
 
     // Show the service process function
-    function ShowServiceProcess(status, orderCount) {
+    function ShowServiceProcess() {
         // Dont let users edit the service process when the service is active and has active orders
-        if (orderCount == 0 && status == 0) {
+        if (selectedServiceOrderCount == 0 && selectedServiceStatus == 0) {
             updateServiceProcessButton.classList.remove("faded", "unclickable");
             updateServiceProcessButton.dataset.interactable = 1;
         } else {
@@ -447,7 +451,7 @@
             serviceProcess.appendChild(tempElement);
 
             // Dont let users edit the service process when the service is active and has active orders
-            if (orderCount == 0 && status == 0) {
+            if (selectedServiceOrderCount == 0 && selectedServiceStatus == 0) {
                 tempElement = document.createElement("div");
                 tempElement.className = "circle squareSize duoHeight darkBG roundedMin shadowed centerRowLayout regMinPadding";
                 tempElement.innerHTML = '<img src="../../Shared/Img/CrossIcon.png" alt="Cross" class="invertColors">'
@@ -455,7 +459,7 @@
                 serviceProcess.appendChild(tempElement);
 
                 document.getElementById('addProcessButton').addEventListener('click', function() {
-                    ShowAddProcessesBox(status, orderCount);
+                    ShowAddProcessesBox();
                 });
             }
 
@@ -525,7 +529,7 @@
         }
 
         // Dont let users edit the service process when the service is active and has active orders
-        if (orderCount == 0 && status == 0) {
+        if (selectedServiceOrderCount == 0 && selectedServiceStatus == 0) {
             tempElement = document.createElement("div");
             tempElement.className = "circle squareSize duoHeight darkBG roundedMin shadowed centerRowLayout regMinPadding";
             tempElement.innerHTML = '<img src="../../Shared/Img/CrossIcon.png" alt="Cross" class="invertColors">';
@@ -533,16 +537,16 @@
             serviceProcess.appendChild(tempElement);
 
             document.getElementById('addProcessButton').addEventListener('click', function() {
-                ShowAddProcessesBox(status, orderCount);
+                ShowAddProcessesBox();
             });
         }
 
         document.querySelectorAll('.processRemove').forEach(function(elem) {
             // Dont let users edit the service process when the service is active and has active orders
-            if (orderCount == 0 && status == 0) {
+            if (selectedServiceOrderCount == 0 && selectedServiceStatus == 0) {
                 elem.addEventListener('click', function() {
                     selectedServiceProcess.splice(elem.dataset.index, 1);
-                    ShowServiceProcess(status, orderCount);
+                    ShowServiceProcess();
                 });
             } else {
                 elem.classList.add("hidden");
@@ -551,11 +555,11 @@
 
         document.querySelectorAll('.swapRight').forEach(function(elem) {
             // Dont let users edit the service process when the service is active and has active orders
-            if (orderCount == 0 && status == 0) {
+            if (selectedServiceOrderCount == 0 && selectedServiceStatus == 0) {
                 elem.addEventListener('click', function() {
                     const index = Number(elem.dataset.index);
                     [selectedServiceProcess[index], selectedServiceProcess[index + 1]] = [selectedServiceProcess[index + 1], selectedServiceProcess[index]];
-                    ShowServiceProcess(status, orderCount);
+                    ShowServiceProcess();
                 });
             } else {
                 elem.classList.add("hidden");
@@ -564,11 +568,11 @@
 
         document.querySelectorAll('.swapLeft').forEach(function(elem) {
             // Dont let users edit the service process when the service is active and has active orders
-            if (orderCount == 0 && status == 0) {
+            if (selectedServiceOrderCount == 0 && selectedServiceStatus == 0) {
                 elem.addEventListener('click', function() {
                     const index = Number(elem.dataset.index);
                     [selectedServiceProcess[index], selectedServiceProcess[index - 1]] = [selectedServiceProcess[index - 1], selectedServiceProcess[index]];
-                    ShowServiceProcess(status, orderCount);
+                    ShowServiceProcess();
                 });
             } else {
                 elem.classList.add("hidden");
@@ -577,7 +581,7 @@
     }
 
     // Show add processes to service process box
-    function ShowAddProcessesBox(status, orderCount) {
+    function ShowAddProcessesBox() {
         const currentProcesses = new Set(selectedServiceProcess.map(p => p.name));
         let hasAddableProcesses = false;
 
@@ -624,8 +628,8 @@
                     name: elem.dataset.name
                 });
 
-                ShowServiceProcess(status, orderCount);
-                ShowAddProcessesBox(status, orderCount);
+                ShowServiceProcess();
+                ShowAddProcessesBox();
             });
         });
 
@@ -701,7 +705,7 @@
 
                 document.getElementById('selectedSubserviceTitle').textContent = selectedSubserviceName;
 
-                ShowSubserviceStatusButtonsContainer(item.isActive);
+                ShowSubserviceStatusButtonsContainer(item.isActive, subserviceOrderCountMap[item.id] || 0);
                 ShowSubserviceDataContainer();
                 ShowSubserviceImages();
             });
@@ -715,7 +719,7 @@
 
                 document.getElementById('selectedSubserviceTitle').textContent = selectedSubserviceName;
 
-                ShowSubserviceStatusButtonsContainer(item.isActive);
+                ShowSubserviceStatusButtonsContainer(item.isActive, subserviceOrderCountMap[item.id] || 0);
                 ShowSubserviceDataContainer();
                 ShowSubserviceImages();
             }
@@ -723,7 +727,7 @@
     }
 
     // Showing the subservice status buttons and delete button
-    function ShowSubserviceStatusButtonsContainer(status) {
+    function ShowSubserviceStatusButtonsContainer(status, orderCount) {
         subserviceStatusButtonsContainer.innerHTML = '';
 
         if (status == 1) {
@@ -733,6 +737,11 @@
             tempElement.textContent = "Disable";
             tempElement.id = "subserviceStatusButton";
             subserviceStatusButtonsContainer.appendChild(tempElement);
+
+            // If the subservice is the last active one in the service dont let it be disabled
+            if (selectedServiceSubservices.length == 1 || selectedServiceSubservices[1].isActive == 0) {
+                tempElement.classList.add("faded", "unclickable");
+            }
         } else {
             tempElement = document.createElement("button");
             tempElement.type = "button";
@@ -748,32 +757,40 @@
             tempElement.id = "deleteSubserviceButton";
             subserviceStatusButtonsContainer.appendChild(tempElement);
 
-            // Delete Subservice Button Logic
-            document.getElementById('deleteSubserviceButton').addEventListener('click', function() {
-                confirmationTitle.innerHTML = "Delete Subservice?";
-                confirmationForm.action = "index.php?page=services&action=deleteSubservice"
+            // If the subservice has active orders dont let it be deleted
+            if (orderCount > 0) {
+                tempElement.classList.add("faded", "unclickable");
+            } else {
+                // Delete Subservice Button Logic
+                document.getElementById('deleteSubserviceButton').addEventListener('click', function() {
+                    confirmationTitle.innerHTML = "Delete Subservice?";
+                    confirmationForm.action = "index.php?page=services&action=deleteSubservice"
 
-                confirmationText.innerHTML = "Are you sure to delete the " + selectedSubserviceName + " subservice?";
-                confirmationSubmit.value = "Yes delete";
+                    confirmationText.innerHTML = "Are you sure to delete the " + selectedSubserviceName + " subservice?";
+                    confirmationSubmit.value = "Yes delete";
+
+                    confirmation.style.display = 'flex';
+                });
+            }
+        }
+
+        // If the subservice status is active and is the last active one in the service then dont let be disabled
+        if (!(status == 1 && (selectedServiceSubservices.length == 1 || selectedServiceSubservices[1].isActive == 0))) {
+            // Subservice Status Button Toggle Logic
+            document.getElementById('subserviceStatusButton').addEventListener('click', function() {
+                confirmationTitle.innerHTML = "Toggle Subservice Status?";
+                confirmationForm.action = "index.php?page=services&action=toggleSubserviceStatus"
+
+                confirmationText.innerHTML = "Are you sure to " + this.textContent + " the " + selectedSubserviceName + " subservice?";
+                confirmationSubmit.value = "Yes " + this.textContent;
+
+                if (this.textContent == "Activate") {
+                    confirmationSubmit.classList.add("yellowBG");
+                }
 
                 confirmation.style.display = 'flex';
             });
         }
-
-        // Subservice Status Button Toggle Logic
-        document.getElementById('subserviceStatusButton').addEventListener('click', function() {
-            confirmationTitle.innerHTML = "Toggle Subservice Status?";
-            confirmationForm.action = "index.php?page=services&action=toggleSubserviceStatus"
-
-            confirmationText.innerHTML = "Are you sure to " + this.textContent + " the " + selectedSubserviceName + " subservice?";
-            confirmationSubmit.value = "Yes " + this.textContent;
-
-            if (this.textContent == "Activate") {
-                confirmationSubmit.classList.add("yellowBG");
-            }
-
-            confirmation.style.display = 'flex';
-        });
     }
 
     // Showing subservice data container function logic

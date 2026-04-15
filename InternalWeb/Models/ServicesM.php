@@ -364,6 +364,26 @@ class ServicesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get a specific subservice by ID
+    public function getSubservice($id) {
+        $query = "
+            SELECT
+                serviceID,
+                name,
+                isActive,
+                description,
+                pricePerUnit
+            FROM subservices
+            WHERE id = :id
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     // Get all subservices across all services
     public function getAllSubservices() {
         $query = "SELECT * FROM subservices ORDER BY isActive DESC, name ASC";
@@ -387,6 +407,23 @@ class ServicesM {
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Get order count for a subservice
+    public function getSubserviceOrderCount($id) {
+        $query = "
+            SELECT
+                COUNT(orders.id) AS orderCount
+            FROM orders
+            WHERE subserviceID = :id
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? (int)$result['orderCount'] : 0;
     }
 
     // Subservice Operations
@@ -416,6 +453,12 @@ class ServicesM {
     // Delete a subservice and its associated images
     // Uses transaction for data integrity
     public function deleteSubservice($id) {
+        if ($this->getSubserviceOrderCount($id) > 0) {
+            return "Error: The subservice cannot be deleted since it has active orders.";
+        } else if ($this->getSubservice($id)['isActive'] == 1) {
+            return "Error: The subservice cannot be deleted since it is still active.";
+        }
+
         try {
             $this->pdo->beginTransaction();
 
@@ -453,6 +496,19 @@ class ServicesM {
 
     // Toggle subservice active status
     public function updateSubserviceStatus($id) {
+        $serviceSubservices = $this->getSubservices($this->getSubservice($id)['serviceID']);
+
+        $query = "SELECT isActive FROM subservices WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        $result = $stmt->fetchColumn();
+
+        if ($result == 1 && (count($serviceSubservices) == 1 || $serviceSubservices[1]['isActive'] == 0)) {
+            return "Error: The subservice cannot be disabled since it is the last active subservice.";
+        }
+
         $query = "UPDATE subservices SET isActive = !isActive WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
