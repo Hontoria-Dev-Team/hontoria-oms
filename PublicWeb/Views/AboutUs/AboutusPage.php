@@ -38,6 +38,7 @@ $navItems = [
     <main>
        
             <?php include __DIR__ . '/../.Components/AbousUsComponents/HeroSectionComponents.php'; ?>
+            <?php include __DIR__ . '/../.Components/AbousUsComponents/HistoryComponents.php'; ?>
         
     </main>
     
