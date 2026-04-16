@@ -12,7 +12,7 @@ $address  = $address  ?? 'Feeder Road 2, Brgy. Tibal-og Santo tomas, Davao del N
 
 // 🟢 UPDATED: Page Links based on your new Views folder structure
 $navItems = [
-    ['label' => 'HOME',     'url' => '../Home/HomePage.php',         'active' => false],
+    ['label' => 'HOME',     'url' => '../Home/HomePage.php',        'active' => false],
     ['label' => 'SERVICES', 'url' => '../Services/ServicesPage.php', 'active' => false],
     ['label' => 'ABOUT US', 'url' => 'AboutusPage.php',              'active' => true],
 ];
@@ -36,9 +36,9 @@ $navItems = [
     <?php include __DIR__ . '/../.Components/SharedComponents/HeaderComponents.php'; ?>
     
     <main>
-        <section class="about-container">
-            
-        </section>
+       
+            <?php include __DIR__ . '/../.Components/AbousUsComponents/HeroSectionComponents.php'; ?>
+        
     </main>
     
     <?php include __DIR__ . '/../.Components/SharedComponents/FooterComponents.php'; ?>
