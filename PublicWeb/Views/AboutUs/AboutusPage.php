@@ -40,6 +40,7 @@ $navItems = [
             <?php include __DIR__ . '/../.Components/AbousUsComponents/HeroSectionComponents.php'; ?>
             <?php include __DIR__ . '/../.Components/AbousUsComponents/HistoryComponents.php'; ?>
             <?php include __DIR__ . '/../.Components/AbousUsComponents/LocationComponents.php'; ?>
+            <?php include __DIR__ . '/../.Components/AbousUsComponents/WorkPlaceComponents.php'; ?>
             <?php include __DIR__ . '/../.Components/AbousUsComponents/OwnerComponents.php'; ?>
         
     </main>
