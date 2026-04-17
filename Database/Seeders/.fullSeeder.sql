@@ -71,19 +71,19 @@ INSERT INTO serviceProcess (serviceID, processesID, phase) VALUES
 
 -- Seed roles, permissions, and related mappings
 INSERT INTO roles (name) VALUES
-('owner'),
-('admin'),
-('artist'),
-('print operator'),
-('heat press operator'),
-('sewist'),
-('verifier');
+('owner'),                 -- 1
+('admin'),                 -- 2
+('artist'),                -- 3
+('print operator'),        -- 4
+('heat press operator'),   -- 5
+('sewist'),                -- 6
+('verifier');              -- 7
 
 INSERT INTO roleManagementGovernance (roleSubjectID, roleAgentID, canGrant, canRevoke, canAlter, canDelete) VALUES
-(1, 1, 1, 0, 0, 0),
-(1, 2, 0, 0, 0, 0),
-(2, 1, 1, 1, 1, 1),
-(2, 2, 1, 0, 0, 0);
+(1, 1, 1, 0, 1, 0), -- Owner to Owner
+(1, 2, 0, 0, 0, 0), -- Admin to Owner
+(2, 1, 1, 1, 1, 1), -- Owner to Admin
+(2, 2, 1, 0, 0, 0); -- Admin to Admin
 
 INSERT INTO permissions (name) VALUES
 -- Staff Management Permissions
@@ -118,7 +118,11 @@ INSERT INTO permissions (name) VALUES
 ('canAlterOrders'),                  -- 23
 ('canAssignStaffToOrders'),          -- 24
 ('canUnassignStaffToOrders'),        -- 25
-('canVerifyOrderCompletion');        -- 26
+('canVerifyOrderCompletion'),        -- 26
+
+-- Task Related Permissions
+('canSelfAssignToTasks'),            -- 27
+('canSelfUnassignToTasks');          -- 28
 
 INSERT INTO rolePermissions (roleID, permissionID) VALUES
 -- Owner permissions
@@ -148,6 +152,8 @@ INSERT INTO rolePermissions (roleID, permissionID) VALUES
 (1, 24),  -- canAssignStaffToOrders
 (1, 25),  -- canUnassignStaffToOrders
 (1, 26),  -- canVerifyOrderCompletion
+(1, 27),  -- canSelfAssignToTasks
+(1, 28),  -- canSelfUnassignToTasks
 
 -- Admin permissions
 (2, 1),   -- canViewStaffPage
@@ -167,6 +173,20 @@ INSERT INTO rolePermissions (roleID, permissionID) VALUES
 (2, 23),  -- canAlterOrders
 (2, 24),  -- canAssignStaffToOrders
 (2, 25),  -- canUnassignStaffToOrders
+(2, 27),  -- canSelfAssignToTasks
+(2, 28),  -- canSelfUnassignToTasks
+
+-- Artist permissions
+(3, 27),  -- canSelfAssignToTasks
+
+-- Print Operator permissions
+(4, 27),  -- canSelfAssignToTasks
+
+-- Heat Press Operator permissions
+(5, 27),  -- canSelfAssignToTasks
+
+-- Sewist permissions
+(6, 27),  -- canSelfAssignToTasks
 
 -- Verifier permissions
 (7, 26);  -- canVerifyOrderCompletion

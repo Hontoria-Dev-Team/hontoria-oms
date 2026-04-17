@@ -26,6 +26,7 @@ DROP TABLE IF EXISTS orderDesignArchive;
 DROP TABLE IF EXISTS orderGroupArchive;
 DROP TABLE IF EXISTS orderArchive;
 DROP TABLE IF EXISTS userImages;
+DROP TABLE IF EXISTS userStats;
 
 CREATE TABLE users (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -46,6 +47,14 @@ CREATE TABLE userImages (
     userID BIGINT UNSIGNED NOT NULL,
     imageName VARCHAR(255) NOT NULL,
     PRIMARY KEY (userID, imageName),
+    FOREIGN KEY (userID) REFERENCES users(id)
+);
+
+CREATE TABLE userStats (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    userID BIGINT UNSIGNED NOT NULL,
+    tasksCompleted INT UNSIGNED,
+    tasksCompletedDuration DECIMAL(11, 2) UNSIGNED,
     FOREIGN KEY (userID) REFERENCES users(id)
 );
 
