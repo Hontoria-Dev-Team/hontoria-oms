@@ -11,7 +11,7 @@ session_start();
 $page = $_GET['page'] ?? 'home';
 
 // Instantiate the controller, passing the $pdo connection
-$controller = new PublicC($pdo);
+$controller = new \PublicC($pdo);
 
 // Route to the correct method
 switch ($page) {
