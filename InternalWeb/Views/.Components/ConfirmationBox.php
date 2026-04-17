@@ -2,7 +2,7 @@
 <section id="confirmationBox" class="centerColumnLayout" style="display: none;">
     <div id="confirmationContent" class="centerColumnLayout roundedMid maxWidth">
         <div class="box centerColumnLayout roundedMid fullWidth fullHeight minGap">
-            <h1 id="confirmationTitle">Confirmation Title</h1>
+            <h2 id="confirmationTitle">Confirmation Title</h2>
             <h4 id="confirmationText">Confirmation Text</h4>
             <form id="confirmationForm" method="POST" class="reverseColumnLayout fullWidth minGap">
                 <div id="confirmationButtons" class="rowLayout minGap">
