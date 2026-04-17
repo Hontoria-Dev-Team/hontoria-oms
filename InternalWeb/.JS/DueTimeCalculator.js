@@ -11,3 +11,10 @@ function formatDate(inputDate) {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
     return date.toLocaleDateString('en-US', options);
 }
+
+function formatDateTime(inputDate) {
+    const date = new Date(inputDate);
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+    return date.toLocaleDateString('en-US', options) + ' ' + date.toLocaleTimeString('en-US', timeOptions);
+}
