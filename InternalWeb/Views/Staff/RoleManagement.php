@@ -12,8 +12,13 @@
     <main class="columnLayout midGap">
         <span class="centerHoriRowLayout midGap">
             <?php include("../Views/.Components/BackLink.php"); ?>
-            <h1 class="titleLogo minGap tinHeight">
+            <h1 class="titleLogo minGap tinHeight flexMax">
                 <img src="../../Shared/Img/PeopleIcon.png" alt="People"> Role Management
+                <div class="rowLayout minGap flexMax contentFlexEnd">
+                    <?php if (in_array("canCreateRoles", $_SESSION['permissions'])): ?>
+                        <a class="roundedMin centerColumnLayout importantInput regPadding emphasizedText shadowed" id="createRoleButton">Create Role</a>
+                    <?php endif; ?>
+                </div>
             </h1>
         </span>
         <?php include("../Views/.Components/MessageBox.php"); ?>
@@ -21,19 +26,14 @@
             <section class="flexMid roundedMid centerColumnLayout">
                 <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
                     <h2>Roles:</h2>
-                    <div id="processesContainer" class="scrollable columnLayout minGap regMinPadding">
+                    <div id="processesContainer" class="scrollable columnLayout minGap regMinPadding flexMax">
                         <?php foreach ($roleTally as $role): ?>
-                            <div class="tinHeight noShrink roundedMin centerHoriRowLayout clickable shadowed fixedScreen roleElement"
+                            <div class="noShrink roundedMin centerHoriRowLayout clickable shadowed fixedScreen roleElement"
                                 data-id="<?= $role['id'] ?>" data-name="<?= $role['name'] ?>">
-                                <h3 class="gradientDiagBG flexMid centerColumnLayout fullHeight whiteText skewedXNegBG shadowed capitalFirst"><span><?= $role['name'] ?></span></h3>
-                                <b class="flexMin whiteBG fullHeight centerColumnLayout"><?= $role['count'] ?> Users</b>
+                                <h3 class="regMinPadding gradientDiagBG flexMid centerColumnLayout fullHeight whiteText skewedXNegBG shadowed capitalFirst"><span><?= $role['name'] ?></span></h3>
+                                <h5 class="flexMin whiteBG fullHeight centerColumnLayout"><?= $role['count'] ?> Users</h5>
                             </div>
                         <?php endforeach; ?>
-                    </div>
-                    <div class="rowLayout minGap souEastAbsolute">
-                        <?php if (in_array("canCreateRoles", $_SESSION['permissions'])): ?>
-                            <a class="roundedMin centerColumnLayout importantInput regPadding emphasizedText clickable" id="createRoleButton">Create Role</a>
-                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="gradientBorderDiag"></div>
@@ -57,13 +57,13 @@
                             <div class="flexMax rowLayout minGap noMinHeight noFlexBasis">
                                 <div class="fullWidth columnLayout tinGap noMinHeight flexMin noFlexBasis">
                                     <h3>Assigned Permissions:</h3>
-                                    <div class="gridCenterFlex minGap scrollable flexMax" id="assignedPermsContainer">
+                                    <div class="gridCenterFlex tinGap scrollable flexMax regMinPadding" id="assignedPermsContainer">
                                         <h2 class="selfCenter">No Role Selected</h2>
                                     </div>
                                 </div>
                                 <div class="fullWidth columnLayout tinGap noMinHeight flexMin noFlexBasis">
                                     <h3>Available Permissions:</h3>
-                                    <div class="gridCenterFlex minGap scrollable flexMax" id="availablePermsContainer">
+                                    <div class="gridCenterFlex tinGap scrollable flexMax regMinPadding" id="availablePermsContainer">
                                         <h2 class="selfCenter">No Role Selected</h2>
                                     </div>
                                 </div>
@@ -78,7 +78,7 @@
                                 <h3 class="centerHoriRowLayout">Management Rules:
                                     <button type="button" id="addRuleButton" class="importantInput eastAbsolute edgeCorner">Add Rule</button>
                                 </h3>
-                                <div class="flexMax columnLayout minGap scrollable container"></div>
+                                <div class="flexMax columnLayout tinGap scrollable container regMinPadding"></div>
                                 <button type="button" class="importantInput fullWidth" id="confirmRuleChangesButton">Confirm Changes</button>
                             </div>
                             <div class="gradientBorderDiag"></div>
@@ -88,7 +88,7 @@
                                 <h3 class="centerHoriRowLayout">Process Task Access:
                                     <button type="button" id="addTaskButton" class="importantInput eastAbsolute edgeCorner hidden">Add Task</button>
                                 </h3>
-                                <div class="flexMax columnLayout minGap scrollable container">
+                                <div class="flexMax columnLayout tinGap scrollable container regMinPadding">
                                     <h2 class="selfCenter centerMarginsSelf">No Role Selected</h2>
                                 </div>
                                 <button type="button" class="importantInput fullWidth hidden" id="confirmTaskChangesButton">Confirm Changes</button>
@@ -250,9 +250,9 @@
 
         for (let i = 0; i < selectedRolePermissions.length; i++) {
             tempDiv = document.createElement("div");
-            tempDiv.className = "noShrink fitHeight roundedMin centerRowLayout minGap yellowTransBG regMinPadding bordered";
+            tempDiv.className = "noShrink fitHeight roundedMin centerRowLayout minGap yellowTransBG regMinPadding bordered shadowed";
 
-            tempElement = document.createElement("b");
+            tempElement = document.createElement("h5");
             tempElement.className = "flexMax centerText capitalFirst";
             tempElement.textContent = formatCamelCase(selectedRolePermissions[i].name);
             tempDiv.appendChild(tempElement);
@@ -294,17 +294,17 @@
         if (selectedRoleAvailablePerms.length == 0) {
             tempElement = document.createElement("h2");
             tempElement.textContent = "No More Permissions Available To Assign";
-            tempElement.className = "selfCenter";
+            tempElement.className = "selfCenter minHoriPadding centerText";
             availablePermsContainer.appendChild(tempElement);
         }
 
         for (let i = 0; i < selectedRoleAvailablePerms.length; i++) {
             tempDiv = document.createElement("div");
-            tempDiv.className = "noShrink fitHeight roundedMin centerRowLayout minGap darkFadedBG regMinPadding bordered choicePermission";
+            tempDiv.className = "noShrink fitHeight roundedMin centerRowLayout minGap darkFadedBG regMinPadding bordered choicePermission shadowed";
             tempDiv.dataset.id = selectedRoleAvailablePerms[i].id;
             tempDiv.dataset.name = selectedRoleAvailablePerms[i].name;
 
-            tempElement = document.createElement("b");
+            tempElement = document.createElement("h5");
             tempElement.className = "flexMax centerText capitalFirst";
             tempElement.textContent = formatCamelCase(selectedRoleAvailablePerms[i].name);
             tempDiv.appendChild(tempElement);
@@ -350,47 +350,47 @@
         if (selectedRoleGovernance.length == 0) {
             tempElement = document.createElement("h2");
             tempElement.textContent = "No Management Rules";
-            tempElement.className = "selfCenter centerMarginsSelf";
+            tempElement.className = "selfCenter centerMarginsSelf minHoriPadding centerText";
             managementRulesContainer.querySelector('.container').appendChild(tempElement);
         }
 
         for (let i = 0; i < selectedRoleGovernance.length; i++) {
             tempDiv = document.createElement("div");
-            tempDiv.className = "yellowTransBG roundedMin bordered centerColumnLayout regMinPadding";
+            tempDiv.className = "yellowTransBG roundedMin bordered centerHoriRowLayout regMinPadding shadowed";
 
             if (!alterableRoles.includes(selectedRoleGovernance[i].roleSubjectID)) {
                 tempDiv.classList.add("unclickable", "faded");
             }
 
-            tempElement = document.createElement("b");
+            tempElement = document.createElement("h5");
             tempElement.className = "flexMax centerColumnLayout capitalFirst";
             tempElement.textContent = rolesName[selectedRoleGovernance[i].roleSubjectID];
             tempDiv.appendChild(tempElement);
 
-            tempElement = document.createElement("hr");
-            tempDiv.appendChild(tempElement);
+            // tempElement = document.createElement("hr");
+            // tempDiv.appendChild(tempElement);
 
             tempElement = document.createElement("div");
-            tempElement.className = "centerRowLayout minGap";
+            tempElement.className = "centerRowLayout minGap minHoriPadding";
             tempElement.innerHTML = `
                 <div class="centerRowLayout tinGap canGrantCheck" data-index="${i}">
                     <input type="checkbox" name="canGrant" ${selectedRoleGovernance[i].canGrant == 1 ? 'checked' : ''}>
-                    <p>Grant</p>
+                    <h6>Grant</h6>
                 </div>
 
                 <div class="centerRowLayout tinGap canRevokeCheck" data-index="${i}">
                     <input type="checkbox" name="canRevoke" ${selectedRoleGovernance[i].canRevoke == 1 ? 'checked' : ''}>
-                    <p>Revoke</p>
+                    <h6>Revoke</h6>
                 </div>
 
                 <div class="centerRowLayout tinGap canAlterCheck" data-index="${i}">
                     <input type="checkbox" name="canAlter" ${selectedRoleGovernance[i].canAlter == 1 ? 'checked' : ''}>
-                    <p>Alter</p>
+                    <h6>Alter</h6>
                 </div>
 
                 <div class="centerRowLayout tinGap canDeleteCheck" data-index="${i}">
                     <input type="checkbox" name="canDelete" ${selectedRoleGovernance[i].canDelete == 1 ? 'checked' : ''}>
-                    <p>Delete</p>
+                    <h6>Delete</h6>
                 </div>
             `;
             tempDiv.appendChild(tempElement);
@@ -607,9 +607,9 @@
 
         for (let i = 0; i < selectedRoleProcessTasks.length; i++) {
             tempDiv = document.createElement("div");
-            tempDiv.className = "yellowTransBG roundedMin bordered centerColumnLayout regMinPadding tinHeight noShrink";
+            tempDiv.className = "yellowTransBG roundedMin bordered centerColumnLayout regMinPadding noShrink shadowed";
 
-            tempElement = document.createElement("b");
+            tempElement = document.createElement("h5");
             tempElement.className = "flexMax centerColumnLayout capitalFirst";
             tempElement.textContent = selectedRoleProcessTasks[i].name;
             tempDiv.appendChild(tempElement);
