@@ -53,8 +53,8 @@ $navItems = [
     <div class="services-modal-wrapper">
          </div>
     
-    <script src="/.JS/Shared.js"></script>
-    <script src="/.JS/ServicesPage.js"></script>
+    <script src="../.JS/Shared.js"></script>
+    <script src="../.JS/ServicesPage.js"></script>
     
 </body>
 </html>

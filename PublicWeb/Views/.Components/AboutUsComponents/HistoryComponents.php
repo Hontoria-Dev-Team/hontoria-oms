@@ -6,7 +6,7 @@
         <div class="history-layout">
 
             <div class="history-text">
-                <p class="section-eyebrow">Our Story</p>
+                <o class="section-eyebrow">Our Story</o>
                 <h2 class="section-title">How It All Started</h2>
                 <div class="section-line"></div>
                 <p>Hontoria Printing Services was founded with a simple mission: deliver high-quality, affordable printed products to the community of Davao del Norte. What started as a small home-based printing setup has grown into a full-service print shop trusted by hundreds of customers.</p>

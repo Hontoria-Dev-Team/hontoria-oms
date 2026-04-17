@@ -4,13 +4,13 @@
  * Location: publicWeb/public/Views/AboutUs/AboutusPage.php
  */
 
-// Basic variables (these would ideally be passed down by PublicC.php in the future)
+// Basic variables
 $siteName = $siteName ?? 'Hontoria Printing Services';
 $logoPath = $logoPath ?? '/.Images/logo.jpg';
 $fbLink   = $fbLink   ?? 'https://www.facebook.com/jhong.hontoria.3';
 $address  = $address  ?? 'Feeder Road 2, Brgy. Tibal-og Santo tomas, Davao del Norte';
 
-// 🟢 UPDATED: Page Links based on your new Views folder structure
+// Page Links
 $navItems = [
     ['label' => 'HOME',     'url' => '../Home/HomePage.php',        'active' => false],
     ['label' => 'SERVICES', 'url' => '../Services/ServicesPage.php', 'active' => false],
@@ -36,19 +36,26 @@ $navItems = [
     <?php include __DIR__ . '/../.Components/SharedComponents/HeaderComponents.php'; ?>
     
     <main>
-       
-            <?php include __DIR__ . '/../.Components/AbousUsComponents/HeroSectionComponents.php'; ?>
-            <?php include __DIR__ . '/../.Components/AbousUsComponents/HistoryComponents.php'; ?>
-            <?php include __DIR__ . '/../.Components/AbousUsComponents/LocationComponents.php'; ?>
-            <?php include __DIR__ . '/../.Components/AbousUsComponents/WorkPlaceComponents.php'; ?>
-            <?php include __DIR__ . '/../.Components/AbousUsComponents/OwnerComponents.php'; ?>
-        
+        <?php include __DIR__ . '/../.Components/AboutUsComponents/HeroSectionComponents.php'; ?>
+
+        <section class="about-container">
+            
+            <?php include __DIR__ . '/../.Components/AboutUsComponents/AboutUsSidebarComponents.php'; ?>
+            
+            <div class="about-content">
+                <?php include __DIR__ . '/../.Components/AboutUsComponents/HistoryComponents.php'; ?>
+                <?php include __DIR__ . '/../.Components/AboutUsComponents/LocationComponents.php'; ?>
+                <?php include __DIR__ . '/../.Components/AboutUsComponents/WorkPlaceComponents.php'; ?>
+                <?php include __DIR__ . '/../.Components/AboutUsComponents/OwnerComponents.php'; ?>
+            </div>
+            
+        </section>
     </main>
     
     <?php include __DIR__ . '/../.Components/SharedComponents/FooterComponents.php'; ?>
     
-    <script src="/.JS/Shared.js"></script>
-    <script src="/.JS/AboutUsPage.js"></script>
+    <script src="../.JS/Shared.js"></script>
+    <script src="../.JS/AboutUsPage.js"></script>
     
 </body>
 </html>

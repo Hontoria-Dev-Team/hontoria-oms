@@ -1,5 +1,3 @@
-/* CSS code here */
-
 /* =============================================
    HONTORIA — aboutus.css
    Page-specific styles only.
@@ -27,18 +25,19 @@
     --bh:        36px;
 }
 
-
 /* ========== ABOUT PAGE LAYOUT ========== */
-.about-body {
+.about-container {
     display:     flex;
+    align-items: flex-start;
     min-height:  100vh;
+    position:    relative;
 }
 
 .about-content {
     flex:      1;
     min-width: 0;
+    z-index:   1;
 }
-
 
 /* ========== ABOUT SIDEBAR ========== */
 .about-sidebar {
@@ -52,6 +51,8 @@
     top:          calc(var(--hh) + var(--bh));
     height:       calc(100vh - var(--hh) - var(--bh));
     overflow-y:   auto;
+    /* FIX 2: Lowered z-index so it scrolls safely UNDER the main header */
+    z-index:      10; 
 }
 
 .about-sidebar-brand {
@@ -126,6 +127,11 @@
     color:      var(--dk);
 }
 
+/* =========================================================
+   SCROLL SPY ACTIVE STATE 
+   This is the exact code that turns the sidebar text RED 
+   and gives it a light red background when scrolling!
+   ========================================================= */
 .about-sidebar-link.active {
     background:  rgba(204,26,0,0.08);
     color:       var(--red);
@@ -139,7 +145,6 @@
     color:      inherit;
 }
 
-
 /* ========== PAGE HERO ========== */
 .page-hero {
     background: var(--black);
@@ -147,6 +152,8 @@
     text-align: center;
     position:   relative;
     overflow:   hidden;
+    /* Ensures it takes up the full width now that it is outside the sidebar */
+    width:      100%;
 }
 
 .page-hero::before {
@@ -190,7 +197,6 @@
     line-height: 1.7;
 }
 
-
 /* ========== SECTION SHARED ========== */
 .section {
     padding: 80px 32px;
@@ -233,7 +239,6 @@
     max-width:   680px;
 }
 
-
 /* ========== HISTORY ========== */
 .history-section {
     background: var(--white);
@@ -250,6 +255,12 @@
     font-size:     15px;
     line-height:   1.9;
     color:         var(--gray);
+    margin-bottom: 16px;
+}
+.history-text o {
+    font-size:     15px;
+    line-height:   1.9;
+    color:         var(--red);
     margin-bottom: 16px;
 }
 
@@ -316,7 +327,6 @@
     font-weight: 900;
     line-height: 1;
 }
-
 
 /* ========== WORKPLACE AREAS ========== */
 .workplace-section {
@@ -392,7 +402,6 @@
     line-height: 1.6;
 }
 
-
 /* ========== PRODUCTS ========== */
 .products-section { background: var(--black); }
 
@@ -435,7 +444,6 @@
     color:          var(--white);
     letter-spacing: 0.5px;
 }
-
 
 /* ========== LOCATION ========== */
 .location-section {
@@ -538,7 +546,6 @@
     line-height: 1.5;
 }
 
-
 /* ========== OWNER ========== */
 .owner-section {
     background: var(--y);
@@ -619,7 +626,6 @@
     color:       rgba(26,8,0,0.7);
     max-width:   560px;
 }
-
 
 /* ========== STAFF / EMPLOYEES ========== */
 .employees-section {
@@ -725,7 +731,6 @@
     color:       var(--gray);
     font-style:  italic;
 }
-
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 900px) {
