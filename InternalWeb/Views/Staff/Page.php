@@ -94,7 +94,7 @@
             </section>
             <section class="columnLayout midGap flexMin">
                 <section class="box centerColumnLayout roundedMid minGap flexMin">
-                    <h3 id="selectedStaffName">No Staff Selected</h3>
+                    <h4 id="selectedStaffName" class="centerHoriRowLayout minGap">No Staff Selected</h4>
                     <b class="leftStart rowLayout tinGap hidden">Roles:
                         <span id="rolesText" class="capitalFirst">Admin, Artist</span>
                     </b>
@@ -132,6 +132,8 @@
     const userRoles = <?php echo json_encode($userRoles); ?>;
     const roleGovernance = <?php echo json_encode($roleGovernance); ?>;
     const userProcessTaskList = <?php echo json_encode($userProcessTaskList); ?>;
+    const userStatsList = <?php echo json_encode($userStatsList); ?>;
+    const userActivityLogsList = <?php echo json_encode($userActivityLogsList); ?>;
 
     const userRolesMap = {};
 
@@ -164,6 +166,30 @@
         });
     });
 
+    const userStatsMap = {};
+
+    userStatsList.forEach(item => {
+        userStatsMap[item.userID] = {
+            tasksCompleted: item.tasksCompleted,
+            tasksCompletedDuration: item.tasksCompletedDuration
+        };
+    });
+
+    const userActivityLogsMap = {};
+
+    userActivityLogsList.forEach(item => {
+        if (!userActivityLogsMap[item.userID]) {
+            userActivityLogsMap[item.userID] = [];
+        }
+
+        userActivityLogsMap[item.userID].push({
+            head: item.head,
+            log: item.log,
+            color: item.color,
+            loggedAt: item.loggedAt
+        });
+    });
+
     const noGrants = [];
 
     roleGovernance.forEach(item => {
@@ -176,8 +202,12 @@
     let id;
     let selectedUserRoles;
     let selectedUserTasks;
+    let selectedUserStats;
+    let selectedUserActivityLogs;
     let governances;
     let governanceRules;
+    let tempDiv;
+    let tempElement;
 
     document.addEventListener("DOMContentLoaded", () => {
         confirmationCancel.value = "No Cancel";
@@ -197,11 +227,75 @@
 
                 selectedID.value = elem.dataset.id;
 
-                nameDisplay.textContent = name;
+                nameDisplay.innerHTML = name + '<img src="../../Shared/Img/StatsIcon.png" alt="Stats" class="unitHeight clickable" id="userStatsButton">';
                 nameDisplay.style.alignSelf = 'baseline';
 
                 selectedUserRoles = [...(userRolesMap[id] || [])];
                 selectedUserTasks = [...(userProcessTaskMap[id] || [])];
+                selectedUserStats = userStatsMap[id];
+                selectedUserActivityLogs = [...(userActivityLogsMap[id] || [])];
+
+                document.getElementById('userStatsButton').addEventListener('click', function() {
+                    confirmationTitle.innerHTML = "Staff Performance Statistics";
+                    confirmationText.innerHTML = "Here the performance statistics of " + name + ".";
+                    confirmationSubmit.classList.add("hidden");
+
+                    tempDiv = document.createElement("div");
+                    tempDiv.className = "tempElement";
+                    confirmationForm.appendChild(tempDiv);
+
+                    tempElement = document.createElement("h5");
+                    tempElement.textContent = 'Tasks Completed (#): ' + selectedUserStats.tasksCompleted;
+                    tempDiv.appendChild(tempElement);
+
+                    const avgTaskDuration = selectedUserStats.tasksCompleted != 0 ? (selectedUserStats.tasksCompletedDuration / selectedUserStats.tasksCompleted).toFixed(2) : 0;
+
+                    tempElement = document.createElement("h5");
+                    tempElement.textContent = 'Average Task Duration: ' + avgTaskDuration + ' minutes';
+                    tempDiv.appendChild(tempElement);
+
+                    tempElement = document.createElement("h4");
+                    tempElement.textContent = 'User Activity Log: ';
+                    tempDiv.appendChild(tempElement);
+
+                    const taskHistoryContainer = document.createElement("div");
+                    taskHistoryContainer.className = "maxMaxHeight scrollable regMinPadding columnLayout minGap";
+                    tempDiv.appendChild(taskHistoryContainer);
+
+                    selectedUserActivityLogs.forEach((activity) => {
+                        tempElement = document.createElement("div");
+                        tempElement.className = "centerColumnLayout roundedTin regTinPadding shadowed fitHeight fullWidth";
+                        tempElement.innerHTML = `
+                            <h5 class="centerText minHoriPadding">${activity.log}</h5>
+                            <h6>${formatDateTime(activity.loggedAt)}</h6>
+                        `;
+                        taskHistoryContainer.appendChild(tempElement);
+
+                        switch (activity.color) {
+                            case 'red':
+                                tempElement.classList.add("redTransBG", "redBorder");
+                                break;
+                            case 'yellow':
+                                tempElement.classList.add("yellowTransBG", "yellowBorder");
+                                break;
+                            case 'green':
+                                tempElement.classList.add("greenTransBG", "greenBorder");
+                                break;
+                            default:
+                                tempElement.classList.add("darkFadedBG", "bordered");
+                                break;
+                        }
+                    });
+
+                    if (selectedUserActivityLogs.length == 0) {
+                        tempElement = document.createElement("div");
+                        tempElement.className = "centerColumnLayout roundedTin regTinPadding shadowed fullWidth darkFadedBG bordered";
+                        tempElement.innerHTML = `<h5 class="centerText minHoriPadding">No User Activity</h5>`;
+                        taskHistoryContainer.appendChild(tempElement);
+                    }
+
+                    confirmation.style.display = 'flex';
+                });
 
                 governances = roleGovernance.filter(gov =>
                     selectedUserRoles.some(role => role.roleID === gov.roleSubjectID)
@@ -269,7 +363,7 @@
                     <h6>Subservice: ${task.subserviceName}</h6>
                     <h6>Task: ${task.processName}</h6>
                     <h6>Customer: ${task.customerName}</h6>
-                    <h6>Assigned At: ${formatDate(task.assignedAt)}</h6>
+                    <h6>Assigned At: ${formatDateTime(task.assignedAt)}</h6>
                 </div>
             `;
             taskListContainer.appendChild(tempElement);
@@ -307,7 +401,6 @@
     let choiceRolesContainer;
     let currentRoles;
     let choiceRoles;
-    let tempElement;
     let tempRoleDiv;
     let tempRoleTitle;
     let tempRoleXButton;
@@ -449,6 +542,7 @@
     // Added cancellation events
     confirmationCancel.addEventListener('click', function() {
         confirmationForm.parentElement.classList.add("minGap");
+        confirmationSubmit.classList.remove("hidden");
 
         document.querySelectorAll('.tempElement').forEach(function(elem) {
             elem.remove();
@@ -457,12 +551,13 @@
 
     confirmationBG.addEventListener('click', function() {
         confirmationForm.parentElement.classList.add("minGap");
+        confirmationSubmit.classList.remove("hidden");
 
         document.querySelectorAll('.tempElement').forEach(function(elem) {
             elem.remove();
         });
     });
 </script>
-<script src="../.JS/AutoRefresher.js"></script>
+<!-- <script src="../.JS/AutoRefresher.js"></script> -->
 
 </html>

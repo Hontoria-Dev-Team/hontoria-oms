@@ -51,10 +51,19 @@ CREATE TABLE userImages (
 );
 
 CREATE TABLE userStats (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    userID BIGINT UNSIGNED NOT NULL,
+    userID BIGINT UNSIGNED NOT NULL PRIMARY KEY,
     tasksCompleted INT UNSIGNED,
     tasksCompletedDuration DECIMAL(11, 2) UNSIGNED,
+    FOREIGN KEY (userID) REFERENCES users(id)
+);
+
+CREATE TABLE userActivityLog (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    userID BIGINT UNSIGNED NOT NULL,
+    head VARCHAR(25) NOT NULL,
+    log VARCHAR(150) NOT NULL,
+    color VARCHAR(25) NOT NULL,
+    loggedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (userID) REFERENCES users(id)
 );
 
@@ -204,6 +213,7 @@ CREATE TABLE userProcessTasks (
     orderProcessID BIGINT UNSIGNED NOT NULL,
     status VARCHAR(20) DEFAULT 'pending',
     assignedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completedAt TIMESTAMP NULL,
     PRIMARY KEY (userID, orderProcessID),
     FOREIGN KEY (userID) REFERENCES users(id),
     FOREIGN KEY (orderProcessID) REFERENCES orderProcess(id)

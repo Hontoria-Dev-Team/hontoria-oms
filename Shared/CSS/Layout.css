@@ -242,6 +242,10 @@
     max-height: 50% !important;
 }
 
+.maxMaxHeight {
+    max-height: 20rem !important;
+}
+
 .gridCenterVertFlex {
     display: flex;
     flex-wrap: wrap;

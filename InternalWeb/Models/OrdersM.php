@@ -133,15 +133,51 @@ class OrdersM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getOrderProcesseeByID($id) {
+        $query = "
+            SELECT
+                orderProcess.orderID,
+                processes.id AS processID,
+                processes.name AS processName,
+                orderProcess.phase,
+                orderProcess.minAssign,
+                orderProcess.maxAssign,
+                orderProcess.status,
+                COUNT(userProcessTasks.orderProcessID) AS assignedNum
+            FROM orderProcess
+            JOIN orders ON orderProcess.orderID = orders.id
+            JOIN subservices ON orders.subserviceID = subservices.id
+            JOIN serviceProcess
+                ON subservices.serviceID = serviceProcess.serviceID
+                AND orderProcess.phase = serviceProcess.phase
+            JOIN processes ON serviceProcess.processesID = processes.id
+            LEFT JOIN userProcessTasks
+                ON orderProcess.id = userProcessTasks.orderProcessID
+            WHERE orderProcess.id = :id
+            GROUP BY
+                orderProcess.id,
+                orderProcess.orderID
+            ORDER BY orderProcess.phase
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function getAssignedUsersToOrderByID($id) {
         $query = "
             SELECT
+                users.id,
                 users.firstName,
                 users.middleName,
                 users.lastName,
                 processes.name AS processName,
                 orderProcess.phase,
-                userProcessTasks.assignedAt
+                userProcessTasks.assignedAt,
+                userProcessTasks.completedAt
             FROM userProcessTasks
             JOIN users
                 ON userProcessTasks.userID = users.id
@@ -343,6 +379,49 @@ class OrdersM {
     }
 
     public function insertUserProcessTask($userID, $orderProcessID) {
+        $process = $this->getOrderProcesseeByID($orderProcessID);
+
+        if ($_SESSION['id'] == $userID) {
+            $this->insertUserActivityLog(
+                $userID,
+                'task assignment',
+                'Self-Assigned to ' . $process['processName'] . ' Order #' . $process['orderID'] . '.',
+                'yellow'
+            );
+        } else {
+            $query = "SELECT firstName, middleName, lastName FROM users WHERE id = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $userID);
+            $stmt->execute();
+
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $middleInitial = $user['middleName'] ? substr($user['middleName'], 0, 1) . '. ' : '';
+            $userFullName = $user['firstName'] . ' ' . $middleInitial . $user['lastName'];
+
+            $query = "SELECT firstName, middleName, lastName FROM users WHERE id = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $_SESSION['id']);
+            $stmt->execute();
+
+            $_user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $_middleInitial = $_user['middleName'] ? substr($_user['middleName'], 0, 1) . '. ' : '';
+            $_userFullName = $_user['firstName'] . ' ' . $_middleInitial . $_user['lastName'];
+
+            $this->insertUserActivityLog(
+                $userID,
+                'task assignment',
+                'Assigned to ' . $process['processName'] . ' Order #' . $process['orderID'] . ' by ' . $_userFullName . '.',
+                'yellow'
+            );
+
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'task assigning',
+                'Assigned ' . $userFullName . ' to ' . $process['processName'] . ' Order #' . $process['orderID'],
+                'yellow'
+            );
+        }
+
         $query = "INSERT INTO userProcessTasks (userID, orderProcessID) VALUES (:userID, :orderProcessID)";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':userID', $userID);
@@ -351,6 +430,49 @@ class OrdersM {
     }
 
     public function removeUserProcessTask($userID, $orderProcessID) {
+        $process = $this->getOrderProcesseeByID($orderProcessID);
+
+        if ($_SESSION['id'] == $userID) {
+            $this->insertUserActivityLog(
+                $userID,
+                'task unassignment',
+                'Self-Unassigned to ' . $process['processName'] . ' Order #' . $process['orderID'] . '.',
+                'red'
+            );
+        } else {
+            $query = "SELECT firstName, middleName, lastName FROM users WHERE id = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $userID);
+            $stmt->execute();
+
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $middleInitial = $user['middleName'] ? substr($user['middleName'], 0, 1) . '. ' : '';
+            $userFullName = $user['firstName'] . ' ' . $middleInitial . $user['lastName'];
+
+            $query = "SELECT firstName, middleName, lastName FROM users WHERE id = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $_SESSION['id']);
+            $stmt->execute();
+
+            $_user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $_middleInitial = $_user['middleName'] ? substr($_user['middleName'], 0, 1) . '. ' : '';
+            $_userFullName = $_user['firstName'] . ' ' . $_middleInitial . $_user['lastName'];
+
+            $this->insertUserActivityLog(
+                $userID,
+                'task unassignment',
+                'Unassigned to ' . $process['processName'] . ' Order #' . $process['orderID'] . ' by ' . $_userFullName . '.',
+                'red'
+            );
+
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'task unassigning',
+                'Unassigned ' . $userFullName . ' to ' . $process['processName'] . ' Order #' . $process['orderID'],
+                'red'
+            );
+        }
+
         $query = "DELETE FROM userProcessTasks WHERE userID = :userID AND orderProcessID = :orderProcessID";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':userID', $userID);
@@ -376,12 +498,16 @@ class OrdersM {
     }
 
     public function updateUserProcessTaskStatus($userID, $orderProcessID, $status) {
-        $query = "UPDATE userProcessTasks SET status = :status WHERE userID = :userID AND orderProcessID = :orderProcessID";
+        $query = strtolower($status) == 'complete' ?
+            "UPDATE userProcessTasks SET status = :status, completedAt = NOW() WHERE userID = :userID AND orderProcessID = :orderProcessID" :
+            "UPDATE userProcessTasks SET status = :status WHERE userID = :userID AND orderProcessID = :orderProcessID";
+
         $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':status', $status);
-        $stmt->bindParam(':userID', $userID);
-        $stmt->bindParam(':orderProcessID', $orderProcessID);
-        $stmt->execute();
+        $stmt->execute([
+            ':status' => $status,
+            ':userID' => $userID,
+            ':orderProcessID' => $orderProcessID
+        ]);
 
         return $this->updateOrderProcess($orderProcessID);
     }
@@ -561,6 +687,9 @@ class OrdersM {
                 return "Error: This order is not yet ready to be archived. Current status: " . $order['status'];
             }
 
+            // Log Verification
+            $this->insertUserActivityLog($_SESSION['id'], 'order verification', 'Verified Order #' . $id . '.', 'green');
+
             // Insert into orderArchive
             $query = "
                 INSERT INTO orderArchive
@@ -626,6 +755,30 @@ class OrdersM {
                         ':processPhase' => $assignee['phase'],
                         ':assignedAt' => $assignee['assignedAt']
                     ]);
+
+                    $durationInMinutes = abs(strtotime($assignee['completedAt']) - strtotime($assignee['assignedAt'])) / 60;
+
+                    // Log Assignees Completing tasks
+                    $this->insertUserActivityLog(
+                        $assignee['id'],
+                        'task completion',
+                        'Completed the ' . $assignee['processName'] . ' Order #' . $id . ' task in ' . number_format($durationInMinutes, 2) . ' minutes.',
+                        'green'
+                    );
+
+                    // Update Assignees Stats
+                    $query = "
+                        UPDATE userStats
+                        SET
+                            tasksCompleted = tasksCompleted + 1,
+                            tasksCompletedDuration = tasksCompletedDuration + :taskCompletedDuration
+                        WHERE userID = :id
+                    ";
+                    $_stmt = $this->pdo->prepare($query);
+                    $_stmt->execute([
+                        ':id' => $assignee['id'],
+                        ':taskCompletedDuration' => $durationInMinutes
+                    ]);
                 }
             }
 
@@ -667,5 +820,16 @@ class OrdersM {
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function insertUserActivityLog($userID, $head, $log, $color) {
+        $query = "INSERT INTO userActivityLog (userID, head, log, color) VALUES (:userID, :head, :log, :color)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute([
+            ':userID' => $userID,
+            ':head' => strtolower($head),
+            ':log' => $log,
+            ':color' => strtolower($color)
+        ]);
     }
 }

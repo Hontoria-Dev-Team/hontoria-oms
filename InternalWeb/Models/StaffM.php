@@ -708,4 +708,18 @@ class StaffM {
 
         return $map;
     }
+
+    public function getAllUserStats() {
+        $query = "SELECT * FROM userStats";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllUserActivityLogs() {
+        $query = "SELECT * FROM userActivityLog ORDER BY loggedAt DESC";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

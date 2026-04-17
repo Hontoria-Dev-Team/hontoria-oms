@@ -67,6 +67,8 @@ class AuthorizationC {
         $roleGovernance = $this->staffModel->getRoleManagementGovernance($this->staffModel->getUserRoles($_SESSION['id']));
         $userProcessTaskList = $this->staffModel->getAllUserProcessTasksDetailed();
         $accountImageMap = $this->staffModel->getAllAccountImagesMapped();
+        $userStatsList = $this->staffModel->getAllUserStats();
+        $userActivityLogsList = $this->staffModel->getAllUserActivityLogs();
 
         if ($search !== '' || $status !== '') {
             $staffList = $this->staffModel->getfilteredStaff($search, $status);
