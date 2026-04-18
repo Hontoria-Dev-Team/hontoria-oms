@@ -18,20 +18,21 @@ TRUNCATE TABLE subserviceImages;
 TRUNCATE TABLE subservices;
 TRUNCATE TABLE services;
 TRUNCATE TABLE users;
+TRUNCATE TABLE userStats;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Seed users first
 INSERT INTO users (id, username, email, passwordHash, firstName, middleName, lastName, phone, createdAt, lastLoginAt) VALUES
-(1, 'owner', 'owner@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Juan', 'Carlos', 'Dela Cruz', '+639171234567', '2025-01-01 00:00:00', '2026-02-20 08:30:00'),
-(2, 'ana', 'ana@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ana', 'Marie', 'Santos', '+639171111111', '2025-01-05 00:00:00', '2026-02-21 09:00:00'),
-(3, 'ben', 'ben@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ben', 'Joseph', 'Reyes', '+639172222222', '2025-01-10 00:00:00', '2026-02-21 08:45:00'),
-(4, 'carlo', 'carlo@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Carlo', 'Antonio', 'Gonzales', '+639173333333', '2025-01-15 00:00:00', '2026-02-21 10:15:00'),
-(5, 'diana', 'diana@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Diana', 'Lopez', 'Bautista', '+639174444444', '2025-01-20 00:00:00', '2026-02-20 16:30:00'),
-(6, 'edu', 'edu@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Eduardo', 'Martin', 'Torres', '+639175555555', '2025-01-25 00:00:00', '2026-02-21 07:30:00'),
-(7, 'fátima', 'fatima@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Fátima', 'Cruz', 'Gomez', '+639176666666', '2025-02-01 00:00:00', '2026-02-21 11:00:00'),
-(8, 'gab', 'gab@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Gabriel', 'Santos', 'Diaz', '+639177777777', '2025-02-05 00:00:00', '2026-02-20 14:20:00'),
-(9, 'hannah', 'hannah@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Hannah', 'Rose', 'Mendoza', '+639178888888', '2025-02-10 00:00:00', '2026-02-21 09:45:00'),
-(10, 'ian', 'ian@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ian', 'Patrick', 'Cruz', '+639179999999', '2025-02-15 00:00:00', '2026-02-21 08:00:00');
+(1, 'owner', 'juan.delacruz@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Juan', 'Carlos', 'Dela Cruz', '09123456789', '2025-01-01 00:00:00', '2026-02-20 08:30:00'),
+(2, 'ana', 'ana.santos@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ana', 'Marie', 'Santos', '09123456780', '2025-01-05 00:00:00', '2026-02-21 09:00:00'),
+(3, 'ben', 'ben.reyes@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ben', 'Joseph', 'Reyes', '09123456781', '2025-01-10 00:00:00', '2026-02-21 08:45:00'),
+(4, 'carlo', 'carlo.gonzales@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Carlo', 'Antonio', 'Gonzales', '09123456782', '2025-01-15 00:00:00', '2026-02-21 10:15:00'),
+(5, 'diana', 'diana.bautista@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Diana', 'Lopez', 'Bautista', '09123456783', '2025-01-20 00:00:00', '2026-02-20 16:30:00'),
+(6, 'edu', 'eduardo.torres@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Eduardo', 'Martin', 'Torres', '09123456784', '2025-01-25 00:00:00', '2026-02-21 07:30:00'),
+(7, 'fatima', 'fatima.gomez@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Fátima', 'Cruz', 'Gomez', '09123456785', '2025-02-01 00:00:00', '2026-02-21 11:00:00'),
+(8, 'gab', 'gabriel.diaz@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Gabriel', 'Santos', 'Diaz', '09123456786', '2025-02-05 00:00:00', '2026-02-20 14:20:00'),
+(9, 'hannah', 'hannah.mendoza@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Hannah', 'Rose', 'Mendoza', '09123456787', '2025-02-10 00:00:00', '2026-02-21 09:45:00'),
+(10, 'ian', 'ian.cruz@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ian', 'Patrick', 'Cruz', '09123456788', '2025-02-15 00:00:00', '2026-02-21 08:00:00');
 
 -- Seed user stats
 INSERT INTO userStats (userID, tasksCompleted, tasksCompletedDuration) VALUES
