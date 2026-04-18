@@ -115,7 +115,7 @@ class AuthorizationC {
         $error = null;
 
         if ($user) {
-            $this->staffModel->updateOnlineStatus($user['id'], true);
+            // $this->staffModel->updateOnlineStatus($user['id'], true);
 
             session_regenerate_id(true);
             $_SESSION['id'] = $user['id'];
@@ -126,7 +126,7 @@ class AuthorizationC {
             $_SESSION['logged_in'] = true;
 
             $this->getPermissions();
-            $this->staffModel->updateLastLogin($user['id']);
+            // $this->staffModel->updateLastLogin($user['id']);
             header('Location: index.php?page=dashboard');
             exit;
         } else {
@@ -468,15 +468,15 @@ class AuthorizationC {
     }
 
     public function logout() {
-        $this->staffModel->updateOnlineStatus($_SESSION['id'], false);
+        // $this->staffModel->updateOnlineStatus($_SESSION['id']);
         session_start();
         session_destroy();
         header('Location: index.php?page=login');
         exit;
     }
 
-    public function keepOnline() {
-        $this->staffModel->updateOnlineStatus($_SESSION['id'], true);
+    public function refreshLastActiveAt() {
+        $this->staffModel->updateLastActiveAt($_SESSION['id']);
     }
 
     public function uploadAccountImage() {

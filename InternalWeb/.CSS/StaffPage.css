@@ -1,4 +1,4 @@
-.staffElement {
+/* .staffElement {
     border: 0.05rem solid var(--red);
     cursor: pointer;
 }
@@ -45,7 +45,7 @@
 
 div:has(#createButton) {
     position: relative;
-}
+} */
 
 /* #deleteConfirmation {
     position: absolute;

@@ -1,4 +1,4 @@
-INSERT INTO users (id, username, email, passwordHash, firstName, middleName, lastName, phone, createdAt, lastLoginAt) VALUES
+INSERT INTO users (id, username, email, passwordHash, firstName, middleName, lastName, phone, createdAt, lastActivityAt) VALUES
 (1, 'owner', 'owner@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Juan', 'Carlos', 'Dela Cruz', '+639171234567', '2025-01-01 00:00:00', '2026-02-20 08:30:00'),
 (2, 'ana', 'ana@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ana', 'Marie', 'Santos', '+639171111111', '2025-01-05 00:00:00', '2026-02-21 09:00:00'),
 (3, 'ben', 'ben@company.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Ben', 'Joseph', 'Reyes', '+639172222222', '2025-01-10 00:00:00', '2026-02-21 08:45:00'),

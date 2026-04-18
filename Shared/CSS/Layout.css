@@ -76,6 +76,11 @@
     width: 100% !important;
 }
 
+.fitDimensions {
+    height: fit-content !important;
+    width: fit-content !important;
+}
+
 .leftAlign {
     align-items: baseline;
 }

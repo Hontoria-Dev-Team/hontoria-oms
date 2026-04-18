@@ -7,8 +7,6 @@ CREATE TABLE users (
     middleName VARCHAR(100) NULL,
     lastName VARCHAR(100) NOT NULL,
     phone VARCHAR(20) NOT NULL,
-    isActive BOOLEAN DEFAULT FALSE,
-    isOnline BOOLEAN DEFAULT FALSE,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastLoginAt TIMESTAMP NULL
+    lastActivityAt TIMESTAMP NULL
 );

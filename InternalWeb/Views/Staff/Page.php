@@ -61,30 +61,64 @@
                             <?php
                             $fullName = trim("{$staff['firstName']} " . ($staff['middleName'] ? substr($staff['middleName'], 0, 1) . '.' : '') . " {$staff['lastName']}");
                             $taskCount = $userTaskCountMap[$staff['id']] ?? 0;
-                            $status = $staff['isOnline'] ? ($taskCount > 0 ? 'Active' : 'Idle') : 'Offline';
-                            $statusClass = $staff['isOnline'] ? ($taskCount > 0 ? 'active' : 'idle') : '';
+                            $status = $taskCount > 0 ? 'Busy' : 'Idle';
+                            $statusColor = $taskCount > 0 ? '--yellowTrans' : '--redTrans';
+                            $staffElementBorder = $taskCount > 0 ? 'yellowBorder' : 'redBorder';
+                            $statusBG = $taskCount > 0 ? 'yellowBG' : 'redBG';
                             $roles = $userRolesMap[$staff['id']] ?? [];
                             $rolesText = !empty($roles) ? implode(', ', $roles) : 'Unset Role';
-                            $bgClass = $staff['isOnline'] ? ($taskCount > 0 ? 'yellowTransBG' : 'darkFadedBG') : 'redTransBG';
                             $userImage = isset($accountImageMap[$staff['id']]) ?
                                 "../../Storage/AccountImages/" . $accountImageMap[$staff['id']] : "../../Shared/Img/PersonIcon.png";
                             $userImageStyle = isset($accountImageMap[$staff['id']]) ?
                                 "imageCoverFull" : "";
+
+                            $activityStatus = "Active now";
+                            $activityStatusBG = "yellowBG";
+                            $activityStatusColor = '--yellowTrans';
+                            $lastActivity = strtotime($staff['lastActivityAt']);
+                            $now = time();
+                            $diff = $now - $lastActivity; // seconds
+
+                            if ($diff < 60) {
+                                $activityStatus = "Active now";
+                            } elseif ($diff < 3600) { // less than 1 hour
+                                $minutes = floor($diff / 60);
+                                $activityStatus = "Active {$minutes} min ago";
+                                $activityStatusBG = "redBG";
+                                $activityStatusColor = '--redTrans';
+                            } elseif ($diff < 86400) { // less than 24 hours
+                                $hours = floor($diff / 3600);
+                                $activityStatus = "Active {$hours} hr ago";
+                                $activityStatusBG = "redBG";
+                                $activityStatusColor = '--redTrans';
+                            } else {
+                                $days = floor($diff / 86400);
+                                $activityStatus = "Active {$days} day" . ($days > 1 ? "s" : "") . " ago";
+                                $activityStatusBG = "redBG";
+                                $activityStatusColor = '--redTrans';
+                            }
+
+                            $staffElementBG = "background: linear-gradient(to top, var(" . $statusColor . "), var(" . $activityStatusColor . ")) !important;"
                             ?>
-                            <div class="minHeight minPadding roundedMin rowLayout minGap flexStatic staffElement shadowed <?= $statusClass ?> <?= $bgClass ?>"
+                            <div class="minHeight minPadding roundedMin rowLayout minGap flexStatic staffElement shadowed <?= $staffElementBorder ?>"
+                                style="<?= $staffElementBG ?>"
                                 data-id="<?= $staff['id'] ?>" data-name="<?= htmlspecialchars($fullName) ?>" data-roles="<?= $rolesText ?>"
                                 data-phone="<?= $staff['phone'] ?>" data-email="<?= $staff['email'] ?>">
-                                <div class="flexMid roundedMin centerColumnLayout grayBG shadowed fixedScreen">
+                                <div class="flexMin roundedMin centerColumnLayout grayBG shadowed fixedScreen">
                                     <img src="<?= $userImage ?>" alt="User Photo" class="<?= $userImageStyle ?> squareSize">
                                 </div>
-                                <div class="flexMax centerHoriColumnLayout">
+                                <div class="flexMid centerHoriColumnLayout">
                                     <h5><?= htmlspecialchars($fullName) ?></h5>
-                                    <h6 class="capitalFirst">Last Online: 15 minutes ago</h6>
                                     <h6 class="capitalFirst">(<?= $rolesText ?>)</h6>
                                     <h6 class="capitalFirst">Tasks: <?= $taskCount ?></h6>
                                 </div>
-                                <div class="flexMin status roundedMin minPadding centerColumnLayout shadowed">
-                                    <h5><?= $status ?></h5>
+                                <div class="souEastAbsolute closeCorner rowLayout tinGap">
+                                    <h5 class="status roundedTin fitDimensions minHoriPadding shadowed whiteText <?= $statusBG ?>">
+                                        <?= $status ?>
+                                    </h5>
+                                    <h5 class="roundedTin whiteText fitDimensions minHoriPadding shadowed <?= $activityStatusBG ?>">
+                                        <?= $activityStatus ?>
+                                    </h5>
                                 </div>
                             </div>
                         <?php endforeach; ?>

@@ -7,7 +7,7 @@ class StaffM {
     }
 
     public function findSingleStaff($username) {
-        $query = "SELECT id, username, email, passwordHash, firstName, middleName, lastName, phone, isActive, lastLoginAt
+        $query = "SELECT id, username, email, passwordHash, firstName, middleName, lastName, phone, createdAt, lastActivityAt
                   FROM users
                   WHERE username = :username
                   LIMIT 1";
@@ -20,7 +20,7 @@ class StaffM {
     }
 
     public function getAccount($id) {
-        $query = "SELECT username, email, passwordHash, firstName, middleName, lastName, phone, isActive, lastLoginAt
+        $query = "SELECT username, email, passwordHash, firstName, middleName, lastName, phone, createdAt, lastActivityAt
                   FROM users
                   WHERE id = :id
                   LIMIT 1";
@@ -47,15 +47,18 @@ class StaffM {
     }
 
     public function getStaffList() {
-        $query = "SELECT id, username, firstName, middleName, lastName, isActive, isOnline, phone, email
-                  FROM users
-                  ORDER BY
-                  CASE
-                      WHEN isActive = 1 AND isOnline = 1 THEN 1
-                      WHEN isActive = 0 AND isOnline = 1 THEN 2
-                      ELSE 3
-                  END,
-                  firstName, lastName";
+        $query = "
+            SELECT id, username, firstName, middleName, lastName, phone, email, createdAt, lastActivityAt
+            FROM users
+            ORDER BY
+                CASE
+                    WHEN lastActivityAt >= NOW() - INTERVAL 15 MINUTE THEN 1
+                    ELSE 2
+                END,
+                firstName,
+                lastName,
+                lastActivityAt DESC
+        ";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
@@ -64,32 +67,32 @@ class StaffM {
     }
 
     public function getfilteredStaff($search, $status) {
-        $where = "(CONCAT(firstName,' ',middleName,' ',lastName) LIKE :query)";
+        $where = "(CONCAT(firstName,' ',middleName,' ',lastName) LIKE :query OR username LIKE :query)";
 
         if ($status !== '') {
             switch ($status) {
                 case 'active':
-                    $where .= ' AND isActive = 1 AND isOnline = 1';
+                    $where .= " AND lastActivityAt >= DATE_SUB(NOW(), INTERVAL 15 MINUTE)";
                     break;
-                case 'idle':
-                    $where .= ' AND isActive = 0 AND isOnline = 1';
-                    break;
-                case 'offline':
-                    $where .= ' AND isOnline = 0';
+                case 'inactive':
+                    $where .= " AND (lastActivityAt IS NULL OR lastActivityAt < DATE_SUB(NOW(), INTERVAL 15 MINUTE))";
                     break;
             }
         }
 
-        $sql = "SELECT id, username, firstName, middleName, lastName, isActive, isOnline, phone, email
+        $sql = "
+            SELECT id, username, firstName, middleName, lastName, phone, email, createdAt, lastActivityAt
             FROM users
             WHERE {$where}
             ORDER BY
-            CASE
-                WHEN isActive = 1 AND isOnline = 1 THEN 1
-                WHEN isActive = 0 AND isOnline = 1 THEN 2
-                ELSE 3
-            END,
-            firstName, lastName";
+                CASE
+                    WHEN lastActivityAt >= NOW() - INTERVAL 15 MINUTE THEN 1
+                    ELSE 2
+                END,
+                firstName,
+                lastName,
+                lastActivityAt DESC
+        ";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':query', $search . '%');
@@ -98,18 +101,22 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function updateLastLogin($userId) {
-        $query = "UPDATE users SET lastLoginAt = NOW() WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $userId);
-        return $stmt->execute();
-    }
+    // public function updateLastLogin($userId) {
+    //     $query = "UPDATE users SET lastActivityAt = NOW() WHERE id = :id";
+    //     $stmt = $this->pdo->prepare($query);
+    //     $stmt->bindParam(':id', $userId);
+    //     return $stmt->execute();
+    // }
 
-    public function updateOnlineStatus($userId, $status) {
-        $query = "UPDATE users SET isOnline = :onlineStatus WHERE id = :id";
+    // public function updateOnlineStatus($userId, $status) {
+    //     // The isOnline field was removed from the users table. Use lastActivityAt updates instead.
+    //     return false;
+    // }
+
+    public function updateLastActiveAt() {
+        $query = "UPDATE users SET lastActivityAt = NOW() WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $userId);
-        $stmt->bindParam(':onlineStatus', $status);
+        $stmt->bindParam(':id', $_SESSION['id']);
         return $stmt->execute();
     }
 
