@@ -47,7 +47,7 @@ class StaffM {
     }
 
     public function getStaffList() {
-        $query = "SELECT id, username, firstName, middleName, lastName, isActive, isOnline
+        $query = "SELECT id, username, firstName, middleName, lastName, isActive, isOnline, phone, email
                   FROM users
                   ORDER BY
                   CASE
@@ -80,7 +80,7 @@ class StaffM {
             }
         }
 
-        $sql = "SELECT id, username, firstName, middleName, lastName, isActive, isOnline
+        $sql = "SELECT id, username, firstName, middleName, lastName, isActive, isOnline, phone, email
             FROM users
             WHERE {$where}
             ORDER BY

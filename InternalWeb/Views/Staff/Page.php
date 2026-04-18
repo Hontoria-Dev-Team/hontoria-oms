@@ -12,6 +12,14 @@
     <main class="columnLayout midGap">
         <h1 class="titleLogo minGap tinHeight">
             <img src="../../Shared/Img/PeopleIcon.png" alt="People"> Staff Panel
+            <div class="rowLayout minGap flexMax contentFlexEnd">
+                <?php if (in_array("canCreateUserAccounts", $_SESSION['permissions'])): ?>
+                    <a href="index.php?page=staff&action=create" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText shadowed">Create Staff</a>
+                <?php endif; ?>
+                <?php if (in_array("canAlterAccountRoles", $_SESSION['permissions'])): ?>
+                    <a href="index.php?page=staff&action=manageRoles" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText shadowed">Manage Roles</a>
+                <?php endif; ?>
+            </div>
         </h1>
         <?php include("../Views/.Components/MessageBox.php"); ?>
         <section class="rowLayout flexMax midGap">
@@ -42,7 +50,7 @@
 
                         <input type="submit" value="Search" class="importantInput">
                     </form>
-                    <section class="minGap scrollable gridFlexMid regMinPadding" id="staffList">
+                    <section class="minGap scrollable gridFlexMid regMinPadding flexMax contentFlexStart" id="staffList">
                         <?php
                         $userRolesMap = [];
                         foreach ($userRoles as $role) {
@@ -64,7 +72,8 @@
                                 "imageCoverFull" : "";
                             ?>
                             <div class="minHeight minPadding roundedMin rowLayout minGap flexStatic staffElement shadowed <?= $statusClass ?> <?= $bgClass ?>"
-                                data-id="<?= $staff['id'] ?>" data-name="<?= htmlspecialchars($fullName) ?>" data-roles="<?= $rolesText ?>">
+                                data-id="<?= $staff['id'] ?>" data-name="<?= htmlspecialchars($fullName) ?>" data-roles="<?= $rolesText ?>"
+                                data-phone="<?= $staff['phone'] ?>" data-email="<?= $staff['email'] ?>">
                                 <div class="flexMid roundedMin centerColumnLayout grayBG shadowed fixedScreen">
                                     <img src="<?= $userImage ?>" alt="User Photo" class="<?= $userImageStyle ?> squareSize">
                                 </div>
@@ -79,31 +88,13 @@
                                 </div>
                             </div>
                         <?php endforeach; ?>
-                        <div class="tinHeight"></div>
                     </section>
-                    <div class="rowLayout minGap souEastAbsolute">
-                        <?php if (in_array("canCreateUserAccounts", $_SESSION['permissions'])): ?>
-                            <a href="index.php?page=staff&action=create" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">Create Staff</a>
-                        <?php endif; ?>
-                        <?php if (in_array("canAlterAccountRoles", $_SESSION['permissions'])): ?>
-                            <a href="index.php?page=staff&action=manageRoles" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText">Manage Roles</a>
-                        <?php endif; ?>
-                    </div>
                 </div>
                 <div class="gradientBorderDiag"></div>
             </section>
             <section class="columnLayout midGap flexMin">
-                <section class="box centerColumnLayout roundedMid minGap flexMin">
-                    <h4 id="selectedStaffName" class="centerHoriRowLayout minGap">No Staff Selected</h4>
-                    <b class="leftStart rowLayout tinGap hidden">Roles:
-                        <span id="rolesText" class="capitalFirst">Admin, Artist</span>
-                    </b>
-                    <div class="rowLayout fullWidth minGap hidden" id="staffActions">
-                        <button type="button" class="importantInput flexMax" id="modifyRolesButton">Modify Roles</button>
-                        <button type="button" class="criticalInput centerColumnLayout" id="deleteButton">
-                            <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
-                        </button>
-                    </div>
+                <section class="box centerColumnLayout roundedMid minGap flexMin" id="userInfoContainer">
+                    <h4>No Staff Selected</h4>
                     <div class="gradientBorderDiag"></div>
                 </section>
                 <section class="box centerColumnLayout roundedMid flexMid noBasis noMinHeight minGap">
@@ -122,11 +113,7 @@
 <script src="../.JS/DueTimeCalculator.js"></script>
 <script>
     const staffElements = document.querySelectorAll('.staffElement');
-    const nameDisplay = document.getElementById('selectedStaffName');
-    const staffActionsstaffActions = document.getElementById('staffActions');
-    const rolesText = document.getElementById('rolesText');
-    const modifyRolesButton = document.getElementById('modifyRolesButton');
-    const deleteButton = document.getElementById('deleteButton');
+    const userInfoContainer = document.getElementById('userInfoContainer');
     const taskListContainer = document.getElementById('taskListContainer');
     const roles = <?php echo json_encode($roleList); ?>;
     const userRoles = <?php echo json_encode($userRoles); ?>;
@@ -218,6 +205,19 @@
     selectedID.name = "selectedID";
     confirmationForm.appendChild(selectedID);
 
+    const deletedID = document.createElement("input");
+    deletedID.type = "hidden";
+    deletedID.name = "deletedID";
+    confirmationForm.appendChild(deletedID);
+
+    let currentRolesContainer;
+    let choiceRolesContainer;
+    let currentRoles;
+    let choiceRoles;
+    let tempRoleDiv;
+    let tempRoleTitle;
+    let tempRoleXButton;
+
     // Reactive clickable employee data script
     document.addEventListener('DOMContentLoaded', function() {
         staffElements.forEach(function(elem) {
@@ -227,8 +227,31 @@
 
                 selectedID.value = elem.dataset.id;
 
-                nameDisplay.innerHTML = name + '<img src="../../Shared/Img/StatsIcon.png" alt="Stats" class="unitHeight clickable" id="userStatsButton">';
-                nameDisplay.style.alignSelf = 'baseline';
+                userInfoContainer.innerHTML = `
+                    <h5 class="leftStart centerHoriRowLayout minGap">
+                        ${name} <img src="../../Shared/Img/StatsIcon.png" alt="Stats" class="unitHeight clickable" id="userStatsButton">
+                    </h5>
+                    <h6 class="leftStart rowLayout tinGap">Roles:
+                        <span id="rolesText" class="capitalFirst"></span>
+                    </h6>
+                    <span class="leftStart">
+                        <h6 class="centerHoriRowLayout tinGap">
+                            <img src="../../Shared/Img/PhoneIcon.png" alt="Phone" class="unitHeight">
+                            : ${elem.dataset.phone}
+                        </h6>
+                        <h6 class="centerHoriRowLayout tinGap">
+                            <img src="../../Shared/Img/MailIcon.png" alt="Mail" class="unitHeight">
+                            : ${elem.dataset.email}
+                        </h6>
+                    </span>
+                    <div class="rowLayout fullWidth minGap" id="staffActions">
+                        <button type="button" class="importantInput flexMax" id="modifyRolesButton">Modify Roles</button>
+                        <button type="button" class="criticalInput centerColumnLayout" id="deleteButton">
+                            <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
+                        </button>
+                    </div>
+                    <div class="gradientBorderDiag"></div>
+                `;
 
                 selectedUserRoles = [...(userRolesMap[id] || [])];
                 selectedUserTasks = [...(userProcessTaskMap[id] || [])];
@@ -308,8 +331,9 @@
                     canDelete: governances.every(role => role.canDelete == 1) ? 1 : 0
                 };
 
-                rolesText.parentElement.classList.remove("hidden");
-                staffActions.classList.remove("hidden");
+                const modifyRolesButton = document.getElementById('modifyRolesButton');
+                const rolesText = document.getElementById('rolesText');
+                const deleteButton = document.getElementById('deleteButton');
 
                 if (governanceRules.canGrant || governanceRules.canRevoke) {
                     modifyRolesButton.classList.remove("unclickable", "faded");
@@ -324,6 +348,57 @@
                 }
 
                 rolesText.textContent = elem.dataset.roles;
+
+                deleteButton.addEventListener('click', function() {
+                    confirmationForm.action = "index.php?page=staff&action=delete"
+
+                    confirmationTitle.innerHTML = "Delete Account?";
+                    confirmationText.innerHTML = "Are you sure to delete the account of:<br>" + name + "?";
+                    confirmationSubmit.value = "Yes Delete";
+                    confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
+
+                    deletedID.value = id;
+
+                    confirmation.style.display = 'flex';
+                });
+
+                modifyRolesButton.addEventListener('click', function() {
+                    confirmationForm.action = "index.php?page=staff&action=setRoles"
+                    confirmationForm.parentElement.classList.remove("minGap");
+
+                    confirmationTitle.innerHTML = "Modify Account Roles";
+                    confirmationText.innerHTML = "";
+
+                    currentRoles = [...(userRolesMap[id] || [])];
+
+                    choiceRolesContainer = document.createElement("div");
+                    choiceRolesContainer.id = "choiceRolesContainer";
+                    choiceRolesContainer.className = 'gridCenterVertFlex minGap tempElement';
+                    confirmationForm.appendChild(choiceRolesContainer);
+
+                    tempElement = document.createElement("b");
+                    tempElement.textContent = "All Roles:";
+                    tempElement.classList.add("tempElement");
+                    confirmationForm.appendChild(tempElement);
+
+                    currentRolesContainer = document.createElement("div");
+                    currentRolesContainer.id = "currentRolesContainer";
+                    currentRolesContainer.className = 'gridCenterVertFlex minGap tempElement';
+                    confirmationForm.appendChild(currentRolesContainer);
+
+                    setAssignedRoles();
+                    setChoiceRoles();
+
+                    tempElement = document.createElement("b");
+                    tempElement.textContent = "Assigned Roles:";
+                    tempElement.classList.add("tempElement");
+                    confirmationForm.appendChild(tempElement);
+
+                    confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
+                    confirmationSubmit.value = "Confirm Changes";
+
+                    confirmation.style.display = 'flex';
+                });
 
                 showTasks();
             });
@@ -376,72 +451,6 @@
             taskListContainer.appendChild(tempElement);
         }
     }
-
-    // Delete employee confirmation and logic script
-    const deletedID = document.createElement("input");
-    deletedID.type = "hidden";
-    deletedID.name = "deletedID";
-    confirmationForm.appendChild(deletedID);
-
-    deleteButton.addEventListener('click', function() {
-        confirmationForm.action = "index.php?page=staff&action=delete"
-
-        confirmationTitle.innerHTML = "Delete Account?";
-        confirmationText.innerHTML = "Are you sure to delete the account of:<br>" + name + "?";
-        confirmationSubmit.value = "Yes Delete";
-        confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
-
-        deletedID.value = id;
-
-        confirmation.style.display = 'flex';
-    });
-
-    // Change User Role Box Function logic
-    let currentRolesContainer;
-    let choiceRolesContainer;
-    let currentRoles;
-    let choiceRoles;
-    let tempRoleDiv;
-    let tempRoleTitle;
-    let tempRoleXButton;
-
-    modifyRolesButton.addEventListener('click', function() {
-        confirmationForm.action = "index.php?page=staff&action=setRoles"
-        confirmationForm.parentElement.classList.remove("minGap");
-
-        confirmationTitle.innerHTML = "Modify Account Roles";
-        confirmationText.innerHTML = "";
-
-        currentRoles = [...(userRolesMap[id] || [])];
-
-        choiceRolesContainer = document.createElement("div");
-        choiceRolesContainer.id = "choiceRolesContainer";
-        choiceRolesContainer.className = 'gridCenterVertFlex minGap tempElement';
-        confirmationForm.appendChild(choiceRolesContainer);
-
-        tempElement = document.createElement("b");
-        tempElement.textContent = "All Roles:";
-        tempElement.classList.add("tempElement");
-        confirmationForm.appendChild(tempElement);
-
-        currentRolesContainer = document.createElement("div");
-        currentRolesContainer.id = "currentRolesContainer";
-        currentRolesContainer.className = 'gridCenterVertFlex minGap tempElement';
-        confirmationForm.appendChild(currentRolesContainer);
-
-        setAssignedRoles();
-        setChoiceRoles();
-
-        tempElement = document.createElement("b");
-        tempElement.textContent = "Assigned Roles:";
-        tempElement.classList.add("tempElement");
-        confirmationForm.appendChild(tempElement);
-
-        confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
-        confirmationSubmit.value = "Confirm Changes";
-
-        confirmation.style.display = 'flex';
-    });
 
     function setAssignedRoles() {
         currentRolesContainer.innerHTML = '';
