@@ -252,8 +252,8 @@ CREATE TABLE orderDesignArchive (
 
 CREATE TABLE orderGroupArchive (
     orderArchiveID BIGINT UNSIGNED NOT NULL,
-    DESCRIPTION VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
     units INT UNSIGNED NOT NULL,
-    PRIMARY KEY (orderArchiveID, DESCRIPTION),
+    PRIMARY KEY (orderArchiveID, description),
     FOREIGN KEY (orderArchiveID) REFERENCES orderArchive(id)
 );
