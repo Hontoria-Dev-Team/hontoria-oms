@@ -75,6 +75,14 @@ class ServicesM {
             return "Error: Service name already exists.";
         }
 
+        // Log Service Creation
+        $this->insertUserActivityLog(
+            $_SESSION['id'],
+            'service creation',
+            'Created a new service called ' . ucfirst($name) . '.',
+            'yellow'
+        );
+
         $query = "INSERT INTO services (name) VALUES (:name);";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':name', $name);
@@ -92,6 +100,14 @@ class ServicesM {
 
         try {
             $this->pdo->beginTransaction();
+
+            // Log Service Deletion
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'service deletion',
+                'Deleted the ' . ucfirst($this->getServiceByID($id)['name']) . ' service.',
+                'red'
+            );
 
             // Get all subservices for this service
             $subservices = $this->getSubservices($id);
@@ -154,6 +170,25 @@ class ServicesM {
             return "Error: The service has no active subservices to be activated.";
         }
 
+        $service = $this->getServiceByID($id);
+
+        // Log Service Status Toggle
+        if ($service['isActive']) {
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'service deactivation',
+                'Deactivated the ' . ucfirst($service['name']) . ' service.',
+                'red'
+            );
+        } else {
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'service activation',
+                'Activated the ' . ucfirst($service['name']) . ' service.',
+                'yellow'
+            );
+        }
+
         $query = "UPDATE services SET isActive = !isActive WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
@@ -170,6 +205,25 @@ class ServicesM {
             return "Error: The service cannot be edited since it is active.";
         }
 
+        $service = $this->getServiceByID($id);
+
+        // Log design capability Toggle
+        if ($service['hasDesign']) {
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'service objectives',
+                'Made the ' . ucfirst($service['name']) . ' service not to require a design.',
+                'red'
+            );
+        } else {
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'service objectives',
+                'Made the ' . ucfirst($service['name']) . ' service to require a design.',
+                'yellow'
+            );
+        }
+
         $query = "UPDATE services SET hasDesign = !hasDesign WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
@@ -184,6 +238,25 @@ class ServicesM {
             return "Error: The service cannot be edited since it has active orders.";
         } else if ($this->getServiceByID($id)['isActive'] == 1) {
             return "Error: The service cannot be edited since it is active.";
+        }
+
+        $service = $this->getServiceByID($id);
+
+        // Log design capability Toggle
+        if ($service['hasVariableList']) {
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'service objectives',
+                'Made the ' . ucfirst($service['name']) . ' service not to require a variable list.',
+                'red'
+            );
+        } else {
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'service objectives',
+                'Made the ' . ucfirst($service['name']) . ' service to require a variable list.',
+                'yellow'
+            );
         }
 
         $query = "UPDATE services SET hasVariableList = !hasVariableList WHERE id = :id";
@@ -224,6 +297,14 @@ class ServicesM {
         } else if ($this->getServiceByID($id)['isActive'] == 1) {
             return "Error: The service cannot be edited since it is active.";
         }
+
+        // Log updating service process
+        $this->insertUserActivityLog(
+            $_SESSION['id'],
+            'service process',
+            'Modified the service process of the ' . ucfirst($this->getServiceByID($id)['name']) . ' service.',
+            'yellow'
+        );
 
         $this->clearServiceProcess($id);
 
@@ -279,6 +360,17 @@ class ServicesM {
         return $stmt->fetch(PDO::FETCH_COLUMN);
     }
 
+    // Check if a process exists by id
+    public function getSingleProcessByID($id) {
+        $query = "SELECT name FROM processes WHERE id = :id";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_COLUMN);
+    }
+
     // Process Operations
 
     // Insert a new process, checking for duplicates
@@ -288,6 +380,14 @@ class ServicesM {
         if ($process) {
             return false;
         }
+
+        // Log process creation
+        $this->insertUserActivityLog(
+            $_SESSION['id'],
+            'process creation',
+            'Created a new process called ' . ucfirst($name) . '.',
+            'yellow'
+        );
 
         $query = "INSERT INTO processes (name) VALUES (:name);";
         $stmt = $this->pdo->prepare($query);
@@ -312,6 +412,14 @@ class ServicesM {
             return "Error: Cannot delete this process because it is in use in one or more services";
         }
 
+        // Log process deletion
+        $this->insertUserActivityLog(
+            $_SESSION['id'],
+            'process deletion',
+            'Deleted the ' . ucfirst($this->getSingleProcessByID($id)) . ' process.',
+            'red'
+        );
+
         // Remove role associations
         $query = "DELETE FROM roleProcessTasks WHERE processID = :id";
         $stmt = $this->pdo->prepare($query);
@@ -329,6 +437,14 @@ class ServicesM {
 
     // Update process settings
     public function updateProcess($id, $minAssignDefault, $maxAssignDefault, $hasGCAccess, $designAccess, $variableListAccess) {
+        // Log process update
+        $this->insertUserActivityLog(
+            $_SESSION['id'],
+            'process update',
+            'Updated the ' . ucfirst($this->getSingleProcessByID($id)) . ' process.',
+            'yellow'
+        );
+
         $query = "UPDATE processes
                   SET minAssignDefault = :minAssignDefault,
                       maxAssignDefault = :maxAssignDefault,
@@ -440,6 +556,14 @@ class ServicesM {
             return "Error: Service name already exists.";
         }
 
+        // Log Subservice Creation
+        $this->insertUserActivityLog(
+            $_SESSION['id'],
+            'subservice creation',
+            'Created a new subservice called ' . ucfirst($name) . ' under the ' . ucfirst($this->getServiceByID($serviceID)['name']) . ' service.',
+            'yellow'
+        );
+
         $query = "INSERT INTO subservices (name, serviceID, pricePerUnit) VALUES
             (:name, :serviceID, 1);";
         $stmt = $this->pdo->prepare($query);
@@ -461,6 +585,16 @@ class ServicesM {
 
         try {
             $this->pdo->beginTransaction();
+
+            $subservice = $this->getSubservice($id);
+
+            // Log Subservice Deletion
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'subservice deletion',
+                'Deleted the ' . ucfirst($subservice['name']) . ' subservice under the ' . ucfirst($this->getServiceByID($subservice['serviceID'])['name']) . ' service.',
+                'red'
+            );
 
             // Get all images for this subservice
             $query = "SELECT imageName FROM subserviceImages WHERE subserviceID = :id";
@@ -509,6 +643,25 @@ class ServicesM {
             return "Error: The subservice cannot be disabled since it is the last active subservice.";
         }
 
+        $subservice = $this->getSubservice($id);
+
+        // Log Subservice Status Toggle
+        if ($result == 1) {
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'subservice deactivation',
+                'Deactivated the ' . ucfirst($subservice['name']) . ' subservice under the ' . ucfirst($this->getServiceByID($subservice['serviceID'])['name']) . ' service.',
+                'red'
+            );
+        } else {
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'subservice activation',
+                'Activated the ' . ucfirst($subservice['name']) . ' subservice under the ' . ucfirst($this->getServiceByID($subservice['serviceID'])['name']) . ' service.',
+                'yellow'
+            );
+        }
+
         $query = "UPDATE subservices SET isActive = !isActive WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
@@ -519,6 +672,16 @@ class ServicesM {
 
     // Update subservice price and description
     public function updateSubserviceInfo($id, $pricePerUnit, $description) {
+        $subservice = $this->getSubservice($id);
+
+        // Log subservice update
+        $this->insertUserActivityLog(
+            $_SESSION['id'],
+            'subservice update',
+            'Updated the ' . ucfirst($subservice['name']) . ' subservice under the ' . ucfirst($this->getServiceByID($subservice['serviceID'])['name']) . ' service.',
+            'yellow'
+        );
+
         $query = "UPDATE subservices SET pricePerUnit = :pricePerUnit, description = :description WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
@@ -632,6 +795,17 @@ class ServicesM {
                 ]);
             }
 
+            $subservice = $this->getSubservice($subserviceID);
+
+            // Log subservice image upload
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'subservice update',
+                'Uploaded ' . count($images['name']) . ' image/s to the ' . ucfirst($subservice['name']) . ' subservice under the ' .
+                    ucfirst($this->getServiceByID($subservice['serviceID'])['name']) . ' service.',
+                'yellow'
+            );
+
             return "Success: Upload successful.";
         } catch (PDOException $e) {
             // Clean up files if database insert fails
@@ -650,7 +824,7 @@ class ServicesM {
     public function deleteSubserviceImage($id) {
         try {
             // Get the image filename
-            $query = "SELECT imageName FROM subserviceImages WHERE id = :id";
+            $query = "SELECT subserviceID, imageName FROM subserviceImages WHERE id = :id";
             $stmt = $this->pdo->prepare($query);
             $stmt->bindParam(':id', $id);
             $stmt->execute();
@@ -678,9 +852,32 @@ class ServicesM {
                 return "Error: Failed to delete database record.";
             }
 
+            $subservice = $this->getSubservice($image['subserviceID']);
+
+            // Log subservice image upload
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'subservice update',
+                'Deleted an image from the ' . ucfirst($subservice['name']) . ' subservice under the ' .
+                    ucfirst($this->getServiceByID($subservice['serviceID'])['name']) . ' service.',
+                'red'
+            );
+
             return "Success: Deletion successful.";
         } catch (PDOException $e) {
             return "Error: Failed. " . $e->getMessage();
         }
+    }
+
+    // Activity Logging
+    public function insertUserActivityLog($userID, $head, $log, $color) {
+        $query = "INSERT INTO userActivityLog (userID, head, log, color) VALUES (:userID, :head, :log, :color)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute([
+            ':userID' => $userID,
+            ':head' => strtolower($head),
+            ':log' => $log,
+            ':color' => strtolower($color)
+        ]);
     }
 }
