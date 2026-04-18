@@ -41,7 +41,7 @@
 
                         <input type="submit" value="Search" class="importantInput">
                     </form>
-                    <section class="minGap gridFlexMid scrollable flexMax regMinPadding" id="orderList">
+                    <section class="contentFlexStart minGap gridFlexMid scrollable flexMax regMinPadding" id="orderList">
                         <?php foreach ($orderList as $order): ?>
                             <?php
                             $activeProcesses = "";
@@ -61,24 +61,24 @@
                             $statusStyleClass = $order['status'] === "Active" ?
                                 "yellowBG" : ($order['status'] === "Idle" ? "redBG" : "greenBG clickable");
                             ?>
-                            <div class="midHeight regPadding roundedMin centerHoriColumnLayout minGap flexStatic orderElement shadowed clickable <?= $divBgClass ?>"
+                            <div class="fitHeight regPadding roundedMin centerHoriColumnLayout tinGap flexStatic orderElement shadowed clickable <?= $divBgClass ?>"
                                 data-id="<?= $order['id'] ?>" data-due="<?= $order['deadlineAt'] ?>" data-customer="<?= $order['customerName'] ?>">
-                                <p class="norWestAbsolute closeCorner transText">Order #<?= $order['id'] ?></p>
-                                <div class="orderStatusElement souEastAbsolute minPadding roundedMin shadowed emphasizedText whiteText <?= $statusStyleClass ?>"
+                                <h5 class="norWestAbsolute closeCorner transText">Order #<?= $order['id'] ?></h5>
+                                <div class="orderStatusElement souEastAbsolute minPadding roundedMin shadowed whiteText <?= $statusStyleClass ?>"
                                     data-status="<?= $order['status'] ?>" data-id="<?= $order['id'] ?>">
-                                    <?= $order['status'] ?>
+                                    <h4><?= $order['status'] ?></h4>
                                 </div>
-                                <h2 class="centerHoriRowLayout tinGap"><?= $order['subserviceName'] ?> <?= $order['serviceName'] ?> <b>(<?= $order['customerName'] ?>)</b></h2>
+                                <h3><?= $order['subserviceName'] ?> <?= $order['serviceName'] ?></h3>
                                 <div class="columnLayout">
-                                    <b>Due In: <span class="dueInText" data-due-date="<?= $order['deadlineAt'] ?>"></span></b>
-                                    <b>Value: ₱<?= $order['priceTotal'] ?></b>
-                                    <b>Current Process: <?= $activeProcesses ?></b>
-                                    <b class="centerHoriRowLayout tinGap"><img src="../../Shared/Img/PeopleIcon.png" alt="People" class="unitHeight">
-                                        Assigned: <?= $assigneeCount ?></b>
+                                    <h5>Customer: <?= $order['customerName'] ?></span></h5>
+                                    <h5>Due In: <span class="dueInText" data-due-date="<?= $order['deadlineAt'] ?>"></span></h5>
+                                    <h5>Value: ₱<?= $order['priceTotal'] ?></h5>
+                                    <h5>Current Process: <?= $activeProcesses ?></h5>
+                                    <h5 class="centerHoriRowLayout tinGap"><img src="../../Shared/Img/PeopleIcon.png" alt="People" class="unitHeight">
+                                        Assigned: <?= $assigneeCount ?></h5>
                                 </div>
                             </div>
                         <?php endforeach; ?>
-                        <div class="tinHeight"></div>
                     </section>
                 </div>
                 <div class="gradientBorderDiag"></div>
@@ -86,7 +86,7 @@
             <section class="centerRowLayout midGap flexMin roundedMid">
                 <section class="centerColumnLayout roundedMid flexMid fullHeight">
                     <section class="box roundedMid fullDimensions centerHoriColumnLayout minGap">
-                        <h3 class="centerRowLayout tinGap centerText fullWidth" id="selectedText">No Service Selected</h3>
+                        <h4 class="centerRowLayout tinGap centerText fullWidth" id="selectedText">No Service Selected</h4>
                         <form method="POST" action="index.php?page=orders&action=changeDeadline" class="centerHoriRowLayout minGap hidden" id="deadlineForm">
                             <label for="deadlineAt" class="minWidth">Due Date</label>
                             <input type="date" name="deadlineAt" class="fullWidth" id="deadlineAt">
