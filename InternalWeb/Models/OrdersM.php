@@ -688,7 +688,11 @@ class OrdersM {
             }
 
             // Log Verification
-            $this->insertUserActivityLog($_SESSION['id'], 'order verification', 'Verified Order #' . $id . '.', 'green');
+            if ($isCompleted) {
+                $this->insertUserActivityLog($_SESSION['id'], 'order verification', 'Verified Order #' . $id . '.', 'green');
+            } else {
+                $this->insertUserActivityLog($_SESSION['id'], 'order deletion', 'Deleted Order #' . $id . '.', 'red');
+            }
 
             // Insert into orderArchive
             $query = "
