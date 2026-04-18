@@ -149,3 +149,21 @@ b {
         opacity: 0;
     }
 }
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+}
+
+/* For Chrome/Safari/Edge */
+*::-webkit-scrollbar {
+    width: 2px;
+}
+
+*::-webkit-scrollbar-track {
+    border-radius: 1px;
+}
+
+*::-webkit-scrollbar-thumb {
+    border-radius: 1px;
+}
