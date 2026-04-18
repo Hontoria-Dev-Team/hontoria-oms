@@ -112,36 +112,44 @@
 <script src="../.JS/ConfirmationBox.js"></script>
 <script src="../.JS/DueTimeCalculator.js"></script>
 <script>
+    /**
+     * Staff Management Page Script
+     * Handles staff selection, role assignment, task tracking, performance stats, and activity logs.
+     * Depends on global confirmation dialog elements (confirmationForm, confirmationTitle, etc.)
+     */
+
+    // ================================
+    // DOM Elements (static, can be const)
+    // ================================
     const staffElements = document.querySelectorAll('.staffElement');
     const userInfoContainer = document.getElementById('userInfoContainer');
     const taskListContainer = document.getElementById('taskListContainer');
-    const roles = <?php echo json_encode($roleList); ?>;
-    const userRoles = <?php echo json_encode($userRoles); ?>;
-    const roleGovernance = <?php echo json_encode($roleGovernance); ?>;
-    const userProcessTaskList = <?php echo json_encode($userProcessTaskList); ?>;
-    const userStatsList = <?php echo json_encode($userStatsList); ?>;
-    const userActivityLogsList = <?php echo json_encode($userActivityLogsList); ?>;
 
-    const userRolesMap = {};
+    // ================================
+    // Server Data (injected via PHP)
+    // ================================
+    const roles = <?php echo json_encode($roleList); ?>; // [{id, name}, ...]
+    const userRoles = <?php echo json_encode($userRoles); ?>; // [{userID, roleID, name}, ...]
+    const roleGovernance = <?php echo json_encode($roleGovernance); ?>; // [{roleSubjectID, roleAgentID, canGrant, canRevoke, canAlter, canDelete}, ...]
+    const userProcessTaskList = <?php echo json_encode($userProcessTaskList); ?>; // array of task objects
+    const userStatsList = <?php echo json_encode($userStatsList); ?>; // [{userID, tasksCompleted, tasksCompletedDuration}, ...]
+    const userActivityLogsList = <?php echo json_encode($userActivityLogsList); ?>; // [{userID, head, log, color, loggedAt}, ...]
 
+    // ================================
+    // Build Lookup Maps
+    // ================================
+    const userRolesMap = {}; // userID -> array of {name, roleID}
     userRoles.forEach(item => {
-        if (!userRolesMap[item.userID]) {
-            userRolesMap[item.userID] = [];
-        }
-
+        if (!userRolesMap[item.userID]) userRolesMap[item.userID] = [];
         userRolesMap[item.userID].push({
             name: item.name,
             roleID: item.roleID
         });
     });
 
-    const userProcessTaskMap = {};
-
+    const userProcessTaskMap = {}; // userID -> array of task objects
     userProcessTaskList.forEach(item => {
-        if (!userProcessTaskMap[item.userID]) {
-            userProcessTaskMap[item.userID] = [];
-        }
-
+        if (!userProcessTaskMap[item.userID]) userProcessTaskMap[item.userID] = [];
         userProcessTaskMap[item.userID].push({
             status: item.status,
             assignedAt: item.assignedAt,
@@ -153,8 +161,7 @@
         });
     });
 
-    const userStatsMap = {};
-
+    const userStatsMap = {}; // userID -> {tasksCompleted, tasksCompletedDuration}
     userStatsList.forEach(item => {
         userStatsMap[item.userID] = {
             tasksCompleted: item.tasksCompleted,
@@ -162,13 +169,9 @@
         };
     });
 
-    const userActivityLogsMap = {};
-
+    const userActivityLogsMap = {}; // userID -> array of activity objects
     userActivityLogsList.forEach(item => {
-        if (!userActivityLogsMap[item.userID]) {
-            userActivityLogsMap[item.userID] = [];
-        }
-
+        if (!userActivityLogsMap[item.userID]) userActivityLogsMap[item.userID] = [];
         userActivityLogsMap[item.userID].push({
             head: item.head,
             log: item.log,
@@ -177,394 +180,416 @@
         });
     });
 
-    const noGrants = [];
+    // ================================
+    // Helper: Determine which roles cannot be granted (canGrant = 0)
+    // ================================
+    const noGrants = roleGovernance.filter(g => g.canGrant == 0).map(g => g.roleSubjectID);
 
-    roleGovernance.forEach(item => {
-        if (item.canGrant == 0) {
-            noGrants.push(item.roleSubjectID);
-        }
-    });
+    // ================================
+    // Global State Variables (current selected user)
+    // ================================
+    let currentUser = {
+        id: null,
+        name: '',
+        phone: '',
+        email: '',
+        roles: [],
+        tasks: [],
+        stats: null,
+        activityLogs: []
+    };
 
-    let name;
-    let id;
-    let selectedUserRoles;
-    let selectedUserTasks;
-    let selectedUserStats;
-    let selectedUserActivityLogs;
-    let governances;
-    let governanceRules;
-    let tempDiv;
+    let governanceRules = {
+        canGrant: 0,
+        canRevoke: 0,
+        canAlter: 0,
+        canDelete: 0
+    };
+
+    // ================================
+    // Reusable temporary variables (matching the pattern from Services page)
+    // ================================
     let tempElement;
+    let tempDiv;
 
-    document.addEventListener("DOMContentLoaded", () => {
-        confirmationCancel.value = "No Cancel";
-    });
+    // ================================
+    // UI Helpers
+    // ================================
+    function UpdateUserInfoDisplay(elem) {
+        const name = elem.dataset.name;
+        const id = elem.dataset.id;
+        const phone = elem.dataset.phone;
+        const email = elem.dataset.email;
+        const rolesText = elem.dataset.roles;
 
-    const selectedID = document.createElement("input");
-    selectedID.type = "hidden";
-    selectedID.name = "selectedID";
-    confirmationForm.appendChild(selectedID);
+        userInfoContainer.innerHTML = `
+        <h5 class="leftStart centerHoriRowLayout minGap">
+            ${name} <img src="../../Shared/Img/StatsIcon.png" alt="Stats" class="unitHeight clickable" id="userStatsButton">
+        </h5>
+        <h6 class="leftStart rowLayout tinGap">Roles:
+            <span id="rolesText" class="capitalFirst">${rolesText}</span>
+        </h6>
+        <span class="leftStart">
+            <h6 class="centerHoriRowLayout tinGap">
+                <img src="../../Shared/Img/PhoneIcon.png" alt="Phone" class="unitHeight">
+                : ${phone}
+            </h6>
+            <h6 class="centerHoriRowLayout tinGap">
+                <img src="../../Shared/Img/MailIcon.png" alt="Mail" class="unitHeight">
+                : ${email}
+            </h6>
+        </span>
+        <div class="rowLayout fullWidth minGap" id="staffActions">
+            <button type="button" class="importantInput flexMax" id="modifyRolesButton">Modify Roles</button>
+            <button type="button" class="criticalInput centerColumnLayout" id="deleteButton">
+                <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
+            </button>
+        </div>
+        <div class="gradientBorderDiag"></div>
+    `;
 
-    const deletedID = document.createElement("input");
-    deletedID.type = "hidden";
-    deletedID.name = "deletedID";
-    confirmationForm.appendChild(deletedID);
+        // Store current user data
+        currentUser.id = id;
+        currentUser.name = name;
+        currentUser.phone = phone;
+        currentUser.email = email;
+        currentUser.roles = [...(userRolesMap[id] || [])];
+        currentUser.tasks = [...(userProcessTaskMap[id] || [])];
+        currentUser.stats = userStatsMap[id] || {
+            tasksCompleted: 0,
+            tasksCompletedDuration: 0
+        };
+        currentUser.activityLogs = [...(userActivityLogsMap[id] || [])];
 
-    let currentRolesContainer;
-    let choiceRolesContainer;
-    let currentRoles;
-    let choiceRoles;
-    let tempRoleDiv;
-    let tempRoleTitle;
-    let tempRoleXButton;
+        // Update governance rules based on current user's roles
+        const userRoleIds = currentUser.roles.map(r => r.roleID);
+        const relevantGovernance = roleGovernance.filter(gov => userRoleIds.includes(gov.roleSubjectID));
+        governanceRules = {
+            canGrant: relevantGovernance.every(g => g.canGrant == 1) ? 1 : 0,
+            canRevoke: relevantGovernance.every(g => g.canRevoke == 1) ? 1 : 0,
+            canAlter: relevantGovernance.every(g => g.canAlter == 1) ? 1 : 0,
+            canDelete: relevantGovernance.every(g => g.canDelete == 1) ? 1 : 0
+        };
 
-    // Reactive clickable employee data script
-    document.addEventListener('DOMContentLoaded', function() {
-        staffElements.forEach(function(elem) {
-            elem.addEventListener('click', function() {
-                name = elem.dataset.name;
-                id = elem.dataset.id;
+        // Enable/disable action buttons based on permissions
+        const modifyBtn = document.getElementById('modifyRolesButton');
+        const deleteBtn = document.getElementById('deleteButton');
+        if (governanceRules.canGrant || governanceRules.canRevoke) {
+            modifyBtn.classList.remove('unclickable', 'faded');
+        } else {
+            modifyBtn.classList.add('unclickable', 'faded');
+        }
+        if (governanceRules.canDelete) {
+            deleteBtn.classList.remove('unclickable', 'faded');
+        } else {
+            deleteBtn.classList.add('unclickable', 'faded');
+        }
 
-                selectedID.value = elem.dataset.id;
+        // Attach event listeners for this user
+        document.getElementById('userStatsButton').addEventListener('click', ShowUserStatsModal);
+        modifyBtn.addEventListener('click', ShowRoleModificationModal);
+        deleteBtn.addEventListener('click', () => ShowDeleteConfirmation(id, name));
 
-                userInfoContainer.innerHTML = `
-                    <h5 class="leftStart centerHoriRowLayout minGap">
-                        ${name} <img src="../../Shared/Img/StatsIcon.png" alt="Stats" class="unitHeight clickable" id="userStatsButton">
-                    </h5>
-                    <h6 class="leftStart rowLayout tinGap">Roles:
-                        <span id="rolesText" class="capitalFirst"></span>
-                    </h6>
-                    <span class="leftStart">
-                        <h6 class="centerHoriRowLayout tinGap">
-                            <img src="../../Shared/Img/PhoneIcon.png" alt="Phone" class="unitHeight">
-                            : ${elem.dataset.phone}
-                        </h6>
-                        <h6 class="centerHoriRowLayout tinGap">
-                            <img src="../../Shared/Img/MailIcon.png" alt="Mail" class="unitHeight">
-                            : ${elem.dataset.email}
-                        </h6>
-                    </span>
-                    <div class="rowLayout fullWidth minGap" id="staffActions">
-                        <button type="button" class="importantInput flexMax" id="modifyRolesButton">Modify Roles</button>
-                        <button type="button" class="criticalInput centerColumnLayout" id="deleteButton">
-                            <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
-                        </button>
-                    </div>
-                    <div class="gradientBorderDiag"></div>
-                `;
+        ShowUserTasks();
+    }
 
-                selectedUserRoles = [...(userRolesMap[id] || [])];
-                selectedUserTasks = [...(userProcessTaskMap[id] || [])];
-                selectedUserStats = userStatsMap[id];
-                selectedUserActivityLogs = [...(userActivityLogsMap[id] || [])];
-
-                document.getElementById('userStatsButton').addEventListener('click', function() {
-                    confirmationTitle.innerHTML = "Staff Performance Statistics";
-                    confirmationText.innerHTML = "Here the performance statistics of " + name + ".";
-                    confirmationSubmit.classList.add("hidden");
-
-                    tempDiv = document.createElement("div");
-                    tempDiv.className = "tempElement";
-                    confirmationForm.appendChild(tempDiv);
-
-                    tempElement = document.createElement("h5");
-                    tempElement.textContent = 'Tasks Completed (#): ' + selectedUserStats.tasksCompleted;
-                    tempDiv.appendChild(tempElement);
-
-                    const avgTaskDuration = selectedUserStats.tasksCompleted != 0 ? (selectedUserStats.tasksCompletedDuration / selectedUserStats.tasksCompleted).toFixed(2) : 0;
-
-                    tempElement = document.createElement("h5");
-                    tempElement.textContent = 'Average Task Duration: ' + avgTaskDuration + ' minutes';
-                    tempDiv.appendChild(tempElement);
-
-                    tempElement = document.createElement("h4");
-                    tempElement.textContent = 'User Activity Log: ';
-                    tempDiv.appendChild(tempElement);
-
-                    const taskHistoryContainer = document.createElement("div");
-                    taskHistoryContainer.className = "maxMaxHeight scrollable regMinPadding columnLayout minGap";
-                    tempDiv.appendChild(taskHistoryContainer);
-
-                    selectedUserActivityLogs.forEach((activity) => {
-                        tempElement = document.createElement("div");
-                        tempElement.className = "centerColumnLayout roundedTin regTinPadding shadowed fitHeight fullWidth";
-                        tempElement.innerHTML = `
-                            <h5 class="centerText minHoriPadding">${activity.log}</h5>
-                            <h6>${formatDateTime(activity.loggedAt)}</h6>
-                        `;
-                        taskHistoryContainer.appendChild(tempElement);
-
-                        switch (activity.color) {
-                            case 'red':
-                                tempElement.classList.add("redTransBG", "redBorder");
-                                break;
-                            case 'yellow':
-                                tempElement.classList.add("yellowTransBG", "yellowBorder");
-                                break;
-                            case 'green':
-                                tempElement.classList.add("greenTransBG", "greenBorder");
-                                break;
-                            default:
-                                tempElement.classList.add("darkFadedBG", "bordered");
-                                break;
-                        }
-                    });
-
-                    if (selectedUserActivityLogs.length == 0) {
-                        tempElement = document.createElement("div");
-                        tempElement.className = "centerColumnLayout roundedTin regTinPadding shadowed fullWidth darkFadedBG bordered";
-                        tempElement.innerHTML = `<h5 class="centerText minHoriPadding">No User Activity</h5>`;
-                        taskHistoryContainer.appendChild(tempElement);
-                    }
-
-                    confirmation.style.display = 'flex';
-                });
-
-                governances = roleGovernance.filter(gov =>
-                    selectedUserRoles.some(role => role.roleID === gov.roleSubjectID)
-                );
-
-                governanceRules = {
-                    canGrant: governances.every(role => role.canGrant == 1) ? 1 : 0,
-                    canRevoke: governances.every(role => role.canRevoke == 1) ? 1 : 0,
-                    canAlter: governances.every(role => role.canAlter == 1) ? 1 : 0,
-                    canDelete: governances.every(role => role.canDelete == 1) ? 1 : 0
-                };
-
-                const modifyRolesButton = document.getElementById('modifyRolesButton');
-                const rolesText = document.getElementById('rolesText');
-                const deleteButton = document.getElementById('deleteButton');
-
-                if (governanceRules.canGrant || governanceRules.canRevoke) {
-                    modifyRolesButton.classList.remove("unclickable", "faded");
-                } else {
-                    modifyRolesButton.classList.add("unclickable", "faded");
-                }
-
-                if (governanceRules.canDelete) {
-                    deleteButton.classList.remove("unclickable", "faded");
-                } else {
-                    deleteButton.classList.add("unclickable", "faded");
-                }
-
-                rolesText.textContent = elem.dataset.roles;
-
-                deleteButton.addEventListener('click', function() {
-                    confirmationForm.action = "index.php?page=staff&action=delete"
-
-                    confirmationTitle.innerHTML = "Delete Account?";
-                    confirmationText.innerHTML = "Are you sure to delete the account of:<br>" + name + "?";
-                    confirmationSubmit.value = "Yes Delete";
-                    confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
-
-                    deletedID.value = id;
-
-                    confirmation.style.display = 'flex';
-                });
-
-                modifyRolesButton.addEventListener('click', function() {
-                    confirmationForm.action = "index.php?page=staff&action=setRoles"
-                    confirmationForm.parentElement.classList.remove("minGap");
-
-                    confirmationTitle.innerHTML = "Modify Account Roles";
-                    confirmationText.innerHTML = "";
-
-                    currentRoles = [...(userRolesMap[id] || [])];
-
-                    choiceRolesContainer = document.createElement("div");
-                    choiceRolesContainer.id = "choiceRolesContainer";
-                    choiceRolesContainer.className = 'gridCenterVertFlex minGap tempElement';
-                    confirmationForm.appendChild(choiceRolesContainer);
-
-                    tempElement = document.createElement("b");
-                    tempElement.textContent = "All Roles:";
-                    tempElement.classList.add("tempElement");
-                    confirmationForm.appendChild(tempElement);
-
-                    currentRolesContainer = document.createElement("div");
-                    currentRolesContainer.id = "currentRolesContainer";
-                    currentRolesContainer.className = 'gridCenterVertFlex minGap tempElement';
-                    confirmationForm.appendChild(currentRolesContainer);
-
-                    setAssignedRoles();
-                    setChoiceRoles();
-
-                    tempElement = document.createElement("b");
-                    tempElement.textContent = "Assigned Roles:";
-                    tempElement.classList.add("tempElement");
-                    confirmationForm.appendChild(tempElement);
-
-                    confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
-                    confirmationSubmit.value = "Confirm Changes";
-
-                    confirmation.style.display = 'flex';
-                });
-
-                showTasks();
-            });
-        });
-    });
-
-    // Task List Display logic function
-    function showTasks() {
+    // ================================
+    // Display User Tasks
+    // ================================
+    function ShowUserTasks() {
         taskListContainer.innerHTML = '';
 
-        selectedUserTasks.forEach((task) => {
-            tempElement = document.createElement("div");
-            tempElement.className = "centerHoriRowLayout minGap tinGap minPadding roundedMin shadowed";
-
-            let headerClass;
-
-            switch (task.status) {
-                case 'pending':
-                    tempElement.classList.add('redTransBG', 'redBorder');
-                    headerClass = 'redBG';
-                    break;
-                case 'partially complete':
-                    tempElement.classList.add('yellowTransBG', 'yellowBorder');
-                    headerClass = 'yellowBG';
-                    break;
-                case 'complete':
-                    tempElement.classList.add('greenTransBG', 'greenBorder');
-                    headerClass = 'greenBG';
-                    break;
-            }
-
-            tempElement.innerHTML = `
-                <h5 class="${headerClass} whiteText roundedMin minPadding shadowed tinWidth centerText">Order #${task.orderID}</h5>
-                <div class="columnLayout">
-                    <h6 class="capitalFirst">Status: ${task.status}</h6>
-                    <h6>Service: ${task.serviceName}</h6>
-                    <h6>Subservice: ${task.subserviceName}</h6>
-                    <h6>Task: ${task.processName}</h6>
-                    <h6>Customer: ${task.customerName}</h6>
-                    <h6>Assigned At: ${formatDateTime(task.assignedAt)}</h6>
-                </div>
-            `;
-            taskListContainer.appendChild(tempElement);
-        });
-
-        if (selectedUserTasks.length == 0) {
-            tempElement = document.createElement("h2");
-            tempElement.className = "centerMarginsSelf";
+        if (currentUser.tasks.length === 0) {
+            tempElement = document.createElement('h2');
+            tempElement.className = 'centerMarginsSelf';
             tempElement.textContent = 'No Tasks Assigned';
             taskListContainer.appendChild(tempElement);
-        }
-    }
-
-    function setAssignedRoles() {
-        currentRolesContainer.innerHTML = '';
-
-        document.querySelectorAll('.roleHiddenInput').forEach(function(elem) {
-            elem.remove();
-        });
-
-        if (currentRoles.length == 0) {
-            tempElement = document.createElement("h2");
-            tempElement.textContent = "Unset";
-            tempElement.className = "centerText";
-            currentRolesContainer.appendChild(tempElement);
+            return;
         }
 
-        for (let i = 0; i < currentRoles.length; i++) {
-            tempRoleDiv = document.createElement("div");
-            tempRoleDiv.className = "noShrink roundedMin centerRowLayout minGap yellowTransBG regMinPadding bordered";
+        currentUser.tasks.forEach(task => {
+            tempDiv = document.createElement('div');
+            tempDiv.className = 'centerHoriRowLayout minGap tinGap minPadding roundedMin shadowed';
 
-            tempRoleTitle = document.createElement("b");
-            tempRoleTitle.className = "flexMax centerText capitalFirst";
-            tempRoleTitle.textContent = currentRoles[i].name;
-            tempRoleDiv.appendChild(tempRoleTitle);
-
-            if (governanceRules.canRevoke) {
-                tempRoleXButton = document.createElement("a");
-                tempRoleXButton.className = "squareSize unitHeight centerColumnLayout roleRemove";
-                tempRoleXButton.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X">';
-                tempRoleXButton.dataset.index = i;
-                tempRoleDiv.appendChild(tempRoleXButton);
+            let headerClass = '';
+            if (task.status === 'pending') {
+                tempDiv.classList.add('redTransBG', 'redBorder');
+                headerClass = 'redBG';
+            } else if (task.status === 'partially complete') {
+                tempDiv.classList.add('yellowTransBG', 'yellowBorder');
+                headerClass = 'yellowBG';
+            } else if (task.status === 'complete') {
+                tempDiv.classList.add('greenTransBG', 'greenBorder');
+                headerClass = 'greenBG';
             }
 
-            roleHiddenInput = document.createElement("input");
-            roleHiddenInput.type = "hidden";
-            roleHiddenInput.name = "roleHiddenInput[]";
-            roleHiddenInput.className = "roleHiddenInput";
-            roleHiddenInput.value = currentRoles[i].roleID;
-            confirmationForm.appendChild(roleHiddenInput);
-
-            currentRolesContainer.appendChild(tempRoleDiv);
-        };
-
-        document.querySelectorAll('.roleRemove').forEach(function(elem) {
-            elem.addEventListener('click', function() {
-                currentRoles.splice(elem.dataset.index, 1);
-                setAssignedRoles();
-                setChoiceRoles();
-            });
+            tempDiv.innerHTML = `
+            <h5 class="${headerClass} whiteText roundedMin minPadding shadowed tinWidth centerText">Order #${task.orderID}</h5>
+            <div class="columnLayout">
+                <h6 class="capitalFirst">Status: ${task.status}</h6>
+                <h6>Service: ${task.serviceName}</h6>
+                <h6>Subservice: ${task.subserviceName}</h6>
+                <h6>Task: ${task.processName}</h6>
+                <h6>Customer: ${task.customerName}</h6>
+                <h6>Assigned At: ${formatDateTime(task.assignedAt)}</h6>
+            </div>
+        `;
+            taskListContainer.appendChild(tempDiv);
         });
     }
 
-    function setChoiceRoles() {
-        choiceRolesContainer.innerHTML = '';
-        choiceRoles = [];
+    // ================================
+    // Stats Modal (Performance + Activity Logs)
+    // ================================
+    function ShowUserStatsModal() {
+        confirmationTitle.innerHTML = 'Staff Performance Statistics';
+        confirmationText.innerHTML = `Here are the performance statistics of ${currentUser.name}.`;
+        confirmationSubmit.classList.add('hidden');
 
-        roles.forEach((item) => {
-            if (currentRoles.some(role => role.roleID === item.id)) return;
+        // Remove previous temporary elements
+        document.querySelectorAll('.tempElement').forEach(el => el.remove());
 
-            choiceRoles.push(item);
-        });
+        tempDiv = document.createElement('div');
+        tempDiv.className = 'tempElement';
+        confirmationForm.appendChild(tempDiv);
 
-        if (choiceRoles.length == 0) {
-            tempElement = document.createElement("h2");
-            tempElement.textContent = "No more available Roles";
-            tempElement.className = "centerText";
-            choiceRolesContainer.appendChild(tempElement);
+        const completed = currentUser.stats.tasksCompleted || 0;
+        const totalDuration = currentUser.stats.tasksCompletedDuration || 0;
+        const avgDuration = completed ? (totalDuration / completed).toFixed(2) : 0;
+
+        tempElement = document.createElement('h5');
+        tempElement.textContent = `Tasks Completed (#): ${completed}`;
+        tempDiv.appendChild(tempElement);
+
+        tempElement = document.createElement('h5');
+        tempElement.textContent = `Average Task Duration: ${avgDuration} minutes`;
+        tempDiv.appendChild(tempElement);
+
+        tempElement = document.createElement('h4');
+        tempElement.textContent = 'User Activity Log:';
+        tempDiv.appendChild(tempElement);
+
+        const logContainer = document.createElement('div');
+        logContainer.className = 'maxMaxHeight scrollable regMinPadding columnLayout minGap';
+        tempDiv.appendChild(logContainer);
+
+        if (currentUser.activityLogs.length === 0) {
+            tempDiv = document.createElement('div');
+            tempDiv.className = 'centerColumnLayout roundedTin regTinPadding shadowed fullWidth darkFadedBG bordered';
+            tempDiv.innerHTML = '<h5 class="centerText minHoriPadding">No User Activity</h5>';
+            logContainer.appendChild(tempDiv);
+        } else {
+            currentUser.activityLogs.forEach(activity => {
+                tempDiv = document.createElement('div');
+                tempDiv.className = 'centerColumnLayout roundedTin regTinPadding shadowed fitHeight fullWidth';
+                tempDiv.innerHTML = `
+                <h5 class="centerText minHoriPadding">${activity.log}</h5>
+                <h6>${formatDateTime(activity.loggedAt)}</h6>
+            `;
+                // Apply color class
+                if (activity.color === 'red') tempDiv.classList.add('redTransBG', 'redBorder');
+                else if (activity.color === 'yellow') tempDiv.classList.add('yellowTransBG', 'yellowBorder');
+                else if (activity.color === 'green') tempDiv.classList.add('greenTransBG', 'greenBorder');
+                else tempDiv.classList.add('darkFadedBG', 'bordered');
+                logContainer.appendChild(tempDiv);
+            });
         }
 
-        for (let i = 0; i < choiceRoles.length; i++) {
-            if (noGrants.includes(choiceRoles[i].id)) continue;
-
-            tempRoleDiv = document.createElement("div");
-            tempRoleDiv.className = "noShrink roundedMin centerRowLayout minGap darkFadedBG regMinPadding bordered clickable choiceRole";
-            tempRoleDiv.dataset.index = i;
-            tempRoleDiv.dataset.name = choiceRoles[i].name;
-            tempRoleDiv.dataset.id = choiceRoles[i].id;
-
-            tempRoleTitle = document.createElement("b");
-            tempRoleTitle.className = "flexMax centerText capitalFirst";
-            tempRoleTitle.textContent = choiceRoles[i].name;
-            tempRoleDiv.appendChild(tempRoleTitle);
-
-            choiceRolesContainer.appendChild(tempRoleDiv);
-        };
-
-        document.querySelectorAll('.choiceRole').forEach(function(elem) {
-            elem.addEventListener('click', function() {
-                currentRoles.push({
-                    name: elem.dataset.name,
-                    roleID: elem.dataset.id
-                });
-                setAssignedRoles();
-                setChoiceRoles();
-            });
-        });
+        confirmation.style.display = 'flex';
     }
 
-    // Added cancellation events
-    confirmationCancel.addEventListener('click', function() {
-        confirmationForm.parentElement.classList.add("minGap");
-        confirmationSubmit.classList.remove("hidden");
+    // ================================
+    // Role Modification Modal
+    // ================================
+    function ShowRoleModificationModal() {
+        if (!(governanceRules.canGrant || governanceRules.canRevoke)) return;
 
-        document.querySelectorAll('.tempElement').forEach(function(elem) {
-            elem.remove();
+        confirmationForm.action = 'index.php?page=staff&action=setRoles';
+        confirmationForm.parentElement.classList.remove('minGap');
+        confirmationTitle.innerHTML = 'Modify Account Roles';
+        confirmationText.innerHTML = '';
+        confirmationSubmit.classList.add('yellowBG', 'whiteText', 'noBorder');
+        confirmationSubmit.value = 'Confirm Changes';
+
+        // Remove old temp elements
+        document.querySelectorAll('.tempElement').forEach(el => el.remove());
+
+        // Create containers
+        const choiceRolesContainer = document.createElement('div');
+        choiceRolesContainer.id = 'choiceRolesContainer';
+        choiceRolesContainer.className = 'gridCenterVertFlex minGap tempElement';
+        confirmationForm.appendChild(choiceRolesContainer);
+
+        tempElement = document.createElement('b');
+        tempElement.textContent = 'All Roles:';
+        tempElement.classList.add('tempElement');
+        confirmationForm.appendChild(tempElement);
+
+        const currentRolesContainer = document.createElement('div');
+        currentRolesContainer.id = 'currentRolesContainer';
+        currentRolesContainer.className = 'gridCenterVertFlex minGap tempElement';
+        confirmationForm.appendChild(currentRolesContainer);
+
+        tempElement = document.createElement('b');
+        tempElement.textContent = 'Assigned Roles:';
+        tempElement.classList.add('tempElement');
+        confirmationForm.appendChild(tempElement);
+
+        // Store current roles array (mutable)
+        let currentRoles = [...currentUser.roles];
+
+        // Helper to render assigned roles
+        function RenderAssignedRoles() {
+            currentRolesContainer.innerHTML = '';
+            // Remove any hidden inputs with same name (from previous renders)
+            document.querySelectorAll('.roleHiddenInput').forEach(el => el.remove());
+
+            if (currentRoles.length === 0) {
+                tempElement = document.createElement('h2');
+                tempElement.textContent = 'Unset';
+                tempElement.className = 'centerText';
+                currentRolesContainer.appendChild(tempElement);
+            } else {
+                currentRoles.forEach((role, idx) => {
+                    tempDiv = document.createElement('div');
+                    tempDiv.className = 'noShrink roundedMin centerRowLayout minGap yellowTransBG regMinPadding bordered';
+
+                    tempElement = document.createElement('b');
+                    tempElement.className = 'flexMax centerText capitalFirst';
+                    tempElement.textContent = role.name;
+                    tempDiv.appendChild(tempElement);
+
+                    if (governanceRules.canRevoke) {
+                        const removeBtn = document.createElement('a');
+                        removeBtn.className = 'squareSize unitHeight centerColumnLayout roleRemove';
+                        removeBtn.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X">';
+                        removeBtn.dataset.index = idx;
+                        removeBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            currentRoles.splice(idx, 1);
+                            RenderAssignedRoles();
+                            RenderAvailableRoles();
+                        });
+                        tempDiv.appendChild(removeBtn);
+                    }
+
+                    // Hidden input to submit role ID
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'roleHiddenInput[]';
+                    hiddenInput.className = 'roleHiddenInput';
+                    hiddenInput.value = role.roleID;
+                    confirmationForm.appendChild(hiddenInput);
+
+                    currentRolesContainer.appendChild(tempDiv);
+                });
+            }
+        }
+
+        // Helper to render available roles (not yet assigned)
+        function RenderAvailableRoles() {
+            choiceRolesContainer.innerHTML = '';
+            const assignedIds = new Set(currentRoles.map(r => r.roleID));
+            const availableRoles = roles.filter(r => !assignedIds.has(r.id) && !noGrants.includes(r.id));
+
+            if (availableRoles.length === 0) {
+                tempElement = document.createElement('h2');
+                tempElement.textContent = 'No more available Roles';
+                tempElement.className = 'centerText';
+                choiceRolesContainer.appendChild(tempElement);
+            } else {
+                availableRoles.forEach(role => {
+                    tempDiv = document.createElement('div');
+                    tempDiv.className = 'noShrink roundedMin centerRowLayout minGap darkFadedBG regMinPadding bordered clickable choiceRole';
+                    tempDiv.dataset.id = role.id;
+                    tempDiv.dataset.name = role.name;
+
+                    tempElement = document.createElement('b');
+                    tempElement.className = 'flexMax centerText capitalFirst';
+                    tempElement.textContent = role.name;
+                    tempDiv.appendChild(tempElement);
+
+                    tempDiv.addEventListener('click', () => {
+                        if (governanceRules.canGrant) {
+                            currentRoles.push({
+                                name: role.name,
+                                roleID: role.id
+                            });
+                            RenderAssignedRoles();
+                            RenderAvailableRoles();
+                        }
+                    });
+                    choiceRolesContainer.appendChild(tempDiv);
+                });
+            }
+        }
+
+        RenderAssignedRoles();
+        RenderAvailableRoles();
+        confirmation.style.display = 'flex';
+    }
+
+    // ================================
+    // Delete User Confirmation
+    // ================================
+    function ShowDeleteConfirmation(userId, userName) {
+        confirmationForm.action = 'index.php?page=staff&action=delete';
+        confirmationTitle.innerHTML = 'Delete Account?';
+        confirmationText.innerHTML = `Are you sure to delete the account of:<br>${userName}?`;
+        confirmationSubmit.value = 'Yes Delete';
+        confirmationSubmit.classList.remove('yellowBG', 'whiteText', 'noBorder');
+
+        // Set hidden input for deleted ID
+        let deletedIdInput = document.querySelector('input[name="deletedID"]');
+        if (!deletedIdInput) {
+            deletedIdInput = document.createElement('input');
+            deletedIdInput.type = 'hidden';
+            deletedIdInput.name = 'deletedID';
+            confirmationForm.appendChild(deletedIdInput);
+        }
+        deletedIdInput.value = userId;
+
+        confirmation.style.display = 'flex';
+    }
+
+    // ================================
+    // Event Listeners for Staff Selection
+    // ================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // Set default cancel button text
+        confirmationCancel.value = 'No Cancel';
+
+        // Create persistent hidden input for selected ID
+        let selectedIdInput = document.querySelector('input[name="selectedID"]');
+        if (!selectedIdInput) {
+            selectedIdInput = document.createElement('input');
+            selectedIdInput.type = 'hidden';
+            selectedIdInput.name = 'selectedID';
+            confirmationForm.appendChild(selectedIdInput);
+        }
+
+        // Attach click handlers to each staff element
+        staffElements.forEach(elem => {
+            elem.addEventListener('click', () => {
+                selectedIdInput.value = elem.dataset.id;
+                UpdateUserInfoDisplay(elem);
+            });
         });
     });
 
-    confirmationBG.addEventListener('click', function() {
-        confirmationForm.parentElement.classList.add("minGap");
-        confirmationSubmit.classList.remove("hidden");
+    // ================================
+    // Confirmation Dialog Cleanup (Cancel / Background click)
+    // ================================
+    confirmationCancel.addEventListener('click', () => {
+        confirmationForm.parentElement.classList.add('minGap');
+        confirmationSubmit.classList.remove('hidden');
+        document.querySelectorAll('.tempElement').forEach(el => el.remove());
+    });
 
-        document.querySelectorAll('.tempElement').forEach(function(elem) {
-            elem.remove();
-        });
+    confirmationBG.addEventListener('click', () => {
+        confirmationForm.parentElement.classList.add('minGap');
+        confirmationSubmit.classList.remove('hidden');
+        document.querySelectorAll('.tempElement').forEach(el => el.remove());
     });
 </script>
 <!-- <script src="../.JS/AutoRefresher.js"></script> -->
