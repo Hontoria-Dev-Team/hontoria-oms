@@ -355,7 +355,7 @@
 
         const completed = currentUser.stats.tasksCompleted || 0;
         const totalDuration = currentUser.stats.tasksCompletedDuration || 0;
-        const avgDuration = completed ? (totalDuration / completed).toFixed(2) : 0;
+        const avgDuration = completed > 0 ? (totalDuration / completed).toFixed(2) : 0;
 
         tempElement = document.createElement('h5');
         tempElement.textContent = `Tasks Completed (#): ${completed}`;
