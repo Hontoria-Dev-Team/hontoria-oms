@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<section id="confirmationBox" class="centerColumnLayout" style="display: none;">
+<section id="confirmationBox" class="centerColumnLayout topZ" style="display: none;">
     <div id="confirmationContent" class="centerColumnLayout roundedMid maxWidth">
         <div class="box centerColumnLayout roundedMid fullWidth fullHeight minGap">
             <h2 id="confirmationTitle">Confirmation Title</h2>
