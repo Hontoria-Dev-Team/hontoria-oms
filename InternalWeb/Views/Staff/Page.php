@@ -79,9 +79,9 @@
                                 </div>
                                 <div class="flexMax centerHoriColumnLayout">
                                     <h5><?= htmlspecialchars($fullName) ?></h5>
+                                    <h6 class="capitalFirst">Last Online: 15 minutes ago</h6>
                                     <h6 class="capitalFirst">(<?= $rolesText ?>)</h6>
                                     <h6 class="capitalFirst">Tasks: <?= $taskCount ?></h6>
-
                                 </div>
                                 <div class="flexMin status roundedMin minPadding centerColumnLayout shadowed">
                                     <h5><?= $status ?></h5>
@@ -110,7 +110,7 @@
     <?php include("../Views/.Components/ConfirmationBox.php"); ?>
 </body>
 <script src="../.JS/ConfirmationBox.js"></script>
-<script src="../.JS/DueTimeCalculator.js"></script>
+<script src="../.JS/TimeHelpers.js"></script>
 <script>
     /**
      * Staff Management Page Script

@@ -143,7 +143,7 @@
 </body>
 <script src="../.JS/ConfirmationBox.js"></script>
 <script src="../.JS/ImageBox.js"></script>
-<script src="../.JS/DueTimeCalculator.js"></script>
+<script src="../.JS/TimeHelpers.js"></script>
 <script src="../.JS/MiscHelpers.js"></script>
 <script>
     const assignedTaskElement = document.querySelectorAll('.assignedTaskElement');

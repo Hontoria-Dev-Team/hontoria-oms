@@ -121,7 +121,7 @@
         </section>
     </main>
 </body>
-<script src="../.JS/DueTimeCalculator.js"></script>
+<script src="../.JS/TimeHelpers.js"></script>
 <script>
     const serviceType = document.getElementById('serviceType');
     const subserviceType = document.getElementById('subserviceType');

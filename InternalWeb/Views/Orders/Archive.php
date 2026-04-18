@@ -80,7 +80,7 @@
     </main>
     <?php include("../Views/.Components/ImageBox.php"); ?>
 </body>
-<script src="../.JS/DueTimeCalculator.js"></script>
+<script src="../.JS/TimeHelpers.js"></script>
 <script src="../.JS/ImageBox.js"></script>
 <script>
     const detailsContainer = document.getElementById('detailsContainer');
