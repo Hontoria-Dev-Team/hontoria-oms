@@ -4,6 +4,9 @@
  * Location: publicWeb/public/Views/Services/ServicesPage.php
  */
 
+// 1. CONFIG COMPONENT: Load the shared category configuration first
+require_once __DIR__ . '/../.Components/ServicesComponents/CategoryConfig.php';
+
 // Basic variables (these would ideally be passed down by PublicC.php in the future)
 $siteName = $siteName ?? 'Hontoria Printing Services';
 $logoPath = $logoPath ?? '/.Images/logo.jpg';
@@ -41,17 +44,20 @@ $navItems = [
     <div class="page-body">
         
         <aside class="services-sidebar">
-            </aside>
+            <?php include __DIR__ . '/../.Components/ServicesComponents/ServicesSidebarComponents.php'; ?>
+        </aside>
         
         <main class="services-content">
-            </main>
+            <?php include __DIR__ . '/../.Components/ServicesComponents/ServicesContentComponents.php'; ?>
+        </main>
         
     </div>
     
     <?php include __DIR__ . '/../.Components/SharedComponents/FooterComponents.php'; ?>
     
     <div class="services-modal-wrapper">
-         </div>
+        <?php include __DIR__ . '/../.Components/ServicesComponents/ServicesModalComponents.php'; ?>
+    </div>
     
     <script src="../.JS/Shared.js"></script>
     <script src="../.JS/ServicesPage.js"></script>
