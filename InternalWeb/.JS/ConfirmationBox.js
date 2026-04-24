@@ -12,7 +12,9 @@ const confirmationCancel = document.getElementById('cancelConfimationButton');
 
 confirmationCancel.addEventListener('click', function () {
     confirmation.style.display = 'none';
+    confirmation.querySelectorAll('.tempElement').forEach(el => el.remove());
 });
 confirmationBG.addEventListener('click', function () {
     confirmation.style.display = 'none';
+    confirmation.querySelectorAll('.tempElement').forEach(el => el.remove());
 });
