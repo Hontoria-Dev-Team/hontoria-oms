@@ -167,3 +167,8 @@ b {
 *::-webkit-scrollbar-thumb {
     border-radius: 1px;
 }
+
+/* All toolbar icons – default (unselected) color */
+.apexcharts-toolbar>div svg {
+    fill: var(--dark) !important;
+}

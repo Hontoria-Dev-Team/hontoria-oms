@@ -346,6 +346,11 @@
     margin: 0.25rem;
 }
 
+.norAbsolute {
+    position: absolute;
+    top: 1rem;
+}
+
 .eastAbsolute {
     position: absolute;
     right: 1rem;
@@ -378,6 +383,10 @@
 .norEastAbsolute.distantCorner {
     top: 1.5rem;
     right: 1.5rem;
+}
+
+.norAbsolute.closeCorner {
+    top: 0.3rem;
 }
 
 .eastAbsolute.closeCorner {

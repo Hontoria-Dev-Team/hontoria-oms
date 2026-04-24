@@ -123,21 +123,21 @@
                             </div>
                         </div>
                         <div class="centerColumnLayout whiteBG roundedMin fullHeight fullWidth">
-                            <h4 class="norWestAbsolute edgeCorner fullWidth centerText marginTopMin topZ">Daily Data</h4>
+                            <h4 class="norAbsolute closeCorner topZ">Daily Data</h4>
                             <div id="dailyGraph" class="flexMax centerColumnLayout roundedMin whiteBG midZ fullWidth">
                                 <h4>No Record Selected</h4>
                             </div>
                             <div class="gradientBorderDiag minZ shadowed"></div>
                         </div>
                         <div class="centerColumnLayout whiteBG roundedMin fullHeight fullWidth">
-                            <h4 class="norWestAbsolute edgeCorner fullWidth centerText marginTopMin topZ">Weekly Data</h4>
+                            <h4 class="norAbsolute closeCorner topZ">Weekly Data</h4>
                             <div id="weeklyGraph" class="flexMax centerColumnLayout roundedMin whiteBG midZ fullWidth">
                                 <h4>No Record Selected</h4>
                             </div>
                             <div class="gradientBorderDiag minZ shadowed"></div>
                         </div>
                         <div class="centerColumnLayout whiteBG roundedMin fullHeight fullWidth">
-                            <h4 class="norWestAbsolute edgeCorner fullWidth centerText marginTopMin topZ">Monthly Data</h4>
+                            <h4 class="norAbsolute closeCorner topZ">Monthly Data</h4>
                             <div id="monthlyGraph" class="flexMax centerColumnLayout roundedMin whiteBG midZ fullWidth">
                                 <h4>No Record Selected</h4>
                             </div>
@@ -721,7 +721,7 @@
                     height: '100%',
                     width: '100%',
                     toolbar: {
-                        show: false
+                        show: true
                     },
                     zoom: {
                         enabled: false
