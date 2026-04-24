@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../Config/config.php';
 require_once __DIR__ . '/../Controllers/AuthorizationC.php';
 require_once __DIR__ . '/../Controllers/ServicesC.php';
 require_once __DIR__ . '/../Controllers/OrdersC.php';
+require_once __DIR__ . '/../Controllers/InventoryC.php';
 require_once __DIR__ . '/../Middleware/AuthorizationMid.php';
 
 session_start();
@@ -13,6 +14,7 @@ $action = $_GET['action'] ?? 'show';
 $authorization = new AuthorizationC($pdo);
 $services = new ServicesC($pdo);
 $orders = new OrdersC($pdo);
+$inventory = new InventoryC($pdo);
 
 $protectedPages = ['dashboard', 'account', 'staff', 'services', 'orders'];
 
@@ -157,6 +159,24 @@ switch ($page) {
             $orders->changeUserProcessTaskStatus();
         } else {
             $orders->showTasks();
+        }
+        break;
+
+    case 'inventory':
+        if ($action === 'updateRecord') {
+            $inventory->setInventoryRecord();
+        } else if ($action === 'resetRecord') {
+            $inventory->removeInventoryRecord();
+        } else if ($action === 'createItem') {
+            $inventory->createInventoryItem();
+        } else if ($action === 'deleteItem') {
+            $inventory->removeInventoryItem();
+        } else if ($action === 'changeMinQuantity') {
+            $inventory->changeInventoryItemMinQuantity();
+        } else if ($action === 'changeMaxAvgConsumption') {
+            $inventory->changeInventoryItemMaxAvgConsumption();
+        } else {
+            $inventory->showPage();
         }
         break;
 

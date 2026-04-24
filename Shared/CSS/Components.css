@@ -140,6 +140,14 @@
     text-indent: 0.75rem;
 }
 
+.outlineText {
+    text-shadow:
+        -0.05rem -0.05rem 0 var(--dark),
+        0.05rem -0.05rem 0 var(--dark),
+        -0.05rem 0.05rem 0 var(--dark),
+        0.05rem 0.05rem 0 var(--dark);
+}
+
 .iconInput>img {
     position: absolute;
     left: 0.5em;
