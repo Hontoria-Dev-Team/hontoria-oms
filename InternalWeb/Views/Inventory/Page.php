@@ -104,6 +104,9 @@
                                 <h6 class="capitalFirst">Min Quantity</h6>
                             </div>
                             <div class="eastAbsolute edgeCorner fullWidth reverseCenterHoriRowLayout minGap">
+                                <button type="button" class="noBorder darkBG shadowed squareSize minHoriPadding fitHeight roundedTin" id="downloadButton">
+                                    <img src="../../Shared/Img/DownloadIcon.png" alt="Download" class="micHeight invertColors">
+                                </button>
                                 <div class="centerHoriRowLayout tinGap">
                                     <h6>Target Date:</h6>
                                     <input type="date" id="targetDateInput" class="unitHeight roundedTin">
@@ -450,6 +453,21 @@
 
         minQuantityText.addEventListener('click', () => ShowEditMinQuantityBox());
         avgConsumptionText.addEventListener('click', () => ShowEditMaxAvgConsumptionBox());
+
+        downloadButton.addEventListener('click', () => {
+            if (currentSelected.records && currentSelected.records.length > 0) {
+                const csvContent = "data:text/csv;charset=utf-8," +
+                    "Date,Quantity,Consumption,Added\n" +
+                    currentSelected.records.map(r => `${r.date},${r.quantity},${r.consumption},${r.added}`).join("\n");
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `${currentSelected.name}_records.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        });
 
         targetDateInput.addEventListener('change', RenderCharts);
 
