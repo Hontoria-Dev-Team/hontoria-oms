@@ -217,7 +217,6 @@
     height: 0.5rem !important;
 }
 
-
 .unitHeight {
     height: 1rem !important;
 }
@@ -344,6 +343,10 @@
 
 .marginMicro {
     margin: 0.25rem;
+}
+
+.tinHoriMargin {
+    margin: 0 0.1rem;
 }
 
 .norAbsolute {

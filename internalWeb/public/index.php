@@ -4,6 +4,7 @@ require_once __DIR__ . '/../Controllers/AuthorizationC.php';
 require_once __DIR__ . '/../Controllers/ServicesC.php';
 require_once __DIR__ . '/../Controllers/OrdersC.php';
 require_once __DIR__ . '/../Controllers/InventoryC.php';
+require_once __DIR__ . '/../Controllers/SalesC.php';
 require_once __DIR__ . '/../Middleware/AuthorizationMid.php';
 
 session_start();
@@ -15,6 +16,7 @@ $authorization = new AuthorizationC($pdo);
 $services = new ServicesC($pdo);
 $orders = new OrdersC($pdo);
 $inventory = new InventoryC($pdo);
+$sales = new SalesC($pdo);
 
 $protectedPages = ['dashboard', 'account', 'staff', 'services', 'orders'];
 
@@ -178,6 +180,10 @@ switch ($page) {
         } else {
             $inventory->showPage();
         }
+        break;
+
+    case 'sales':
+        $sales->showPage();
         break;
 
     default:

@@ -174,12 +174,24 @@
     border: 0.1rem solid var(--red) !important;
 }
 
+.redTransBorder {
+    border: 0.1rem solid var(--redTrans) !important;
+}
+
 .yellowBorder {
     border: 0.1rem solid var(--yellow) !important;
 }
 
+.yellowTransBorder {
+    border: 0.1rem solid var(--yellowTrans) !important;
+}
+
 .greenBorder {
     border: 0.1rem solid var(--green) !important;
+}
+
+.greenTransBorder {
+    border: 0.1rem solid var(--greenTrans) !important;
 }
 
 .bottomBorderOnly {
@@ -314,12 +326,24 @@
     background: var(--redTrans) !important;
 }
 
+.redFadedBG {
+    background: var(--redFaded) !important;
+}
+
 .greenTransBG {
     background: var(--greenTrans) !important;
 }
 
+.greenFadedBG {
+    background: var(--greenFaded) !important;
+}
+
 .yellowTransBG {
     background: var(--yellowTrans) !important;
+}
+
+.yellowFadedBG {
+    background: var(--yellowFaded) !important;
 }
 
 .yellowGreenTransBG {
@@ -410,6 +434,10 @@
     transform: skewX(15deg);
 }
 
+.scaledUpTin {
+    transform: scale(1.1);
+}
+
 .scaledUpMin {
     transform: scale(1.25);
 }
@@ -426,4 +454,12 @@
     width: 100% !important;
     height: 100% !important;
     object-fit: cover;
+}
+
+.underlineText {
+    text-decoration: underline;
+}
+
+.minText {
+    font-size: 0.5rem;
 }

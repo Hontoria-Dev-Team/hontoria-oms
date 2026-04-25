@@ -31,6 +31,11 @@ $navLinks = [
         'icon'  => '../../Shared/Img/BoxIcon.png',
         'permission' => null,
     ],
+    'sales' => [
+        'label' => 'Sales',
+        'icon'  => '../../Shared/Img/PesoIcon.png',
+        'permission' => null,
+    ],
 ];
 ?>
 <aside id="sidebar" class="columnLayout">

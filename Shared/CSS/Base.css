@@ -27,10 +27,12 @@ html {
     --redFaded: #f5220217;
     --yellow: #FFB611;
     --yellowTrans: #ffb8115e;
+    --yellowFaded: #ffb81125;
     --yellowGreen: #efff11;
     --yellowGreenTrans: #efff115e;
     --green: #2eef10;
     --greenTrans: #2eef1057;
+    --greenFaded: #2eef1027;
     --blue: #088bfd;
     --gradientDiag: linear-gradient(to left, var(--red), var(--yellow));
     --gradientVert: linear-gradient(to top, var(--red), var(--yellow));
