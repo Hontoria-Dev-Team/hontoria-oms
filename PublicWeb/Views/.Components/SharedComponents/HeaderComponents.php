@@ -2,7 +2,7 @@
     <div class="header-inner">
         
         <div class="logo">
-            <img src="/.Images/logo.jpg" alt="Hontoria Logo" class="logo-img" onerror="this.style.display='none'"/>
+            <img src="../.Images/Logo.png" alt="Hontoria Logo" class="logo-img" onerror="this.style.display='none'"/>
             <div class="logo-text">
                 <span class="logo-name">HONTORIA</span>
                 <span class="logo-sub">PRINTING SERVICES</span>

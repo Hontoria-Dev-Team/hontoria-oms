@@ -1,5 +1,5 @@
 <?php
-$logoPath = 'img/logo.jpg';
+$logoPath = "../.Images/Logo.png";
 ?>
 
 <aside class="sidebar">
