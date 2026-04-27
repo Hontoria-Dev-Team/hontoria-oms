@@ -22,7 +22,14 @@ class OrdersM {
                         SELECT 1 FROM orderProcess
                         WHERE orderProcess.orderID = orders.id
                         AND orderProcess.status != 'complete'
-                    ) THEN 'For Verification'
+                    ) THEN
+                        CASE
+                            WHEN NOT EXISTS (
+                                SELECT 1 FROM salesOrder
+                                WHERE salesOrder.orderID = orders.id
+                            ) THEN 'For Verification'
+                            ELSE 'Unpaid'
+                        END
                     WHEN NOT EXISTS (
                         SELECT 1 FROM userProcessTasks
                         JOIN orderProcess ON userProcessTasks.orderProcessID = orderProcess.id
@@ -239,6 +246,12 @@ class OrdersM {
                 ':status' => $orderProcess[$i]['status'],
             ]);
         }
+
+        $query = "INSERT INTO salesOrder (orderID, priceTotal) VALUES (:orderID, :priceTotal)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':orderID', $orderID);
+        $stmt->bindParam(':priceTotal', $priceTotal);
+        $stmt->execute();
     }
 
     public function getAllOrderGroups() {
@@ -262,6 +275,11 @@ class OrdersM {
         $stmt->execute();
 
         $query = "DELETE FROM orderDesigns WHERE orderID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        $query = "DELETE FROM salesOrder WHERE orderID = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
@@ -676,15 +694,29 @@ class OrdersM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function isOrderFullyPaid($orderID) {
+        $query = "SELECT COUNT(*) FROM salesOrder WHERE orderID = :orderID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':orderID', $orderID);
+        $stmt->execute();
+        return $stmt->fetchColumn() == 0;
+    }
+
     public function archiveOrder($id, $isCompleted) {
         try {
             $this->pdo->beginTransaction();
 
             $order = $this->getOrderByID($id);
 
-            if ($order['status'] !== 'For Verification' && $isCompleted) {
-                $this->pdo->rollBack();
-                return "Error: This order is not yet ready to be archived. Current status: " . $order['status'];
+            if ($isCompleted) {
+                if ($order['status'] !== 'For Verification') {
+                    $this->pdo->rollBack();
+                    return "Error: This order is not yet ready to be verified. Current status: " . $order['status'];
+                }
+                if (!$this->isOrderFullyPaid($id)) {
+                    $this->pdo->rollBack();
+                    return "Error: This order is not yet ready to be verified. Current status: " . $order['status'];
+                }
             }
 
             // Log Verification

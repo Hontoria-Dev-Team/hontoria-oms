@@ -15,84 +15,8 @@ class SalesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getInventoryByID($inventoryID) {
-        $query = "SELECT * FROM inventory WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-
-        $stmt->bindParam(':id', $inventoryID);
-        $stmt->execute();
-
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    public function getInventoryByName($name) {
-        $query = "SELECT * FROM inventory WHERE name = :name";
-        $stmt = $this->pdo->prepare($query);
-
-        $stmt->bindParam(':name', $name);
-        $stmt->execute();
-
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    public function getAllInventoryCurrentQuantityMap() {
-        $query = "
-            SELECT
-                inventoryRecords.inventoryID,
-                inventoryRecords.quantity
-            FROM inventoryRecords
-            INNER JOIN (
-                SELECT inventoryID, MAX(date) AS maxDate
-                FROM inventoryRecords
-                GROUP BY inventoryID
-            ) latestDates ON inventoryRecords.inventoryID = latestDates.inventoryID
-                AND inventoryRecords.date = latestDates.maxDate
-            ORDER BY inventoryRecords.inventoryID ASC
-        ";
-
-        $stmt = $this->pdo->prepare($query);
-        $stmt->execute();
-
-        $map = [];
-
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $item) {
-            $map[$item['inventoryID']] = $item['quantity'];
-        }
-
-        return $map;
-    }
-
-    public function getAllInventoryLastRestockMap() {
-        $query = "
-            SELECT inventoryRecords.inventoryID,
-                inventoryRecords.date,
-                inventoryRecords.added
-            FROM inventoryRecords
-            INNER JOIN (
-                SELECT inventoryID, MAX(date) AS maxDate
-                FROM inventoryRecords
-                WHERE added > 0
-                GROUP BY inventoryID
-            ) latestDates ON inventoryRecords.inventoryID = latestDates.inventoryID
-                        AND inventoryRecords.date = latestDates.maxDate
-            ORDER BY inventoryRecords.inventoryID ASC
-        ";
-
-        $stmt = $this->pdo->prepare($query);
-        $stmt->execute();
-
-        $map = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $map[$row['inventoryID']] = [
-                'date'     => $row['date'],
-                'quantity' => $row['added']
-            ];
-        }
-        return $map;
-    }
-
-    public function getAllInventoryRecords() {
-        $query = "SELECT * FROM inventoryRecords ORDER BY inventoryID ASC, date DESC";
+    public function getAllSalesOrders() {
+        $query = "SELECT * FROM salesOrder";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
@@ -100,313 +24,178 @@ class SalesM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getInventoryRecord($inventoryID, $date) {
-        $query = "SELECT * FROM inventoryRecords WHERE inventoryID = :inventoryID AND date = :date";
-        $stmt = $this->pdo->prepare($query);
+    public function updateSalesOrder($orderID, $payment) {
+        // Reject negative payments
+        if ($payment <= 0) {
+            return "Error: Payment must be greater than zero.";
+        }
 
-        $stmt->bindParam(':inventoryID', $inventoryID);
-        $stmt->bindParam(':date', $date);
+        // Check remaining balance
+        $query = "SELECT priceTotal, pricePaid FROM salesOrder WHERE orderID = :orderID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':orderID', $orderID);
+        $stmt->execute();
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$order) {
+            return "Error: Sales order not found.";
+        }
+
+        $remaining = $order['priceTotal'] - $order['pricePaid'];
+        if ($payment > $remaining) {
+            return "Error: Payment exceeds remaining balance of ₱" . number_format($remaining, 2) . ".";
+        }
+
+        // Update pricePaid
+        $query = "UPDATE salesOrder SET pricePaid = pricePaid + :payment WHERE orderID = :orderID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':orderID', $orderID);
+        $stmt->bindParam(':payment', $payment);
         $stmt->execute();
 
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+        // If fully paid, delete the salesOrder record (optional – remove FK constraint)
+        $query = "SELECT pricePaid, priceTotal FROM salesOrder WHERE orderID = :orderID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':orderID', $orderID);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row && $row['pricePaid'] >= $row['priceTotal']) {
+            $query = "DELETE FROM salesOrder WHERE orderID = :orderID";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':orderID', $orderID);
+            $stmt->execute();
+        }
 
-    public function getLastInventoryRecordBefore($inventoryID, $date) {
+        // Return the service name for logging / display
         $query = "
-            SELECT * FROM inventoryRecords
-            WHERE inventoryID = :inventoryID AND date < :date
-            ORDER BY date DESC
-            LIMIT 1
+            SELECT CONCAT(services.name, ' ', subservices.name) AS serviceName
+            FROM orders
+            JOIN subservices ON orders.subserviceID = subservices.id
+            JOIN services ON subservices.serviceID = services.id
+            WHERE orders.id = :orderID
         ";
         $stmt = $this->pdo->prepare($query);
-
-        $stmt->bindParam(':inventoryID', $inventoryID, PDO::PARAM_INT);
-        $stmt->bindParam(':date', $date, PDO::PARAM_STR);
+        $stmt->bindParam(':orderID', $orderID);
         $stmt->execute();
 
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $stmt->fetchColumn();
     }
 
-    public function updateInventoryRecord($inventoryID, $change) {
+    public function insertInflowRecord($type, $description, $value) {
         date_default_timezone_set('Asia/Manila');
         $today = date('Y-m-d');
-        $change = (int)$change;
+        $type = ucwords(strtolower($type));
 
-        if ($change === 0) {
-            return 'Error: Cannot update record with zero change.';
-        }
-
-        $isRestock = $change > 0;
-        $absChange = abs($change);
-
-        try {
-            $this->pdo->beginTransaction();
-
-            $this->insertUserActivityLog(
-                $_SESSION['id'],
-                'inventory update',
-                'Updated the quantity of ' . ucfirst($this->getInventoryByID($inventoryID)['name']) . ' by ' . $change . '.',
-                'yellow'
-            );
-
-            $existing = $this->getInventoryRecord($inventoryID, $today);
+        // If this is an order payment, check for an existing record today with the same description
+        if (strpos($description, 'Order #') === 0) {
+            $query = "SELECT id, value FROM salesRecords
+                  WHERE date = :date AND description = :desc AND isInflow = 1 LIMIT 1";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([':date' => $today, ':desc' => $description]);
+            $existing = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($existing) {
-                $currentQty   = (int)$existing['quantity'];
-                $currentCons  = (int)$existing['consumption'];
-                $currentAdded = (int)$existing['added'];
-
-                if ($isRestock) {
-                    $newQty   = $currentQty + $absChange;
-                    $newCons  = $currentCons;
-                    $newAdded = $currentAdded + $absChange;
-                } else {
-                    if ($currentQty < $absChange) {
-                        $this->pdo->rollBack();
-                        return 'Error: Cannot consume more than current quantity (' . $currentQty . ').';
-                    }
-
-                    $newQty   = $currentQty - $absChange;
-                    $newCons  = $currentCons + $absChange;
-                    $newAdded = $currentAdded;
-                }
-
-                $stmt = $this->pdo->prepare("
-                    UPDATE inventoryRecords
-                    SET quantity = :qty, consumption = :cons, added = :add
-                    WHERE inventoryID = :id AND date = :d
-                ");
-
-                $stmt->bindParam(':qty', $newQty);
-                $stmt->bindParam(':cons', $newCons);
-                $stmt->bindParam(':add', $newAdded);
-                $stmt->bindParam(':id', $inventoryID);
-                $stmt->bindParam(':d', $today);
-                $stmt->execute();
-            } else {
-                $lastRecord = $this->getLastInventoryRecordBefore($inventoryID, $today);
-                $lastQty = $lastRecord ? (int)$lastRecord['quantity'] : 0;
-
-                if ($isRestock) {
-                    $newQty   = $lastQty + $absChange;
-                    $newCons  = 0;
-                    $newAdded = $absChange;
-                } else {
-                    if ($lastQty < $absChange) {
-                        $this->pdo->rollBack();
-                        return 'Error: Cannot consume more than current quantity (' . $lastQty . ').';
-                    }
-
-                    $newQty   = $lastQty - $absChange;
-                    $newCons  = $absChange;
-                    $newAdded = 0;
-                }
-
-                $stmt = $this->pdo->prepare("
-                    INSERT INTO inventoryRecords (date, inventoryID, quantity, consumption, added)
-                    VALUES (:d, :id, :qty, :cons, :add)
-                ");
-
-                $stmt->bindParam(':d', $today);
-                $stmt->bindParam(':id', $inventoryID);
-                $stmt->bindParam(':qty', $newQty);
-                $stmt->bindParam(':cons', $newCons);
-                $stmt->bindParam(':add', $newAdded);
-                $stmt->execute();
+                // Update the existing record – add the new payment
+                $newValue = $existing['value'] + $value;
+                $query = "UPDATE salesRecords SET value = :val WHERE id = :id";
+                $stmt = $this->pdo->prepare($query);
+                $stmt->execute([':val' => $newValue, ':id' => $existing['id']]);
+                return "Success: Existing order payment record updated.";
             }
-
-            $this->pdo->commit();
-            return "Success: Inventory record updated successfully.";
-        } catch (Exception $e) {
-            $this->pdo->rollBack();
-            return "Error: Failed. " . ($e->getMessage());
         }
+
+        // Otherwise, insert a new record
+        $query = "INSERT INTO salesRecords (date, isInflow, type, description, value)
+              VALUES (:date, 1, :type, :description, :value)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute([
+            ':date'        => $today,
+            ':type'        => $type,
+            ':description' => $description,
+            ':value'       => $value
+        ]);
+        return "Success: Inflow record added.";
     }
 
-    public function deleteInventoryRecord($inventoryID) {
+    public function insertOutflowRecord($type, $description, $value) {
+        date_default_timezone_set('Asia/Manila');
+        $today = date('Y-m-d');
+        $type = ucwords(strtolower($type));
+
+        $query = "INSERT INTO salesRecords (date, isInflow, type, description, value) VALUES (:date, 0, :type, :description, :value)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute([
+            ':date' => $today,
+            ':type' => $type,
+            ':description' => $description,
+            ':value' => $value
+        ]);
+    }
+
+    public function deleteRecord($recordID) {
         date_default_timezone_set('Asia/Manila');
         $today = date('Y-m-d');
 
-        try {
-            $existing = $this->getInventoryRecord($inventoryID, $today);
-            if (!$existing) {
-                return "Error: No record found for today to reset.";
-            }
-
-            $countStmt = $this->pdo->prepare("SELECT COUNT(*) FROM inventoryRecords WHERE inventoryID = :id");
-            $countStmt->bindParam(':id', $inventoryID);
-            $countStmt->execute();
-            $totalRecords = (int)$countStmt->fetchColumn();
-
-            if ($totalRecords <= 1) {
-                return "Error: Cannot delete last remaining inventory record.";
-            }
-
-            $this->pdo->beginTransaction();
-
-            $stmt = $this->pdo->prepare("
-                DELETE FROM inventoryRecords
-                WHERE inventoryID = :id AND date = :d
-            ");
-
-            $stmt->bindParam(':id', $inventoryID);
-            $stmt->bindParam(':d', $today);
-            $stmt->execute();
-
-            $this->insertUserActivityLog(
-                $_SESSION['id'],
-                'inventory reset',
-                'Reset the inventory record of ' . ucfirst($this->getInventoryByID($inventoryID)['name']) . ' for the day.',
-                'red'
-            );
-
-            $this->pdo->commit();
-            return "Success: Today's inventory record is reset.";
-        } catch (Exception $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
-            }
-            return "Error: Failed. " . $e->getMessage();
-        }
-    }
-
-    public function insertInventoryItem($name, $quantity) {
-        $name = strtolower($name);
-
-        if (empty($name)) {
-            return "Error: Empty item name.";
-        }
-
-        if ($quantity < 1) {
-            return "Error: Initial Quantity is equal to or less than 0.";
-        }
-
-        $item = $this->getInventoryByName($name);
-
-        if ($item) {
-            return "Error: Item name already exists.";
-        }
-
-        $this->insertUserActivityLog(
-            $_SESSION['id'],
-            'inventory creation',
-            'Created a new inventory item called ' . ucfirst($name) . '.',
-            'yellow'
-        );
-
-        $query = "INSERT INTO inventory (name) VALUES (:name);";
+        // Fetch the record
+        $query = "SELECT * FROM salesRecords WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':id', $recordID, PDO::PARAM_INT);
+        $stmt->execute();
+        $record = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$record) {
+            return "Error: Record not found.";
+        }
+
+        // Only allow deletion of today's records
+        if ($record['date'] !== $today) {
+            return "Error: You can only delete records from today.";
+        }
+
+        // Check if it's an order payment inflow
+        if ($record['isInflow'] == 1 && strpos($record['description'], 'Order #') === 0) {
+            // Extract orderID from description e.g. "Order #3 Payment"
+            preg_match('/Order #(\d+)/', $record['description'], $matches);
+            if (empty($matches[1])) {
+                return "Error: Invalid order payment record.";
+            }
+            $orderID = (int)$matches[1];
+            $paymentAmount = (float)$record['value'];
+
+            // Check if salesOrder row still exists
+            $query = "SELECT * FROM salesOrder WHERE orderID = :orderID";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':orderID', $orderID, PDO::PARAM_INT);
+            $stmt->execute();
+            $salesOrder = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($salesOrder) {
+                // Deduct from pricePaid (ensuring non-negative)
+                $newPaid = max($salesOrder['pricePaid'] - $paymentAmount, 0);
+                $query = "UPDATE salesOrder SET pricePaid = :paid WHERE orderID = :orderID";
+                $stmt = $this->pdo->prepare($query);
+                $stmt->bindParam(':paid', $newPaid);
+                $stmt->bindParam(':orderID', $orderID, PDO::PARAM_INT);
+                $stmt->execute();
+            } else {
+                // Recreate the salesOrder row with priceTotal = paymentAmount, pricePaid = 0
+                // (This effectively reverts the payment to unpaid state)
+                $query = "INSERT INTO salesOrder (orderID, priceTotal, pricePaid)
+                      VALUES (:orderID, :total, 0)";
+                $stmt = $this->pdo->prepare($query);
+                $stmt->bindParam(':orderID', $orderID, PDO::PARAM_INT);
+                $stmt->bindParam(':total', $paymentAmount);
+                $stmt->execute();
+            }
+        }
+
+        // Delete the sales record
+        $query = "DELETE FROM salesRecords WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $recordID, PDO::PARAM_INT);
         $stmt->execute();
 
-        $this->updateInventoryRecord($this->pdo->lastInsertId(), $quantity);
-
-        return "Success: Created inventory item.";
-    }
-
-    public function deleteInventoryItem($inventoryID) {
-        try {
-            $this->pdo->beginTransaction();
-
-            $item = $this->getInventoryByID($inventoryID);
-            if (!$item) {
-                $this->pdo->rollBack();
-                return "Error: Inventory item not found.";
-            }
-
-            $stmt1 = $this->pdo->prepare("DELETE FROM inventoryRecords WHERE inventoryID = :id");
-            $stmt1->bindParam(':id', $inventoryID);
-            $stmt1->execute();
-
-            $stmt2 = $this->pdo->prepare("DELETE FROM inventory WHERE id = :id");
-            $stmt2->bindParam(':id', $inventoryID);
-            $stmt2->execute();
-
-            $this->insertUserActivityLog(
-                $_SESSION['id'],
-                'inventory deletion',
-                'Deleted inventory item ' . ucfirst($item['name']) . '.',
-                'red'
-            );
-
-            $this->pdo->commit();
-            return "Success: Inventory item deleted.";
-        } catch (Exception $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
-            }
-            return "Error: Failed. " . $e->getMessage();
-        }
-    }
-
-    public function updateInventoryItemMinQuantity($inventoryID, $minQuantity) {
-        if ($minQuantity < 0) {
-            return "Error: Minimum quantity cannot be negative.";
-        }
-
-        $item = $this->getInventoryByID($inventoryID);
-        if (!$item) {
-            return "Error: Inventory item not found.";
-        }
-
-        try {
-            $this->pdo->beginTransaction();
-
-            $stmt = $this->pdo->prepare("UPDATE inventory SET minQuantity = :minQty WHERE id = :id");
-            $stmt->bindParam(':minQty', $minQuantity);
-            $stmt->bindParam(':id', $inventoryID);
-            $stmt->execute();
-
-            $this->insertUserActivityLog(
-                $_SESSION['id'],
-                'inventory update',
-                'Updated the minimum quantity of ' . ucfirst($item['name']) . ' to ' . $minQuantity . '.',
-                'yellow'
-            );
-
-            $this->pdo->commit();
-            return "Success: Minimum quantity updated.";
-        } catch (Exception $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
-            }
-            return "Error: Failed. " . $e->getMessage();
-        }
-    }
-
-    public function updateInventoryItemMaxAvgConsumption($inventoryID, $maxAvgConsumption) {
-        if ($maxAvgConsumption < 0) {
-            return "Error: Max average consumption cannot be negative.";
-        }
-
-        $item = $this->getInventoryByID($inventoryID);
-        if (!$item) {
-            return "Error: Inventory item not found.";
-        }
-
-        try {
-            $this->pdo->beginTransaction();
-
-            $stmt = $this->pdo->prepare("UPDATE inventory SET maxAvgConsumption = :maxAvg WHERE id = :id");
-            $stmt->bindParam(':maxAvg', $maxAvgConsumption);
-            $stmt->bindParam(':id', $inventoryID);
-            $stmt->execute();
-
-            $this->insertUserActivityLog(
-                $_SESSION['id'],
-                'inventory update',
-                'Updated the maximum average consumption of ' . ucfirst($item['name']) . ' to ' . $maxAvgConsumption . '.',
-                'yellow'
-            );
-
-            $this->pdo->commit();
-            return "Success: Maximum average consumption updated.";
-        } catch (Exception $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
-            }
-            return "Error: Failed. " . $e->getMessage();
-        }
+        return "Success: Record deleted.";
     }
 
     public function insertUserActivityLog($userID, $head, $log, $color) {

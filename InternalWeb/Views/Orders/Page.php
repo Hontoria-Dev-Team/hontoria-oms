@@ -56,10 +56,14 @@
                             $activeProcesses = rtrim($activeProcesses, ", ");
 
                             $assigneeCount = $orderAssigneeCountMap[$order['id']] ?? 0;
-                            $divBgClass = $order['status'] === "Active" ?
-                                "yellowTransBG yellowBorder" : ($order['status'] === "Idle" ? "redTransBG redBorder" : "greenTransBG greenBorder");
-                            $statusStyleClass = $order['status'] === "Active" ?
-                                "yellowBG" : ($order['status'] === "Idle" ? "redBG" : "greenBG clickable");
+                            $divBgClass = $order['status'] === "Unpaid"
+                                ? "bordered darkFadedBG" : ($order['status'] === "Active"
+                                    ? "yellowTransBG yellowBorder" : ($order['status'] === "Idle"
+                                        ? "redTransBG redBorder"      : "greenTransBG greenBorder"));
+                            $statusStyleClass = $order['status'] === "Unpaid"
+                                ? "darkBG" : ($order['status'] === "Active"
+                                    ? "yellowBG" : ($order['status'] === "Idle"
+                                        ? "redBG"   : "greenBG clickable"));
                             ?>
                             <div class="fitHeight regPadding roundedMin centerHoriColumnLayout tinGap flexStatic orderElement shadowed clickable <?= $divBgClass ?>"
                                 data-id="<?= $order['id'] ?>" data-due="<?= $order['deadlineAt'] ?>" data-customer="<?= $order['customerName'] ?>">

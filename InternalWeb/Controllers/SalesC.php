@@ -11,59 +11,86 @@ class SalesC {
         $page = "sales";
 
         $salesRecords = $this->salesModel->getAllSalesRecords();
+        $salesOrders = $this->salesModel->getAllSalesOrders();
 
         require __DIR__ . '/../Views/Sales/Page.php';
     }
 
-    public function setInventoryRecord() {
-        $selectedID = $_POST['id'];
-        $change = (int)$_POST['change'];
+    public function createInflowRecord() {
+        $value = $_POST['value'] ?? '';
+        if ($value === '' || !is_numeric($value) || $value <= 0) {
+            $_SESSION['message'] = "Error: Value must be a positive number.";
+            header("Location: index.php?page=sales");
+            exit;
+        }
 
-        $_SESSION['message'] = $this->salesModel->updateInventoryRecord($selectedID, $change);
+        if (isset($_POST['isOrderInflow'])) {
+            $orderID = $_POST['orderID'] ?? '';
+            if ($orderID === '') {
+                $_SESSION['message'] = "Error: Order ID is required.";
+                header("Location: index.php?page=sales");
+                exit;
+            }
 
-        header("Location: index.php?page=inventory");
+            $result = $this->salesModel->updateSalesOrder($orderID, $value);
+
+            if (strpos($result, 'Error:') === 0) {
+                $_SESSION['message'] = $result;
+                header("Location: index.php?page=sales");
+                exit;
+            }
+
+            $type        = $result;
+            $description = "Order #" . $orderID . " Payment";
+        } else {
+            $type        = $_POST['type'] ?? '';
+            $description = $_POST['description'] ?? '';
+
+            if ($type === '' || $description === '') {
+                $_SESSION['message'] = "Error: Type and description are required.";
+                header("Location: index.php?page=sales");
+                exit;
+            }
+        }
+
+        $this->salesModel->insertInflowRecord($type, $description, $value);
+        $_SESSION['message'] = "Success: Inflow record added.";
+        header("Location: index.php?page=sales");
+        exit;
     }
 
-    public function createInventoryItem() {
-        $name = $_POST['name'];
-        $quantity = (int)$_POST['quantity'];
+    public function createOutflowRecord() {
+        $type        = $_POST['type'] ?? '';
+        $description = $_POST['description'] ?? '';
+        $value       = $_POST['value'] ?? '';
 
-        $_SESSION['message'] = $this->salesModel->insertInventoryItem($name, $quantity);
+        if ($type === '' || $description === '' || $value === '') {
+            $_SESSION['message'] = "Error: All fields are required.";
+            header("Location: index.php?page=sales");
+            exit;
+        }
 
-        header("Location: index.php?page=inventory");
+        if (!is_numeric($value) || $value <= 0) {
+            $_SESSION['message'] = "Error: Value must be a positive number.";
+            header("Location: index.php?page=sales");
+            exit;
+        }
+
+        $this->salesModel->insertOutflowRecord($type, $description, $value);
+        $_SESSION['message'] = "Success: Outflow record added.";
+        header("Location: index.php?page=sales");
     }
 
-    public function removeInventoryItem() {
-        $selectedID = $_POST['id'];
+    public function removeRecord() {
+        $recordID = $_POST['recordID'] ?? null;
 
-        $_SESSION['message'] = $this->salesModel->deleteInventoryItem($selectedID);
+        if ($recordID === null) {
+            $_SESSION['message'] = "Error: No record specified.";
+            header("Location: index.php?page=sales");
+            exit;
+        }
 
-        header("Location: index.php?page=inventory");
-    }
-
-    public function changeInventoryItemMinQuantity() {
-        $selectedID = $_POST['id'];
-        $minQuantity = (int)$_POST['quantity'];
-
-        $_SESSION['message'] = $this->salesModel->updateInventoryItemMinQuantity($selectedID, $minQuantity);
-
-        header("Location: index.php?page=inventory");
-    }
-
-    public function changeInventoryItemMaxAvgConsumption() {
-        $selectedID = $_POST['id'];
-        $maxAvgConsumption = (int)$_POST['quantity'];
-
-        $_SESSION['message'] = $this->salesModel->updateInventoryItemMaxAvgConsumption($selectedID, $maxAvgConsumption);
-
-        header("Location: index.php?page=inventory");
-    }
-
-    public function removeInventoryRecord() {
-        $selectedID = $_POST['id'];
-
-        $_SESSION['message'] = $this->salesModel->deleteInventoryRecord($selectedID);
-
-        header("Location: index.php?page=inventory");
+        $_SESSION['message'] = $this->salesModel->deleteRecord($recordID);
+        header("Location: index.php?page=sales");
     }
 }

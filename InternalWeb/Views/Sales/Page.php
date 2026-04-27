@@ -81,7 +81,7 @@
                                 <div class="flexMax scrollable regTinPadding columnLayout tinGap noFlexBasis noMinHeight" id="inflowRecordsContainer">
                                     <h4 class="centerMarginsSelf">No Inflow</h4>
                                 </div>
-                                <button type="button" class="darkBG noBorder shadowed centerColumnLayout fitHeight clickable roundedTin">
+                                <button type="button" class="darkBG noBorder shadowed centerColumnLayout fitHeight clickable roundedTin" id="addInflowRecordButton">
                                     <h5 class="whiteText">Add Inflow Record</h5>
                                 </button>
                             </div>
@@ -92,7 +92,7 @@
                                 <div class="flexMax scrollable regTinPadding columnLayout tinGap noFlexBasis noMinHeight" id="outflowRecordsContainer">
                                     <h4 class="centerMarginsSelf">No Outflow</h4>
                                 </div>
-                                <button type="button" class="darkBG noBorder shadowed centerColumnLayout fitHeight clickable roundedTin">
+                                <button type="button" class="darkBG noBorder shadowed centerColumnLayout fitHeight clickable roundedTin" id="addOutflowRecordButton">
                                     <h5 class="whiteText">Add Outflow Record</h5>
                                 </button>
                             </div>
@@ -149,10 +149,7 @@
                                 <option value="monthly">Monthly</option>
                             </select>
                             <div class="centerHoriRowLayout tinGap">
-                                <!-- The granularityText must depend on what is the selected granularity -->
                                 <h6 id="granularityText">Days:</h6>
-                                <!-- The granularityRange default depends on the selected granularity, for daily = 30, weekly = 12, monthly = 12;-->
-                                <!-- the min and max too for daily: 7 - 60, weekly: 4 - 24, monthly: 6 - 24 -->
                                 <input type="number" id="granularityRangeInput" class="unitHeight duoWidth roundedTin noPadding centerText">
                             </div>
                         </div>
@@ -195,6 +192,8 @@
         isInflow: rec.isInflow === '1',
         value: Number(rec.value)
     }));
+
+    const salesOrders = <?php echo json_encode($salesOrders); ?>;
 
     // ========================== GLOBAL DATA ==========================
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -254,6 +253,25 @@
         return new Date(year, month, 1).getDay();
     }
 
+    function isFutureMonth(year, month) {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        return (year > currentYear) || (year === currentYear && month > currentMonth);
+    }
+
+    function updateNextButtonState(year, month) {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        // Disable next button only when the displayed month is the current month
+        if (year === currentYear && month === currentMonth) {
+            nextMonthBtn.classList.add('faded', 'unclickable');
+        } else {
+            nextMonthBtn.classList.remove('faded', 'unclickable');
+        }
+    }
+
     function getProfitForDate(dateStr) {
         let profit = 0;
         for (const rec of salesRecords) {
@@ -277,6 +295,32 @@
 
         const pad = (n) => String(n).padStart(2, '0');
 
+        // Helper: build a filler cell (previous or next month)
+        function createFillerCell(dateStr, dayNum, isToday, isFuture, profit) {
+            const div = document.createElement('div');
+            div.classList.add('centerColumnLayout', 'whiteText', 'outlineText', 'roundedTin', 'shadowed');
+
+            // Always faded and unclickable for filler cells
+            div.classList.add('faded', 'unclickable');
+
+            if (isToday) {
+                // Today styling but forced faded and unclickable
+                if (profit > 0) div.classList.add('greenBG');
+                else if (profit < 0) div.classList.add('redBG');
+                else div.classList.add('yellowBG');
+                // No clickable, no dateElement, no dataset
+            } else if (isFuture) {
+                div.classList.add('bordered', 'darkFadedBG');
+            } else { // past filler
+                if (profit > 0) div.classList.add('greenTransBG', 'greenBorder');
+                else if (profit < 0) div.classList.add('redTransBG', 'redBorder');
+                else div.classList.add('yellowTransBG', 'yellowBorder');
+            }
+            // Never a dateElement, never clickable, never selected underline
+            div.innerHTML = '<h4>' + dayNum + '</h4>';
+            return div;
+        }
+
         // ====================== LEADING (previous month) FILLER ======================
         if (startDay > 0) {
             const prevMonthYear = (month === 0) ? year - 1 : year;
@@ -290,28 +334,7 @@
                 const isFuture = cellDate.getTime() > todayMidnight.getTime();
                 const dateStr = `${prevMonthYear}-${pad(prevMonth+1)}-${pad(d)}`;
                 const profit = getProfitForDate(dateStr);
-
-                const div = document.createElement('div');
-                div.classList.add('centerColumnLayout', 'whiteText', 'outlineText', 'roundedTin', 'shadowed');
-
-                if (isToday) {
-                    if (profit > 0) div.classList.add('greenBG');
-                    else if (profit < 0) div.classList.add('redBG');
-                    else div.classList.add('yellowBG');
-                    div.classList.add('clickable', 'dateElement');
-                    div.dataset.date = dateStr;
-                    if (dateStr === selectedDate) div.classList.add('underlineText');
-                } else if (isFuture) {
-                    div.classList.add('bordered', 'darkFadedBG', 'faded', 'unclickable');
-                } else { // past filler
-                    if (profit > 0) div.classList.add('greenTransBG', 'greenBorder');
-                    else if (profit < 0) div.classList.add('redTransBG', 'redBorder');
-                    else div.classList.add('yellowTransBG', 'yellowBorder');
-                    div.classList.add('faded', 'unclickable');
-                }
-
-                div.innerHTML = '<h4>' + d + '</h4>';
-                daysGrid.appendChild(div);
+                daysGrid.appendChild(createFillerCell(dateStr, d, isToday, isFuture, profit));
             }
         }
 
@@ -363,30 +386,11 @@
                 const isFuture = cellDate.getTime() > todayMidnight.getTime();
                 const dateStr = `${nextMonthYear}-${pad(nextMonth+1)}-${pad(d)}`;
                 const profit = getProfitForDate(dateStr);
-
-                const div = document.createElement('div');
-                div.classList.add('centerColumnLayout', 'whiteText', 'outlineText', 'roundedTin', 'shadowed');
-
-                if (isToday) {
-                    if (profit > 0) div.classList.add('greenBG');
-                    else if (profit < 0) div.classList.add('redBG');
-                    else div.classList.add('yellowBG');
-                    div.classList.add('clickable', 'dateElement');
-                    div.dataset.date = dateStr;
-                    if (dateStr === selectedDate) div.classList.add('underlineText');
-                } else if (isFuture) {
-                    div.classList.add('bordered', 'darkFadedBG', 'faded', 'unclickable');
-                } else { // past filler
-                    if (profit > 0) div.classList.add('greenTransBG', 'greenBorder');
-                    else if (profit < 0) div.classList.add('redTransBG', 'redBorder');
-                    else div.classList.add('yellowTransBG', 'yellowBorder');
-                    div.classList.add('faded', 'unclickable');
-                }
-
-                div.innerHTML = '<h4>' + d + '</h4>';
-                daysGrid.appendChild(div);
+                daysGrid.appendChild(createFillerCell(dateStr, d, isToday, isFuture, profit));
             }
         }
+
+        updateNextButtonState(year, month);
     }
 
     function goToPrevMonth() {
@@ -404,6 +408,10 @@
     }
 
     function goToNextMonth() {
+        const nextMonth = (currentDate.getMonth() === 11) ? 0 : currentDate.getMonth() + 1;
+        const nextYear = (currentDate.getMonth() === 11) ? currentDate.getFullYear() + 1 : currentDate.getFullYear();
+        if (isFutureMonth(nextYear, nextMonth)) return;
+
         if (currentDate.getMonth() === 11) {
             currentDate.setMonth(0);
             currentDate.setFullYear(currentDate.getFullYear() + 1);
@@ -418,14 +426,23 @@
 
     function goToYear(year) {
         if (isNaN(year) || year < 1 || year > 9999) {
-            alert('Please enter a valid year (1-9999).');
             return;
         }
+
         currentDate.setFullYear(year);
-        const lastDayOfMonth = daysInMonth(currentDate.getFullYear(), currentDate.getMonth());
-        const currentDay = parseInt(selectedDateStr.split('-')[2], 10);
-        const newDay = Math.min(currentDay, lastDayOfMonth);
-        selectedDateStr = currentDate.getFullYear() + '-' + String(currentDate.getMonth() + 1).padStart(2, '0') + '-' + String(newDay).padStart(2, '0');
+        // If the resulting (year, current month) is in the future, reset to today
+        if (isFutureMonth(currentDate.getFullYear(), currentDate.getMonth())) {
+            currentDate = new Date();
+            selectedDateStr = todayStr;
+        } else {
+            const lastDayOfMonth = daysInMonth(currentDate.getFullYear(), currentDate.getMonth());
+            const currentDay = parseInt(selectedDateStr.split('-')[2], 10);
+            const newDay = Math.min(currentDay, lastDayOfMonth);
+            selectedDateStr = currentDate.getFullYear() + '-' +
+                String(currentDate.getMonth() + 1).padStart(2, '0') + '-' +
+                String(newDay).padStart(2, '0');
+        }
+
         renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), selectedDateStr);
         updateSalesDetail(selectedDateStr);
         renderSalesGraphs();
@@ -456,6 +473,8 @@
     const selectedDateOutflowText = document.getElementById('selectedDateOutflowText');
     const inflowRecordsContainer = document.getElementById('inflowRecordsContainer');
     const outflowRecordsContainer = document.getElementById('outflowRecordsContainer');
+    const addInflowRecordButton = document.getElementById('addInflowRecordButton');
+    const addOutflowRecordButton = document.getElementById('addOutflowRecordButton');
 
     function formatDisplayDate(dateStr) {
         const parts = dateStr.split('-');
@@ -465,7 +484,14 @@
         return monthNames[month] + ' ' + day + ', ' + year;
     }
 
+    function updateAddButtonsVisibility(dateStr) {
+        const isToday = dateStr === todayStr;
+        if (addInflowRecordButton) addInflowRecordButton.classList.toggle('hidden', !isToday);
+        if (addOutflowRecordButton) addOutflowRecordButton.classList.toggle('hidden', !isToday);
+    }
+
     function updateSalesDetail(dateStr) {
+        const isToday = dateStr === todayStr;
         const dayRecords = salesRecords.filter(r => r.date === dateStr);
 
         let totalInflow = 0;
@@ -505,13 +531,20 @@
         } else {
             inflows.forEach(rec => {
                 const div = document.createElement('div');
-                div.classList.add('roundedTin', 'columnLayout', 'flexStatic', 'greenBorder', 'shadowed', 'clickable', 'fixedScreen', 'noShrink', 'fullWidth', 'fitHeight');
+                div.classList.add(
+                    'roundedTin', 'columnLayout', 'flexStatic', 'greenBorder',
+                    'shadowed', 'fixedScreen', 'noShrink', 'fullWidth', 'fitHeight',
+                    'relatived'
+                );
                 div.innerHTML = `
-                <h5 class="capitalFirst centerText regtinPadding flexMax shadowed greenTransBG whiteText outlineText">
-                    ${rec.description}
-                </h5>
-                <h6 class="capitalFirst centerText regMinPadding">₱${rec.value.toLocaleString()}</h6>
-            `;
+                    ${isToday ? `<a class="squareSize unitHeight norWestAbsolute centerColumnLayout edgeCorner clickable recordRemove" data-id="${rec.id}">
+                        <img src="../../Shared/Img/XIcon.png" alt="X">
+                    </a>` : ''}
+                    <h5 class="capitalFirst centerText regtinPadding flexMax shadowed greenTransBG whiteText outlineText">
+                        ${rec.description}
+                    </h5>
+                    <h6 class="capitalFirst centerText regMinPadding">₱${rec.value.toLocaleString()}</h6>
+                `;
                 inflowRecordsContainer.appendChild(div);
             });
         }
@@ -524,19 +557,77 @@
         } else {
             outflows.forEach(rec => {
                 const div = document.createElement('div');
-                div.classList.add('roundedTin', 'columnLayout', 'flexStatic', 'redBorder', 'shadowed', 'clickable', 'fixedScreen', 'noShrink', 'fullWidth', 'fitHeight');
+                div.classList.add(
+                    'roundedTin', 'columnLayout', 'flexStatic', 'redBorder',
+                    'shadowed', 'fixedScreen', 'noShrink', 'fullWidth', 'fitHeight',
+                    'relatived'
+                );
                 div.innerHTML = `
-                <h5 class="capitalFirst centerText regtinPadding flexMax shadowed redTransBG whiteText outlineText">
-                    ${rec.description}
-                </h5>
-                <h6 class="capitalFirst centerText regMinPadding">₱${rec.value.toLocaleString()}</h6>
-            `;
+                    ${isToday ? `<a class="squareSize unitHeight norWestAbsolute centerColumnLayout edgeCorner clickable recordRemove" data-id="${rec.id}">
+                        <img src="../../Shared/Img/XIcon.png" alt="X">
+                    </a>` : ''}
+                    <h5 class="capitalFirst centerText regtinPadding flexMax shadowed redTransBG whiteText outlineText">
+                        ${rec.description}
+                    </h5>
+                    <h6 class="capitalFirst centerText regMinPadding">₱${rec.value.toLocaleString()}</h6>
+                `;
                 outflowRecordsContainer.appendChild(div);
             });
         }
 
+        inflowRecordsContainer.addEventListener('click', (e) => {
+            const removeBtn = e.target.closest('.recordRemove');
+            if (!removeBtn) return;
+            e.stopPropagation();
+
+            const recordID = removeBtn.dataset.id;
+            const oldInputs = confirmationForm.querySelectorAll('.tempElement');
+            oldInputs.forEach(el => el.remove());
+
+            confirmationTitle.textContent = "Delete Inflow Record?";
+            confirmationForm.action = "index.php?page=sales&action=deleteRecord";
+            confirmationText.textContent = "Are you sure you want to delete this inflow record?";
+            confirmationSubmit.value = "Delete";
+            confirmationSubmit.classList.add("redBG", "noBorder");
+
+            const hiddenInput = document.createElement("input");
+            hiddenInput.type = "hidden";
+            hiddenInput.name = "recordID";
+            hiddenInput.value = recordID;
+            hiddenInput.className = "tempElement";
+            confirmationForm.appendChild(hiddenInput);
+
+            confirmation.style.display = 'flex';
+        });
+
+        outflowRecordsContainer.addEventListener('click', (e) => {
+            const removeBtn = e.target.closest('.recordRemove');
+            if (!removeBtn) return;
+            e.stopPropagation();
+
+            const recordID = removeBtn.dataset.id;
+            const oldInputs = confirmationForm.querySelectorAll('.tempElement');
+            oldInputs.forEach(el => el.remove());
+
+            confirmationTitle.textContent = "Delete Outflow Record?";
+            confirmationForm.action = "index.php?page=sales&action=deleteRecord";
+            confirmationText.textContent = "Are you sure you want to delete this outflow record?";
+            confirmationSubmit.value = "Delete";
+            confirmationSubmit.classList.add("redBG", "noBorder");
+
+            const hiddenInput = document.createElement("input");
+            hiddenInput.type = "hidden";
+            hiddenInput.name = "recordID";
+            hiddenInput.value = recordID;
+            hiddenInput.className = "tempElement";
+            confirmationForm.appendChild(hiddenInput);
+
+            confirmation.style.display = 'flex';
+        });
+
         updateSalesSummary(dateStr);
         renderSalesGraphs(); // refresh graphs after detail update
+        updateAddButtonsVisibility(dateStr);
     }
 
     daysGrid.addEventListener('click', function(e) {
@@ -719,6 +810,7 @@
         const inflowByType = {},
             outflowByType = {};
 
+        // ---- Daily ----
         if (granularity === 'daily') {
             const start = new Date(targetDate);
             start.setDate(start.getDate() - range + 1);
@@ -728,13 +820,11 @@
                 d.setDate(start.getDate() + i);
                 const mIdx = d.getMonth();
                 const day = d.getDate();
-                const label = (mIdx !== curMonth) ? `${monthAbbr[mIdx]} ${day}` : `${day}`;
+                labels.push(mIdx !== curMonth ? `${monthAbbr[mIdx]} ${day}` : `${day}`);
                 curMonth = mIdx;
-                labels.push(label);
 
                 const dateKey = `${d.getFullYear()}-${String(mIdx+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
                 const dayRecords = salesRecords.filter(r => r.date === dateKey);
-
                 let inSum = 0,
                     outSum = 0;
                 dayRecords.forEach(rec => {
@@ -752,13 +842,19 @@
                 dailyOutflow.push(outSum);
                 dailyProfit.push(inSum - outSum);
             }
-        } else if (granularity === 'weekly') {
-            // Align end of each week to Saturday (same as inventory logic)
+        }
+        // ---- Weekly (forward iteration) ----
+        else if (granularity === 'weekly') {
             const dayOfWeek = targetDate.getDay();
-            let weekEnd = new Date(targetDate);
-            weekEnd.setDate(weekEnd.getDate() + (6 - dayOfWeek));
-            weekEnd.setHours(23, 59, 59, 999);
+            let lastWeekEnd = new Date(targetDate);
+            lastWeekEnd.setDate(lastWeekEnd.getDate() + (6 - dayOfWeek));
+            lastWeekEnd.setHours(23, 59, 59, 999);
 
+            const firstWeekEnd = new Date(lastWeekEnd);
+            firstWeekEnd.setDate(firstWeekEnd.getDate() - (7 * (range - 1)));
+            firstWeekEnd.setHours(23, 59, 59, 999);
+
+            let weekEnd = new Date(firstWeekEnd);
             for (let w = 0; w < range; w++) {
                 const weekStart = new Date(weekEnd);
                 weekStart.setDate(weekStart.getDate() - 6);
@@ -766,9 +862,9 @@
 
                 const sm = monthAbbr[weekStart.getMonth()];
                 const em = monthAbbr[weekEnd.getMonth()];
-                const label = (sm === em) ? `${sm} ${weekStart.getDate()} - ${weekEnd.getDate()}` :
-                    `${sm} ${weekStart.getDate()} - ${em} ${weekEnd.getDate()}`;
-                labels.unshift(label);
+                labels.push(sm === em ?
+                    `${sm} ${weekStart.getDate()} - ${weekEnd.getDate()}` :
+                    `${sm} ${weekStart.getDate()} - ${em} ${weekEnd.getDate()}`);
 
                 const weekRecs = salesRecords.filter(rec => {
                     const d = new Date(rec.date + 'T00:00:00');
@@ -781,36 +877,37 @@
                     if (rec.isInflow) inSum += rec.value;
                     else outSum += rec.value;
                 });
-                dailyInflow.unshift(inSum);
-                dailyOutflow.unshift(outSum);
-                dailyProfit.unshift(inSum - outSum);
+                dailyInflow.push(inSum);
+                dailyOutflow.push(outSum);
+                dailyProfit.push(inSum - outSum);
 
-                // Fill type arrays for unshift indices
-                for (const rec of weekRecs) {
+                weekRecs.forEach(rec => {
                     if (rec.isInflow) {
                         if (!inflowByType[rec.type]) inflowByType[rec.type] = new Array(range).fill(0);
-                        inflowByType[rec.type][range - 1 - w] += rec.value;
+                        inflowByType[rec.type][w] += rec.value;
                     } else {
                         if (!outflowByType[rec.type]) outflowByType[rec.type] = new Array(range).fill(0);
-                        outflowByType[rec.type][range - 1 - w] += rec.value;
+                        outflowByType[rec.type][w] += rec.value;
                     }
-                }
+                });
 
-                weekEnd = new Date(weekStart);
-                weekEnd.setDate(weekStart.getDate() - 1);
-                weekEnd.setHours(23, 59, 59, 999);
+                weekEnd.setDate(weekEnd.getDate() + 7);
             }
-        } else if (granularity === 'monthly') {
-            let monthEnd = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0);
-            monthEnd.setHours(23, 59, 59, 999);
+        }
+        // ---- Monthly (forward iteration) ----
+        else if (granularity === 'monthly') {
+            const oldestMonth = new Date(targetDate);
+            oldestMonth.setMonth(oldestMonth.getMonth() - (range - 1));
+            oldestMonth.setDate(1);
+            oldestMonth.setHours(0, 0, 0, 0);
 
+            let monthStart = new Date(oldestMonth);
             for (let m = 0; m < range; m++) {
-                const year = monthEnd.getFullYear();
-                const month = monthEnd.getMonth();
-                const label = `${monthAbbr[month]} ${year}`;
-                labels.unshift(label);
+                const year = monthStart.getFullYear();
+                const month = monthStart.getMonth();
+                labels.push(`${monthAbbr[month]} ${year}`);
 
-                const monthStart = new Date(year, month, 1, 0, 0, 0, 0);
+                const monthEnd = new Date(year, month + 1, 0, 23, 59, 59, 999);
                 const monthRecs = salesRecords.filter(rec => {
                     const d = new Date(rec.date + 'T00:00:00');
                     return d >= monthStart && d <= monthEnd;
@@ -822,35 +919,40 @@
                     if (rec.isInflow) inSum += rec.value;
                     else outSum += rec.value;
                 });
-                dailyInflow.unshift(inSum);
-                dailyOutflow.unshift(outSum);
-                dailyProfit.unshift(inSum - outSum);
+                dailyInflow.push(inSum);
+                dailyOutflow.push(outSum);
+                dailyProfit.push(inSum - outSum);
 
-                for (const rec of monthRecs) {
+                monthRecs.forEach(rec => {
                     if (rec.isInflow) {
                         if (!inflowByType[rec.type]) inflowByType[rec.type] = new Array(range).fill(0);
-                        inflowByType[rec.type][range - 1 - m] += rec.value;
+                        inflowByType[rec.type][m] += rec.value;
                     } else {
                         if (!outflowByType[rec.type]) outflowByType[rec.type] = new Array(range).fill(0);
-                        outflowByType[rec.type][range - 1 - m] += rec.value;
+                        outflowByType[rec.type][m] += rec.value;
                     }
-                }
+                });
 
-                monthEnd = new Date(year, month, 0);
-                monthEnd.setHours(23, 59, 59, 999);
+                monthStart.setMonth(monthStart.getMonth() + 1);
             }
         }
 
-        // Helper for padded min/max
-        function getPaddedMinMaxLocal(arrays, padding = 0.1) {
+        // ---- Dynamic padding helper ----
+        function paddedMinMax(arrays) {
             const flat = arrays.flat();
+            if (flat.length === 0) return {
+                min: 0,
+                max: 1
+            };
             const min = Math.min(...flat);
             const max = Math.max(...flat);
-            const rangeVal = max - min;
-            const pad = Math.max(rangeVal * padding, 1);
+            if (max === min) return {
+                min: min - 1,
+                max: max + 1
+            };
             return {
-                min: min >= 0 ? 0 : min - pad,
-                max: max + pad
+                min: min >= 0 ? 0 : min * 1.1,
+                max: max * 1.1
             };
         }
 
@@ -860,7 +962,8 @@
         const green = styles.getPropertyValue('--green').trim() || '#28a745';
         const font = getComputedStyle(document.body).fontFamily || 'sans-serif';
 
-        const generalMinMax = getPaddedMinMaxLocal([dailyInflow, dailyOutflow, dailyProfit]);
+        // ---- General Sales ----
+        const generalMinMax = paddedMinMax([dailyInflow, dailyOutflow, dailyProfit]);
         const generalSalesOptions = {
             series: [{
                     name: 'Inflow',
@@ -882,8 +985,9 @@
                 type: 'line',
                 height: '100%',
                 width: '100%',
+                stacked: false, // ← explicit non-stacked
                 toolbar: {
-                    show: false
+                    show: true
                 },
                 zoom: {
                     enabled: false
@@ -945,22 +1049,23 @@
             }
         };
 
+        // ---- Inflow Streams ----
         const inflowTypes = Object.keys(inflowByType);
         const inflowSeries = inflowTypes.map(type => ({
             name: type,
             data: inflowByType[type],
             color: inflowShade(type)
         }));
-        const inflowMinMax = getPaddedMinMaxLocal(Object.values(inflowByType));
+        const inflowMinMax = paddedMinMax(Object.values(inflowByType));
         const inflowStreamsOptions = {
             series: inflowSeries,
             chart: {
                 type: 'line',
                 height: '100%',
                 width: '100%',
-                stacked: true,
+                stacked: false,
                 toolbar: {
-                    show: false
+                    show: true
                 },
                 zoom: {
                     enabled: false
@@ -1022,22 +1127,23 @@
             }
         };
 
+        // ---- Outflow Streams ----
         const outflowTypes = Object.keys(outflowByType);
         const outflowSeries = outflowTypes.map(type => ({
             name: type,
             data: outflowByType[type],
             color: outflowShade(type)
         }));
-        const outflowMinMax = getPaddedMinMaxLocal(Object.values(outflowByType));
+        const outflowMinMax = paddedMinMax(Object.values(outflowByType));
         const outflowStreamsOptions = {
             series: outflowSeries,
             chart: {
                 type: 'line',
                 height: '100%',
                 width: '100%',
-                stacked: true,
+                stacked: false,
                 toolbar: {
-                    show: false
+                    show: true
                 },
                 zoom: {
                     enabled: false
@@ -1142,11 +1248,190 @@
         resizeTimer = setTimeout(renderSalesGraphs, 150);
     });
 
+    // ----- Add Inflow Record -----
+    addInflowRecordButton.addEventListener('click', () => {
+        const oldInputs = confirmationForm.querySelectorAll('.tempElement');
+        oldInputs.forEach(el => el.remove());
+
+        confirmationTitle.innerHTML = "Add Inflow Record";
+        confirmationForm.action = "index.php?page=sales&action=createInflowRecord";
+        confirmationSubmit.value = "Add Inflow";
+        confirmationSubmit.classList.add("yellowBG", "noBorder");
+
+        // ---- wrapper for all temporary elements ----
+        const wrapper = document.createElement("div");
+        wrapper.className = "tempElement columnLayout minGap";
+
+        // Order Inflow checkbox + label inside a row container
+        const checkboxRow = document.createElement("div");
+        checkboxRow.className = "centerHoriRowLayout tinGap";
+
+        const isOrderInflowCheckbox = document.createElement("input");
+        isOrderInflowCheckbox.type = "checkbox";
+        isOrderInflowCheckbox.id = "isOrderInflow";
+        isOrderInflowCheckbox.name = "isOrderInflow";
+        isOrderInflowCheckbox.checked = true;
+
+        const label = document.createElement("h4");
+        label.textContent = " Is Order Inflow";
+
+        checkboxRow.appendChild(isOrderInflowCheckbox);
+        checkboxRow.appendChild(label);
+        wrapper.appendChild(checkboxRow);
+
+        // dynamic container for the specific form fields
+        const dynamicContainer = document.createElement("div");
+        dynamicContainer.id = "dynamicInflowInputs";
+        dynamicContainer.className = "columnLayout minGap";
+        wrapper.appendChild(dynamicContainer);
+
+        // function to render the correct set of inputs inside dynamicContainer
+        function renderInflowInputs() {
+            dynamicContainer.innerHTML = '';
+            if (isOrderInflowCheckbox.checked) {
+                // ---- Order Inflow ----
+                confirmationText.innerHTML = "Select the order to record payment for and input the payment for the order.";
+                const unpaidOrders = salesOrders.filter(so =>
+                    parseFloat(so.priceTotal) - parseFloat(so.pricePaid) > 0
+                );
+
+                if (unpaidOrders.length === 0) {
+                    const warning = document.createElement("h4");
+                    warning.textContent = "No unpaid orders available.";
+                    warning.className = "redText centerText";
+                    dynamicContainer.appendChild(warning);
+                    return;
+                }
+
+                const select = document.createElement("select");
+                select.name = "orderID";
+                select.required = true;
+
+                const defaultOption = document.createElement("option");
+                defaultOption.value = "";
+                defaultOption.textContent = "Select an order";
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                select.appendChild(defaultOption);
+
+                unpaidOrders.forEach(order => {
+                    const remaining = (parseFloat(order.priceTotal) - parseFloat(order.pricePaid)).toFixed(2);
+                    const option = document.createElement("option");
+                    option.value = order.orderID;
+                    option.textContent = `Order #${order.orderID} – Remaining: ₱${remaining}`;
+                    option.dataset.remaining = remaining;
+                    select.appendChild(option);
+                });
+
+                const paymentInput = document.createElement("input");
+                paymentInput.type = "number";
+                paymentInput.name = "value";
+                paymentInput.placeholder = "Payment Amount";
+                paymentInput.step = "0.01";
+                paymentInput.min = "0.01";
+                paymentInput.required = true;
+
+                select.addEventListener('change', () => {
+                    const selectedOption = select.options[select.selectedIndex];
+                    if (selectedOption && selectedOption.dataset.remaining) {
+                        paymentInput.max = selectedOption.dataset.remaining;
+                    }
+                });
+
+                dynamicContainer.appendChild(select);
+                dynamicContainer.appendChild(paymentInput);
+            } else {
+                // ---- Other Inflow ----
+                confirmationText.innerHTML = "Enter the inflow details for today. The type must be exact in spelling, please be careful with inputs.";
+                const typeInput = document.createElement("input");
+                typeInput.type = "text";
+                typeInput.name = "type";
+                typeInput.placeholder = "Type";
+                typeInput.maxLength = 25;
+                typeInput.required = true;
+
+                const descInput = document.createElement("input");
+                descInput.type = "text";
+                descInput.name = "description";
+                descInput.placeholder = "Description";
+                descInput.maxLength = 25;
+                descInput.required = true;
+
+                const valueInput = document.createElement("input");
+                valueInput.type = "number";
+                valueInput.name = "value";
+                valueInput.placeholder = "Amount";
+                valueInput.step = "0.01";
+                valueInput.min = "0.01";
+                valueInput.required = true;
+
+                dynamicContainer.appendChild(typeInput);
+                dynamicContainer.appendChild(descInput);
+                dynamicContainer.appendChild(valueInput);
+            }
+        }
+
+        renderInflowInputs();
+        isOrderInflowCheckbox.addEventListener('change', renderInflowInputs);
+
+        // Append the whole wrapper at once
+        confirmationForm.appendChild(wrapper);
+
+        confirmation.style.display = 'flex';
+    });
+
+    // ----- Add Outflow Record -----
+    addOutflowRecordButton.addEventListener('click', () => {
+        const oldInputs = confirmationForm.querySelectorAll('.tempElement');
+        oldInputs.forEach(el => el.remove());
+
+        confirmationTitle.innerHTML = "Add Outflow Record";
+        confirmationForm.action = "index.php?page=sales&action=createOutflowRecord";
+        confirmationText.innerHTML = "Enter the outflow details for today. The type must be exact in spelling, please be careful with inputs.";
+        confirmationSubmit.value = "Add Outflow";
+        confirmationSubmit.classList.add("yellowBG", "noBorder");
+
+        // Create value input (number, two decimal places)
+        const valueInput = document.createElement("input");
+        valueInput.type = "number";
+        valueInput.name = "value";
+        valueInput.placeholder = "Amount";
+        valueInput.step = "0.01";
+        valueInput.min = "0.01";
+        valueInput.className = "tempElement";
+        valueInput.required = true;
+        confirmationForm.appendChild(valueInput);
+
+        // Create description input (text, max 25 chars)
+        const descInput = document.createElement("input");
+        descInput.type = "text";
+        descInput.name = "description";
+        descInput.placeholder = "Description";
+        descInput.maxLength = 25;
+        descInput.className = "tempElement";
+        descInput.required = true;
+        confirmationForm.appendChild(descInput);
+
+        // Create type input (text, max 25 chars)
+        const typeInput = document.createElement("input");
+        typeInput.type = "text";
+        typeInput.name = "type";
+        typeInput.placeholder = "Type";
+        typeInput.maxLength = 25;
+        typeInput.className = "tempElement";
+        typeInput.required = true;
+        confirmationForm.appendChild(typeInput);
+
+        confirmation.style.display = 'flex';
+    });
+
     // ========================== INITIALIZATION ==========================
     function onDOMReady() {
+        yearInput.max = new Date().getFullYear(); // prevent spinner from going past current year
         setGranularityUI('daily'); // ensure UI is ready before first render
         renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), selectedDateStr);
         updateSalesDetail(selectedDateStr);
+        updateAddButtonsVisibility(selectedDateStr);
     }
 
     if (document.readyState === 'loading') {

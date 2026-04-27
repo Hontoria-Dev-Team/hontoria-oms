@@ -183,7 +183,15 @@ switch ($page) {
         break;
 
     case 'sales':
-        $sales->showPage();
+        if ($action === 'createInflowRecord') {
+            $sales->createInflowRecord();
+        } else if ($action === 'createOutflowRecord') {
+            $sales->createOutflowRecord();
+        } else if ($action === 'deleteRecord') {
+            $sales->removeRecord();
+        } else {
+            $sales->showPage();
+        }
         break;
 
     default:
