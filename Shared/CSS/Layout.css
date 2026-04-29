@@ -257,6 +257,10 @@
     max-width: 50vw !important;
 }
 
+.majorScreenMaxWidth {
+    max-width: 80vw !important;
+}
+
 .midMaxHeight {
     max-height: 5rem !important;
 }
@@ -267,6 +271,14 @@
 
 .maxMaxHeight {
     max-height: 20rem !important;
+}
+
+.halfScreenMaxHeight {
+    max-height: 50vh !important;
+}
+
+.majorScreenMaxHeight {
+    max-height: 80vh !important;
 }
 
 .gridCenterVertFlex {
@@ -323,6 +335,10 @@
 
 .contentFlexEnd {
     justify-content: flex-end;
+}
+
+.contentFlexEven {
+    justify-content: space-evenly;
 }
 
 .flexStatic {
@@ -480,6 +496,18 @@
 
 .relatived {
     position: relative;
+}
+
+.stickied {
+    position: sticky;
+}
+
+.topPos {
+    top: 0;
+}
+
+.rightPos {
+    right: 0;
 }
 
 .marginTopMin {

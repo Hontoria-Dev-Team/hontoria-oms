@@ -167,7 +167,7 @@
 }
 
 .bordered {
-    border: 0.1rem solid var(--dark);
+    border: 0.1rem solid var(--dark) !important;
 }
 
 .redBorder {
@@ -298,6 +298,10 @@
     background: var(--gray);
 }
 
+.darkGrayBG {
+    background: var(--darkGray) !important;
+}
+
 .blueBG {
     background: var(--blue);
 }
@@ -306,8 +310,16 @@
     background: var(--red) !important;
 }
 
+.lightRedBG {
+    background: var(--lightRed) !important;
+}
+
 .yellowBG {
     background: var(--yellow) !important;
+}
+
+.lightYellowBG {
+    background: var(--lightYellow) !important;
 }
 
 .greenBG {
@@ -462,4 +474,8 @@
 
 .minText {
     font-size: 0.5rem;
+}
+
+.noWrapText {
+    white-space: nowrap;
 }

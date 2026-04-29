@@ -19,13 +19,15 @@ html {
     --dark: #220000;
     --darkTrans: #22000046;
     --darkFaded: #2200002a;
-    --darkGray: #997979;
+    --darkGray: #dbd1d1;
     --lightGray: #f7f7f7;
     --gray: #eeeeee;
     --red: #d3290d;
+    --lightRed: #fdd2cc;
     --redTrans: #f522022f;
     --redFaded: #f5220217;
     --yellow: #FFB611;
+    --lightYellow: #ffe2a4;
     --yellowTrans: #ffb8115e;
     --yellowFaded: #ffb81125;
     --yellowGreen: #efff11;
@@ -82,7 +84,7 @@ textarea {
 input[type=checkbox] {
     height: 1rem;
     width: 1rem;
-    accent-color: var(--red);
+    accent-color: var(--dark);
 }
 
 input[type="file"] {
