@@ -15,6 +15,7 @@ class PublicC {
 
     public function showServicesPage() {
         $page = "services";
+        $servicesCatalog = $this->publicModel->getServicesCatalog();
         require __DIR__ . '/../Views/Services/ServicesPage.php';
     }
 
@@ -23,4 +24,3 @@ class PublicC {
         require __DIR__ . '/../Views/AboutUs/AboutusPage.php';
     }
 }
-?>
