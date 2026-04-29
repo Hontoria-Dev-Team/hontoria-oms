@@ -60,7 +60,7 @@ INSERT INTO subservices (serviceID, name, isActive, pricePerUnit, description) V
 (1, 'Warmer', 1, 400, 'Sublimation warmers for players and athletes. Keeps you warm while looking professional on and off the court.'),
 (1, 'Jogging Pants', 1, 400, 'Full sublimation jogging pants with any design. Comfortable, durable, and eye-catching for any team or individual.');
 
-INSERT INTO subserviceImages (serviceID, imageName) VALUES
+INSERT INTO subserviceImages (subserviceID, imageName) VALUES
 -- Jersey (1-16)
 (1, 'jerseyPicture1.jpg'),
 (1, 'jerseyPicture2.jpg'),
