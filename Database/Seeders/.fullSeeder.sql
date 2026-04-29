@@ -48,24 +48,24 @@ INSERT INTO userStats (userID, tasksCompleted, tasksCompletedDuration) VALUES
 (10, 0, 0);
 
 -- Seed services and subservices next
-INSERT INTO services (name) VALUES
-('Sublimation'),
-('Tarpaulin'),
-('Sintra Board');
+INSERT INTO services (name, hasDesign, hasVariableList, isActive) VALUES
+('Sublimation', 1, 1, 1),
+('Tarpaulin', 1, 0, 0),
+('Sintra Board', 1, 0, 0);
 
-INSERT INTO subservices (serviceID, name, pricePerUnit, description) VALUES
-(1, 'Jersey', 300, 'High-quality full sublimation printing on jerseys. Perfect for sports teams, events, and uniforms. Fade-resistant and durable.'),
-(1, 'T-shirt', 250, 'Custom sublimation printed t-shirts in any design. Great for organizations, teams, and personal use.'),
-(1, 'Short', 200, 'Vibrant sublimation printed shorts. Matched perfectly with our jerseys for a complete team uniform.'),
-(1, 'Warmer', 400, 'Sublimation warmers for players and athletes. Keeps you warm while looking professional on and off the court.'),
-(1, 'Jogging Pants', 400, 'Full sublimation jogging pants with any design. Comfortable, durable, and eye-catching for any team or individual.');
+INSERT INTO subservices (serviceID, name, isActive, pricePerUnit, description) VALUES
+(1, 'Jersey', 1, 300, 'High-quality full sublimation printing on jerseys. Perfect for sports teams, events, and uniforms. Fade-resistant and durable.'),
+(1, 'T-shirt', 1, 250, 'Custom sublimation printed t-shirts in any design. Great for organizations, teams, and personal use.'),
+(1, 'Short', 1, 200, 'Vibrant sublimation printed shorts. Matched perfectly with our jerseys for a complete team uniform.'),
+(1, 'Warmer', 1, 400, 'Sublimation warmers for players and athletes. Keeps you warm while looking professional on and off the court.'),
+(1, 'Jogging Pants', 1, 400, 'Full sublimation jogging pants with any design. Comfortable, durable, and eye-catching for any team or individual.');
 
 -- Seed processes before serviceProcess because of the foreign key dependency
-INSERT INTO processes (name) VALUES
-('Designing'),
-('Printing'),
-('Heat Press'),
-('Sewing');
+INSERT INTO processes (name, minAssignDefault, maxAssignDefault, hasGCAccess, designAccess, variableListAccess) VALUES
+('Designing', 1, 3, 1, 'view & update', 'view & update'),
+('Printing', 1, 3, 0, 'view only', 'view only'),
+('Heat Press', 1, 3, 0, 'view only', 'view only'),
+('Sewing', 3, 10, 0, 'view only', 'no access');
 
 INSERT INTO serviceProcess (serviceID, processesID, phase) VALUES
 (1, 1, 1),
@@ -214,11 +214,11 @@ INSERT INTO userRoles (userID, roleID) VALUES
 (6, 6),
 (6, 7);
 
-INSERT INTO inventory (name, minQuantity, maxDailyAvgConsumption, lastRestockDate, lastRestockQuantity) VALUES
-('paper', 20, 10, '2026-04-24', 50),
-('cloth', 10, 5, '2026-04-24', 30);
+INSERT INTO inventory (name, minQuantity, maxAvgConsumption) VALUES
+('paper', 20, 10),
+('cloth', 10, 5);
 
-INSERT INTO inventoryRecords (date, inventoryID, quantity, used, added) VALUES
+INSERT INTO inventoryRecords (date, inventoryID, quantity, consumption, added) VALUES
 --  For Paper
 ('2026-03-20', 1, 63, 7, 70),
 ('2026-03-21', 1, 58, 5, 0),
@@ -284,3 +284,20 @@ INSERT INTO inventoryRecords (date, inventoryID, quantity, used, added) VALUES
 ('2026-04-22', 2, 43, 4, 0),
 ('2026-04-23', 2, 35, 8, 0),
 ('2026-04-24', 2, 61, 4, 30);
+
+INSERT INTO salesRecords (date, isInflow, type, description, value) VALUES
+('2026-04-02', 1, 'Stickers & Decals Car', 'Order #5 Payment', 3000),
+('2026-04-03', 0, 'Inventory Expense', 'Paper Expense', 500),
+('2026-04-03', 0, 'Inventory Expense', 'Cloth Expense', 600),
+('2026-04-08', 1, 'Sublimation Shorts', 'Order #2 Payment', 1000),
+('2026-04-10', 0, 'Inventory Expense', 'Paper Expense', 600),
+('2026-04-10', 1, 'Stickers & Decals Motorcycle', 'Order #5 Payment', 3000),
+('2026-04-10', 0, 'Inventory Expense', 'Cloth Expense', 600),
+('2026-04-15', 1, 'Sublimation Jersey', 'Order #1 Payment', 1000),
+('2026-04-16', 1, 'Tarpaulin Birthday', 'Order #4 Payment', 8000),
+('2026-04-17', 0, 'Inventory Expense', 'Paper Expense', 300),
+('2026-04-17', 0, 'Inventory Expense', 'Cloth Expense', 600),
+('2026-04-21', 1, 'Sublimation Jersey', 'Order #7 Payment', 2500),
+('2026-04-23', 0, 'Service Bills', 'Electricity Bill', 12000),
+('2026-04-24', 0, 'Inventory Expense', 'Paper Expense', 300),
+('2026-04-24', 0, 'Inventory Expense', 'Cloth Expense', 600);
