@@ -157,6 +157,8 @@ switch ($page) {
             $orders->assignToTask();
         } else if ($action === 'uploadDesign') {
             $orders->uploadOrderDesign();
+        } else if ($action === 'updateVariableList') {
+            $orders->updateVariableList();
         } else if ($action === 'updateTaskStatus') {
             $orders->changeUserProcessTaskStatus();
         } else {

@@ -105,6 +105,68 @@ class OrdersM {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getOrderVariableListByID($id) {
+        // 1. List metadata
+        $query = "SELECT * FROM variableLists WHERE orderID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $list = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$list) {
+            return null;   // no variable list for this order
+        }
+
+        // 2. Columns (ordered by displayOrder)
+        $query = "SELECT * FROM variableListColumns WHERE orderID = :id ORDER BY displayOrder";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $columns = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 3. Values (all cells)
+        $query = "SELECT * FROM variableListValues WHERE orderID = :id ORDER BY rowNumber, columnID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // 4. Row checks
+        $query = "SELECT * FROM variableListRowChecks WHERE orderID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $rowChecksData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Build a map: rowNumber => isChecked (boolean)
+        $rowChecks = [];
+        foreach ($rowChecksData as $rc) {
+            $rowChecks[(int)$rc['rowNumber']] = (bool)$rc['isChecked'];
+        }
+
+        return [
+            'list'      => $list,
+            'columns'   => $columns,
+            'values'    => $values,
+            'rowChecks' => $rowChecks,
+        ];
+    }
+
+    public function getAllOrderVariableListMapped() {
+        // Fetch all orders that have a variable list
+        $query = "SELECT orderID FROM variableLists";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        $orderIDs = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        $map = [];
+        foreach ($orderIDs as $oid) {
+            $map[$oid] = $this->getOrderVariableListByID($oid);
+        }
+
+        return $map;
+    }
+
     public function getOrderProcessByID($id) {
         $query = "
             SELECT
@@ -229,9 +291,47 @@ class OrdersM {
         for ($i = 0; $i < count($groupDescriptions); $i++) {
             $stmt->execute([
                 ':orderID' => $orderID,
-                ':description' => $groupDescriptions[$i],
+                ':description' => strtolower($groupDescriptions[$i]),
                 ':quantity' => $groupQuantities[$i],
             ]);
+        }
+
+        $query = "INSERT INTO variableLists (orderID) VALUES (:orderID)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':orderID', $orderID);
+        $stmt->execute();
+        $variableListID = $this->pdo->lastInsertId();
+
+        $query = "INSERT INTO variableListColumns (orderID, displayOrder, columnName) VALUES (:orderID, 1, 'group')";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':orderID', $orderID);
+        $stmt->execute();
+        $groupColumnId = $this->pdo->lastInsertId();
+
+        $rowNumber = 1;
+        foreach ($groupDescriptions as $index => $description) {
+            $quantity = $groupQuantities[$index];
+            for ($j = 0; $j < $quantity; $j++) {
+                // Insert the cell value
+                $query = "INSERT INTO variableListValues (orderID, rowNumber, columnID, valueText) VALUES (:orderID, :rowNumber, :columnID, :value)";
+                $stmt = $this->pdo->prepare($query);
+                $stmt->execute([
+                    ':orderID'   => $orderID,
+                    ':rowNumber' => $rowNumber,
+                    ':columnID'  => $groupColumnId,
+                    ':value'     => strtolower($description)
+                ]);
+
+                // Insert the corresponding row check (defaults to unchecked)
+                $query = "INSERT INTO variableListRowChecks (orderID, rowNumber) VALUES (:orderID, :rowNumber)";
+                $stmt = $this->pdo->prepare($query);
+                $stmt->execute([
+                    ':orderID'   => $orderID,
+                    ':rowNumber' => $rowNumber
+                ]);
+
+                $rowNumber++;
+            }
         }
 
         $query = "INSERT INTO orderProcess (orderID, phase, minAssign, maxAssign, status) VALUES (:orderID, :phase, :minAssign, :maxAssign, :status)";
@@ -275,6 +375,11 @@ class OrdersM {
         $stmt->execute();
 
         $query = "DELETE FROM orderDesigns WHERE orderID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        $query = "DELETE FROM variableLists WHERE orderID = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
@@ -359,6 +464,8 @@ class OrdersM {
                 orderProcess.orderID,
                 processes.id AS processID,
                 services.name AS serviceName,
+                services.hasDesign,
+                services.hasVariableList,
                 subservices.name AS subserviceName,
                 orders.customerName,
                 orderProcess.minAssign,
@@ -367,6 +474,7 @@ class OrdersM {
                 orders.messengerGCLink,
                 processes.name AS processName,
                 processes.designAccess,
+                processes.variableListAccess,
                 userCheck.status AS taskStatus,
                 COUNT(userProcessTasks.orderProcessID) AS assignedNum,
                 CASE WHEN userCheck.userID IS NOT NULL THEN TRUE ELSE FALSE END AS isAssigned,
@@ -516,9 +624,107 @@ class OrdersM {
     }
 
     public function updateUserProcessTaskStatus($userID, $orderProcessID, $status) {
-        $query = strtolower($status) == 'complete' ?
-            "UPDATE userProcessTasks SET status = :status, completedAt = NOW() WHERE userID = :userID AND orderProcessID = :orderProcessID" :
-            "UPDATE userProcessTasks SET status = :status WHERE userID = :userID AND orderProcessID = :orderProcessID";
+        $status = strtolower(trim($status));
+        $validStatuses = ['pending', 'partially complete', 'complete'];
+
+        if (!in_array($status, $validStatuses, true)) {
+            return "Error: Invalid task status.";
+        }
+
+        $stmt = $this->pdo->prepare(
+            "SELECT * FROM userProcessTasks WHERE userID = :userID AND orderProcessID = :orderProcessID LIMIT 1"
+        );
+        $stmt->execute([
+            ':userID' => $userID,
+            ':orderProcessID' => $orderProcessID
+        ]);
+        $task = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$task) {
+            return "Error: You are not assigned to this task.";
+        }
+
+        $currentStatus = strtolower($task['status']);
+        if ($currentStatus === 'complete') {
+            return "Error: Completed tasks cannot be updated.";
+        }
+
+        $currentIndex = array_search($currentStatus, $validStatuses, true);
+        $requestedIndex = array_search($status, $validStatuses, true);
+        if ($requestedIndex === false || $requestedIndex <= $currentIndex) {
+            return "Error: Invalid task transition.";
+        }
+
+        $query = "
+            SELECT
+                orderProcess.orderID,
+                orderProcess.phase,
+                processes.designAccess,
+                processes.variableListAccess,
+                services.hasDesign,
+                services.hasVariableList
+            FROM orderProcess
+            JOIN orders ON orderProcess.orderID = orders.id
+            JOIN subservices ON orders.subserviceID = subservices.id
+            JOIN services ON subservices.serviceID = services.id
+            JOIN serviceProcess
+                ON subservices.serviceID = serviceProcess.serviceID
+                AND orderProcess.phase = serviceProcess.phase
+            JOIN processes ON serviceProcess.processesID = processes.id
+            WHERE orderProcess.id = :orderProcessID
+            LIMIT 1
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute([':orderProcessID' => $orderProcessID]);
+        $process = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$process) {
+            return "Error: Task process data not found.";
+        }
+
+        $designRequired = $process['hasDesign'] == 1 && $process['designAccess'] === 'view & update';
+        if ($designRequired) {
+            $query = "SELECT approved FROM orderDesigns WHERE orderID = :orderID LIMIT 1";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([':orderID' => $process['orderID']]);
+            $design = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$design || (int)$design['approved'] !== 1) {
+                return "Error: Design must be approved before updating task status.";
+            }
+        }
+
+        $variableListRequired = $process['hasVariableList'] == 1 && $process['variableListAccess'] === 'view & update';
+        if ($variableListRequired) {
+            $listData = $this->getOrderVariableListByID($process['orderID']);
+            if (!$listData || empty($listData['list']) || (int)$listData['list']['approved'] !== 1) {
+                return "Error: Variable list approval required before updating task status.";
+            }
+        }
+
+        if ($status === 'complete') {
+            $query = "
+                SELECT COUNT(*) FROM userProcessTasks upt
+                JOIN orderProcess op ON upt.orderProcessID = op.id
+                WHERE op.orderID = (SELECT orderID FROM orderProcess WHERE id = :orderProcessID)
+                AND op.phase < (SELECT phase FROM orderProcess WHERE id = :orderProcessID)
+                AND upt.status != 'complete'
+                LIMIT 1
+            ";
+
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([':orderProcessID' => $orderProcessID]);
+            if ($stmt->fetchColumn() > 0) {
+                return "Error: Cannot complete task. All preceding tasks in the order must be complete.";
+            }
+        }
+
+        if ($status === 'complete') {
+            $query = "UPDATE userProcessTasks SET status = :status, completedAt = NOW() WHERE userID = :userID AND orderProcessID = :orderProcessID";
+        } else {
+            $query = "UPDATE userProcessTasks SET status = :status WHERE userID = :userID AND orderProcessID = :orderProcessID";
+        }
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute([
@@ -527,7 +733,8 @@ class OrdersM {
             ':orderProcessID' => $orderProcessID
         ]);
 
-        return $this->updateOrderProcess($orderProcessID);
+        $this->updateOrderProcess($orderProcessID);
+        return "Success: Task status updated.";
     }
 
     public function findSingleOrderDesignByID($orderID) {
@@ -624,6 +831,160 @@ class OrdersM {
         return $results;
     }
 
+    public function updateVariableList($orderID, $data) {
+        // Normalize everything to lowercase
+        foreach ($data['columns'] as &$col) {
+            $col['columnName'] = strtolower($col['columnName']);
+        }
+        unset($col);
+        foreach ($data['values'] as &$val) {
+            $val['valueText'] = strtolower($val['valueText']);
+        }
+        unset($val);
+
+        $this->pdo->beginTransaction();
+        try {
+            // Original data
+            $origCols = $this->pdo->prepare("SELECT * FROM variableListColumns WHERE orderID = ? ORDER BY displayOrder");
+            $origCols->execute([$orderID]);
+            $origCols = $origCols->fetchAll(PDO::FETCH_ASSOC);
+
+            $origVals = $this->pdo->prepare("SELECT * FROM variableListValues WHERE orderID = ?");
+            $origVals->execute([$orderID]);
+            $origVals = $origVals->fetchAll(PDO::FETCH_ASSOC);
+
+            // Find the immutable "group" column
+            $groupCol = null;
+            foreach ($origCols as $c) {
+                if (strtolower($c['columnName']) === 'group') {
+                    $groupCol = $c;
+                    break;
+                }
+            }
+            if (!$groupCol) throw new Exception("Group column not found.");
+
+            // Ensure group column is present, first, and named correctly
+            $inGroupId = null;
+            foreach ($data['columns'] as $idx => $col) {
+                if (!empty($col['id']) && $col['id'] == $groupCol['id']) {
+                    if ($idx !== 0) throw new Exception("Group column must be first.");
+                    if ($col['columnName'] !== 'group') throw new Exception("Group column cannot be renamed.");
+                    $inGroupId = $col['id'];
+                }
+            }
+            if (!$inGroupId) throw new Exception("Group column cannot be deleted.");
+
+            // Normalize displayOrder so the group column stays first and all other columns are sequential.
+            $normalizedCols = [];
+            $nextOrder = 1;
+            foreach ($data['columns'] as $col) {
+                $col['displayOrder'] = $nextOrder++;
+                $normalizedCols[] = $col;
+            }
+            $data['columns'] = $normalizedCols;
+
+            // Row count must not change
+            $origRows = array_unique(array_column($origVals, 'rowNumber'));
+            $newRows  = array_unique(array_column($data['values'], 'rowNumber'));
+            sort($origRows);
+            sort($newRows);
+            if ($origRows != $newRows) throw new Exception("Rows cannot be added or removed.");
+
+            // Group column values must match the originals (lowercased)
+            $origGroupVals = [];
+            foreach ($origVals as $v) {
+                if ($v['columnID'] == $groupCol['id']) {
+                    $origGroupVals[$v['rowNumber']] = strtolower($v['valueText']);
+                }
+            }
+            foreach ($data['values'] as $v) {
+                $colId   = $v['columnID'] ?? null;
+                $tempKey = $v['tempKey'] ?? null;
+                $isGroup = $colId == $groupCol['id'] || ($tempKey && $tempKey === ($data['columns'][0]['tempKey'] ?? null));
+                if ($isGroup) {
+                    $row  = $v['rowNumber'];
+                    $expected = $origGroupVals[$row] ?? null;
+                    if ($expected !== null && $v['valueText'] !== $expected) {
+                        throw new Exception("Values in the group column are immutable.");
+                    }
+                }
+            }
+
+            // ----- Update / insert columns -----
+            $colMap = [];
+            $stmtUpd = $this->pdo->prepare("UPDATE variableListColumns SET columnName = ?, displayOrder = ? WHERE id = ?");
+            $stmtIns = $this->pdo->prepare("INSERT INTO variableListColumns (orderID, columnName, displayOrder) VALUES (?, ?, ?)");
+            foreach ($data['columns'] as $col) {
+                if (!empty($col['id'])) {
+                    $stmtUpd->execute([$col['columnName'], $col['displayOrder'], $col['id']]);
+                    $colMap[$col['id']] = $col['id'];
+                } else {
+                    $stmtIns->execute([$orderID, $col['columnName'], $col['displayOrder']]);
+                    $newId = $this->pdo->lastInsertId();
+                    if (!empty($col['tempKey'])) $colMap[$col['tempKey']] = $newId;
+                }
+            }
+
+            // Delete removed columns (except group)
+            $existingIds = array_column($origCols, 'id');
+            $incomingIds = array_filter(array_column($data['columns'], 'id'));
+            $toDelete = array_diff($existingIds, $incomingIds);
+            $stmtDel = $this->pdo->prepare("DELETE FROM variableListColumns WHERE id = ?");
+            foreach ($toDelete as $delId) {
+                if ($delId == $groupCol['id']) continue;
+                $stmtDel->execute([$delId]);
+            }
+
+            // ----- Update / insert values -----
+            $stmtUpdVal = $this->pdo->prepare("UPDATE variableListValues SET valueText = ?, rowNumber = ?, columnID = ? WHERE id = ?");
+            $stmtInsVal = $this->pdo->prepare("INSERT INTO variableListValues (orderID, rowNumber, columnID, valueText) VALUES (?, ?, ?, ?)");
+            $handled = [];
+            $existingValIds = array_column($origVals, 'id');
+
+            foreach ($data['values'] as $v) {
+                $realColId = null;
+                if (!empty($v['columnID']) && isset($colMap[$v['columnID']])) $realColId = $v['columnID'];
+                elseif (!empty($v['tempKey']) && isset($colMap[$v['tempKey']])) $realColId = $colMap[$v['tempKey']];
+                if (!$realColId) continue;
+
+                if (!empty($v['id']) && in_array($v['id'], $existingValIds)) {
+                    $stmtUpdVal->execute([$v['valueText'], $v['rowNumber'], $realColId, $v['id']]);
+                    $handled[] = $v['id'];
+                } else {
+                    $stmtInsVal->execute([$orderID, $v['rowNumber'], $realColId, $v['valueText']]);
+                }
+            }
+
+            // Delete orphaned values
+            $valToDelete = array_diff($existingValIds, $handled);
+            $stmtDelVal = $this->pdo->prepare("DELETE FROM variableListValues WHERE id = ?");
+            foreach ($valToDelete as $delId) $stmtDelVal->execute([$delId]);
+
+            // ----- Update row checks -----
+            $stmtDelChk = $this->pdo->prepare("DELETE FROM variableListRowChecks WHERE orderID = ?");
+            $stmtDelChk->execute([$orderID]);
+
+            if (!empty($data['rowChecks'])) {
+                $stmtInsChk = $this->pdo->prepare(
+                    "INSERT INTO variableListRowChecks (orderID, rowNumber, isChecked) VALUES (?, ?, ?)"
+                );
+                foreach ($data['rowChecks'] as $rc) {
+                    $stmtInsChk->execute([
+                        $orderID,
+                        $rc['rowNumber'],
+                        isset($rc['isChecked']) && $rc['isChecked'] ? 1 : 0
+                    ]);
+                }
+            }
+
+            $this->pdo->commit();
+            return "Success: Variable list updated.";
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            return "Error: " . $e->getMessage();
+        }
+    }
+
     public function getOrderProcessTaskStatus($orderProcessID) {
         $query = "
             SELECT
@@ -672,11 +1033,23 @@ class OrdersM {
 
         $result = $stmt->fetchColumn();
 
-        if ($result) {
-            $query = "UPDATE orderProcess SET status = 'active' WHERE id = :id";
-            $stmt = $this->pdo->prepare($query);
-            $stmt->bindParam(':id', $result);
-            $stmt->execute();
+        if ($status === 'complete' || $status === 'partially complete') {
+            if ($result) {
+                // Check if next is 'pending'
+                $query = "SELECT status FROM orderProcess WHERE id = :id";
+                $stmt = $this->pdo->prepare($query);
+                $stmt->bindParam(':id', $result);
+                $stmt->execute();
+                $nextStatus = $stmt->fetchColumn();
+
+                if ($nextStatus === 'pending') {
+                    // Set this one to 'active'
+                    $query = "UPDATE orderProcess SET status = 'active' WHERE id = :id";
+                    $stmt = $this->pdo->prepare($query);
+                    $stmt->bindParam(':id', $result);
+                    $stmt->execute();
+                }
+            }
         }
     }
 

@@ -62,7 +62,8 @@
                                     ?>
                                     <div class="<?= $statusClass ?> columnLayout tinGap regPadding roundedMin shadowed assignedTaskElement clickable"
                                         data-id="<?= $task['id'] ?>" data-order-id="<?= $task['orderID'] ?>" data-status="<?= $task['taskStatus'] ?>"
-                                        data-design-access="<?= $task['designAccess'] ?>">
+                                        data-design-access="<?= $task['designAccess'] ?>" data-variable-list-access="<?= $task['variableListAccess'] ?>"
+                                        data-design-use="<?= $task['hasDesign'] ?>" data-variable-list-use="<?= $task['hasVariableList'] ?>">
                                         <div class="centerHoriRowLayout minGap">
                                             <div class="flexMax">
                                                 <h2>Order #<?= $task['orderID'] ?></h2>
@@ -120,8 +121,8 @@
                                         <img src="../../Shared/Img/PhotoIcon.png" alt="Photo" class="invertColors">
                                     </div>
                                 </div>
-                                <div class="redBorder flexMin fullHeight roundedMin centerHoriRowLayout shadowed fixedScreen">
-                                    <b class="flexMax centerText redText">Unapproved</b>
+                                <div class="redBorder flexMin fullHeight roundedMin centerHoriRowLayout shadowed fixedScreen clickable" id="variableListButton">
+                                    <b class="flexMax centerText">Unapproved</b>
                                     <div class="squareSize fullHeight centerColumnLayout redBG shadowed">
                                         <img src="../../Shared/Img/BarsIcon.png" alt="Bars" class="invertColors">
                                     </div>
@@ -151,9 +152,11 @@
     const assigneesContainer = document.getElementById('assigneesContainer');
     const statusButton = document.getElementById('statusButton');
     const designButton = document.getElementById('designButton');
+    const variableListButton = document.getElementById('variableListButton');
     const orderGroupsContainer = document.getElementById('orderGroupsContainer');
     const assigneeList = <?php echo json_encode($assigneeList); ?>;
     const designList = <?php echo json_encode($designList); ?>;
+    const variableListMap = <?php echo json_encode($variableListMap); ?>;
     const orderGroupList = <?php echo json_encode($orderGroupList); ?>;
 
     const assigneeMap = {};
@@ -213,6 +216,8 @@
     let selectedTaskDesign;
     let selectedTaskDesignApproval;
     let selectedTaskGroups;
+    let selectedTaskDesignAccess = '';
+    let selectedTaskVariableListAccess = '';
 
     document.addEventListener('DOMContentLoaded', function() {
         assignedTaskElement.forEach(function(elem) {
@@ -271,42 +276,166 @@
                         break;
                 }
 
-                if (selectedTaskDesignApproval == 0) {
-                    designButton.classList.add('redBorder', 'redText');
-                    designButton.classList.remove('bordered', 'greenBorder', 'greenText');
-                    designButton.querySelector("div").classList.add('redBG');
-                    designButton.querySelector("div").classList.remove('darkBG', 'greenBG');
+                // ---- Early flags: does this task actually require a design / variable list? ----
+                const designUse = elem.dataset.designUse !== "0"; // true if design is needed
+                const variableListUse = elem.dataset.variableListUse !== "0"; // true if list is needed
+                selectedTaskDesignAccess = elem.dataset.designAccess;
+                selectedTaskVariableListAccess = elem.dataset.variableListAccess;
 
-                    designButton.querySelector("b").textContent = 'Unapproved';
-                } else if (selectedTaskDesignApproval == 1) {
-                    designButton.classList.add('greenBorder', 'greenText');
-                    designButton.classList.remove('bordered', 'redBorder', 'redText');
-                    designButton.querySelector("div").classList.add('greenBG');
-                    designButton.querySelector("div").classList.remove('darkBG', 'redBG');
-
-                    designButton.querySelector("b").textContent = 'Approved';
-                } else {
-                    designButton.classList.add('bordered');
-                    designButton.classList.remove('redBorder', 'redText', 'greenBorder', 'greenText');
-                    designButton.querySelector("div").classList.add('darkBG');
-                    designButton.querySelector("div").classList.remove('redBG', 'greenBG');
-
-                    designButton.querySelector("b").textContent = 'Unset';
-                }
-
-                if (elem.dataset.designAccess == "view & update") {
-                    designButton.classList.remove('hidden');
-
-                    if (selectedTaskDesignApproval == 1) {
-                        statusButton.classList.remove('unclickable', 'faded');
+                // ----- Design button styling and visibility -----
+                if (designUse) {
+                    if (selectedTaskDesignApproval == 0) {
+                        designButton.classList.add('redBorder', 'redText');
+                        designButton.classList.remove('bordered', 'greenBorder', 'greenText');
+                        designButton.querySelector("div").classList.add('redBG');
+                        designButton.querySelector("div").classList.remove('darkBG', 'greenBG');
+                        designButton.querySelector("b").textContent = 'Unapproved';
+                    } else if (selectedTaskDesignApproval == 1) {
+                        designButton.classList.add('greenBorder', 'greenText');
+                        designButton.classList.remove('bordered', 'redBorder', 'redText');
+                        designButton.querySelector("div").classList.add('greenBG');
+                        designButton.querySelector("div").classList.remove('darkBG', 'redBG');
+                        designButton.querySelector("b").textContent = 'Approved';
                     } else {
-                        statusButton.classList.add('unclickable', 'faded');
+                        designButton.classList.add('bordered');
+                        designButton.classList.remove('redBorder', 'redText', 'greenBorder', 'greenText');
+                        designButton.querySelector("div").classList.add('darkBG');
+                        designButton.querySelector("div").classList.remove('redBG', 'greenBG');
+                        designButton.querySelector("b").textContent = 'Unset';
+                    }
+
+                    if (elem.dataset.designAccess == "view & update") {
+                        designButton.classList.remove('hidden');
+                    } else if (elem.dataset.designAccess == "view only") {
+                        designButton.classList.remove('hidden');
+                        designButton.querySelector("b").textContent = 'Design';
+                    } else {
+                        designButton.classList.add('hidden');
                     }
                 } else {
+                    // No design required — hide completely
                     designButton.classList.add('hidden');
-                    statusButton.classList.remove('unclickable', 'faded');
                 }
 
+                // ----- Variable list button styling and visibility -----
+                if (variableListUse) {
+                    const listData = variableListMap[elem.dataset.orderId];
+                    console.log(listData);
+                    let listStatus = 'incomplete'; // default when data is missing
+
+                    if (listData && listData.list && listData.columns && listData.values) {
+                        const groupColumn = listData.columns.find(c => c.columnName.toLowerCase() === 'group');
+                        if (groupColumn) {
+                            const otherColumns = listData.columns.filter(c => c.id != groupColumn.id);
+                            const rowNumbers = [...new Set(listData.values.map(v => v.rowNumber))];
+
+                            let hasEmptyCell = false;
+                            for (const col of otherColumns) {
+                                for (const row of rowNumbers) {
+                                    const cell = listData.values.find(v => v.rowNumber == row && v.columnID == col.id);
+                                    if (!cell || !cell.valueText || cell.valueText.trim() === '') {
+                                        hasEmptyCell = true;
+                                        break;
+                                    }
+                                }
+                                if (hasEmptyCell) break;
+                            }
+
+                            let hasUncheckedRow = false;
+                            if (listData.rowChecks) {
+                                for (const row of rowNumbers) {
+                                    if (!listData.rowChecks[row]) {
+                                        hasUncheckedRow = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            const hasIssue = hasEmptyCell || hasUncheckedRow;
+                            const isApproved = listData.list.approved == 1;
+
+                            if (hasIssue && !isApproved) {
+                                listStatus = 'incomplete'; // dark
+                            } else if (!hasIssue && !isApproved) {
+                                listStatus = 'unapproved'; // red
+                            } else if (hasIssue && isApproved) {
+                                listStatus = 'approved'; // yellow
+                            } else if (!hasIssue && isApproved) {
+                                listStatus = 'complete'; // green
+                            }
+                        }
+                    }
+
+                    // Store for the status‑button handler later
+                    window.selectedTaskListStatus = listStatus;
+
+                    // Apply styling
+                    switch (listStatus) {
+                        case 'complete':
+                            variableListButton.classList.add('greenBorder', 'greenText');
+                            variableListButton.classList.remove('bordered', 'redBorder', 'redText');
+                            variableListButton.querySelector("div").classList.add('greenBG');
+                            variableListButton.querySelector("div").classList.remove('darkBG', 'redBG');
+                            variableListButton.querySelector("b").textContent = 'Complete';
+                            break;
+                        case 'approved':
+                            variableListButton.classList.add('yellowBorder', 'yellowText');
+                            variableListButton.classList.remove('bordered', 'redBorder', 'redText', 'greenBorder', 'greenText');
+                            variableListButton.querySelector("div").classList.add('yellowBG');
+                            variableListButton.querySelector("div").classList.remove('darkBG', 'redBG', 'greenBG');
+                            variableListButton.querySelector("b").textContent = 'Approved';
+                            break;
+                        case 'unapproved':
+                            variableListButton.classList.add('redBorder', 'redText');
+                            variableListButton.classList.remove('bordered', 'greenBorder', 'greenText');
+                            variableListButton.querySelector("div").classList.add('redBG');
+                            variableListButton.querySelector("div").classList.remove('darkBG', 'greenBG');
+                            variableListButton.querySelector("b").textContent = 'Unapproved';
+                            break;
+                        case 'incomplete':
+                            variableListButton.classList.add('bordered');
+                            variableListButton.classList.remove('greenBorder', 'greenText', 'redBorder', 'redText');
+                            variableListButton.querySelector("div").classList.add('darkBG');
+                            variableListButton.querySelector("div").classList.remove('greenBG', 'redBG');
+                            variableListButton.querySelector("b").textContent = 'Incomplete';
+                            break;
+                    }
+
+                    if (elem.dataset.variableListAccess == "view & update") {
+                        variableListButton.classList.remove('hidden');
+                    } else if (elem.dataset.variableListAccess == "view only") {
+                        variableListButton.classList.remove('hidden');
+                        variableListButton.querySelector("b").textContent = 'Variable List';
+                    } else {
+                        variableListButton.classList.add('hidden');
+                    }
+                } else {
+                    variableListButton.classList.add('hidden');
+                    window.selectedTaskListStatus = null;
+                }
+
+                // ----- Status button enable/disable based on approvals -----
+                const designRequired = designUse && elem.dataset.designAccess == "view & update";
+                const variableListRequired = variableListUse && elem.dataset.variableListAccess == "view & update";
+                let canChangeStatus = true;
+
+                if (designRequired && selectedTaskDesignApproval != 1) {
+                    canChangeStatus = false;
+                }
+                if (variableListRequired) {
+                    const listStatus = window.selectedTaskListStatus;
+                    if (!listStatus || (listStatus !== 'approved' && listStatus !== 'complete')) {
+                        canChangeStatus = false;
+                    }
+                }
+
+                if (canChangeStatus) {
+                    statusButton.classList.remove('unclickable', 'faded');
+                } else {
+                    statusButton.classList.add('unclickable', 'faded');
+                }
+
+                // ----- Final UI adjustments -----
                 document.querySelectorAll('.noSelectText').forEach(function(elem) {
                     elem.remove();
                 });
@@ -324,40 +453,47 @@
 
     // Process Task status logic functionality
     statusButton.addEventListener('click', function() {
-        confirmationForm.action = "index.php?page=tasks&action=updateTaskStatus"
+        const oldInputs = confirmationForm.querySelectorAll('.tempElement');
+        oldInputs.forEach(el => el.remove());
 
+        confirmationForm.action = "index.php?page=tasks&action=updateTaskStatus";
+
+        const currentStatus = statusButton.dataset.status;
+        const statusOrder = ['pending', 'partially complete', 'complete'];
+        const currentIndex = statusOrder.indexOf(currentStatus);
+
+        // ---- "pending" button ----
         tempElement = document.createElement("input");
         tempElement.type = "submit";
         tempElement.name = "taskStatus";
         tempElement.className = "tempElement tinHeight redTransBG redBorder centerColumnLayout capitalFirst emphasizedText shadowed";
         tempElement.value = "pending";
+        // Hide if current status is pending or higher
+        if (currentIndex >= 0) tempElement.classList.add("hidden");
         confirmationForm.appendChild(tempElement);
 
-        if (statusButton.dataset.status == tempElement.value) {
-            tempElement.classList.add("hidden");
-        }
-
+        // ---- "partially complete" button ----
         tempElement = document.createElement("input");
         tempElement.type = "submit";
         tempElement.name = "taskStatus";
         tempElement.className = "tempElement tinHeight yellowTransBG yellowBorder centerColumnLayout capitalFirst emphasizedText shadowed";
         tempElement.value = "partially complete";
+        // Hide if current status is partially complete or higher
+        if (currentIndex >= 1) tempElement.classList.add("hidden");
         confirmationForm.appendChild(tempElement);
 
-        if (statusButton.dataset.status == tempElement.value) {
-            tempElement.classList.add("hidden");
-        }
+        // ---- "complete" button ----
+        const listRequired = window.selectedTaskListStatus !== undefined && window.selectedTaskListStatus !== null;
+        const listNotComplete = listRequired && window.selectedTaskListStatus !== 'complete';
 
         tempElement = document.createElement("input");
         tempElement.type = "submit";
         tempElement.name = "taskStatus";
         tempElement.className = "tempElement tinHeight greenTransBG greenBorder centerColumnLayout capitalFirst emphasizedText shadowed";
         tempElement.value = "complete";
+        // Hide if already complete, or if variable list required but not complete
+        if (currentIndex >= 2 || listNotComplete) tempElement.classList.add("hidden");
         confirmationForm.appendChild(tempElement);
-
-        if (statusButton.dataset.status == tempElement.value) {
-            tempElement.classList.add("hidden");
-        }
 
         confirmationTitle.innerHTML = "Update Task Status";
         confirmationText.innerHTML = 'Click on the status you want your task to update to.';
@@ -370,6 +506,16 @@
     let uploadedImage;
 
     designButton.addEventListener('click', function() {
+        if (selectedTaskDesignAccess === 'view only') {
+            // Just show the image in the image box
+            if (selectedTaskDesign) {
+                imageBoxImage.src = selectedTaskDesign;
+                imageBox.style.display = 'flex';
+            }
+            return;
+        }
+
+        // ----- view & update (existing upload code) -----
         confirmationForm.action = "index.php?page=tasks&action=uploadDesign"
 
         tempDiv = document.createElement("div");
@@ -389,9 +535,7 @@
         tempDiv.appendChild(tempElement);
 
         tempDiv = document.createElement("div");
-        tempDiv.className = "fullWidth tempElement hidden";
-        tempDiv.style.maxHeight = "50vh";
-        tempDiv.style.overflowY = "scroll";
+        tempDiv.className = "fullWidth tempElement hidden scrollable halfScreenMaxHeight";
         confirmationForm.appendChild(tempDiv);
 
         uploadedImage = document.createElement("img");
@@ -404,7 +548,6 @@
         confirmationSubmit.value = "Upload";
         confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
 
-
         selectedID.value = designButton.dataset.id;
         confirmationForm.enctype = "multipart/form-data";
         confirmation.style.display = 'flex';
@@ -416,25 +559,19 @@
 
         tempElement.addEventListener('change', () => {
             const files = tempElement.files;
-
             if (files.length === 0) return;
-
             if (files.length > 1) {
                 alert("Only one file allowed");
                 tempElement.value = "";
                 return;
             }
-
             const design = files[0];
-
             if (!design.type.startsWith("image/")) {
                 alert("Only images are allowed");
                 tempElement.value = "";
                 return;
             }
-
             const file = files[0];
-
             if (file) {
                 uploadedImage.src = URL.createObjectURL(file);
                 tempDiv.classList.remove("hidden");
@@ -454,6 +591,383 @@
         });
     }
 
+    // Variable list function logic
+    variableListButton.addEventListener('click', function() {
+        const viewOnly = selectedTaskVariableListAccess === 'view only';
+
+        if (!viewOnly) {
+            confirmationContent.classList.remove('maxWidth');
+        }
+
+        confirmationForm.action = "index.php?page=tasks&action=updateVariableList";
+        selectedID.value = designButton.dataset.id;
+        confirmationTitle.textContent = viewOnly ? "View Variable List" : "Edit Variable List";
+        confirmationText.textContent = viewOnly ? "" : "Add or remove columns / rows, then save.";
+        confirmationSubmit.value = "Save List";
+        confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
+        if (viewOnly) confirmationSubmit.classList.add("hidden");
+
+        const container = document.createElement("div");
+        container.className = "tempElement columnLayout minGap";
+
+        // ---- Add Column button & input (only if editable) ----
+        if (!viewOnly) {
+            tempDiv = document.createElement("div");
+            tempDiv.className = "rowLayout minGap";
+            container.appendChild(tempDiv);
+
+            tempElement = document.createElement("button");
+            tempElement.type = "button";
+            tempElement.innerHTML = "<h4>Add Column</h4>";
+            tempElement.className = "darkBG whiteText bordered roundedTin minPadding shadowed";
+            tempElement.id = "addColumnButton";
+            tempDiv.appendChild(tempElement);
+
+            tempElement = document.createElement("input");
+            tempElement.type = "text";
+            tempElement.placeholder = "Column Name (Unique)";
+            tempElement.className = "bordered roundedTin minPadding shadowed flexMid";
+            tempElement.id = "columnNameInput";
+            tempDiv.appendChild(tempElement);
+        }
+
+        const orderID = designButton.dataset.id;
+        const raw = variableListMap[orderID] || {
+            columns: [],
+            values: [],
+            rowChecks: {}
+        };
+
+        const workingColumns = raw.columns.map(col => ({
+            ...col
+        }));
+        const workingValues = raw.values.map(v => ({
+            ...v
+        }));
+
+        // Row checks – in view‑only mode, pretend all rows are checked
+        const workingRowChecks = {};
+        if (viewOnly) {
+            const allNums = [...new Set(raw.values.map(v => v.rowNumber))];
+            allNums.forEach(rn => {
+                workingRowChecks[rn] = true;
+            });
+        } else if (raw.rowChecks) {
+            for (const [rowNum, checked] of Object.entries(raw.rowChecks)) {
+                workingRowChecks[parseInt(rowNum)] = !!checked;
+            }
+        }
+
+        function isColumnIncomplete(col, allRowNums) {
+            if (viewOnly) return false; // all columns are "complete" visually
+            for (const rn of allRowNums) {
+                const cell = findCell(rn, col);
+                if (!cell || !cell.valueText || cell.valueText.trim() === '') {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function findCell(rowNum, col) {
+            if (col.id) {
+                return workingValues.find(v => v.rowNumber == rowNum && v.columnID == col.id);
+            } else {
+                return workingValues.find(v => v.rowNumber == rowNum && v.tempKey === col.tempKey);
+            }
+        }
+
+        function renderGrid() {
+            const oldScrollDiv = container.querySelector(".scrollable");
+            let savedScrollLeft = 0,
+                savedScrollTop = 0;
+            if (oldScrollDiv) {
+                savedScrollLeft = oldScrollDiv.scrollLeft;
+                savedScrollTop = oldScrollDiv.scrollTop;
+                oldScrollDiv.remove();
+            }
+
+            tempDiv = document.createElement("div");
+            tempDiv.className = "rowLayout tinGap scrollable scrollableX majorScreenMaxWidth halfScreenMaxHeight regTinPadding contentFlexEven";
+
+            const allRowNums = [...new Set(workingValues.map(v => v.rowNumber))].sort((a, b) => a - b);
+            const allChecked = viewOnly || allRowNums.every(rn => workingRowChecks[rn] === true);
+            const columnHeaders = [];
+
+            workingColumns.forEach((col, index) => {
+                const colIncomplete = (index > 0) ? isColumnIncomplete(col, allRowNums) : false;
+
+                const column = document.createElement("table");
+                column.className = "unitWidth tinGap";
+
+                let headerClass;
+                if (index === 0) {
+                    headerClass = "darkGrayBG";
+                } else {
+                    headerClass = colIncomplete ? "lightRedBG redBorder" : "lightYellowBG yellowBorder";
+                }
+
+                tempElement = document.createElement("th");
+                tempElement.className = `${headerClass} bordered shadowed whiteText roundedTin noWrapText midHoriPadding duoHeight stickied topPos`;
+                // Remove the column‑remove X button if view only
+                const removeBtnHtml = (!viewOnly && index !== 0) ?
+                    `<a class="squareSize unitHeight columnRemove"><img src="../../Shared/Img/XIcon.png" alt="X"></a>` :
+                    '';
+                tempElement.innerHTML = `
+                <div class="centerRowLayout tinGap">
+                    <h5 class='outlineText capitalFirst'>${col.columnName}</h5>
+                    ${removeBtnHtml}
+                </div>
+            `;
+                column.createTHead().insertRow().appendChild(tempElement);
+                columnHeaders[index] = tempElement;
+
+                if (!viewOnly && index !== 0) {
+                    const xButton = tempElement.querySelector('.columnRemove');
+                    if (xButton) {
+                        xButton.addEventListener('click', () => {
+                            for (let i = workingValues.length - 1; i >= 0; i--) {
+                                const v = workingValues[i];
+                                const match = col.id ? (v.columnID === col.id) : (v.tempKey === col.tempKey);
+                                if (match) workingValues.splice(i, 1);
+                            }
+                            workingColumns.splice(index, 1);
+                            renderGrid();
+                        });
+                    }
+                }
+
+                const tbody = column.createTBody();
+
+                allRowNums.forEach(rowNum => {
+                    let cell = findCell(rowNum, col);
+                    const rowCell = tbody.insertRow().insertCell();
+                    const rowChecked = workingRowChecks[rowNum] === true;
+
+                    if (index === 0) {
+                        const rowBgClass = rowChecked ? "lightYellowBG" : "lightRedBG";
+                        const rowBorderClass = rowChecked ? "yellowBorder" : "redBorder";
+
+                        tempElement = document.createElement("div");
+                        tempElement.className = `bordered shadowed roundedTin marginTopMin regMinPadding duoHeight centerColumnLayout ${rowBgClass} ${rowBorderClass}`;
+                        tempElement.innerHTML = `<h5 class="capitalFirst whiteText centerText outlineText">${cell ? cell.valueText : ''}</h5>`;
+                    } else {
+                        const rowBorderClass = rowChecked ? "yellowBorder" : "redBorder";
+
+                        if (viewOnly) {
+                            // Read‑only display, not an input
+                            tempElement = document.createElement("div");
+                            tempElement.className = `bordered shadowed roundedTin marginTopMin regMinPadding duoHeight centerColumnLayout lightYellowBG ${rowBorderClass}`;
+                            tempElement.innerHTML = `<h5 class="capitalFirst whiteText centerText outlineText">${cell ? cell.valueText : ''}</h5>`;
+                        } else {
+                            tempElement = document.createElement("input");
+                            tempElement.type = "text";
+                            tempElement.value = cell ? cell.valueText : '';
+                            tempElement.className = `fullWidth bordered shadowed roundedTin marginTopMin capitalFirst duoHeight ${rowBorderClass}`;
+                            tempElement.dataset.row = rowNum;
+                            tempElement.dataset.col = index;
+
+                            tempElement.addEventListener('input', function() {
+                                const newVal = this.value;
+                                if (!cell) {
+                                    cell = {
+                                        id: null,
+                                        rowNumber: rowNum,
+                                        columnID: col.id || null,
+                                        tempKey: col.tempKey || null,
+                                        valueText: newVal
+                                    };
+                                    workingValues.push(cell);
+                                } else {
+                                    cell.valueText = newVal;
+                                }
+                                if (index > 0) {
+                                    const nowIncomplete = isColumnIncomplete(col, allRowNums);
+                                    const header = columnHeaders[index];
+                                    if (header) {
+                                        header.classList.remove('lightRedBG', 'redBorder', 'lightYellowBG', 'yellowBorder');
+                                        header.classList.add(
+                                            nowIncomplete ? 'lightRedBG' : 'lightYellowBG',
+                                            nowIncomplete ? 'redBorder' : 'yellowBorder'
+                                        );
+                                    }
+                                }
+                            });
+                        }
+                    }
+
+                    rowCell.appendChild(tempElement);
+                });
+
+                tempDiv.appendChild(column);
+            });
+
+            // ---------- Check column ----------
+            // Only show the check column if viewOnly is false
+            if (!viewOnly) {
+                const checkColumn = document.createElement("table");
+                checkColumn.className = "unitWidth tinGap stickied rightPos";
+
+                const headerCheckClass = allRowNums.length > 0 && allChecked ?
+                    "lightYellowBG yellowBorder" :
+                    "lightRedBG redBorder";
+
+                tempElement = document.createElement("th");
+                tempElement.className = `${headerCheckClass} bordered shadowed whiteText roundedTin noWrapText midHoriPadding duoHeight stickied topPos`;
+                const masterCheckDiv = document.createElement("div");
+                masterCheckDiv.className = "centerHoriRowLayout tinGap";
+                const masterCheckbox = document.createElement("input");
+                masterCheckbox.type = "checkbox";
+                masterCheckbox.checked = allRowNums.length > 0 && allChecked;
+                masterCheckbox.className = "unitHeight squareSize";
+                masterCheckbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        allRowNums.forEach(rn => {
+                            workingRowChecks[rn] = true;
+                        });
+                    }
+                    renderGrid();
+                });
+                masterCheckDiv.appendChild(masterCheckbox);
+                tempElement.appendChild(masterCheckDiv);
+                checkColumn.createTHead().insertRow().appendChild(tempElement);
+
+                const checkBody = checkColumn.createTBody();
+                allRowNums.forEach(rowNum => {
+                    const rowCell = checkBody.insertRow().insertCell();
+                    rowCell.className = "centerColumnLayout";
+                    const rowChecked = workingRowChecks[rowNum] === true;
+                    const rowBgClass = rowChecked ? "lightYellowBG" : "lightRedBG";
+                    const rowBorderClass = rowChecked ? "yellowBorder" : "redBorder";
+
+                    const checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.checked = rowChecked;
+                    checkbox.className = "unitHeight squareSize";
+                    checkbox.addEventListener('change', function() {
+                        workingRowChecks[rowNum] = this.checked;
+                        renderGrid();
+                    });
+
+                    tempElement = document.createElement("div");
+                    tempElement.className = `bordered shadowed roundedTin marginTopMin regMinPadding centerColumnLayout duoHeight fullWidth ${rowBgClass} ${rowBorderClass}`;
+                    tempElement.appendChild(checkbox);
+                    rowCell.appendChild(tempElement);
+                });
+
+                tempDiv.appendChild(checkColumn);
+            }
+
+            container.appendChild(tempDiv);
+
+            // Restore scroll position
+            tempDiv.scrollLeft = savedScrollLeft;
+            tempDiv.scrollTop = savedScrollTop;
+
+            // ---- Arrow key navigation (only when editable) ----
+            if (!viewOnly) {
+                tempDiv.addEventListener('keydown', function(e) {
+                    const target = e.target;
+                    if (!target.dataset || target.dataset.row === undefined || target.dataset.col === undefined) return;
+                    const currentRow = parseInt(target.dataset.row, 10);
+                    const currentCol = parseInt(target.dataset.col, 10);
+                    let newRow = currentRow,
+                        newCol = currentCol,
+                        handled = false;
+                    switch (e.key) {
+                        case 'ArrowLeft':
+                            newCol = currentCol - 1;
+                            handled = true;
+                            break;
+                        case 'ArrowRight':
+                            newCol = currentCol + 1;
+                            handled = true;
+                            break;
+                        case 'ArrowUp':
+                            newRow = currentRow - 1;
+                            handled = true;
+                            break;
+                        case 'ArrowDown':
+                            newRow = currentRow + 1;
+                            handled = true;
+                            break;
+                    }
+                    if (handled) {
+                        const nextInput = tempDiv.querySelector(`input[data-row="${newRow}"][data-col="${newCol}"]`);
+                        if (nextInput) {
+                            e.preventDefault();
+                            nextInput.focus();
+                            nextInput.select();
+                        }
+                    }
+                });
+            }
+        }
+
+        // ---- Add Column button listener (only if editable) ----
+        if (!viewOnly) {
+            container.querySelector('#addColumnButton').addEventListener('click', () => {
+                const nameInput = document.getElementById('columnNameInput');
+                const colName = nameInput.value.trim();
+                if (!colName) return;
+
+                const alreadyExists = workingColumns.some(c => c.columnName.toLowerCase() === colName.toLowerCase());
+                if (alreadyExists) {
+                    nameInput.focus();
+                    return;
+                }
+
+                const nextDisplayOrder = Math.max(...workingColumns.map(c => c.displayOrder), 0) + 1;
+                workingColumns.push({
+                    id: null,
+                    columnName: colName,
+                    displayOrder: nextDisplayOrder,
+                    tempKey: 'new_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5)
+                });
+                nameInput.value = '';
+                renderGrid();
+            });
+        }
+
+        renderGrid();
+
+        confirmationForm.appendChild(container);
+
+        if (!viewOnly) {
+            const hiddenInput = document.createElement("input");
+            hiddenInput.type = "hidden";
+            hiddenInput.name = "variableListData";
+            hiddenInput.className = "tempElement";
+            confirmationForm.appendChild(hiddenInput);
+
+            confirmationForm.onsubmit = function() {
+                const output = {
+                    columns: workingColumns.map(c => ({
+                        id: c.id || null,
+                        columnName: c.columnName,
+                        displayOrder: c.displayOrder,
+                        tempKey: c.tempKey || null
+                    })),
+                    values: workingValues.map(v => ({
+                        id: v.id || null,
+                        rowNumber: v.rowNumber,
+                        columnID: v.columnID || null,
+                        tempKey: v.tempKey || null,
+                        valueText: v.valueText
+                    })),
+                    rowChecks: Object.entries(workingRowChecks).map(([rowNum, checked]) => ({
+                        rowNumber: parseInt(rowNum),
+                        isChecked: checked
+                    }))
+                };
+                hiddenInput.value = JSON.stringify(output);
+                return true;
+            };
+        }
+
+        confirmation.style.display = 'flex';
+    });
+
     // Added cancellation events
     confirmationCancel.addEventListener('click', function() {
         document.querySelectorAll('.tempElement').forEach(function(elem) {
@@ -462,6 +976,7 @@
 
         confirmationForm.removeAttribute("enctype");
         confirmationSubmit.classList.remove("hidden");
+        confirmationContent.classList.add('maxWidth');
     });
 
     confirmationBG.addEventListener('click', function() {
@@ -471,6 +986,7 @@
 
         confirmationForm.removeAttribute("enctype");
         confirmationSubmit.classList.remove("hidden");
+        confirmationContent.classList.add('maxWidth');
     });
 </script>
 

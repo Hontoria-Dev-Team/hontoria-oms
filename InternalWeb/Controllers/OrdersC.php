@@ -114,6 +114,7 @@ class OrdersC {
         $availableTasks =  $this->ordersModel->getAvailableOrderTasks($_SESSION['id'], $roleProcessTasks);
         $assigneeList =  $this->ordersModel->getAllTaskAssigneeList();
         $designList = $this->ordersModel->getAllOrderDesigns();
+        $variableListMap = $this->ordersModel->getAllOrderVariableListMapped();
         $orderGroupList = $this->ordersModel->getAllOrderGroups();
         require __DIR__ . '/../Views/Tasks/Page.php';
     }
@@ -162,7 +163,12 @@ class OrdersC {
 
     public function assignToTask() {
         $orderProcessID = $_POST['orderProcessID'];
-        $this->ordersModel->insertUserProcessTask($_SESSION['id'], $orderProcessID);
+
+        if (!in_array('canSelfAssignToTasks', $_SESSION['permissions'])) {
+            $_SESSION['message'] = "Error: You do not have permission to assign yourself to tasks.";
+        } else {
+            $this->ordersModel->insertUserProcessTask($_SESSION['id'], $orderProcessID);
+        }
 
         header('Location: index.php?page=tasks');
     }
@@ -170,7 +176,12 @@ class OrdersC {
     public function assignEmployeeToTask() {
         $userID = $_POST['userID'];
         $orderProcessID = $_POST['orderProcessID'];
-        $this->ordersModel->insertUserProcessTask($userID, $orderProcessID);
+
+        if (!in_array('canAssignStaffToOrders', $_SESSION['permissions'])) {
+            $_SESSION['message'] = "Error: You do not have permission to assign staff to tasks.";
+        } else {
+            $this->ordersModel->insertUserProcessTask($userID, $orderProcessID);
+        }
 
         header('Location: index.php?page=orders');
     }
@@ -178,7 +189,20 @@ class OrdersC {
     public function unassignEmployeeToTask() {
         $userID = $_POST['userID'];
         $orderProcessID = $_POST['orderProcessID'];
-        $this->ordersModel->removeUserProcessTask($userID, $orderProcessID);
+
+        if ($userID == $_SESSION['id']) {
+            if (!in_array('canSelfUnassignToTasks', $_SESSION['permissions'])) {
+                $_SESSION['message'] = "Error: You do not have permission to unassign yourself from tasks.";
+            } else {
+                $this->ordersModel->removeUserProcessTask($userID, $orderProcessID);
+            }
+        } else {
+            if (!in_array('canUnassignStaffToOrders', $_SESSION['permissions'])) {
+                $_SESSION['message'] = "Error: You do not have permission to unassign staff from tasks.";
+            } else {
+                $this->ordersModel->removeUserProcessTask($userID, $orderProcessID);
+            }
+        }
 
         header('Location: index.php?page=orders');
     }
@@ -187,7 +211,10 @@ class OrdersC {
         $orderProcessID = $_POST['selectedID'];
         $taskStatus = $_POST['taskStatus'];
 
-        $this->ordersModel->updateUserProcessTaskStatus($_SESSION['id'], $orderProcessID, $taskStatus);
+        $result = $this->ordersModel->updateUserProcessTaskStatus($_SESSION['id'], $orderProcessID, $taskStatus);
+        if (is_string($result)) {
+            $_SESSION['message'] = $result;
+        }
 
         header('Location: index.php?page=tasks');
     }
@@ -199,6 +226,27 @@ class OrdersC {
         $this->ordersModel->insertOrderDesign($orderID, $designImage);
 
         header('Location: index.php?page=tasks');
+    }
+
+    public function updateVariableList() {
+        $orderID = $_POST['selectedID'];
+        $json = $_POST['variableListData'] ?? '';
+
+        if (!$orderID || !$json) {
+            $_SESSION['message'] = "Error: Missing data.";
+            header("Location: index.php?page=tasks");
+            exit;
+        }
+
+        $data = json_decode($json, true);
+        if (!$data) {
+            $_SESSION['message'] = "Error: Invalid data.";
+            header("Location: index.php?page=tasks");
+            exit;
+        }
+
+        $_SESSION['message'] = $this->ordersModel->updateVariableList($orderID, $data);
+        header("Location: index.php?page=tasks");
     }
 
     public function verifyCompleteOrder() {
