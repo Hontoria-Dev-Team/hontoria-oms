@@ -3,7 +3,7 @@
         
         <div class="footer-brand">
             <div class="footer-logo">
-                <img src="/.Images/logo.jpg" alt="Hontoria Logo" class="footer-logo-img" onerror="this.style.display='none'"/>
+                <img src="../.Images/Logo.png" alt="Hontoria Logo" class="footer-logo-img" onerror="this.style.display='none'"/>
                 <div>
                     <span class="f-name">HONTORIA</span>
                     <span class="f-sub">PRINTING SERVICES</span>
