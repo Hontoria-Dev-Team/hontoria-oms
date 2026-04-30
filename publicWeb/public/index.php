@@ -27,6 +27,10 @@ switch ($page) {
         $controller->showAboutUsPage();
         break;
 
+    case 'order':
+        $controller->showOrderPage($_GET['orderID'] ?? '-1');
+        break;
+
     default:
         // If the page doesn't exist, show the error page
         require_once __DIR__ . '/../Views/.Misc/ErrorPage.php';
