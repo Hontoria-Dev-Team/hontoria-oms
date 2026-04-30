@@ -199,10 +199,26 @@ INSERT INTO permissions (name) VALUES
 
 -- Task Related Permissions
 ('canSelfAssignToTasks'),            -- 27
-('canSelfUnassignToTasks');          -- 28
+('canSelfUnassignToTasks'),          -- 28
+('canAssignMiscTasksToStaff'),       -- 29
+('canUnassignMiscTasksToStaff'),     -- 30
+('canSelfAssignToMiscTasks'),        -- 31
+('canSelfUnassignToMiscTasks'),      -- 32
+
+-- Inventory Related Permissions
+('canViewInventory'),                -- 33
+('canCreateItems'),                  -- 34
+('canDeleteItems'),                  -- 35
+('canModifyItems'),                  -- 36
+('canUpdateItemQuantity'),           -- 37
+
+-- Sales Related Permissions
+('canViewSales'),                    -- 39
+('canManageSalesRecords');           -- 40
+
 
 INSERT INTO rolePermissions (roleID, permissionID) VALUES
--- Owner permissions
+-- Owner permissions has all permissions
 (1, 1),   -- canViewStaffPage
 (1, 2),   -- canCreateUserAccounts
 (1, 3),   -- canDeleteUserAccounts
@@ -231,8 +247,19 @@ INSERT INTO rolePermissions (roleID, permissionID) VALUES
 (1, 26),  -- canVerifyOrderCompletion
 (1, 27),  -- canSelfAssignToTasks
 (1, 28),  -- canSelfUnassignToTasks
+(1, 29),  -- canAssignMiscTasksToStaff
+(1, 30),  -- canUnassignMiscTasksToStaff
+(1, 31),  -- canSelfAssignToMiscTasks
+(1, 32),  -- canSelfUnassignToMiscTasks
+(1, 33),  -- canViewInventory
+(1, 34),  -- canCreateItems
+(1, 35),  -- canDeleteItems
+(1, 36),  -- canModifyItems
+(1, 37),  -- canUpdateItemQuantity
+(1, 39),  -- canViewSales
+(1, 40),  -- canManageSalesRecords
 
--- Admin permissions
+-- Admin permissions add Task Related, Inventory Related, and Sales Related permissions
 (2, 1),   -- canViewStaffPage
 (2, 2),   -- canCreateUserAccounts
 (2, 3),   -- canDeleteUserAccounts
@@ -252,6 +279,17 @@ INSERT INTO rolePermissions (roleID, permissionID) VALUES
 (2, 25),  -- canUnassignStaffToOrders
 (2, 27),  -- canSelfAssignToTasks
 (2, 28),  -- canSelfUnassignToTasks
+(2, 29),  -- canAssignMiscTasksToStaff
+(2, 30),  -- canUnassignMiscTasksToStaff
+(2, 31),  -- canSelfAssignToMiscTasks
+(2, 32),  -- canSelfUnassignToMiscTasks
+(2, 33),  -- canViewInventory
+(2, 34),  -- canCreateItems
+(2, 35),  -- canDeleteItems
+(2, 36),  -- canModifyItems
+(2, 37),  -- canUpdateItemQuantity
+(2, 39),  -- canViewSales
+(2, 40);  -- canManageSalesRecords
 
 -- Artist permissions
 (3, 27),  -- canSelfAssignToTasks
@@ -266,6 +304,7 @@ INSERT INTO rolePermissions (roleID, permissionID) VALUES
 (6, 27),  -- canSelfAssignToTasks
 
 -- Verifier permissions
+(7, 19),  -- canViewOrdersPage
 (7, 26);  -- canVerifyOrderCompletion
 
 INSERT INTO roleProcessTasks (roleID, processID) VALUES
