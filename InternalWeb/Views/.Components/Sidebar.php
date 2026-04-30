@@ -29,12 +29,12 @@ $navLinks = [
     'inventory' => [
         'label' => 'Inventory',
         'icon'  => '../../Shared/Img/BoxIcon.png',
-        'permission' => null,
+        'permission' => 'canViewInventory',
     ],
     'sales' => [
         'label' => 'Sales',
         'icon'  => '../../Shared/Img/PesoIcon.png',
-        'permission' => null,
+        'permission' => 'canViewSales',
     ],
 ];
 ?>

@@ -4,6 +4,8 @@ class AuthorizationMid {
         'services' => 'canViewServicesPage',
         'orders' => 'canViewOrdersPage',
         'staff' => 'canViewStaffPage',
+        'inventory' => 'canViewInventory',
+        'sales' => 'canViewSales',
     ];
 
     public static function check($page) {
