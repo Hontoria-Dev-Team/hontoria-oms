@@ -49,6 +49,7 @@ class AuthorizationC {
     public function showAccountManagementPage() {
         $page = "account";
         $accountImage = $this->staffModel->getAccountImage($_SESSION['id']);
+        $note = $this->staffModel->getAccount($_SESSION['id'])['note'] ?? '';
         require_once __DIR__ . '/../Views/Account/Page.php';
     }
 
@@ -464,6 +465,14 @@ class AuthorizationC {
         }
 
         $this->staffModel->updatePassword($_SESSION['id'], $passNew);
+        header('Location: index.php?page=account');
+    }
+
+    public function setUserNote() {
+        $note = strtolower(trim($_POST['userNote'] ?? ''));
+
+        $_SESSION['message'] = $this->staffModel->updateUsernote($_SESSION['id'], $note);
+
         header('Location: index.php?page=account');
     }
 

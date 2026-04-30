@@ -87,12 +87,22 @@
                 </form>
                 <div class="gradientBorderDiag"></div>
             </section>
-            <div class="extraWidth rowLayout">
-                <section class="centerColumnLayout box roundedMid">
-                    <a href="index.php?page=logout" class="fullWidth criticalInput roundedMin minPadding midWidth centerColumnLayout">Logout</a>
-                    <div class="gradientBorderDiag"></div>
-                </section>
-            </div>
+            <section class="centerColumnLayout box roundedMid extraWidth centerHoriSelf">
+                <form method="POST" action="index.php?page=account&action=setUserNote" class="centerColumnLayout minGap fullWidth">
+                    <div class="fullWidth">
+                        <h3 class="leftStart">Set User Note</h3>
+                        <div class="minGap rowLayout">
+                            <input type="text" name="userNote" placeholder="Enter your note here..." class="flexMax capitalFirst" value="<?= $note ?>">
+                            <input type="submit" name="submit" value="Submit" class="importantInput">
+                        </div>
+                    </div>
+                </form>
+                <div class="gradientBorderDiag"></div>
+            </section>
+            <section class="centerColumnLayout box roundedMid souEastAbsolute edgeCorner">
+                <a href="index.php?page=logout" class="fullWidth criticalInput roundedMin minPadding midWidth centerColumnLayout">Logout</a>
+                <div class="gradientBorderDiag"></div>
+            </section>
         </section>
     </main>
     <?php include("../Views/.Components/ConfirmationBox.php"); ?>

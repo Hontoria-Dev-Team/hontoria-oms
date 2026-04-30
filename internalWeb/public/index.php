@@ -85,6 +85,8 @@ switch ($page) {
             $authorization->setPassword();
         } else if ($action === 'uploadImage') {
             $authorization->uploadAccountImage();
+        } else if ($action === 'setUserNote') {
+            $authorization->setUserNote();
         } else {
             $authorization->showAccountManagementPage();
         }

@@ -20,7 +20,7 @@ class StaffM {
     }
 
     public function getAccount($id) {
-        $query = "SELECT username, email, passwordHash, firstName, middleName, lastName, phone, createdAt, lastActivityAt
+        $query = "SELECT username, email, passwordHash, firstName, middleName, lastName, phone, createdAt, lastActivityAt, note
                   FROM users
                   WHERE id = :id
                   LIMIT 1";
@@ -48,7 +48,7 @@ class StaffM {
 
     public function getStaffList() {
         $query = "
-            SELECT id, username, firstName, middleName, lastName, phone, email, createdAt, lastActivityAt
+            SELECT id, username, firstName, middleName, lastName, phone, email, createdAt, lastActivityAt, note
             FROM users
             ORDER BY
                 CASE
@@ -81,7 +81,7 @@ class StaffM {
         }
 
         $sql = "
-            SELECT id, username, firstName, middleName, lastName, phone, email, createdAt, lastActivityAt
+            SELECT id, username, firstName, middleName, lastName, phone, email, createdAt, lastActivityAt, note
             FROM users
             WHERE {$where}
             ORDER BY
@@ -182,6 +182,29 @@ class StaffM {
         $stmt->bindParam(':id', $id);
         $stmt->bindParam(':passwordHash', $hash);
         return $stmt->execute();
+    }
+
+    public function updateUsernote($id, $note) {
+        $note = trim($note);
+
+        if (strlen($note) > 30) {
+            return 'Error: Note must be 30 characters or fewer.';
+        }
+
+        if ($note === '') {
+            $query = "UPDATE users SET note = NULL WHERE id = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $id);
+        } else {
+            $query = "UPDATE users SET note = :note WHERE id = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':note', $note);
+            $stmt->bindParam(':id', $id);
+        }
+
+        $stmt->execute();
+
+        return 'Success: User note updated.';
     }
 
     public function getUserPermissions($id) {

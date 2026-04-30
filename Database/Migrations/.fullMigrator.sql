@@ -44,6 +44,7 @@ CREATE TABLE users (
     middleName VARCHAR(100) NULL,
     lastName VARCHAR(100) NOT NULL,
     phone VARCHAR(20) NOT NULL,
+    note VARCHAR(30) NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     lastActivityAt TIMESTAMP NULL
 );

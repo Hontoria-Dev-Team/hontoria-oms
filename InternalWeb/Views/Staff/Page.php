@@ -109,6 +109,9 @@
                                 </div>
                                 <div class="flexMid centerHoriColumnLayout">
                                     <h5><?= htmlspecialchars($fullName) ?></h5>
+                                    <?php if (!empty($staff['note'])): ?>
+                                        <h6 class="capitalFirst faded"><?= htmlspecialchars($staff['note']) ?></h6>
+                                    <?php endif; ?>
                                     <h6 class="capitalFirst">(<?= $rolesText ?>)</h6>
                                     <h6 class="capitalFirst">Tasks: <?= $taskCount ?></h6>
                                 </div>
