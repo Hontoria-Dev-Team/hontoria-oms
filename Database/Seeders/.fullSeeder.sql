@@ -213,8 +213,8 @@ INSERT INTO permissions (name) VALUES
 ('canUpdateItemQuantity'),           -- 37
 
 -- Sales Related Permissions
-('canViewSales'),                    -- 39
-('canManageSalesRecords');           -- 40
+('canViewSales'),                    -- 38
+('canManageSalesRecords');           -- 39
 
 
 INSERT INTO rolePermissions (roleID, permissionID) VALUES
@@ -256,8 +256,8 @@ INSERT INTO rolePermissions (roleID, permissionID) VALUES
 (1, 35),  -- canDeleteItems
 (1, 36),  -- canModifyItems
 (1, 37),  -- canUpdateItemQuantity
-(1, 39),  -- canViewSales
-(1, 40),  -- canManageSalesRecords
+(1, 38),  -- canViewSales
+(1, 39),  -- canManageSalesRecords
 
 -- Admin permissions add Task Related, Inventory Related, and Sales Related permissions
 (2, 1),   -- canViewStaffPage
@@ -288,8 +288,8 @@ INSERT INTO rolePermissions (roleID, permissionID) VALUES
 (2, 35),  -- canDeleteItems
 (2, 36),  -- canModifyItems
 (2, 37),  -- canUpdateItemQuantity
-(2, 39),  -- canViewSales
-(2, 40);  -- canManageSalesRecords
+(2, 38),  -- canViewSales
+(2, 39),  -- canManageSalesRecords
 
 -- Artist permissions
 (3, 27),  -- canSelfAssignToTasks
