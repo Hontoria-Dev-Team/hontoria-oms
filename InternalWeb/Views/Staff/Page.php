@@ -60,7 +60,7 @@
                         <?php foreach ($staffList as $staff): ?>
                             <?php
                             $fullName = trim("{$staff['firstName']} " . ($staff['middleName'] ? substr($staff['middleName'], 0, 1) . '.' : '') . " {$staff['lastName']}");
-                            $taskCount = $userTaskCountMap[$staff['id']] ?? 0;
+                            $taskCount = ($userTaskCountMap[$staff['id']] ?? 0) + (isset($userMiscTaskMap[$staff['id']]) ? 1 : 0);
                             $status = $taskCount > 0 ? 'Busy' : 'Idle';
                             $statusColor = $taskCount > 0 ? '--yellowTrans' : '--redTrans';
                             $staffElementBorder = $taskCount > 0 ? 'yellowBorder' : 'redBorder';
@@ -75,35 +75,42 @@
                             $activityStatus = "Active now";
                             $activityStatusBG = "yellowBG";
                             $activityStatusColor = '--yellowTrans';
-                            $lastActivity = strtotime($staff['lastActivityAt']);
-                            $now = time();
-                            $diff = $now - $lastActivity; // seconds
 
-                            if ($diff < 60) {
-                                $activityStatus = "Active now";
-                            } elseif ($diff < 3600) { // less than 1 hour
-                                $minutes = floor($diff / 60);
-                                $activityStatus = "Active {$minutes} min ago";
-                                $activityStatusBG = "redBG";
-                                $activityStatusColor = '--redTrans';
-                            } elseif ($diff < 86400) { // less than 24 hours
-                                $hours = floor($diff / 3600);
-                                $activityStatus = "Active {$hours} hr ago";
+                            if ($staff['lastActivityAt'] === null) {
+                                $activityStatus = "No Activity";
                                 $activityStatusBG = "redBG";
                                 $activityStatusColor = '--redTrans';
                             } else {
-                                $days = floor($diff / 86400);
-                                $activityStatus = "Active {$days} day" . ($days > 1 ? "s" : "") . " ago";
-                                $activityStatusBG = "redBG";
-                                $activityStatusColor = '--redTrans';
+                                $lastActivity = strtotime($staff['lastActivityAt']);
+                                $now = time();
+                                $diff = $now - $lastActivity;
+
+                                if ($diff < 60) {
+                                    $activityStatus = "Active now";
+                                } elseif ($diff < 3600) {
+                                    $minutes = floor($diff / 60);
+                                    $activityStatus = "Active {$minutes} min ago";
+                                    $activityStatusBG = "redBG";
+                                    $activityStatusColor = '--redTrans';
+                                } elseif ($diff < 86400) {
+                                    $hours = floor($diff / 3600);
+                                    $activityStatus = "Active {$hours} hr ago";
+                                    $activityStatusBG = "redBG";
+                                    $activityStatusColor = '--redTrans';
+                                } else {
+                                    $days = floor($diff / 86400);
+                                    $activityStatus = "Active {$days} day" . ($days > 1 ? "s" : "") . " ago";
+                                    $activityStatusBG = "redBG";
+                                    $activityStatusColor = '--redTrans';
+                                }
                             }
 
                             $staffElementBG = "background: linear-gradient(to top, var(" . $statusColor . "), var(" . $activityStatusColor . ")) !important;"
                             ?>
                             <div class="minHeight minPadding roundedMin rowLayout minGap flexStatic staffElement shadowed <?= $staffElementBorder ?>"
                                 style="<?= $staffElementBG ?>"
-                                data-id="<?= $staff['id'] ?>" data-name="<?= htmlspecialchars($fullName) ?>" data-roles="<?= $rolesText ?>"
-                                data-phone="<?= $staff['phone'] ?>" data-email="<?= $staff['email'] ?>">
+                                data-id="<?= $staff['id'] ?>" data-name="<?= htmlspecialchars($fullName) ?>" data-last-name="<?= htmlspecialchars($staff['lastName']) ?>"
+                                data-roles="<?= $rolesText ?>" data-phone="<?= $staff['phone'] ?>" data-email="<?= $staff['email'] ?>">
                                 <div class="flexMin roundedMin centerColumnLayout grayBG shadowed fixedScreen">
                                     <img src="<?= $userImage ?>" alt="User Photo" class="<?= $userImageStyle ?> squareSize">
                                 </div>
@@ -171,6 +178,7 @@
     const userProcessTaskList = <?php echo json_encode($userProcessTaskList); ?>; // array of task objects
     const userStatsList = <?php echo json_encode($userStatsList); ?>; // [{userID, tasksCompleted, tasksCompletedDuration}, ...]
     const userActivityLogsList = <?php echo json_encode($userActivityLogsList); ?>; // [{userID, head, log, color, loggedAt}, ...]
+    const userMiscTaskList = <?php echo json_encode($userMiscTaskList); ?>;
 
     // ================================
     // Build Lookup Maps
@@ -217,6 +225,14 @@
         });
     });
 
+    const userMiscTaskMap = {};
+    userMiscTaskList.forEach(item => {
+        userMiscTaskMap[item.userID] = {
+            description: item.description,
+            assignedAt: item.assignedAt
+        };
+    });
+
     // ================================
     // Helper: Determine which roles cannot be granted (canGrant = 0)
     // ================================
@@ -233,7 +249,8 @@
         roles: [],
         tasks: [],
         stats: null,
-        activityLogs: []
+        activityLogs: [],
+        miscTask: null
     };
 
     let governanceRules = {
@@ -253,37 +270,18 @@
     // UI Helpers
     // ================================
     function UpdateUserInfoDisplay(elem) {
-        const name = elem.dataset.name;
+        let name = elem.dataset.name;
+        if (name.length > 25) {
+            name = elem.dataset.lastName + ', ' + name;
+            if (name.length > 23) {
+                name = name.substring(0, 23) + '...';
+            }
+        }
+
         const id = elem.dataset.id;
         const phone = elem.dataset.phone;
         const email = elem.dataset.email;
         const rolesText = elem.dataset.roles;
-
-        userInfoContainer.innerHTML = `
-        <h5 class="leftStart centerHoriRowLayout minGap">
-            ${name} <img src="../../Shared/Img/StatsIcon.png" alt="Stats" class="unitHeight clickable" id="userStatsButton">
-        </h5>
-        <h6 class="leftStart rowLayout tinGap">Roles:
-            <span id="rolesText" class="capitalFirst">${rolesText}</span>
-        </h6>
-        <span class="leftStart">
-            <h6 class="centerHoriRowLayout tinGap">
-                <img src="../../Shared/Img/PhoneIcon.png" alt="Phone" class="unitHeight">
-                : ${phone}
-            </h6>
-            <h6 class="centerHoriRowLayout tinGap">
-                <img src="../../Shared/Img/MailIcon.png" alt="Mail" class="unitHeight">
-                : ${email}
-            </h6>
-        </span>
-        <div class="rowLayout fullWidth minGap" id="staffActions">
-            <button type="button" class="importantInput flexMax" id="modifyRolesButton">Modify Roles</button>
-            <button type="button" class="criticalInput centerColumnLayout" id="deleteButton">
-                <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
-            </button>
-        </div>
-        <div class="gradientBorderDiag"></div>
-    `;
 
         // Store current user data
         currentUser.id = id;
@@ -297,6 +295,37 @@
             tasksCompletedDuration: 0
         };
         currentUser.activityLogs = [...(userActivityLogsMap[id] || [])];
+        currentUser.miscTask = userMiscTaskMap[id] || null;
+
+        userInfoContainer.innerHTML = `
+            <h5 class="leftStart centerHoriRowLayout minGap">
+                ${name} <img src="../../Shared/Img/StatsIcon.png" alt="Stats" class="unitHeight clickable" id="userStatsButton">
+            </h5>
+            <h6 class="leftStart rowLayout tinGap">Roles:
+                <span id="rolesText" class="capitalFirst">${rolesText}</span>
+            </h6>
+            <span class="leftStart">
+                <h6 class="centerHoriRowLayout tinGap">
+                    <img src="../../Shared/Img/PhoneIcon.png" alt="Phone" class="unitHeight">
+                    : ${phone}
+                </h6>
+                <h6 class="centerHoriRowLayout tinGap">
+                    <img src="../../Shared/Img/MailIcon.png" alt="Mail" class="unitHeight">
+                    : ${email}
+                </h6>
+            </span>
+            <div class="rowLayout fullWidth minGap" id="staffActions">
+                <button type="button" class="importantInput flexMax" id="modifyRolesButton">Modify Roles</button>
+                ${currentUser.miscTask === null
+                    ? '<button type="button" class="importantInput flexMax" id="assignMiscTaskButton">Assign Misc Task</button>'
+                    : '<button type="button" class="importantInput yellowBG flexMax" id="updateMiscTaskButton">Update Misc Task</button>'
+                }
+            </div>
+            <button type="button" class="criticalInput centerColumnLayout norEastAbsolute" id="deleteButton">
+                <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
+            </button>
+            <div class="gradientBorderDiag"></div>
+        `;
 
         // Update governance rules based on current user's roles
         const userRoleIds = currentUser.roles.map(r => r.roleID);
@@ -311,6 +340,16 @@
         // Enable/disable action buttons based on permissions
         const modifyBtn = document.getElementById('modifyRolesButton');
         const deleteBtn = document.getElementById('deleteButton');
+        const assignMiscTaskBtn = document.getElementById('assignMiscTaskButton');
+        const updateMiscTaskBtn = document.getElementById('updateMiscTaskButton');
+
+        if (governanceRules.canGrant) {
+            if (assignMiscTaskBtn) assignMiscTaskBtn.classList.remove('unclickable', 'faded');
+            if (updateMiscTaskBtn) updateMiscTaskBtn.classList.remove('unclickable', 'faded');
+        } else {
+            if (assignMiscTaskBtn) assignMiscTaskBtn.classList.add('unclickable', 'faded');
+            if (updateMiscTaskBtn) updateMiscTaskBtn.classList.add('unclickable', 'faded');
+        }
         if (governanceRules.canGrant || governanceRules.canRevoke) {
             modifyBtn.classList.remove('unclickable', 'faded');
         } else {
@@ -326,6 +365,8 @@
         document.getElementById('userStatsButton').addEventListener('click', ShowUserStatsModal);
         modifyBtn.addEventListener('click', ShowRoleModificationModal);
         deleteBtn.addEventListener('click', () => ShowDeleteConfirmation(id, name));
+        if (assignMiscTaskBtn) assignMiscTaskBtn.addEventListener('click', ShowMiscTaskAssignmentModal);
+        if (updateMiscTaskBtn) updateMiscTaskBtn.addEventListener('click', ShowMiscTaskUpdateModal);
 
         ShowUserTasks();
     }
@@ -336,12 +377,27 @@
     function ShowUserTasks() {
         taskListContainer.innerHTML = '';
 
-        if (currentUser.tasks.length === 0) {
+        if (currentUser.miscTask === null && currentUser.tasks.length === 0) {
             tempElement = document.createElement('h2');
             tempElement.className = 'centerMarginsSelf';
             tempElement.textContent = 'No Tasks Assigned';
             taskListContainer.appendChild(tempElement);
             return;
+        }
+
+        // Show misc task first if it exists
+        if (currentUser.miscTask !== null) {
+            tempDiv = document.createElement('div');
+            tempDiv.className = 'centerHoriRowLayout minGap tinGap minPadding roundedMin shadowed yellowTransBG yellowBorder';
+
+            tempDiv.innerHTML = `
+                <h5 class="yellowBG whiteText roundedMin minPadding shadowed tinWidth centerText">Misc</h5>
+                <div class="columnLayout">
+                    <h6 class="capitalFirst">Task: ${currentUser.miscTask.description}</h6>
+                    <h6>Assigned At: ${formatDateTime(currentUser.miscTask.assignedAt)}</h6>
+                </div>
+            `;
+            taskListContainer.appendChild(tempDiv);
         }
 
         currentUser.tasks.forEach(task => {
@@ -585,6 +641,61 @@
             confirmationForm.appendChild(deletedIdInput);
         }
         deletedIdInput.value = userId;
+
+        confirmation.style.display = 'flex';
+    }
+
+    // ================================
+    // Misc Task Assignment Modal
+    // ================================
+    function ShowMiscTaskAssignmentModal() {
+        if (!governanceRules.canGrant) return;
+
+        confirmationForm.action = 'index.php?page=staff&action=assignMiscTask';
+        confirmationTitle.innerHTML = 'Assign Miscellaneous Task';
+        confirmationText.innerHTML = 'Input the description of the miscellaneous task or work that this account will be assigned to.';
+        confirmationSubmit.classList.add('yellowBG', 'whiteText', 'noBorder');
+        confirmationSubmit.value = 'Assign';
+
+        tempElement = document.createElement("input");
+        tempElement.type = "text";
+        tempElement.name = "description";
+        tempElement.placeholder = "Short Task Description";
+        tempElement.className = "tempElement";
+        tempElement.required = true;
+        confirmationForm.appendChild(tempElement);
+
+        confirmation.style.display = 'flex';
+    }
+
+    // ================================
+    // Misc Task Update Modal
+    // ================================
+    function ShowMiscTaskUpdateModal() {
+        if (!governanceRules.canGrant) return;
+
+        confirmationForm.action = 'index.php?page=staff&action=updateMiscTask';
+        confirmationTitle.innerHTML = 'Update Miscellaneous Task';
+        confirmationText.innerHTML = 'Select an action for this miscellaneous task.';
+        confirmationSubmit.classList.add('hidden');
+
+        tempDiv = document.createElement("div");
+        tempDiv.className = "tempElement rowLayout minGap";
+        confirmationForm.appendChild(tempDiv);
+
+        tempElement = document.createElement("input");
+        tempElement.type = "submit";
+        tempElement.name = "miscTaskAction";
+        tempElement.value = "complete";
+        tempElement.className = "tempElement importantInput greenBG shadowed noBorder capitalFirst flexMax";
+        tempDiv.appendChild(tempElement);
+
+        tempElement = document.createElement("input");
+        tempElement.type = "submit";
+        tempElement.name = "miscTaskAction";
+        tempElement.value = "unassign";
+        tempElement.className = "tempElement importantInput redBG shadowed noBorder capitalFirst flexMax";
+        tempDiv.appendChild(tempElement);
 
         confirmation.style.display = 'flex';
     }

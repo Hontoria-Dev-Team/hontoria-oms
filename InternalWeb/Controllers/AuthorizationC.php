@@ -70,6 +70,12 @@ class AuthorizationC {
         $accountImageMap = $this->staffModel->getAllAccountImagesMapped();
         $userStatsList = $this->staffModel->getAllUserStats();
         $userActivityLogsList = $this->staffModel->getAllUserActivityLogs();
+        $userMiscTaskList = $this->staffModel->getAllMiscellaneousTasks();
+
+        $userMiscTaskMap = [];
+        foreach ($userMiscTaskList as $miscTask) {
+            $userMiscTaskMap[$miscTask['userID']] = $miscTask;
+        }
 
         if ($search !== '' || $status !== '') {
             $staffList = $this->staffModel->getfilteredStaff($search, $status);
@@ -82,23 +88,6 @@ class AuthorizationC {
         foreach ($this->staffModel->getAllUsersTaskCount() as $item) {
             $userTaskCountMap[$item['userID']] = $item['taskCount'];
         }
-
-        // $userProcessTaskMap = [];
-
-        // foreach ($this->staffModel->getAllUserProcessTasksDetailed() as $item) {
-        //     if (!isset($userProcessTaskMap[$item['userID']])) {
-        //         $userProcessTaskMap[$item['userID']] = [];
-        //     }
-
-        //     $userProcessTaskMap[$item['userID']][] = [
-        //         'status' => $item['status'],
-        //         'assignedAt' => $item['assignedAt'],
-        //         'orderID' => $item['orderID'],
-        //         'customerName' => $item['customerName'],
-        //         'subserviceName' => $item['subserviceName'],
-        //         'serviceName' => $item['serviceName']
-        //     ];
-        // }
 
         $currentUserId = $_SESSION['id'];
         $staffList = array_filter($staffList, function ($staff) use ($currentUserId) {
@@ -494,5 +483,30 @@ class AuthorizationC {
         $_SESSION['message'] = $this->staffModel->insertAccountImage($_SESSION['id'], $image);
 
         header("Location: index.php?page=account");
+    }
+
+    public function assignMiscTask() {
+        $assigneeID = $_POST['selectedID'];
+        $description = $_POST['description'];
+
+        $_SESSION['message'] = $this->staffModel->insertMiscellaneousTask($assigneeID, $description);
+
+        header("Location: index.php?page=staff");
+    }
+
+    public function setMiscTask() {
+        $assigneeID = $_POST['selectedID'];
+        $action = $_POST['miscTaskAction'] ?? '';
+
+        if ($action === 'complete') {
+            $_SESSION['message'] = $this->staffModel->completeMiscellaneousTask($assigneeID);
+        } elseif ($action === 'unassign') {
+            $_SESSION['message'] = $this->staffModel->unassignMiscellaneousTask($assigneeID);
+        } else {
+            $_SESSION['message'] = 'Error: Invalid action.';
+        }
+
+        header("Location: index.php?page=staff");
+        exit;
     }
 }

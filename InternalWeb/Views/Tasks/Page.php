@@ -8,7 +8,7 @@
 
 <body class="asideLayout fixedScreen">
     <?php include("../Views/.Components/SideBar.php"); ?>
-    <main class="columnLayout midGap">
+    <main class="columnLayout midGap relatived">
         <h1 class="titleLogo minGap tinHeight">
             <img src="../../Shared/Img/CheckBoxIcon.png" alt="CheckBox"> Tasks Panel
         </h1>
@@ -138,6 +138,20 @@
                 </div>
             </section>
         </section>
+        <?php if (!empty($miscTaskAssigned)): ?>
+            <div class="absoluted fullDimensions darkTransBG noMargin centerColumnLayout">
+                <div class="centerColumnLayout roundedMid maxWidth">
+                    <div class="box centerColumnLayout roundedMid fullWidth fullHeight minGap midZ">
+                        <h1>You cannot do other tasks</h1>
+                        <h3 class="centerText">
+                            You are currently assigned to a miscellaneous task described as
+                            "<?= htmlspecialchars($miscTaskAssigned['description']) ?>".
+                        </h3>
+                    </div>
+                    <div class="gradientBorderDiag minZ"></div>
+                </div>
+            </div>
+        <?php endif; ?>
     </main>
     <?php include("../Views/.Components/ConfirmationBox.php"); ?>
     <?php include("../Views/.Components/ImageBox.php"); ?>

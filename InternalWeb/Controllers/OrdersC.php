@@ -110,6 +110,7 @@ class OrdersC {
 
     public function showTasks() {
         $page = "tasks";
+        $miscTaskAssigned = $this->staffModel->getMiscellaneousTaskByUserID($_SESSION['id']);
         $roleProcessTasks = $this->staffModel->getUserRoleProcessTasks($_SESSION['id']);
         $availableTasks =  $this->ordersModel->getAvailableOrderTasks($_SESSION['id'], $roleProcessTasks);
         $assigneeList =  $this->ordersModel->getAllTaskAssigneeList();

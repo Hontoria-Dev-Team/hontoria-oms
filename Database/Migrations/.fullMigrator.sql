@@ -34,6 +34,7 @@ DROP TABLE IF EXISTS salesRecords;
 DROP TABLE IF EXISTS variableListValues;
 DROP TABLE IF EXISTS variableListColumns;
 DROP TABLE IF EXISTS variableLists;
+DROP TABLE IF EXISTS miscellaneousTasks;
 
 CREATE TABLE users (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -329,4 +330,11 @@ CREATE TABLE variableListRowChecks (
     isChecked BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (orderID, rowNumber),
     FOREIGN KEY (orderID) REFERENCES variableLists(orderID) ON DELETE CASCADE
+);
+
+CREATE TABLE miscellaneousTasks (
+    userID BIGINT UNSIGNED PRIMARY KEY,
+    description VARCHAR(50) NOT NULL,
+    assignedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userID) REFERENCES users(id)
 );

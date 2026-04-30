@@ -71,6 +71,10 @@ switch ($page) {
             $authorization->deleteRole();
         } else if ($action === 'delete') {
             $authorization->deleteAccount();
+        } else if ($action === 'assignMiscTask') {
+            $authorization->assignMiscTask();
+        } else if ($action === 'updateMiscTask') {
+            $authorization->setMiscTask();
         } else {
             $authorization->showStaff();
         }

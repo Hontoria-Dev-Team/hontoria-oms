@@ -365,6 +365,10 @@
     margin: 0 0.1rem;
 }
 
+.noMargin {
+    margin: 0 !important;
+}
+
 .norAbsolute {
     position: absolute !important;
     top: 1rem;

@@ -752,4 +752,178 @@ class StaffM {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getAllMiscellaneousTasks() {
+        $query = "SELECT * FROM miscellaneousTasks";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getMiscellaneousTaskByUserID($userID) {
+        $query = "SELECT * FROM miscellaneousTasks WHERE userID = :userID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function insertMiscellaneousTask($assigneeID, $description) {
+        // Get assignee name
+        $query = "SELECT firstName, middleName, lastName FROM users WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $assigneeID);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $middleInitial = $user['middleName'] ? substr($user['middleName'], 0, 1) . '. ' : '';
+        $userFullName = $user['firstName'] . ' ' . $middleInitial . $user['lastName'];
+
+        // Get current user name
+        $query = "SELECT firstName, middleName, lastName FROM users WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $_SESSION['id']);
+        $stmt->execute();
+        $_user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $_middleInitial = $_user['middleName'] ? substr($_user['middleName'], 0, 1) . '. ' : '';
+        $_userFullName = $_user['firstName'] . ' ' . $_middleInitial . $_user['lastName'];
+
+        // Insert the task
+        $query = "INSERT INTO miscellaneousTasks (userID, description) VALUES (:userID, :description)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $assigneeID);
+        $stmt->bindParam(':description', $description);
+        $stmt->execute();
+
+        // Log for the assignee
+        $this->insertUserActivityLog(
+            $assigneeID,
+            'task assignment',
+            'Assigned to a miscellaneous task described as: "' . $description . '" by ' . $_userFullName . '.',
+            'yellow'
+        );
+
+        // Log for the assigner
+        $this->insertUserActivityLog(
+            $_SESSION['id'],
+            'task assigning',
+            'Assigned ' . $userFullName . ' to a miscellaneous task described as: "' . $description . '".',
+            'yellow'
+        );
+
+        return "Success: Miscellaneous task assigned.";
+    }
+
+    public function completeMiscellaneousTask($userID) {
+        $query = "SELECT description, assignedAt FROM miscellaneousTasks WHERE userID = :userID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        $stmt->execute();
+        $task = $stmt->fetch(PDO::FETCH_ASSOC);
+        $description = $task ? $task['description'] : 'Unknown';
+
+        if ($task) {
+            $durationInMinutes = abs(time() - strtotime($task['assignedAt'])) / 60;
+
+            // Log for the assignee
+            $this->insertUserActivityLog(
+                $userID,
+                'task completion',
+                'Completed a miscellaneous task described as: "' . $description . '" in ' . number_format($durationInMinutes, 2) . ' minutes.',
+                'green'
+            );
+
+            // Log for the current user who marked it complete
+            $query = "SELECT firstName, middleName, lastName FROM users WHERE id = :id";
+            $stmt2 = $this->pdo->prepare($query);
+            $stmt2->bindParam(':id', $_SESSION['id']);
+            $stmt2->execute();
+            $_user = $stmt2->fetch(PDO::FETCH_ASSOC);
+            $_middleInitial = $_user['middleName'] ? substr($_user['middleName'], 0, 1) . '. ' : '';
+            $_userFullName = $_user['firstName'] . ' ' . $_middleInitial . $_user['lastName'];
+
+            $this->insertUserActivityLog(
+                $_SESSION['id'],
+                'task completion',
+                'Marked a miscellaneous task described as: "' . $description . '" for ' . $_userFullName . ' as complete.',
+                'green'
+            );
+
+            $query = "
+            UPDATE userStats
+            SET
+                tasksCompleted = tasksCompleted + 1,
+                tasksCompletedDuration = tasksCompletedDuration + :taskCompletedDuration
+            WHERE userID = :id
+        ";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute([
+                ':id' => $userID,
+                ':taskCompletedDuration' => $durationInMinutes
+            ]);
+        }
+
+        $query = "DELETE FROM miscellaneousTasks WHERE userID = :userID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        $stmt->execute();
+
+        return "Success: Miscellaneous task completed.";
+    }
+
+    public function unassignMiscellaneousTask($userID) {
+        $query = "SELECT description FROM miscellaneousTasks WHERE userID = :userID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        $stmt->execute();
+        $task = $stmt->fetch(PDO::FETCH_ASSOC);
+        $description = $task ? $task['description'] : 'Unknown';
+
+        $query = "SELECT firstName, middleName, lastName FROM users WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $userID);
+        $stmt->execute();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $middleInitial = $user['middleName'] ? substr($user['middleName'], 0, 1) . '. ' : '';
+        $userFullName = $user['firstName'] . ' ' . $middleInitial . $user['lastName'];
+
+        $query = "SELECT firstName, middleName, lastName FROM users WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $_SESSION['id']);
+        $stmt->execute();
+        $_user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $_middleInitial = $_user['middleName'] ? substr($_user['middleName'], 0, 1) . '. ' : '';
+        $_userFullName = $_user['firstName'] . ' ' . $_middleInitial . $_user['lastName'];
+
+        $query = "DELETE FROM miscellaneousTasks WHERE userID = :userID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        $stmt->execute();
+
+        $this->insertUserActivityLog(
+            $userID,
+            'task unassignment',
+            'Unassigned from a miscellaneous task described as: "' . $description . '" by ' . $_userFullName . '.',
+            'red'
+        );
+
+        $this->insertUserActivityLog(
+            $_SESSION['id'],
+            'task unassigning',
+            'Unassigned ' . $userFullName . ' from a miscellaneous task described as: "' . $description . '".',
+            'red'
+        );
+
+        return "Success: Miscellaneous task unassigned.";
+    }
+
+    public function insertUserActivityLog($userID, $head, $log, $color) {
+        $query = "INSERT INTO userActivityLog (userID, head, log, color) VALUES (:userID, :head, :log, :color)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute([
+            ':userID' => $userID,
+            ':head' => strtolower($head),
+            ':log' => $log,
+            ':color' => strtolower($color)
+        ]);
+    }
 }
