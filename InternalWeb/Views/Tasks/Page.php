@@ -59,6 +59,7 @@
                                     <?php
                                     $statusClass = $task['taskStatus'] === 'pending' ? "redTransBG redBorder" : ($task['taskStatus'] === 'complete' ?
                                         "greenTransBG greenBorder" : "yellowTransBG yellowBorder");
+                                    $gcLink = str_replace('https://m.me', 'https://messenger.com', $task['messengerGCLink']);
                                     ?>
                                     <div class="<?= $statusClass ?> columnLayout tinGap regPadding roundedMin shadowed assignedTaskElement clickable"
                                         data-id="<?= $task['id'] ?>" data-order-id="<?= $task['orderID'] ?>" data-status="<?= $task['taskStatus'] ?>"
@@ -86,7 +87,8 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <a href="<?= $task['messengerGCLink'] ?>" class="tinHeight squareSize regMinPadding blueBG roundedMin centerColumnLayout circle shadowed">
+                                            <a href="<?= $gcLink ?>" target="_blank"
+                                                class="tinHeight squareSize regMinPadding blueBG roundedMin centerColumnLayout circle shadowed">
                                                 <img src="../../Shared/Img/MessengerIcon.png" alt="Messenger" class="invertColors">
                                             </a>
                                         </div>
