@@ -366,35 +366,35 @@
 }
 
 .norAbsolute {
-    position: absolute;
+    position: absolute !important;
     top: 1rem;
 }
 
 .eastAbsolute {
-    position: absolute;
+    position: absolute !important;
     right: 1rem;
 }
 
 .norWestAbsolute {
-    position: absolute;
+    position: absolute !important;
     top: 1rem;
     left: 1rem;
 }
 
 .norEastAbsolute {
-    position: absolute;
+    position: absolute !important;
     top: 1rem;
     right: 1rem;
 }
 
 .souEastAbsolute {
-    position: absolute;
+    position: absolute !important;
     bottom: 1rem;
     right: 1rem;
 }
 
 .souWestAbsolute {
-    position: absolute;
+    position: absolute !important;
     bottom: 1rem;
     left: 1rem;
 }
