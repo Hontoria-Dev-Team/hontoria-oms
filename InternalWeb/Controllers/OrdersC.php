@@ -22,6 +22,8 @@ class OrdersC {
         $userProcessList = $this->staffModel->getAllUserAssignableProcessTasks();
         $userTaskCountTally = $this->staffModel->getAllUsersTaskCount();
         $userProcessTasksList = $this->staffModel->getAllUserProcessTasks();
+        $designList = $this->ordersModel->getAllOrderDesigns();
+        $variableListMap = $this->ordersModel->getAllOrderVariableListMapped();
 
         $orderAssigneeCountMap = [];
 
@@ -226,7 +228,8 @@ class OrdersC {
 
         $this->ordersModel->insertOrderDesign($orderID, $designImage);
 
-        header('Location: index.php?page=tasks');
+        $redirectPage = isset($_GET['page']) ? $_GET['page'] : 'tasks';
+        header('Location: index.php?page=' . $redirectPage);
     }
 
     public function updateVariableList() {
@@ -235,19 +238,22 @@ class OrdersC {
 
         if (!$orderID || !$json) {
             $_SESSION['message'] = "Error: Missing data.";
-            header("Location: index.php?page=tasks");
+            $redirectPage = isset($_GET['page']) ? $_GET['page'] : 'tasks';
+            header("Location: index.php?page=" . $redirectPage);
             exit;
         }
 
         $data = json_decode($json, true);
         if (!$data) {
             $_SESSION['message'] = "Error: Invalid data.";
-            header("Location: index.php?page=tasks");
+            $redirectPage = isset($_GET['page']) ? $_GET['page'] : 'tasks';
+            header("Location: index.php?page=" . $redirectPage);
             exit;
         }
 
         $_SESSION['message'] = $this->ordersModel->updateVariableList($orderID, $data);
-        header("Location: index.php?page=tasks");
+        $redirectPage = isset($_GET['page']) ? $_GET['page'] : 'tasks';
+        header("Location: index.php?page=" . $redirectPage);
     }
 
     public function verifyCompleteOrder() {

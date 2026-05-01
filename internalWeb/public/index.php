@@ -151,6 +151,10 @@ switch ($page) {
             $orders->unassignEmployeeToTask();
         } else if ($action === 'verifyComplete') {
             $orders->verifyCompleteOrder();
+        } else if ($action === 'uploadDesign') {
+            $orders->uploadOrderDesign();
+        } else if ($action === 'updateVariableList') {
+            $orders->updateVariableList();
         } else if ($action === 'viewArchive') {
             $orders->showArchive();
         } else {

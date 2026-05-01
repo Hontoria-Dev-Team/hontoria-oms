@@ -188,6 +188,10 @@
     border: 0.1rem solid var(--yellowTrans) !important;
 }
 
+.yellowGreenBorder {
+    border: 0.1rem solid var(--yellowGreen) !important;
+}
+
 .greenBorder {
     border: 0.1rem solid var(--green) !important;
 }

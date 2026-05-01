@@ -12,6 +12,8 @@ class OrdersM {
                 orders.id,
                 services.name AS serviceName,
                 subservices.name AS subserviceName,
+                services.hasDesign AS hasDesign,
+                services.hasVariableList AS hasVariableList,
                 orders.priceTotal,
                 orders.customerName,
                 orders.createdAt,
@@ -419,6 +421,10 @@ class OrdersM {
                 orderProcess.minAssign,
                 orderProcess.maxAssign,
                 orderProcess.status,
+                services.hasDesign AS hasDesign,
+                services.hasVariableList AS hasVariableList,
+                processes.designAccess,
+                processes.variableListAccess,
                 COUNT(userProcessTasks.orderProcessID) AS assignedNum
             FROM orderProcess
             JOIN orders ON orderProcess.orderID = orders.id
@@ -427,11 +433,16 @@ class OrdersM {
                 ON subservices.serviceID = serviceProcess.serviceID
                 AND orderProcess.phase = serviceProcess.phase
             JOIN processes ON serviceProcess.processesID = processes.id
+            JOIN services ON subservices.serviceID = services.id
             LEFT JOIN userProcessTasks
                 ON orderProcess.id = userProcessTasks.orderProcessID
             GROUP BY
                 orderProcess.id,
-                orderProcess.orderID
+                orderProcess.orderID,
+                services.hasDesign,
+                services.hasVariableList,
+                processes.designAccess,
+                processes.variableListAccess
             ORDER BY orderProcess.orderID, orderProcess.phase
         ";
 

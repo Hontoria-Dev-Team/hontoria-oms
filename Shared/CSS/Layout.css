@@ -494,6 +494,10 @@
     min-height: 0 !important;
 }
 
+.noMinWidth {
+    min-width: 0 !important;
+}
+
 .noFlexBasis {
     flex-basis: 0 !important;
 }
