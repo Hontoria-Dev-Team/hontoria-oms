@@ -16,15 +16,15 @@ $navLinks = [
         'icon'  => '../../Shared/Img/ListIcon.png',
         'permission' => 'canViewOrdersPage',
     ],
+    'tasks' => [
+        'label' => 'Tasks',
+        'icon'  => '../../Shared/Img/CheckBoxIcon.png',
+        'permission' => 'canTakeTasks',
+    ],
     'staff' => [
         'label' => 'Staff',
         'icon'  => '../../Shared/Img/PeopleIcon.png',
         'permission' => 'canViewStaffPage',
-    ],
-    'tasks' => [
-        'label' => 'Tasks',
-        'icon'  => '../../Shared/Img/CheckBoxIcon.png',
-        'permission' => null,
     ],
     'inventory' => [
         'label' => 'Inventory',
