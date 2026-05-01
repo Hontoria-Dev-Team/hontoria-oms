@@ -128,6 +128,11 @@ class AuthorizationC {
     public function getPermissions() {
         $permissions = $this->staffModel->getUserPermissions($_SESSION['id']);
         $_SESSION['permissions'] = array_column($permissions, 'name');
+
+        $userRoleProcessTasks = $this->staffModel->getUserRoleProcessTasks($_SESSION['id']);
+        if (!empty($userRoleProcessTasks) && !in_array('canTakeTasks', $_SESSION['permissions'])) {
+            $_SESSION['permissions'][] = 'canTakeTasks';
+        }
     }
 
     public function setUserRoles() {

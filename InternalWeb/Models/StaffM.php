@@ -597,6 +597,10 @@ class StaffM {
     public function getUserRoleProcessTasks($id) {
         $roles = $this->getUserRoles($id);
 
+        if (empty($roles)) {
+            return [];
+        }
+
         $placeholders = implode(',', array_fill(0, count($roles), '?'));
 
         $query = "SELECT roleProcessTasks.roleID, roleProcessTasks.processID, processes.name FROM roleProcessTasks
