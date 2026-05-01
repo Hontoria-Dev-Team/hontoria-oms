@@ -413,3 +413,82 @@ INSERT INTO salesRecords (date, isInflow, type, description, value) VALUES
 ('2026-04-23', 0, 'Service Bills', 'Electricity Bill', 12000),
 ('2026-04-24', 0, 'Inventory Expense', 'Paper Expense', 300),
 ('2026-04-24', 0, 'Inventory Expense', 'Cloth Expense', 600);
+
+-- Seeder for Order #1 (T-shirt by Adrian Rojer B. Lambas)
+
+-- 1. Insert the order and capture its ID
+INSERT INTO orders (subserviceID, customerName, messengerGCLink, priceTotal, createdAt, deadlineAt) VALUES
+(2, 'Adrian Rojer B. Lambas', 'https://m.me/j/AbbjSDFfpAcqXGez/?send_source=gc%3Acopy_invite_link_c', 20000, NOW(), DATE_ADD(NOW(), INTERVAL 14 DAY));
+
+SET @order_id = LAST_INSERT_ID();
+
+-- 2. Order Groups (S:10, M:12, L:7, XL:2)
+INSERT INTO orderGroups (orderID, description, quantity) VALUES
+(@order_id, 'Small', 10),
+(@order_id, 'Medium', 12),
+(@order_id, 'Large', 7),
+(@order_id, 'Extra Large', 2);
+
+-- 3. Order Process (serviceID=1, phases 1-4, minAssign=1, maxAssign=5)
+INSERT INTO orderProcess (orderID, phase, minAssign, maxAssign, status) VALUES
+(@order_id, 1, 1, 5, 'active'),
+(@order_id, 2, 1, 5, 'pending'),
+(@order_id, 3, 1, 5, 'pending'),
+(@order_id, 4, 1, 5, 'pending');
+
+-- 4. Order Design
+INSERT INTO orderDesigns (orderID, imageName) VALUES
+(@order_id, 'exampleOrderDesign.jpg');
+
+-- 5. Variable List
+INSERT INTO variableLists (orderID) VALUES (@order_id);
+
+INSERT INTO variableListColumns (orderID, columnName, displayOrder) VALUES
+(@order_id, 'group', 1),
+(@order_id, 'last name', 2);
+
+SET @col_group_id = (SELECT id FROM variableListColumns WHERE orderID = @order_id AND columnName = 'group');
+SET @col_lname_id = (SELECT id FROM variableListColumns WHERE orderID = @order_id AND columnName = 'last name');
+
+-- Generate 31 row numbers (1..31)
+INSERT INTO variableListValues (orderID, rowNumber, columnID, valueText)
+SELECT @order_id, r.rn, c.col_id,
+       CASE WHEN c.col_id = @col_group_id THEN
+            CASE WHEN r.rn <= 10 THEN 'small'
+                 WHEN r.rn <= 22 THEN 'medium'
+                 WHEN r.rn <= 29 THEN 'large'
+                 ELSE 'extra large'
+            END
+            ELSE
+            ELT(FLOOR(1 + RAND() * 31),
+                'Dela Cruz','Reyes','Santos','Gonzales','Bautista','Torres','Ramos',
+                'Aquino','Fernandez','Villanueva','Mendoza','Aguirre','Castro','Velasco',
+                'Marquez','Salvador','Garcia','Cruz','Rivera','Panganiban','De Leon',
+                'Cortez','Mercado','Ocampo','Suarez','Javier','Sarmiento','Montemayor',
+                'Abad','Reyes','De Guzman')
+       END
+FROM (
+    SELECT n AS rn FROM (
+        SELECT a.N + b.N * 10 + 1 AS n
+        FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
+              UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a
+        CROSS JOIN (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3) b
+        WHERE a.N + b.N * 10 < 31
+    ) nums
+) r
+CROSS JOIN (SELECT @col_group_id AS col_id UNION SELECT @col_lname_id) c
+ORDER BY r.rn, c.col_id;
+
+-- Row checks for all 31 rows (unchecked)
+INSERT INTO variableListRowChecks (orderID, rowNumber, isChecked)
+SELECT @order_id, r.rn, FALSE
+FROM (
+    SELECT n AS rn FROM (
+        SELECT a.N + b.N * 10 + 1 AS n
+        FROM (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
+              UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a
+        CROSS JOIN (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3) b
+        WHERE a.N + b.N * 10 < 31
+    ) nums
+) r
+ORDER BY r.rn;
