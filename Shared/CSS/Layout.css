@@ -161,6 +161,10 @@
     flex: 1 !important;
 }
 
+.flexMinExtra {
+    flex: 2.5 !important;
+}
+
 .flexMid {
     flex: 3 !important;
 }

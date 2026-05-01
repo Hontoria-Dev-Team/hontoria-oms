@@ -23,7 +23,20 @@
         </h1>
         <?php include("../Views/.Components/MessageBox.php"); ?>
         <section class="rowLayout flexMax midGap">
-            <section class="flexMid roundedMid centerColumnLayout">
+            <section class="columnLayout midGap flexMinExtra">
+                <section class="box centerColumnLayout roundedMid minGap flexMin" id="userInfoContainer">
+                    <h4>No Staff Selected</h4>
+                    <div class="gradientBorderDiag"></div>
+                </section>
+                <section class="box centerColumnLayout roundedMid flexMid noBasis noMinHeight minGap">
+                    <h5 class="leftStart">Assigned Tasks:</h5>
+                    <div id="taskListContainer" class="scrollable fullDimensions columnLayout minGap regTinPadding">
+                        <h2 class="centerMarginsSelf">No Staff Selected</h2>
+                    </div>
+                    <div class="gradientBorderDiag"></div>
+                </section>
+            </section>
+            <section class="flexMax roundedMid centerColumnLayout">
                 <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
                     <form method="GET" action="index.php?page=staff" class="rowLayout fullWidth minGap">
                         <input type="hidden" name="page" value="staff">
@@ -115,7 +128,7 @@
                                     <img src="<?= $userImage ?>" alt="User Photo" class="<?= $userImageStyle ?> squareSize">
                                 </div>
                                 <div class="flexMid centerHoriColumnLayout">
-                                    <h5><?= htmlspecialchars($fullName) ?></h5>
+                                    <h5 class="whiteText outlineText"><?= htmlspecialchars($fullName) ?></h5>
                                     <?php if (!empty($staff['note'])): ?>
                                         <h6 class="capitalFirst faded"><?= htmlspecialchars($staff['note']) ?></h6>
                                     <?php endif; ?>
@@ -123,10 +136,10 @@
                                     <h6 class="capitalFirst">Tasks: <?= $taskCount ?></h6>
                                 </div>
                                 <div class="souEastAbsolute closeCorner rowLayout tinGap">
-                                    <h5 class="status roundedTin fitDimensions minHoriPadding shadowed whiteText <?= $statusBG ?>">
+                                    <h5 class="status roundedTin fitDimensions minHoriPadding shadowed whiteText outlineText <?= $statusBG ?>">
                                         <?= $status ?>
                                     </h5>
-                                    <h5 class="roundedTin whiteText fitDimensions minHoriPadding shadowed <?= $activityStatusBG ?>">
+                                    <h5 class="roundedTin whiteText fitDimensions minHoriPadding shadowed outlineText <?= $activityStatusBG ?>">
                                         <?= $activityStatus ?>
                                     </h5>
                                 </div>
@@ -135,19 +148,6 @@
                     </section>
                 </div>
                 <div class="gradientBorderDiag"></div>
-            </section>
-            <section class="columnLayout midGap flexMin">
-                <section class="box centerColumnLayout roundedMid minGap flexMin" id="userInfoContainer">
-                    <h4>No Staff Selected</h4>
-                    <div class="gradientBorderDiag"></div>
-                </section>
-                <section class="box centerColumnLayout roundedMid flexMid noBasis noMinHeight minGap">
-                    <h5 class="leftStart">Assigned Tasks:</h5>
-                    <div id="taskListContainer" class="scrollable fullDimensions columnLayout minGap">
-                        <h2 class="centerMarginsSelf">No Staff Selected</h2>
-                    </div>
-                    <div class="gradientBorderDiag"></div>
-                </section>
             </section>
         </section>
     </main>
@@ -271,10 +271,10 @@
     // ================================
     function UpdateUserInfoDisplay(elem) {
         let name = elem.dataset.name;
-        if (name.length > 25) {
+        if (name.length > 30) {
             name = elem.dataset.lastName + ', ' + name;
-            if (name.length > 23) {
-                name = name.substring(0, 23) + '...';
+            if (name.length > 28) {
+                name = name.substring(0, 28) + '...';
             }
         }
 
@@ -315,10 +315,10 @@
                 </h6>
             </span>
             <div class="rowLayout fullWidth minGap" id="staffActions">
-                <button type="button" class="importantInput flexMax" id="modifyRolesButton">Modify Roles</button>
+                <button type="button" class="importantInput flexMax shadowed noBorder" id="modifyRolesButton">Modify Roles</button>
                 ${currentUser.miscTask === null
-                    ? '<button type="button" class="importantInput flexMax" id="assignMiscTaskButton">Assign Misc Task</button>'
-                    : '<button type="button" class="importantInput yellowBG flexMax" id="updateMiscTaskButton">Update Misc Task</button>'
+                    ? '<button type="button" class="importantInput flexMax shadowed noBorder" id="assignMiscTaskButton">Assign Misc Task</button>'
+                    : '<button type="button" class="importantInput yellowBG outlineText flexMax shadowed noBorder" id="updateMiscTaskButton">Update Misc Task</button>'
                 }
             </div>
             <button type="button" class="criticalInput centerColumnLayout norEastAbsolute" id="deleteButton">
@@ -391,8 +391,8 @@
             tempDiv.className = 'centerHoriRowLayout minGap tinGap minPadding roundedMin shadowed yellowTransBG yellowBorder';
 
             tempDiv.innerHTML = `
-                <h5 class="yellowBG whiteText roundedMin minPadding shadowed tinWidth centerText">Misc</h5>
                 <div class="columnLayout">
+                    <h5 class="whiteText outlineText">Miscellaneous Task</h5>
                     <h6 class="capitalFirst">Task: ${currentUser.miscTask.description}</h6>
                     <h6>Assigned At: ${formatDateTime(currentUser.miscTask.assignedAt)}</h6>
                 </div>
@@ -404,25 +404,18 @@
             tempDiv = document.createElement('div');
             tempDiv.className = 'centerHoriRowLayout minGap tinGap minPadding roundedMin shadowed';
 
-            let headerClass = '';
             if (task.status === 'pending') {
                 tempDiv.classList.add('redTransBG', 'redBorder');
-                headerClass = 'redBG';
             } else if (task.status === 'partially complete') {
                 tempDiv.classList.add('yellowTransBG', 'yellowBorder');
-                headerClass = 'yellowBG';
             } else if (task.status === 'complete') {
                 tempDiv.classList.add('greenTransBG', 'greenBorder');
-                headerClass = 'greenBG';
             }
 
             tempDiv.innerHTML = `
-            <h5 class="${headerClass} whiteText roundedMin minPadding shadowed tinWidth centerText">Order #${task.orderID}</h5>
             <div class="columnLayout">
-                <h6 class="capitalFirst">Status: ${task.status}</h6>
-                <h6>Service: ${task.serviceName}</h6>
-                <h6>Subservice: ${task.subserviceName}</h6>
-                <h6>Task: ${task.processName}</h6>
+                <h5 class="whiteText outlineText">${task.processName} Order #${task.orderID}</h5>
+                <h6>Service: ${task.subserviceName} ${task.serviceName}</h6>
                 <h6>Customer: ${task.customerName}</h6>
                 <h6>Assigned At: ${formatDateTime(task.assignedAt)}</h6>
             </div>
