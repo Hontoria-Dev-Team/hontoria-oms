@@ -375,9 +375,9 @@ function getProcessStateClass($status) {
                 </section>
             <?php endif; ?>
 
-            <section class="order-section">
-                <h2>Variable List</h2>
-                <?php if ($orderData['serviceHasVariableList']): ?>
+            <?php if ($orderData['serviceHasVariableList']): ?>
+                <section class="order-section">
+                    <h2>Variable List</h2>
                     <?php if (!empty($variableList)): ?>
                         <div>
                             <span class="approval-pill <?php echo $variableList['approved'] ? 'approval-approved' : 'approval-pending'; ?>">
@@ -411,11 +411,8 @@ function getProcessStateClass($status) {
                     <?php else: ?>
                         <p class="order-note">The variable list is being prepared. It will appear here once available.</p>
                     <?php endif; ?>
-                <?php else: ?>
-                    <span class="approval-pill approval-not-applicable">Not Applicable</span>
-                    <p class="order-note">This service does not use a variable list.</p>
-                <?php endif; ?>
-            </section>
+                </section>
+            <?php endif; ?>
 
             <section class="order-section">
                 <h2>Order Process</h2>

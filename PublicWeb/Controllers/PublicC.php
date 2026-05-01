@@ -102,7 +102,7 @@ class PublicC {
                 }
 
                 $this->publicModel->approveDesign($orderID);
-                header('Location: index.php?page=order&orderCode=' . urlencode($code) . '&status=designApproved');
+                header('Location: index.php?page=order&code=' . urlencode($code) . '&status=designApproved');
                 exit;
             } elseif ($action === 'approveVariableList') {
                 if ($requiresPassword && !$passwordVerified) {
@@ -112,7 +112,7 @@ class PublicC {
                 }
 
                 $this->publicModel->approveVariableList($orderID);
-                header('Location: index.php?page=order&orderCode=' . urlencode($code) . '&status=variableListApproved');
+                header('Location: index.php?page=order&code=' . urlencode($code) . '&status=variableListApproved');
                 exit;
             }
         }
