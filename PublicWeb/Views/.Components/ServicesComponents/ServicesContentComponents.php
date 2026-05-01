@@ -13,6 +13,7 @@ $servicesCatalog = $servicesCatalog ?? [];
     </div>
 
     <?php foreach ($servicesCatalog as $service): ?>
+        <?php if ($service['isActive'] == 0) continue; ?>
 
         <section class="product-section"
             id="<?php echo strtolower(str_replace(' ', '-', $service['name'])); ?>">
@@ -38,10 +39,12 @@ $servicesCatalog = $servicesCatalog ?? [];
 
                         data-description="<?php echo htmlspecialchars($subservice['description']); ?>"
 
+                        data-is-active="<?php echo htmlspecialchars($subservice['isActive']); ?>"
+
                         data-photos='<?php echo json_encode(array_map(
-                            fn($img) => "../../Storage/SubserviceImages/" . $img['imageName'],
-                            $subservice['images'] ?? []
-                        )); ?>'>
+                                            fn($img) => "../../Storage/SubserviceImages/" . $img['imageName'],
+                                            $subservice['images'] ?? []
+                                        )); ?>'>
 
                         <!-- IMAGE -->
                         <div class="card-img">
@@ -77,15 +80,21 @@ $servicesCatalog = $servicesCatalog ?? [];
                                 <?php echo htmlspecialchars($subservice['name']); ?>
                             </h3>
 
+                            <?php if ($subservice['isActive'] == 0 || $service['isActive'] == 0): ?>
+                                <h5 style="color: var(--red); margin-bottom: 8px;">Not Available For Order</h5>
+                            <?php endif; ?>
+
                             <p class="card-desc">
                                 <?php echo htmlspecialchars($subservice['description']); ?>
                             </p>
 
-                            <a href="<?php echo htmlspecialchars($fbLink); ?>"
-                               target="_blank"
-                               class="order-btn">
-                                Order Now
-                            </a>
+                            <?php if ($subservice['isActive'] == 1 && $service['isActive'] == 1): ?>
+                                <a href="<?php echo htmlspecialchars($fbLink); ?>"
+                                    target="_blank"
+                                    class="order-btn">
+                                    Order Now
+                                </a>
+                            <?php endif; ?>
 
                         </div>
 
@@ -98,5 +107,25 @@ $servicesCatalog = $servicesCatalog ?? [];
         </section>
 
     <?php endforeach; ?>
+
+    <?php
+    $inactiveServices = array_filter($servicesCatalog, fn($s) => $s['isActive'] == 0);
+    $count = count($inactiveServices);
+    if ($count > 0):
+        $names = array_column($inactiveServices, 'name');
+        if ($count === 1) {
+            $serviceList = '<span style="text-transform: capitalize;">' . $names[0] . '</span>';
+        } elseif ($count === 2) {
+            $serviceList = '<span style="text-transform: capitalize;">' . $names[0] . '</span> and <span style="text-transform: capitalize;">' . $names[1] . '</span>';
+        } else {
+            $last = array_pop($names);
+            $serviceList = '<span style="text-transform: capitalize;">' . implode('</span>, <span style="text-transform: capitalize;">', $names) . '</span>, and <span style="text-transform: capitalize;">' . $last . '</span>';
+        }
+    ?>
+        <h4 style="opacity: 0.5; font-style: italic; color: #666;">
+            We can also do: <?= $serviceList ?>
+            but <?= $count === 1 ? 'this service is' : 'these services are' ?> unavailable right now.
+        </h4>
+    <?php endif; ?>
 
 </main>

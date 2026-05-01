@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CategoryConfig.php
  * Builds $sharedCategories from $servicesCatalog passed by PublicC.php.
@@ -10,6 +11,7 @@ $servicesCatalog  = $servicesCatalog ?? [];
 $sharedCategories = [];
 
 foreach ($servicesCatalog as $service) {
+    if ($service['isActive'] == 0) continue;
     $sharedCategories[] = [
         'id'    => strtolower(str_replace(' ', '-', $service['name'])),
         'label' => strtoupper($service['name']),
@@ -17,4 +19,3 @@ foreach ($servicesCatalog as $service) {
         'items' => array_column($service['subservices'], 'name'),
     ];
 }
-?>

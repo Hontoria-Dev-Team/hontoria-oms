@@ -41,7 +41,7 @@ $fbLink = 'https://www.facebook.com/jhong.hontoria.3';
             </div>
 
             <div class="modal-qty-row">
-                <span class="modal-field-label">Quantity:</span>
+                <span class="modal-field-label">Units:</span>
                 <div class="qty-control">
                     <button id="qtyMinus">&#8722;</button>
                     <input type="number" id="qtyInput" value="1" min="1">
@@ -59,15 +59,16 @@ $fbLink = 'https://www.facebook.com/jhong.hontoria.3';
                 <p class="modal-desc">
                     Screenshot your preferred design and send it directly to our
                     <a href="<?php echo htmlspecialchars($fbLink); ?>"
-                       target="_blank"
-                       class="modal-fb-link">Facebook Messenger</a>.
+                        target="_blank"
+                        class="modal-fb-link">Facebook Messenger</a>.
                     We&rsquo;ll get back to you with the details!
                 </p>
             </div>
 
             <a href="<?php echo htmlspecialchars($fbLink); ?>"
-               target="_blank"
-               class="modal-order">
+                target="_blank"
+                class="modal-order"
+                id="orderButton">
                 <i class="fab fa-facebook-messenger"></i>
                 Order via Facebook
             </a>

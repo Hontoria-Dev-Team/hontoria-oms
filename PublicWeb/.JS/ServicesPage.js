@@ -65,9 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
         allSections.forEach(section => {
             section.style.display = (section.id === categoryId) ? '' : 'none';
         });
-        
+
         allCards.forEach(card => card.style.display = '');
-        
+
         if (filterLabel) {
             filterLabel.textContent = 'Showing: ' + categoryId.charAt(0).toUpperCase() + categoryId.slice(1);
         }
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleServices = document.getElementById('toggleServices');
     const subServices = document.getElementById('subServices');
     const chevServices = document.getElementById('chevServices');
-    
+
     let subItemsExpanded = false;
 
     function collapseAllSubItems() {
@@ -161,9 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('click', event => {
             event.preventDefault();
             const productName = link.dataset.name;
-            
+
             if (!productName) return;
-            
+
             clearActive();
             filterByItem(productName);
             link.classList.add('sb-active');
@@ -172,14 +172,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── 4. SEARCH FUNCTIONALITY ───────────────────────────────────────────
     const searchInput = document.getElementById('searchInput');
-    
+
     if (searchInput) {
         searchInput.addEventListener('input', () => {
             const query = searchInput.value.toLowerCase().trim();
-            
-            if (query === '') { 
-                showAll(); 
-                return; 
+
+            if (query === '') {
+                showAll();
+                return;
             }
 
             allCards.forEach(card => {
@@ -210,7 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const qtyMinus = document.getElementById('qtyMinus');
     const qtyPlus = document.getElementById('qtyPlus');
     const totalDisplay = document.getElementById('totalDisplay');
-    
+    const orderButton = document.getElementById('orderButton');
+
     let currentPrice = 0;
 
     function updateTotal() {
@@ -223,12 +224,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function openModal(productName) {
         const card = [...allCards].find(c => c.dataset.name === productName);
         const info = productInfo[productName];
-        
+
         const desc = info?.desc || card?.querySelector('.card-desc')?.textContent || '';
         const icon = info?.icon || 'fa-image';
         const bg = info?.bg || 'linear-gradient(135deg,#e8e8e8,#f5f5f5)';
         const basePrice = parseFloat(card?.dataset.price || 0);
-        
+        const isActive = card?.dataset.isActive || 0;
+
         const photos = card?.dataset.photos ? JSON.parse(card.dataset.photos) : [];
         const variants = card?.dataset.variants ? JSON.parse(card.dataset.variants) : [];
 
@@ -239,28 +241,34 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modalDesc) modalDesc.textContent = desc;
         if (qtyInput) qtyInput.value = 1;
 
+        if (isActive == 0) {
+            orderButton.style.display = 'none';
+        } else {
+            orderButton.style.display = 'inline-flex';
+        }
+
         // Manage Variants
         const variantRow = document.getElementById('modalVariantRow');
         const variantSelect = document.getElementById('modalVariantSelect');
 
         if (variants.length > 0 && variantRow && variantSelect) {
             variantRow.style.display = 'flex';
-            variantSelect.innerHTML = variants.map(variant => 
+            variantSelect.innerHTML = variants.map(variant =>
                 `<option value="${variant.price}">${variant.name} — ₱${variant.price.toLocaleString()}</option>`
             ).join('');
-            
+
             currentPrice = variants[0].price;
-            if (modalPrice) modalPrice.textContent = '₱' + currentPrice.toLocaleString() + ' each';
-            
+            if (modalPrice) modalPrice.textContent = '₱' + currentPrice.toLocaleString() + ' per unit';
+
             variantSelect.onchange = () => {
                 currentPrice = parseFloat(variantSelect.value);
-                if (modalPrice) modalPrice.textContent = '₱' + currentPrice.toLocaleString() + ' each';
+                if (modalPrice) modalPrice.textContent = '₱' + currentPrice.toLocaleString() + ' per unit';
                 updateTotal();
             };
         } else {
             if (variantRow) variantRow.style.display = 'none';
             if (modalPrice) {
-                modalPrice.textContent = basePrice > 0 ? '₱' + basePrice.toLocaleString() + ' each' : 'Contact us for pricing';
+                modalPrice.textContent = basePrice > 0 ? '₱' + basePrice.toLocaleString() + ' per unit' : 'Contact us for pricing';
             }
         }
 
@@ -269,16 +277,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Manage Main Image
         function renderMainImage(index) {
             currentPhotoIdx = index;
-            
+
             if (photos.length > 0) {
                 modalMainImg.innerHTML = `
-                    <img src="${photos[index]}" 
+                    <img src="${photos[index]}"
                          alt="${productName}"
                          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; cursor: zoom-in;"
-                         id="mainModalImg" 
+                         id="mainModalImg"
                          title="Click to expand" />
                 `;
-                
+
                 const mainModalImg = document.getElementById('mainModalImg');
                 if (mainModalImg) {
                     mainModalImg.addEventListener('click', () => {
@@ -309,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <img src="${src}" style="width: 100%; height: 100%; object-fit: cover;" />
                     </div>
                 `).join('');
-                
+
                 thumbsContainer.querySelectorAll('.thumb').forEach((thumb, i) => {
                     thumb.addEventListener('click', () => {
                         renderMainImage(i);
@@ -326,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         renderMainImage(0);
-        
+
         if (modalOverlay) modalOverlay.classList.add('open');
         document.body.style.overflow = 'hidden';
     }
@@ -337,8 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const lightboxElement = document.createElement('div');
         lightboxElement.id = 'lightbox';
         lightboxElement.style.cssText = `
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); 
-            z-index: 9999; display: flex; align-items: center; 
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95);
+            z-index: 9999; display: flex; align-items: center;
             justify-content: center; flex-direction: column;
         `;
 
@@ -360,34 +368,34 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
 
             lightboxElement.querySelector('#lbClose').addEventListener('click', () => lightboxElement.remove());
-            
+
             lightboxElement.querySelector('#lbPrev').addEventListener('click', () => {
                 currentIndex = (currentIndex - 1 + photos.length) % photos.length;
                 renderLightboxContent();
             });
-            
+
             lightboxElement.querySelector('#lbNext').addEventListener('click', () => {
                 currentIndex = (currentIndex + 1) % photos.length;
                 renderLightboxContent();
             });
         }
 
-        lightboxElement.addEventListener('click', event => { 
-            if (event.target === lightboxElement) lightboxElement.remove(); 
+        lightboxElement.addEventListener('click', event => {
+            if (event.target === lightboxElement) lightboxElement.remove();
         });
 
         document.addEventListener('keydown', function handleLightboxKey(event) {
-            if (event.key === 'Escape') { 
-                lightboxElement.remove(); 
-                document.removeEventListener('keydown', handleLightboxKey); 
+            if (event.key === 'Escape') {
+                lightboxElement.remove();
+                document.removeEventListener('keydown', handleLightboxKey);
             }
-            if (event.key === 'ArrowLeft') { 
-                currentIndex = (currentIndex - 1 + photos.length) % photos.length; 
-                renderLightboxContent(); 
+            if (event.key === 'ArrowLeft') {
+                currentIndex = (currentIndex - 1 + photos.length) % photos.length;
+                renderLightboxContent();
             }
-            if (event.key === 'ArrowRight') { 
-                currentIndex = (currentIndex + 1) % photos.length; 
-                renderLightboxContent(); 
+            if (event.key === 'ArrowRight') {
+                currentIndex = (currentIndex + 1) % photos.length;
+                renderLightboxContent();
             }
         });
 
@@ -402,19 +410,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Modal Events
     if (qtyMinus) {
-        qtyMinus.addEventListener('click', () => { 
-            const value = parseInt(qtyInput.value) || 1; 
-            if (value > 1) { 
-                qtyInput.value = value - 1; 
-                updateTotal(); 
-            } 
+        qtyMinus.addEventListener('click', () => {
+            const value = parseInt(qtyInput.value) || 1;
+            if (value > 1) {
+                qtyInput.value = value - 1;
+                updateTotal();
+            }
         });
     }
 
     if (qtyPlus) {
-        qtyPlus.addEventListener('click', () => { 
-            qtyInput.value = (parseInt(qtyInput.value) || 1) + 1; 
-            updateTotal(); 
+        qtyPlus.addEventListener('click', () => {
+            qtyInput.value = (parseInt(qtyInput.value) || 1) + 1;
+            updateTotal();
         });
     }
 
@@ -425,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.product-card').forEach(card => {
         card.addEventListener('click', event => {
             if (event.target.closest('.order-btn')) return;
-            
+
             const productName = card.dataset.name;
             if (productName) openModal(productName);
         });
@@ -440,26 +448,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (modalClose) modalClose.addEventListener('click', closeModal);
-    
+
     if (modalOverlay) {
-        modalOverlay.addEventListener('click', event => { 
-            if (event.target === modalOverlay) closeModal(); 
+        modalOverlay.addEventListener('click', event => {
+            if (event.target === modalOverlay) closeModal();
         });
     }
-    
-    document.addEventListener('keydown', event => { 
-        if (event.key === 'Escape') closeModal(); 
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeModal();
     });
 
     // ── 6. SCROLL REVEAL ANIMATIONS ───────────────────────────────────────
     const scrollObserver = new IntersectionObserver(entries => {
         entries.forEach((entry, index) => {
             if (entry.isIntersecting) {
-                setTimeout(() => { 
-                    entry.target.style.opacity = '1'; 
-                    entry.target.style.transform = 'translateY(0)'; 
+                setTimeout(() => {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
                 }, index * 60);
-                
+
                 scrollObserver.unobserve(entry.target);
             }
         });
