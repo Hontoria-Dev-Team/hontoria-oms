@@ -35,7 +35,7 @@
                                 <h3 class="leftStart">Change Username</h3>
                                 <div class="rowLayout minGap">
                                     <input type="text" name="username" required="true" placeholder="<?php echo $_SESSION['username']; ?>" class="flexMax">
-                                    <input type="submit" name="submit" value="Update" class="fullWidth importantInput flexMin">
+                                    <input type="submit" name="submit" value="Update" class="fullWidth importantInput flexMin shadowed noBorder">
                                 </div>
                             </div>
                         </form>
@@ -57,7 +57,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <input type="submit" name="submit" value="Update" class="fullWidth importantInput">
+                            <input type="submit" name="submit" value="Update" class="fullWidth importantInput shadowed noBorder">
                         </form>
                         <div class="gradientBorderDiag"></div>
                     </section>
@@ -83,7 +83,7 @@
                             </div>
                         </div>
                     </div>
-                    <input type="submit" name="submit" value="Change Password" class="fullWidth importantInput">
+                    <input type="submit" name="submit" value="Change Password" class="fullWidth importantInput shadowed noBorder">
                 </form>
                 <div class="gradientBorderDiag"></div>
             </section>
@@ -93,14 +93,14 @@
                         <h3 class="leftStart">Set User Note</h3>
                         <div class="minGap rowLayout">
                             <input type="text" name="userNote" placeholder="Enter your note here..." class="flexMax capitalFirst" value="<?= $note ?>">
-                            <input type="submit" name="submit" value="Submit" class="importantInput">
+                            <input type="submit" name="submit" value="Submit" class="importantInput shadowed noBorder">
                         </div>
                     </div>
                 </form>
                 <div class="gradientBorderDiag"></div>
             </section>
             <section class="centerColumnLayout box roundedMid souEastAbsolute edgeCorner">
-                <a href="index.php?page=logout" class="fullWidth criticalInput roundedMin minPadding midWidth centerColumnLayout">Logout</a>
+                <a href="index.php?page=logout" class="fullWidth criticalInput roundedMin minPadding midWidth centerColumnLayout outlineText shadowed">Logout</a>
                 <div class="gradientBorderDiag"></div>
             </section>
         </section>
