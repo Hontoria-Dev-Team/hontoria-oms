@@ -28,7 +28,7 @@ switch ($page) {
         break;
 
     case 'order':
-        $controller->showOrderPage($_GET['orderID'] ?? '-1');
+        $controller->showOrderPage($_GET['code'] ?? '-1');
         break;
 
     default:

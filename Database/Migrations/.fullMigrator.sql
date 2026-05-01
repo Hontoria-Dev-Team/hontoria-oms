@@ -338,3 +338,9 @@ CREATE TABLE miscellaneousTasks (
     assignedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (userID) REFERENCES users(id)
 );
+
+CREATE TABLE publicOrderPages (
+    orderCode VARCHAR(255) PRIMARY KEY,
+    orderID BIGINT UNSIGNED UNIQUE,
+    passwordHash VARCHAR(255)
+);

@@ -492,3 +492,6 @@ FROM (
     ) nums
 ) r
 ORDER BY r.rn;
+
+INSERT INTO publicOrderPages (orderCode, orderID) VALUES
+('a1b9e4d7c3f8a2b6d0e51714558145', @order_id);

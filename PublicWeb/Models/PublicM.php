@@ -66,7 +66,49 @@ class PublicM {
         return $catalog;
     }
 
-    public function getOrderByID($id) {
+    public function getPublicOrderPageByCode($code) {
+        $query = "SELECT orderCode, orderID, passwordHash FROM publicOrderPages WHERE orderCode = :code LIMIT 1";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':code', $code, PDO::PARAM_STR);
+        $stmt->execute();
+        $page = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $page ?: null;
+    }
+
+    public function setPublicOrderPassword($code, $password) {
+        $password = trim($password);
+        if (strlen($password) < 10 || !preg_match('/\d/', $password)) {
+            return false;
+        }
+
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        $page = $this->getPublicOrderPageByCode($code);
+        if (!$page) {
+            return false;
+        }
+
+        $query = "UPDATE publicOrderPages SET passwordHash = :passwordHash WHERE orderCode = :code";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':passwordHash', $passwordHash, PDO::PARAM_STR);
+        $stmt->bindParam(':code', $code, PDO::PARAM_STR);
+        return $stmt->execute();
+    }
+
+    public function verifyPublicOrderPassword($code, $password) {
+        $page = $this->getPublicOrderPageByCode($code);
+        if (!$page) {
+            return false;
+        }
+
+        if (empty($page['passwordHash'])) {
+            return true;
+        }
+
+        return password_verify($password, $page['passwordHash']);
+    }
+
+    public function getPublicOrderByID($id) {
         $query = "
             SELECT
                 orders.id,

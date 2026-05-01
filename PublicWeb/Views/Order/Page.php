@@ -1,12 +1,15 @@
 <?php
 $orderData = $orderData ?? null;
 $orderProcesses = $orderProcesses ?? [];
+$requiresPassword = $requiresPassword ?? false;
+$passwordVerified = $passwordVerified ?? false;
 $error = $error ?? null;
+$message = $message ?? null;
 
-if (!$orderData) {
-    $error = $error ?? 'Order not found.';
-} else {
+if ($orderData) {
     $orderData = (array)$orderData;
+} elseif (!$requiresPassword && !$error) {
+    $error = 'Order not found.';
 }
 
 function formatAmount($amount) {
@@ -290,7 +293,27 @@ function getProcessStateClass($status) {
 <body>
     <?php include __DIR__ . '/../.Components/SharedComponents/HeaderComponents.php'; ?>
     <div class="order-page">
-        <?php if ($error): ?>
+        <?php if ($requiresPassword && !$passwordVerified): ?>
+            <section class="order-section" style="max-width: 520px; margin: 2rem auto;">
+                <h1 style="margin-bottom: 1rem;">Access Restricted</h1>
+                <p class="order-note">This order is protected by a password. Enter the correct password to view order details.</p>
+
+                <?php if ($error): ?>
+                    <div class="message-banner" style="background: #ffe5e5; color: #a41e22; border-color: #f0a3a3;">
+                        <?php echo htmlspecialchars($error); ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="POST" style="display: grid; gap: 1rem; margin-top: 1rem;">
+                    <input type="hidden" name="action" value="verifyPassword" />
+                    <label style="display: grid; gap: .5rem; font-weight: 600; color: #333;">
+                        Password
+                        <input type="password" name="password" required autofocus style="padding: .85rem; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem;" />
+                    </label>
+                    <button type="submit" class="approval-button" style="width: fit-content;">Verify Password</button>
+                </form>
+            </section>
+        <?php elseif ($error): ?>
             <section class="order-section">
                 <h1>Order Status</h1>
                 <p class="order-note"><?php echo htmlspecialchars($error); ?></p>
@@ -413,6 +436,27 @@ function getProcessStateClass($status) {
                 <?php else: ?>
                     <p class="order-note">No process data available for this order.</p>
                 <?php endif; ?>
+            </section>
+
+            <section class="order-section">
+                <h2>Order Access Password</h2>
+                <p class="order-note">Protect this order using a password. Password must be at least 10 characters long and contain at least one number.</p>
+
+                <form method="POST" style="display: grid; gap: 1rem; max-width: 540px; margin-top: 1rem;">
+                    <input type="hidden" name="action" value="setPassword" />
+
+                    <label style="display: grid; gap: .5rem; font-weight: 600; color: #333;">
+                        New Password
+                        <input type="password" name="password" required placeholder="At least 10 characters with 1 number" style="padding: .85rem; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem;" />
+                    </label>
+
+                    <label style="display: grid; gap: .5rem; font-weight: 600; color: #333;">
+                        Confirm Password
+                        <input type="password" name="passwordConfirm" required placeholder="Confirm password" style="padding: .85rem; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem;" />
+                    </label>
+
+                    <button type="submit" class="approval-button" style="width: fit-content;">Save Password</button>
+                </form>
             </section>
         <?php endif; ?>
     </div>
