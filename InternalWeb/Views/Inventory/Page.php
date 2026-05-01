@@ -33,7 +33,7 @@
                                     data-restock-date="<?= $inventoryLastRestockMap[$inventory['id']]['date'] ?>"
                                     data-restock-quantity="<?= $inventoryLastRestockMap[$inventory['id']]['quantity'] ?>">
                                     <div class="capitalFirst centerText regMinPadding flexMax skewedXNegBG shadowed yellowTransBG">
-                                        <h3><?= htmlspecialchars($inventory['name']) ?></h3>
+                                        <h3 class="whiteText outlineText"><?= htmlspecialchars($inventory['name']) ?></h3>
                                     </div>
                                     <h5 class="capitalFirst centerText regMinPadding minWidth">
                                         Quantity: <?= htmlspecialchars($inventoryQuantityMap[$inventory['id']] ?? 0) ?>
@@ -55,7 +55,7 @@
                                     id="updateButton">
                                     Update
                                 </button>
-                                <button type="button" class="redBG emphasizedText noBorder shadowed whiteText centerColumnLayout fullHeight hidden" id="resetButton">
+                                <button type="button" class="redBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout fullHeight hidden" id="resetButton">
                                     Reset
                                 </button>
                                 <button type="button" class="redBG noBorder shadowed centerColumnLayout fullHeight hidden" id="deleteButton">
