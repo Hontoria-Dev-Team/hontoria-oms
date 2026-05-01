@@ -64,6 +64,18 @@
                 </div>
             </div>
             <section class="centerColumnLayout box roundedMid extraWidth centerHoriSelf">
+                <form method="POST" action="index.php?page=account&action=setUserNote" class="centerColumnLayout minGap fullWidth">
+                    <div class="fullWidth">
+                        <h3 class="leftStart">Set User Note</h3>
+                        <div class="minGap rowLayout">
+                            <input type="text" name="userNote" placeholder="Enter your note here..." class="flexMax capitalFirst" value="<?= $note ?>">
+                            <input type="submit" name="submit" value="Submit" class="importantInput shadowed noBorder">
+                        </div>
+                    </div>
+                </form>
+                <div class="gradientBorderDiag"></div>
+            </section>
+            <section class="centerColumnLayout box roundedMid extraWidth centerHoriSelf">
                 <form method="POST" action="index.php?page=account&action=changePassword" class="centerColumnLayout minGap fullWidth">
                     <div class="fullWidth">
                         <h3 class="leftStart">Change Password</h3>
@@ -84,18 +96,6 @@
                         </div>
                     </div>
                     <input type="submit" name="submit" value="Change Password" class="fullWidth importantInput shadowed noBorder">
-                </form>
-                <div class="gradientBorderDiag"></div>
-            </section>
-            <section class="centerColumnLayout box roundedMid extraWidth centerHoriSelf">
-                <form method="POST" action="index.php?page=account&action=setUserNote" class="centerColumnLayout minGap fullWidth">
-                    <div class="fullWidth">
-                        <h3 class="leftStart">Set User Note</h3>
-                        <div class="minGap rowLayout">
-                            <input type="text" name="userNote" placeholder="Enter your note here..." class="flexMax capitalFirst" value="<?= $note ?>">
-                            <input type="submit" name="submit" value="Submit" class="importantInput shadowed noBorder">
-                        </div>
-                    </div>
                 </form>
                 <div class="gradientBorderDiag"></div>
             </section>
