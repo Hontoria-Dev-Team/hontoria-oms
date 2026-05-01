@@ -17,30 +17,29 @@
             <section class="flexMid roundedMid centerColumnLayout">
                 <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
                     <h3>Available Tasks</h3>
-                    <div class="gridFlex minGrids minGap scrollable flexMax noFlexBasis noMinHeight contentFlexStart">
+                    <div class="gridFlex minGrids minGap scrollable flexMax noFlexBasis noMinHeight contentFlexStart regTinPadding">
                         <?php foreach ($availableTasks as $task): ?>
                             <?php if (!$task['isAssigned'] && !$task['isFull']): ?>
-                                <div class="darkFadedBG centerHoriColumnLayout tinGap regPadding roundedMin shadowed bordered">
-                                    <h2 class="centerHoriRowLayout">
-                                        <span class="flexMax">Order #<?= $task['orderID'] ?></span>
-                                        <form method="POST" action="index.php?page=tasks&action=assignToTask">
-                                            <input type="hidden" name="orderProcessID" value="<?= $task['id'] ?>">
-                                            <input type="submit" name="submit" value="Assign" class="importantInput shadowed">
-                                        </form>
-                                    </h2>
-                                    <b>Service: <?= $task['serviceName'] ?> <?= $task['subserviceName'] ?></b>
-                                    <b>Task: <?= $task['processName'] ?></b>
-                                    <b>Customer: <?= $task['customerName'] ?></b>
-                                    <b>Due In: <span class="dueInText" data-due-date="<?= $task['deadlineAt'] ?>">4d 2h (March 31, 2026)</span></b>
+                                <div class="darkFadedBG centerHoriColumnLayout regMidPadding roundedMin shadowed bordered">
+                                    <h3 class="centerHoriRowLayout whiteText outlineText">
+                                        <span class="flexMax"><?= $task['processName'] ?> Order #<?= $task['orderID'] ?></span>
+                                    </h3>
+                                    <form method="POST" action="index.php?page=tasks&action=assignToTask" class="norEastAbsolute closeCorner">
+                                        <input type="hidden" name="orderProcessID" value="<?= $task['id'] ?>">
+                                        <input type="submit" name="submit" value="Assign" class="importantInput shadowed noBorder">
+                                    </form>
+                                    <h5>Service: <?= $task['subserviceName'] ?> <?= $task['serviceName'] ?></h5>
+                                    <h5>Customer: <?= $task['customerName'] ?></h5>
+                                    <h5>Due In: <span class="dueInText" data-due-date="<?= $task['deadlineAt'] ?>">4d 2h (March 31, 2026)</span></h5>
                                     <div class="rowLayout minGap">
-                                        <b class="centerHoriRowLayout tinGap">
+                                        <h5 class="centerHoriRowLayout tinGap">
                                             Assigned: <?= $task['assignedNum'] ?>/<?= $task['maxAssign'] ?>
                                             <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
-                                        </b>
-                                        <b class="centerHoriRowLayout tinGap">
+                                        </h5>
+                                        <h5 class="centerHoriRowLayout tinGap">
                                             Required: <?= $task['minAssign'] ?>
                                             <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
-                                        </b>
+                                        </h5>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -53,45 +52,42 @@
                 <section class="box centerColumnLayout roundedMid minGap flexMax">
                     <div class="fullDimensions columnLayout minGap">
                         <h3>Assigned Tasks</h3>
-                        <div class="columnLayout minGap scrollable flexMax noFlexBasis noMinHeight contentFlexStart">
+                        <div class="gridFlex minGrids minGap scrollable flexMax noFlexBasis noMinHeight contentFlexStart regTinPadding">
                             <?php foreach ($availableTasks as $task): ?>
-                                <?php if ($task['isAssigned']): ?>
+                                <?php if ($task['isAssigned'] && $task['minAssign'] <= $task['assignedNum']): ?>
                                     <?php
                                     $statusClass = $task['taskStatus'] === 'pending' ? "redTransBG redBorder" : ($task['taskStatus'] === 'complete' ?
                                         "greenTransBG greenBorder" : "yellowTransBG yellowBorder");
                                     $gcLink = str_replace('https://m.me', 'https://messenger.com', $task['messengerGCLink']);
                                     ?>
-                                    <div class="<?= $statusClass ?> columnLayout tinGap regPadding roundedMin shadowed assignedTaskElement clickable"
+                                    <div class="<?= $statusClass ?> columnLayout tinGap regMidPadding roundedMin shadowed assignedTaskElement clickable"
                                         data-id="<?= $task['id'] ?>" data-order-id="<?= $task['orderID'] ?>" data-status="<?= $task['taskStatus'] ?>"
                                         data-design-access="<?= $task['designAccess'] ?>" data-variable-list-access="<?= $task['variableListAccess'] ?>"
                                         data-design-use="<?= $task['hasDesign'] ?>" data-variable-list-use="<?= $task['hasVariableList'] ?>">
                                         <div class="centerHoriRowLayout minGap">
                                             <div class="flexMax">
-                                                <h2>Order #<?= $task['orderID'] ?></h2>
-                                                <div class="centerHoriRowLayout minGap">
-                                                    <div class="flexMax columnLayout">
-                                                        <b>Service: <?= $task['serviceName'] ?> <?= $task['subserviceName'] ?></b>
-                                                        <b>Task: <?= $task['processName'] ?></b>
-                                                        <b>Customer: <?= $task['customerName'] ?></b>
-                                                    </div>
-                                                    <div class="flexMax columnLayout">
-                                                        <b>Due In: <span class="dueInText" data-due-date="<?= $task['deadlineAt'] ?>">4d 2h (March 31, 2026)</span></b>
-                                                        <b class="centerHoriRowLayout tinGap">
-                                                            Assigned: <?= $task['assignedNum'] ?>/<?= $task['maxAssign'] ?>
-                                                            <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
-                                                        </b>
-                                                        <b class="centerHoriRowLayout tinGap">
-                                                            Required: <?= $task['minAssign'] ?>
-                                                            <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
-                                                        </b>
-                                                    </div>
+                                                <h3 class="whiteText outlineText"><?= $task['processName'] ?> Order #<?= $task['orderID'] ?></h3>
+                                                <h5>Service: <?= $task['subserviceName'] ?> <?= $task['serviceName'] ?></h5>
+                                                <h5>Customer: <?= $task['customerName'] ?></h5>
+                                                <h5>Due In: <span class="dueInText" data-due-date="<?= $task['deadlineAt'] ?>">4d 2h (March 31, 2026)</span></h5>
+                                                <div class="rowLayout minGap">
+                                                    <h5 class="centerHoriRowLayout tinGap">
+                                                        Assigned: <?= $task['assignedNum'] ?>/<?= $task['maxAssign'] ?>
+                                                        <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
+                                                    </h5>
+                                                    <h5 class="centerHoriRowLayout tinGap">
+                                                        Required: <?= $task['minAssign'] ?>
+                                                        <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
+                                                    </h5>
                                                 </div>
                                             </div>
+                                        </div>
+                                        <?php if ($task['hasGCAccess'] == 1): ?>
                                             <a href="<?= $gcLink ?>" target="_blank"
-                                                class="tinHeight squareSize regMinPadding blueBG roundedMin centerColumnLayout circle shadowed">
+                                                class="duoHeight squareSize regMinPadding blueBG roundedMin centerColumnLayout circle shadowed norEastAbsolute closeCorner">
                                                 <img src="../../Shared/Img/MessengerIcon.png" alt="Messenger" class="invertColors">
                                             </a>
-                                        </div>
+                                        <?php endif; ?>
                                     </div>
                                 <?php endif; ?>
                             <?php endforeach; ?>
@@ -103,36 +99,36 @@
                     <section class="box centerColumnLayout tinGap flexMid roundedMid">
                         <div class="columnLayout tinGap fullDimensions">
                             <h3>Assigned to Task:</h3>
-                            <div class="columnLayout scrollable flexMax noFlexBasis noMinHeight minGap" id="assigneesContainer">
+                            <div class="columnLayout scrollable flexMax noFlexBasis noMinHeight minGap regTinPadding" id="assigneesContainer">
                                 <b class="centerMarginsSelf">No Task Selected</b>
                             </div>
                         </div>
                         <div class="gradientBorderDiag"></div>
                     </section>
-                    <section class="box centerColumnLayout tinGap flexMax roundedMid">
+                    <section class="box centerColumnLayout tinGap flexMid roundedMid">
                         <div class="columnLayout minGap fullDimensions">
                             <div class="centerHoriRowLayout">
-                                <h3 class="flexMax">Tasks Objectives</h3>
-                                <a class="midHoriPadding shadowed redBG roundedMin emphasizedText hidden" id="statusButton">Pending</a>
+                                <h3 class="flexMax">Objectives</h3>
+                                <h4 class="midHoriPadding shadowed redBG roundedMin emphasizedText hidden outlineText whiteText" id="statusButton">Pending</h4>
                             </div>
                             <b class="centerMarginsSelf noSelectText">No Task Selected</b>
                             <div class="centerHoriRowLayout minGap duoHeight noSelectHidden hidden">
                                 <div class="bordered flexMin fullHeight roundedMin centerHoriRowLayout shadowed fixedScreen clickable" id="designButton">
-                                    <b class="flexMax centerText">Unset</b>
+                                    <h4 class="flexMax centerText">Unset</h4>
                                     <div class="squareSize fullHeight centerColumnLayout darkBG shadowed">
                                         <img src="../../Shared/Img/PhotoIcon.png" alt="Photo" class="invertColors">
                                     </div>
                                 </div>
                                 <div class="redBorder flexMin fullHeight roundedMin centerHoriRowLayout shadowed fixedScreen clickable" id="variableListButton">
-                                    <b class="flexMax centerText">Unapproved</b>
+                                    <h4 class="flexMax centerText">Unapproved</h4>
                                     <div class="squareSize fullHeight centerColumnLayout redBG shadowed">
                                         <img src="../../Shared/Img/BarsIcon.png" alt="Bars" class="invertColors">
                                     </div>
                                 </div>
                             </div>
-                            <div class="flexMax bordered roundedMin centerHoriRowLayout shadowed fixedScreen noSelectHidden hidden">
-                                <div class="scrollable fullHeight flexMax gridCenterFlex minGap regMinPadding" id="orderGroupsContainer"></div>
-                                <b class="squareSize fullHeight centerColumnLayout darkBG shadowed whiteText regMinPadding">Groups</b>
+                            <div class="flexMax bordered roundedMin centerColumnLayout shadowed fixedScreen noSelectHidden hidden">
+                                <h4 class="centerColumnLayout darkBG shadowed whiteText fullWidth">Groups</h4>
+                                <div class="scrollable fullWidth flexMax gridCenterFlex minGap regMinPadding" id="orderGroupsContainer"></div>
                             </div>
                         </div>
                         <div class="gradientBorderDiag"></div>
@@ -184,6 +180,7 @@
 
         assigneeMap[item.orderProcessID].push({
             name: item.firstName + " " + (item.middleName?.[0] + "." || "") + " " + item.lastName,
+            lastName: item.lastName,
             status: item.status
         });
     });
@@ -251,9 +248,9 @@
 
                 assigneesContainer.innerHTML = '';
                 selectedTaskAssignees.forEach(function(assignee) {
-                    tempElement = document.createElement("b");
+                    tempElement = document.createElement("h5");
                     tempElement.textContent = assignee.name;
-                    tempElement.className = "centerText regMinPadding shadowed roundedTin";
+                    tempElement.className = "centerText regMinPadding shadowed roundedTin whiteText outlineText";
 
                     switch (assignee.status) {
                         case 'pending':
@@ -305,26 +302,26 @@
                         designButton.classList.remove('bordered', 'greenBorder', 'greenText');
                         designButton.querySelector("div").classList.add('redBG');
                         designButton.querySelector("div").classList.remove('darkBG', 'greenBG');
-                        designButton.querySelector("b").textContent = 'Unapproved';
+                        designButton.querySelector("h4").textContent = 'Unapproved';
                     } else if (selectedTaskDesignApproval == 1) {
                         designButton.classList.add('greenBorder', 'greenText');
                         designButton.classList.remove('bordered', 'redBorder', 'redText');
                         designButton.querySelector("div").classList.add('greenBG');
                         designButton.querySelector("div").classList.remove('darkBG', 'redBG');
-                        designButton.querySelector("b").textContent = 'Approved';
+                        designButton.querySelector("h4").textContent = 'Approved';
                     } else {
                         designButton.classList.add('bordered');
                         designButton.classList.remove('redBorder', 'redText', 'greenBorder', 'greenText');
                         designButton.querySelector("div").classList.add('darkBG');
                         designButton.querySelector("div").classList.remove('redBG', 'greenBG');
-                        designButton.querySelector("b").textContent = 'Unset';
+                        designButton.querySelector("h4").textContent = 'Unset';
                     }
 
                     if (elem.dataset.designAccess == "view & update") {
                         designButton.classList.remove('hidden');
                     } else if (elem.dataset.designAccess == "view only") {
                         designButton.classList.remove('hidden');
-                        designButton.querySelector("b").textContent = 'Design';
+                        designButton.querySelector("h4").textContent = 'Design';
                     } else {
                         designButton.classList.add('hidden');
                     }
@@ -392,28 +389,28 @@
                             variableListButton.classList.remove('bordered', 'redBorder', 'redText');
                             variableListButton.querySelector("div").classList.add('greenBG');
                             variableListButton.querySelector("div").classList.remove('darkBG', 'redBG');
-                            variableListButton.querySelector("b").textContent = 'Complete';
+                            variableListButton.querySelector("h4").textContent = 'Complete';
                             break;
                         case 'approved':
                             variableListButton.classList.add('yellowBorder', 'yellowText');
                             variableListButton.classList.remove('bordered', 'redBorder', 'redText', 'greenBorder', 'greenText');
                             variableListButton.querySelector("div").classList.add('yellowBG');
                             variableListButton.querySelector("div").classList.remove('darkBG', 'redBG', 'greenBG');
-                            variableListButton.querySelector("b").textContent = 'Approved';
+                            variableListButton.querySelector("h4").textContent = 'Approved';
                             break;
                         case 'unapproved':
                             variableListButton.classList.add('redBorder', 'redText');
                             variableListButton.classList.remove('bordered', 'greenBorder', 'greenText');
                             variableListButton.querySelector("div").classList.add('redBG');
                             variableListButton.querySelector("div").classList.remove('darkBG', 'greenBG');
-                            variableListButton.querySelector("b").textContent = 'Unapproved';
+                            variableListButton.querySelector("h4").textContent = 'Unapproved';
                             break;
                         case 'incomplete':
                             variableListButton.classList.add('bordered');
                             variableListButton.classList.remove('greenBorder', 'greenText', 'redBorder', 'redText');
                             variableListButton.querySelector("div").classList.add('darkBG');
                             variableListButton.querySelector("div").classList.remove('greenBG', 'redBG');
-                            variableListButton.querySelector("b").textContent = 'Incomplete';
+                            variableListButton.querySelector("h4").textContent = 'Incomplete';
                             break;
                     }
 
@@ -421,7 +418,7 @@
                         variableListButton.classList.remove('hidden');
                     } else if (elem.dataset.variableListAccess == "view only") {
                         variableListButton.classList.remove('hidden');
-                        variableListButton.querySelector("b").textContent = 'Variable List';
+                        variableListButton.querySelector("h4").textContent = 'Variable List';
                     } else {
                         variableListButton.classList.add('hidden');
                     }
@@ -600,8 +597,8 @@
         orderGroupsContainer.innerHTML = '';
 
         selectedTaskGroups.forEach(group => {
-            tempElement = document.createElement("b");
-            tempElement.className = "noShrink fitHeight roundedMin centerRowLayout minGap darkTransBG regMinPadding bordered";
+            tempElement = document.createElement("h5");
+            tempElement.className = "noShrink fitHeight roundedMin centerRowLayout minGap darkTransBG regMinPadding bordered capitalFirst whiteText outlineText shadowed";
             tempElement.textContent = group.description + ": " + group.quantity;
             orderGroupsContainer.appendChild(tempElement);
         });

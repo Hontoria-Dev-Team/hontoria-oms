@@ -473,6 +473,7 @@ class OrdersM {
                 orders.deadlineAt,
                 orders.messengerGCLink,
                 processes.name AS processName,
+                processes.hasGCAccess,
                 processes.designAccess,
                 processes.variableListAccess,
                 userCheck.status AS taskStatus,
