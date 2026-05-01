@@ -154,21 +154,18 @@
                             </div>
                         </div>
                         <div class="centerColumnLayout whiteBG roundedMin fullHeight fullWidth">
-                            <h4 class="norAbsolute closeCorner topZ">General Sales Graph</h4>
                             <div id="salesGraph" class="flexMax centerColumnLayout roundedMin whiteBG midZ fullWidth">
 
                             </div>
                             <div class="gradientBorderDiag minZ shadowed"></div>
                         </div>
                         <div class="centerColumnLayout whiteBG roundedMin fullHeight fullWidth">
-                            <h4 class="norAbsolute closeCorner topZ">Inflow Streams Graph</h4>
                             <div id="inflowStreamsGraph" class="flexMax centerColumnLayout roundedMin whiteBG midZ fullWidth">
 
                             </div>
                             <div class="gradientBorderDiag minZ shadowed"></div>
                         </div>
                         <div class="centerColumnLayout whiteBG roundedMin fullHeight fullWidth">
-                            <h4 class="norAbsolute closeCorner topZ">Outflow Streams Graph</h4>
                             <div id="outflowStreamsGraph" class="flexMax centerColumnLayout roundedMin whiteBG midZ fullWidth">
 
                             </div>
@@ -1229,15 +1226,15 @@
         const outflowStreamsGraph = document.getElementById('outflowStreamsGraph');
 
         if (salesGraph) {
-            salesGraph.innerHTML = '';
+            salesGraph.innerHTML = '<h4 class="norAbsolute closeCorner topZ">General Sales Graph</h4>';
             new ApexCharts(salesGraph, opts.generalSalesOptions).render();
         }
         if (inflowStreamsGraph) {
-            inflowStreamsGraph.innerHTML = '';
+            inflowStreamsGraph.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Inflow Streams Graph</h4>';
             new ApexCharts(inflowStreamsGraph, opts.inflowStreamsOptions).render();
         }
         if (outflowStreamsGraph) {
-            outflowStreamsGraph.innerHTML = '';
+            outflowStreamsGraph.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Outflow Streams Graph</h4>';
             new ApexCharts(outflowStreamsGraph, opts.outflowStreamsOptions).render();
         }
     }
