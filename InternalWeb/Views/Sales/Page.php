@@ -26,7 +26,7 @@
         </h1>
         <?php include("../Views/.Components/MessageBox.php"); ?>
         <section class="rowLayout flexMax midGap">
-            <div class="flexMid columnLayout midGap">
+            <div class="flexMinExtra columnLayout midGap">
                 <section class="centerColumnLayout roundedMid flexMid">
                     <div class="box fullHeight fullWidth roundedMid columnLayout tinGap">
                         <section class="minGap columnLayout flexMax" id="calendarContainer">
