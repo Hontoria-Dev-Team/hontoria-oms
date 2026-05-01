@@ -20,7 +20,7 @@
         </h1>
         <?php include("../Views/.Components/MessageBox.php"); ?>
         <section class="rowLayout flexMax midGap">
-            <div class="flexMid columnLayout midGap">
+            <div class="flexMinExtra columnLayout midGap">
                 <section class="centerColumnLayout roundedMid flexMid">
                     <div class="box fullHeight fullWidth roundedMid columnLayout tinGap">
                         <div class="centerHoriRowLayout">
@@ -44,7 +44,7 @@
                                     data-has-design="<?= $service['hasDesign'] ?>" data-has-variable-list="<?= $service['hasVariableList'] ?>"
                                     data-order-count="<?= $orderCount ?>">
                                     <div class="capitalFirst centerText regMinPadding flexMax skewedXNegBG shadowed <?= $bgClass ?>">
-                                        <h3><?= $name ?></h3>
+                                        <h3 class="whiteText outlineText"><?= $name ?></h3>
                                     </div>
                                     <h5 class="capitalFirst centerText regMinPadding minWidth">Orders: <?= $orderCount ?></h5>
                                 </div>
@@ -120,14 +120,14 @@
                                                 <b>Price Per Unit</b>
                                                 <input type="number" name="pricePerUnit" class="flexMid" id="priceInput" min="1">
                                             </div>
-                                            <input type="submit" name="submit" value="Update" class="importantInput">
+                                            <input type="submit" name="submit" value="Update" class="importantInput shadowed noBorder">
                                         </form>
                                         <div class="flexMid fullHeight columnLayout minGap">
                                             <div class="centerHoriRowLayout">
                                                 <b class="flexMax">Images</b>
                                                 <button type="button" class="darkBG noBorder shadowed whiteText centerColumnLayout fullHeight roundedTin"
                                                     id="addSubserviceImageButton">
-                                                    <b>Add Image</b>
+                                                    <h5>Add Image</h5>
                                                 </button>
                                             </div>
                                             <div class="gridFlex minGap midGrids flexMax contentFlexStart noFlexBasis noMinHeight scrollable regMinPadding"
@@ -361,7 +361,7 @@
             // Active -> Disable button
             tempElement = document.createElement("button");
             tempElement.type = "button";
-            tempElement.className = "redBG emphasizedText noBorder shadowed whiteText centerColumnLayout flexMax noPadding fullHeight";
+            tempElement.className = "redBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight";
             tempElement.textContent = "Disable";
             tempElement.id = "serviceStatusButton";
             serviceStatusButtonsContainer.appendChild(tempElement);
@@ -369,7 +369,7 @@
             // Inactive -> Activate button
             tempElement = document.createElement("button");
             tempElement.type = "button";
-            tempElement.className = "yellowBG emphasizedText noBorder shadowed whiteText centerColumnLayout flexMax noPadding fullHeight";
+            tempElement.className = "yellowBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight";
             tempElement.textContent = "Activate";
             tempElement.id = "serviceStatusButton";
             serviceStatusButtonsContainer.appendChild(tempElement);
@@ -426,8 +426,8 @@
         tempElement = document.createElement("button");
         tempElement.type = "button";
         tempElement.className = currentService.hasDesign ?
-            "yellowBG emphasizedText noBorder shadowed whiteText centerColumnLayout flexMax noPadding fullHeight" :
-            "redBG emphasizedText noBorder shadowed whiteText centerColumnLayout flexMax noPadding fullHeight";
+            "yellowBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight" :
+            "redBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight";
         tempElement.textContent = currentService.hasDesign ? "Has Design" : "No Design";
         tempElement.id = "hasDesignButton";
         objectiveButtonsContainer.appendChild(tempElement);
@@ -436,8 +436,8 @@
         tempElement = document.createElement("button");
         tempElement.type = "button";
         tempElement.className = currentService.hasVariableList ?
-            "yellowBG emphasizedText noBorder shadowed whiteText centerColumnLayout flexMax noPadding fullHeight" :
-            "redBG emphasizedText noBorder shadowed whiteText centerColumnLayout flexMax noPadding fullHeight";
+            "yellowBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight" :
+            "redBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight";
         tempElement.textContent = currentService.hasVariableList ? "Has Variable List" : "No Variable List";
         tempElement.id = "hasVariableListButton";
         objectiveButtonsContainer.appendChild(tempElement);
@@ -496,7 +496,7 @@
         if (currentService.processes.length === 0) {
             tempElement = document.createElement("div");
             tempElement.className = "flexMin minHeight darkFadedBG bordered roundedMin centerRowLayout minGap shadowed";
-            tempElement.innerHTML = "<b>No Service Process</b>";
+            tempElement.innerHTML = "<b class='whiteText outlineText'>No Service Process</b>";
             serviceProcess.appendChild(tempElement);
 
             if (editable) {
@@ -514,12 +514,12 @@
         tempElement = document.createElement("div");
         tempElement.className = "flexMin minHeight darkFadedBG bordered roundedMin centerRowLayout minGap shadowed";
         tempElement.innerHTML = currentService.processes.length === 1 ? `
-        <b>${currentService.processes[0].name}</b>
+        <b class='whiteText outlineText'>${currentService.processes[0].name}</b>
         <a class="squareSize unitHeight norWestAbsolute centerColumnLayout closeCorner processRemove" data-index="0">
             <img src="../../Shared/Img/XIcon.png" alt="X">
         </a>
     ` : `
-        <b>${currentService.processes[0].name}</b>
+        <b class='whiteText outlineText'>${currentService.processes[0].name}</b>
         <a class="squareSize unitHeight norWestAbsolute centerColumnLayout closeCorner processRemove" data-index="0">
             <img src="../../Shared/Img/XIcon.png" alt="X">
         </a>
@@ -538,7 +538,7 @@
             tempElement = document.createElement("div");
             tempElement.className = "flexMin minHeight darkFadedBG bordered roundedMin centerRowLayout minGap shadowed";
             tempElement.innerHTML = `
-            <b>${currentService.processes[i].name}</b>
+            <b class='whiteText outlineText'>${currentService.processes[i].name}</b>
             <a class="squareSize unitHeight norWestAbsolute centerColumnLayout closeCorner processRemove" data-index="${i}">
                 <img src="../../Shared/Img/XIcon.png" alt="X">
             </a>
@@ -561,7 +561,7 @@
             tempElement = document.createElement("div");
             tempElement.className = "flexMin minHeight darkFadedBG bordered roundedMin centerRowLayout minGap shadowed";
             tempElement.innerHTML = `
-            <b>${currentService.processes[currentService.processes.length - 1].name}</b>
+            <b class='whiteText outlineText'>${currentService.processes[currentService.processes.length - 1].name}</b>
             <a class="squareSize unitHeight norWestAbsolute centerColumnLayout closeCorner processRemove" data-index="${currentService.processes.length - 1}">
                 <img src="../../Shared/Img/XIcon.png" alt="X">
             </a>
@@ -712,7 +712,7 @@
 
             tempElement = document.createElement("div");
             tempElement.className = 'capitalFirst centerText regMinPadding flexMax skewedXNegBG shadowed';
-            tempElement.innerHTML = `<h4>${sub.name}</h4>`;
+            tempElement.innerHTML = `<h4 class="whiteText outlineText">${sub.name}</h4>`;
             tempDiv.appendChild(tempElement);
 
             if (sub.isActive == 1) {
@@ -759,7 +759,7 @@
             // Disable button
             tempElement = document.createElement("button");
             tempElement.type = "button";
-            tempElement.className = "redBG emphasizedText noBorder shadowed whiteText centerColumnLayout flexMax noPadding fullHeight";
+            tempElement.className = "redBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight";
             tempElement.textContent = "Disable";
             tempElement.id = "subserviceStatusButton";
             subserviceStatusButtonsContainer.appendChild(tempElement);
@@ -773,7 +773,7 @@
             // Activate button
             tempElement = document.createElement("button");
             tempElement.type = "button";
-            tempElement.className = "yellowBG emphasizedText noBorder shadowed whiteText centerColumnLayout flexMax noPadding fullHeight";
+            tempElement.className = "yellowBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight";
             tempElement.textContent = "Activate";
             tempElement.id = "subserviceStatusButton";
             subserviceStatusButtonsContainer.appendChild(tempElement);
