@@ -16,7 +16,7 @@
 
             <div class="history-img-wrap">
                 <img
-                    src="../.Images/g.jpg"
+                    src="../.Images/historyPhoto.jpg"
                     alt="Hontoria Printing Services Shop"
                     class="history-img"
                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"

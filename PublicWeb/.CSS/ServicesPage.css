@@ -694,6 +694,7 @@
     background: var(--white);
     outline: none;
     -moz-appearance: textfield;
+    appearance: textfield;
 }
 
 .qty-control input[type="number"]::-webkit-inner-spin-button,
