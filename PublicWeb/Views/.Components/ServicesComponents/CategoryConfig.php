@@ -1,17 +1,20 @@
 <?php
 /**
  * CategoryConfig.php
- * Single source of truth for all product categories.
- * Used by the sidebar and content components to render layouts.
+ * Builds $sharedCategories from $servicesCatalog passed by PublicC.php.
+ * Used by ServicesSidebarComponents.php to render the sidebar navigation.
  */
 
-$serviceCatalog = [
-    'sublimation' => [
-        'id'    => 'sublimation',
-        'label' => 'SUBLIMATION',
-        'icon'  => 'fa-fire',
-        'badge' => 'sublim-badge',
-        'items' => ['Jersey']
-    ]
-];
+// $servicesCatalog is passed from PublicC::showServicesPage() via ServicesPage.php
+$servicesCatalog  = $servicesCatalog ?? [];
+$sharedCategories = [];
+
+foreach ($servicesCatalog as $service) {
+    $sharedCategories[] = [
+        'id'    => strtolower(str_replace(' ', '-', $service['name'])),
+        'label' => strtoupper($service['name']),
+        'icon'  => 'fa-print',
+        'items' => array_column($service['subservices'], 'name'),
+    ];
+}
 ?>
