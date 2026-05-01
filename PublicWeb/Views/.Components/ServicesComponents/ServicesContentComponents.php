@@ -4,64 +4,99 @@ $servicesCatalog = $servicesCatalog ?? [];
 ?>
 
 <main class="content">
+
     <div class="content-header">
         <h1 class="page-title">SERVICES</h1>
-        <p class="page-sub">Explore our comprehensive printing services</p>
+        <p class="page-sub" id="filterLabel">
+            Click any product to view details & pricing
+        </p>
     </div>
 
     <?php foreach ($servicesCatalog as $service): ?>
-        <section class="service-section">
-            <div class="service-header">
-                <h2 class="service-title"><?php echo htmlspecialchars($service['name']); ?></h2>
-                <span class="service-status <?php echo $service['isActive'] ? 'active' : 'inactive'; ?>">
-                    <?php echo $service['isActive'] ? 'Active' : 'Inactive'; ?>
-                </span>
+
+        <section class="product-section"
+            id="<?php echo strtolower(str_replace(' ', '-', $service['name'])); ?>">
+
+            <div class="section-label">
+                <div class="section-badge sublim-badge">
+                    <?php echo strtoupper($service['name']); ?>
+                </div>
+                <div class="section-line"></div>
             </div>
 
-            <?php if (!empty($service['subservices'])): ?>
-                <div class="subservices-grid">
-                    <?php foreach ($service['subservices'] as $subservice): ?>
-                        <div class="subservice-card">
-                            <div class="subservice-header">
-                                <h3 class="subservice-name"><?php echo htmlspecialchars($subservice['name']); ?></h3>
-                                <span class="subservice-status <?php echo $subservice['isActive'] ? 'active' : 'inactive'; ?>">
-                                    <?php echo $subservice['isActive'] ? 'Active' : 'Inactive'; ?>
-                                </span>
-                            </div>
+            <div class="product-grid">
 
-                            <div class="subservice-images">
-                                <?php if (!empty($subservice['images'])): ?>
-                                    <div class="image-carousel" style="display: flex; flex-wrap: wrap; gap: 10px;">
-                                        <?php foreach ($subservice['images'] as $image): ?>
-                                            <img src="../../Storage/SubserviceImages/<?php echo htmlspecialchars($image['imageName']); ?>"
-                                                alt="<?php echo htmlspecialchars($subservice['name']); ?>"
-                                                class="subservice-image"
-                                                style="width: 100px; height: auto;" />
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="image-placeholder">
-                                        <i class="fas fa-image"></i>
-                                        <span>No images available</span>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
+                <?php foreach ($service['subservices'] as $subservice): ?>
 
-                            <div class="subservice-info">
-                                <p class="subservice-description"><?php echo htmlspecialchars($subservice['description']); ?></p>
-                                <div class="subservice-footer">
-                                    <span class="price">₱<?php echo number_format($subservice['pricePerUnit'], 2); ?>/unit</span>
-                                    <a href="<?php echo htmlspecialchars($fbLink); ?>" target="_blank" class="order-btn">
-                                        <i class="fab fa-facebook-f"></i> Order
-                                    </a>
+                    <div class="product-card"
+
+                        data-name="<?php echo htmlspecialchars($subservice['name']); ?>"
+
+                        data-category="<?php echo htmlspecialchars($service['name']); ?>"
+
+                        data-price="<?php echo htmlspecialchars($subservice['pricePerUnit']); ?>"
+
+                        data-description="<?php echo htmlspecialchars($subservice['description']); ?>"
+
+                        data-photos='<?php echo json_encode(array_map(
+                            fn($img) => "../../Storage/SubserviceImages/" . $img['imageName'],
+                            $subservice['images'] ?? []
+                        )); ?>'>
+
+                        <!-- IMAGE -->
+                        <div class="card-img">
+
+                            <?php if (!empty($subservice['images'])): ?>
+
+                                <img
+                                    src="../../Storage/SubserviceImages/<?php echo htmlspecialchars($subservice['images'][0]['imageName']); ?>"
+                                    class="card-photo">
+
+                            <?php else: ?>
+
+                                <div class="img-placeholder">
+                                    <i class="fas fa-image ph-icon"></i>
+                                    <span class="ph-label">No Image</span>
                                 </div>
+
+                            <?php endif; ?>
+
+                            <!-- VIEW BUTTON -->
+                            <div class="card-overlay">
+                                <button class="view-btn">
+                                    <i class="fas fa-eye"></i> View Details
+                                </button>
                             </div>
+
                         </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <p class="no-subservices">No subservices available</p>
-            <?php endif; ?>
+
+                        <!-- INFO -->
+                        <div class="card-info">
+
+                            <h3 class="card-name">
+                                <?php echo htmlspecialchars($subservice['name']); ?>
+                            </h3>
+
+                            <p class="card-desc">
+                                <?php echo htmlspecialchars($subservice['description']); ?>
+                            </p>
+
+                            <a href="<?php echo htmlspecialchars($fbLink); ?>"
+                               target="_blank"
+                               class="order-btn">
+                                Order Now
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                <?php endforeach; ?>
+
+            </div>
+
         </section>
+
     <?php endforeach; ?>
+
 </main>

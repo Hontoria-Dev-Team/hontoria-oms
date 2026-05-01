@@ -5,7 +5,7 @@
  * Used by the sidebar and content components to render layouts.
  */
 
-$sharedCategories = [
+$serviceCatalog = [
     'sublimation' => [
         'id'    => 'sublimation',
         'label' => 'SUBLIMATION',

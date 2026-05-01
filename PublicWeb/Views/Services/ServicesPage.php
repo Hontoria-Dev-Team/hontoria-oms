@@ -9,7 +9,7 @@ require_once __DIR__ . '/../.Components/ServicesComponents/CategoryConfig.php';
 
 // Basic variables (these would ideally be passed down by PublicC.php in the future)
 $siteName = $siteName ?? 'Hontoria Printing Services';
-$logoPath = $logoPath ?? '/.Images/logo.jpg';
+$logoPath = $logoPath ?? '../.Images/Logo.png';
 $fbLink   = $fbLink   ?? 'https://www.facebook.com/jhong.hontoria.3';
 $address  = $address  ?? 'Feeder Road 2, Brgy. Tibal-og Santo tomas, Davao del Norte';
 

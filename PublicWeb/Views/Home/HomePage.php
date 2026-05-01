@@ -3,7 +3,7 @@
  * HomePage.php
  */
 $siteName = 'Hontoria Printing Services';
-$logoPath = '../.Images/logo.jpg';
+$logoPath = '../.Images/Logo.png';
 ?>
 <!DOCTYPE html>
 <html lang="en">
