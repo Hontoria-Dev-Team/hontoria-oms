@@ -15,10 +15,12 @@
 
 .gradientBorderDiag {
     background: var(--gradientDiag);
+    box-shadow: 0 0.1rem 0.2rem var(--dark);
 }
 
 .gradientBorderVert {
     background: var(--gradientVert);
+    box-shadow: 0 0.1rem 0.2rem var(--dark);
 }
 
 .gradientBorderDiag,
@@ -406,7 +408,7 @@
 }
 
 .shadowed {
-    box-shadow: 0 0.1rem 0.2rem var(--dark);
+    box-shadow: 0 0.1rem 0.2rem var(--dark) !important;
 }
 
 .transText {
