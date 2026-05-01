@@ -813,7 +813,7 @@
     }
 
     .modal-main-img {
-        min-height: 260px;
+        height: 25vh;
     }
 }
 
