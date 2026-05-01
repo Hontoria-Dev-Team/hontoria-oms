@@ -126,22 +126,22 @@
                             </div>
                         </div>
                         <div class="centerColumnLayout whiteBG roundedMin fullHeight fullWidth">
-                            <h4 class="norAbsolute closeCorner topZ">Daily Data</h4>
                             <div id="dailyGraph" class="flexMax centerColumnLayout roundedMin whiteBG midZ fullWidth">
+                                <h4 class="norAbsolute closeCorner topZ">Daily Data</h4>
                                 <h4>No Record Selected</h4>
                             </div>
                             <div class="gradientBorderDiag minZ shadowed"></div>
                         </div>
                         <div class="centerColumnLayout whiteBG roundedMin fullHeight fullWidth">
-                            <h4 class="norAbsolute closeCorner topZ">Weekly Data</h4>
                             <div id="weeklyGraph" class="flexMax centerColumnLayout roundedMin whiteBG midZ fullWidth">
+                                <h4 class="norAbsolute closeCorner topZ">Weekly Data</h4>
                                 <h4>No Record Selected</h4>
                             </div>
                             <div class="gradientBorderDiag minZ shadowed"></div>
                         </div>
                         <div class="centerColumnLayout whiteBG roundedMin fullHeight fullWidth">
-                            <h4 class="norAbsolute closeCorner topZ">Monthly Data</h4>
                             <div id="monthlyGraph" class="flexMax centerColumnLayout roundedMin whiteBG midZ fullWidth">
+                                <h4 class="norAbsolute closeCorner topZ">Monthly Data</h4>
                                 <h4>No Record Selected</h4>
                             </div>
                             <div class="gradientBorderDiag minZ shadowed"></div>
@@ -857,9 +857,9 @@
         const weekly = document.getElementById('weeklyGraph');
         const monthly = document.getElementById('monthlyGraph');
 
-        daily.innerHTML = '';
-        weekly.innerHTML = '';
-        monthly.innerHTML = '';
+        daily.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Daily Data</h4>';
+        weekly.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Weekly Data</h4>';
+        monthly.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Monthly Data</h4>';
 
         const dailyData = prepared.GenerateDailyData();
         const weeklyData = prepared.GenerateWeeklyData();
