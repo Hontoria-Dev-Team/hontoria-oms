@@ -18,7 +18,7 @@
             </h1>
         </span>
         <?php include("../Views/.Components/MessageBox.php"); ?>
-        <section>
+        <section class="flexMax">
             <div class="rowLayout midGap fullDimensions">
                 <section class="roundedMid centerColumnLayout flexMid">
                     <div class="box fullDimensions roundedMid columnLayout minGap">

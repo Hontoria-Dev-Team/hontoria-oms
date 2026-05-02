@@ -18,7 +18,7 @@
             </h1>
         </span>
         <?php include("../Views/.Components/MessageBox.php"); ?>
-        <section>
+        <section class="flexMax">
             <form method="POST" action="index.php?page=orders&action=createFinal" class="centerHoriRowLayout midGap fullHeight">
                 <div class="centerColumnLayout flexMid fullHeight midGap">
                     <section class="flexMin fullWidth roundedMid centerColumnLayout">
