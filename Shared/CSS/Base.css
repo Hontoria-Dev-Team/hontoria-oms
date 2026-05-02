@@ -41,9 +41,16 @@ html {
 }
 
 body {
+    margin: auto;
+    max-width: 2500px;
     min-height: 100vh;
     overflow-x: hidden;
+    background-color: var(--darkFaded);
+}
+
+main {
     background-color: var(--gray);
+    z-index: 1;
 }
 
 hr {
@@ -74,6 +81,7 @@ select,
 textarea {
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
         sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 0.7rem;
     height: 1.7rem;
     padding: 0 0.5rem;
     background: var(--lightGray);
@@ -154,25 +162,73 @@ b {
     }
 }
 
-/* For Firefox */
+/* Firefox */
 * {
     scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
-/* For Chrome/Safari/Edge */
+/* Hide default scrollbar in IE/Edge (old versions) */
+html,
+body,
+.scrollable,
+.scrollableX,
+[class*="scrollable"] {
+    -ms-overflow-style: none;
+}
+
+/* For WebKit browsers (Chrome, Safari, newer Edge) */
 *::-webkit-scrollbar {
-    width: 2px;
+    width: 4px;
+    height: 4px;
 }
 
 *::-webkit-scrollbar-track {
-    border-radius: 1px;
+    background: transparent;
 }
 
 *::-webkit-scrollbar-thumb {
-    border-radius: 1px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.4);
 }
 
 /* All toolbar icons – default (unselected) color */
 .apexcharts-toolbar>div svg {
     fill: var(--dark) !important;
+}
+
+@media (max-width: 1800px) {
+    html {
+        font-size: 20px;
+        line-height: 1.5;
+    }
+}
+
+@media (max-width: 1650px) {
+    html {
+        font-size: 18px;
+        line-height: 1.4;
+    }
+}
+
+@media (max-width: 1400px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 1200px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 1000px) {
+    html {
+        font-size: 12px;
+    }
 }

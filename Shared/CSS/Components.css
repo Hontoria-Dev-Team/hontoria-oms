@@ -78,6 +78,10 @@
     margin: 0.5em 0;
     border-top: 0.1em solid var(--redTrans);
     border-bottom: 0.1em solid var(--redTrans);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    min-height: 0 !important;
+    flex-basis: 0 !important;
 }
 
 #sidebar nav a {
@@ -128,6 +132,25 @@
 #sidebarFooter.active:hover {
     background: var(--redTrans) !important;
     transform: scale(1.02);
+}
+
+#sidebarOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease-in-out, visibility 0.25s ease-in-out;
+    z-index: 900;
+}
+
+#sidebarOverlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+#mobileMenuPanel {
+    display: none;
 }
 
 .iconInput {

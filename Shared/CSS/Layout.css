@@ -5,6 +5,10 @@
     align-items: center;
 }
 
+#sidebar #menuMobile {
+    display: none;
+}
+
 .asideLayout {
     display: flex;
 }
@@ -15,20 +19,18 @@
 
 .asideLayout>main {
     flex: 6;
-}
-
-.asideLayout>main>*:first-child {
-    margin-top: 1rem;
-}
-
-.asideLayout>main>* {
-    margin-right: 2rem;
-    margin-left: 2rem;
+    height: 100vh;
+    padding: 1.25rem;
 }
 
 .asideLayout>main>section {
-    max-height: 85vh;
-    height: 85vh;
+    flex-basis: 0 !important;
+    min-height: 0 !important;
+}
+
+aside .gradientBorderDiag,
+aside .gradientBorderVert {
+    display: none;
 }
 
 .columnLayout {
@@ -528,4 +530,182 @@
 
 .marginRightMin {
     margin-right: 0.3rem;
+}
+
+@media (max-width: 1400px) {
+    .gridFlexMid>* {
+        width: 32.25%;
+    }
+}
+
+@media (max-width: 900px) {
+    .gridFlex.midGrids.minGap>* {
+        width: 47% !important;
+    }
+}
+
+@media (max-width: 800px) {
+    .asideLayout {
+        flex-direction: column !important;
+    }
+
+    #sidebar {
+        max-height: 4rem;
+    }
+
+    #sidebar>section {
+        padding: 0 1rem !important;
+        flex-direction: row !important;
+        align-items: center;
+    }
+
+    #sidebar nav {
+        padding: 0 !important;
+        margin: 0 !important;
+        flex-direction: row;
+        justify-content: center;
+        border: 0 !important;
+        gap: 0.5rem !important;
+        overflow: hidden !important;
+    }
+}
+
+@media (max-width: 700px) {
+    #sidebar h1 {
+        font-size: 0;
+    }
+
+    .gridFlexMid>* {
+        width: 49%;
+    }
+
+    .gridFlex.midGrids.minGap>* {
+        width: 45% !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #sidebar {
+        position: relative;
+        width: auto;
+        max-width: 100%;
+        max-height: 4rem;
+        overflow: hidden;
+        transition: none;
+    }
+
+    #sidebar>section {
+        padding: 1rem;
+        flex-direction: row !important;
+        align-items: center !important;
+    }
+
+    #sidebar h1 {
+        font-size: 1.2rem;
+        flex: 1;
+    }
+
+    #sidebar #menuMobile {
+        display: flex;
+        align-items: center;
+        height: 1.5rem !important;
+        font-weight: bold;
+    }
+
+    #sidebar nav,
+    #sidebar #sidebarFooter {
+        display: none;
+    }
+
+    #mobileMenuPanel {
+        display: block !important;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: min(85vw, 280px);
+        max-width: 100%;
+        background: var(--dark);
+        color: var(--white);
+        transform: translateX(100%);
+        transition: transform 0.25s ease-in-out;
+        z-index: 1000;
+        overflow-y: auto;
+        padding: 1rem;
+    }
+
+    #mobileMenuPanel.open {
+        transform: translateX(0);
+    }
+
+    #mobileMenuPanel .mobileMenuHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    #mobileMenuPanel .mobileMenuHeader h2 {
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    #mobileMenuPanel .mobileMenuHeader button {
+        background: transparent;
+        border: none;
+        color: var(--white);
+        font-size: 1rem;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    #mobileMenuPanel nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0;
+        margin: 0;
+    }
+
+    #mobileMenuPanel nav a {
+        background: var(--darkFaded);
+        border-radius: 1rem;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    #mobileMenuPanel nav a img {
+        height: 1.1rem;
+        width: 1.1rem;
+        filter: invert(1);
+    }
+
+    #mobileMenuPanel #mobileSidebarFooter {
+        margin-top: 1rem;
+    }
+
+    #mobileMenuPanel #mobileSidebarFooter a {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-radius: 1rem;
+        background: var(--redFaded);
+        color: var(--white);
+    }
+}
+
+@media (max-width: 500px) {
+    .gridFlex.midGrids.minGap>* {
+        width: 98% !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .gridFlexMid>* {
+        width: 99%;
+    }
 }
