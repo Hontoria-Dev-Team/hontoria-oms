@@ -5,6 +5,7 @@
     <title>Staff Panel - Hontoria OMS</title>
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
     <link rel="stylesheet" href="../.CSS/StaffPage.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body class="asideLayout fixedScreen">

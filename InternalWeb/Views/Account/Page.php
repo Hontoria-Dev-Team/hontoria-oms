@@ -3,6 +3,7 @@
 
 <head>
     <title>Account Panel - Hontoria OMS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
     <link rel="stylesheet" href="../.CSS/StaffPage.css">
 </head>
