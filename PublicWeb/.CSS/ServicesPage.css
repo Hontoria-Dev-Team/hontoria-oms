@@ -17,6 +17,7 @@
 .page-body {
     display: flex;
     min-height: calc(100vh - var(--hh) - var(--bh));
+    min-height: calc(100dvh - var(--hh) - var(--bh));
 }
 
 /* =============================================
@@ -32,6 +33,7 @@
     position: sticky;
     top: calc(var(--hh) + var(--bh));
     height: calc(100vh - var(--hh) - var(--bh));
+    height: calc(100dvh - var(--hh) - var(--bh));
     overflow-y: auto;
     flex-shrink: 0;
 }
@@ -217,6 +219,7 @@
 
 .page-title {
     font-size: clamp(32px, 4vw, 58px);
+    font-size: clamp(32px, 4dvw, 58px);
     font-weight: 900;
     color: var(--dk);
     letter-spacing: -1px;
@@ -482,6 +485,7 @@
     transition: .3s;
     box-shadow: 0 32px 80px rgba(0, 0, 0, .35);
     max-height: 90vh;
+    max-height: 90dvh;
 }
 
 .modal-overlay.open .modal {
@@ -814,6 +818,7 @@
 
     .modal-main-img {
         height: 25vh;
+        height: 25dvh;
     }
 }
 

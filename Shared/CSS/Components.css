@@ -277,7 +277,9 @@
 #confirmationBackground,
 #imageBoxBackground {
     height: 100vh;
+    height: 100dvh;
     width: 100vw;
+    width: 100dvw;
     background: var(--darkTrans);
 }
 
@@ -292,10 +294,12 @@
 
 #imageBoxImage {
     height: 80vh;
+    height: 80dvh;
 }
 
 *:has(> #imageBoxImage) {
     max-width: 80vw;
+    max-width: 80dvw;
 }
 
 

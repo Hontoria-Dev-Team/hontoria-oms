@@ -27,12 +27,16 @@
     --radius: 8px;
     --radius-md: 14px;
     --tr: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    --hh: 72px; /* header height */
-    --bh: 36px; /* order bar height */
+    --hh: 72px;
+    /* header height */
+    --bh: 36px;
+    /* order bar height */
 }
 
 /* ── Reset ───────────────────────────────────────────────────────── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -217,6 +221,7 @@ img {
     right: -280px;
     width: 260px;
     height: 100vh;
+    height: 100dvh;
     background: var(--y);
     z-index: 2000;
     border-left: 3px solid var(--dk);
