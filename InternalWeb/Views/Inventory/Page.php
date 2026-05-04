@@ -5,6 +5,55 @@
     <title>Inventory Panel - Hontoria OMS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
+    <style>
+        .apexcharts-text {
+            font-size: 0.5rem !important;
+        }
+
+        :has(>*> #dailyGraph) {
+            overflow-x: hidden;
+            overflow-y: scroll;
+        }
+
+        :has(>*> #dailyGraph)>*:nth-child(1) {
+            position: sticky;
+            top: 0;
+            background-color: var(--white);
+            z-index: 4;
+        }
+
+        #dailyGraph,
+        #weeklyGraph,
+        #monthlyGraph {
+            min-height: 180px !important;
+        }
+
+        @media (max-width: 500px) {
+            .asideLayout>main>section {
+                min-width: fit-content;
+            }
+
+            .asideLayout>main>section>*:nth-child(1) {
+                min-width: calc(100vw - 3rem);
+                max-width: calc(100vw - 3rem);
+            }
+
+            .asideLayout>main>section>*:nth-child(2) {
+                min-width: 500px;
+                max-width: 500px;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .asideLayout>main>h1 {
+                font-size: 1.25rem !important;
+            }
+
+            .asideLayout>main>h1>img {
+                display: block !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="asideLayout fixedScreen">
