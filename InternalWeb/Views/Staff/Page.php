@@ -6,6 +6,36 @@
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
     <link rel="stylesheet" href="../.CSS/StaffPage.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        @media (max-width: 800px) {
+            .asideLayout>main>section {
+                min-width: fit-content;
+                flex-direction: row-reverse;
+            }
+
+            .asideLayout>main>section>*:nth-child(1) {
+                min-width: 230px;
+                max-width: 230px;
+            }
+
+            .asideLayout>main>section>*:nth-child(2) {
+                min-width: calc(100vw - 3rem);
+                max-width: calc(100vw - 3rem);
+            }
+        }
+
+        @media (max-width: 500px) {
+            form[action="index.php?page=staff"] {
+                overflow-y: scroll;
+                padding: 0.1rem !important;
+            }
+
+            form[action="index.php?page=staff"] input[type="search"] {
+                width: 60vw !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="asideLayout fixedScreen">
