@@ -553,9 +553,7 @@ aside .gradientBorderVert {
     .gridFlex.midGrids.minGap>* {
         width: 47% !important;
     }
-}
 
-@media (max-width: 800px) {
     .asideLayout {
         flex-direction: column !important;
     }
