@@ -565,6 +565,16 @@ aside .gradientBorderVert {
 
     .asideLayout>main {
         height: unset !important;
+        overflow-x: scroll;
+    }
+
+    .asideLayout>main>h1 {
+        position: sticky;
+        left: 0;
+    }
+
+    .asideLayout>main>section {
+        min-width: 800px;
     }
 
     #sidebar>section {
