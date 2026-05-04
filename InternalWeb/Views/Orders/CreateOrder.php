@@ -6,6 +6,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
     <link rel="stylesheet" href="../.CSS/StaffPage.css">
+    <style>
+        .asideLayout>main>section {
+            min-width: fit-content !important;
+        }
+
+        @media (max-height: 1000px) {
+            .asideLayout>main>section>form>:nth-child(1) {
+                justify-content: flex-start;
+                overflow-y: scroll;
+                padding: 0.3rem !important;
+            }
+
+            .asideLayout>main>section>form>:nth-child(2) {
+                justify-content: flex-start;
+                overflow-y: scroll;
+                padding: 0.3rem !important;
+            }
+
+            .asideLayout>main>section>form>:nth-child(2)>:nth-child(2) {
+                min-height: 400px !important;
+            }
+
+            .asideLayout>main>section>form>:nth-child(2)>:last-child {
+                position: sticky;
+                bottom: 0;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .asideLayout>main>section>form>:nth-child(2)>:nth-child(2) {
+                min-height: 300px !important;
+            }
+        }
+
+        @media (max-height: 400px) {
+            .asideLayout>main>section>form>:nth-child(2)>:nth-child(2) {
+                min-height: 200px !important;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .asideLayout>main>section>form>:nth-child(1) {
+                min-width: calc(100vw - 3rem);
+                max-width: calc(100vw - 3rem);
+            }
+
+            .asideLayout>main>section>form>:nth-child(2) {
+                min-width: 200px;
+                max-width: 200px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            #serviceProcess {
+                min-width: 520px;
+                max-width: 520px;
+            }
+
+            :has(>#serviceProcess) {
+                overflow-x: scroll;
+                overflow-y: hidden;
+            }
+
+            :has(>#serviceProcess)>:nth-child(1) {
+                position: sticky;
+                left: 0;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .asideLayout>main>span>h1 {
+                font-size: 1.25rem !important;
+            }
+
+            .asideLayout>main>span>h1>img {
+                display: block !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="asideLayout fixedScreen">
