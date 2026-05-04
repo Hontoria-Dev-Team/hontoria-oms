@@ -6,6 +6,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
     <link rel="stylesheet" href="../.CSS/StaffPage.css">
+    <style>
+        @media (max-width: 800px) {
+            .asideLayout>main>section {
+                min-width: unset !important;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .asideLayout>main>section>* {
+                width: 85vw !important;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .asideLayout>main>section>* {
+                height: 70vh !important;
+                height: 70dvh !important;
+            }
+
+            .asideLayout>main>section>*>:nth-child(1) {
+                height: 100% !important;
+                width: 100% !important;
+            }
+
+            .triItemLayout {
+                flex-direction: column;
+            }
+
+            .triItemLayout>* {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 
 <body class="asideLayout fixedScreen">
@@ -13,7 +46,7 @@
     <main class="columnLayout midGap">
         <?php include("../Views/.Components/BackLink.php"); ?>
         <?php include("../Views/.Components/MessageBox.php"); ?>
-        <section class="centerColumnLayout">
+        <section class="centerColumnLayout flexMax">
             <section class="centerColumnLayout extraWidth roundedMid">
                 <div class="box roundedMid maxHeight centerColumnLayout">
                     <h1 class="titleLogo minGap tinHeight selfCenter">
