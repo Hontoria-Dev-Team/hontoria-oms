@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
     <style>
-        /* Minimal grid helpers – use them only here */
         .calendarWeekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -15,6 +14,61 @@
         .calendarDaysGrid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
+        }
+
+        .apexcharts-text {
+            font-size: 0.5rem !important;
+        }
+
+        :has(>*> #salesGraph) {
+            overflow-x: hidden;
+            overflow-y: scroll;
+        }
+
+        :has(>*> #salesGraph)>*:nth-child(1) {
+            position: sticky;
+            top: 0;
+            background-color: var(--white);
+            z-index: 4;
+        }
+
+        #salesGraph,
+        #inflowStreamsGraph,
+        #outflowStreamsGraph {
+            min-height: 180px !important;
+        }
+
+        @media (max-width: 750px) {
+            .asideLayout>main>section>*:nth-child(1) {
+                min-width: calc(60vw - 3rem);
+                max-width: calc(60vw - 3rem);
+            }
+        }
+
+        @media (max-width: 450px) {
+            .asideLayout>main>section {
+                min-width: fit-content;
+            }
+
+            .asideLayout>main>section>*:nth-child(1) {
+                min-width: calc(100vw - 3rem);
+                max-width: calc(100vw - 3rem);
+            }
+
+            .asideLayout>main>section>*:nth-child(2) {
+                min-width: 500px;
+                max-width: 500px;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .asideLayout>main>h1 {
+                font-size: 1.25rem !important;
+            }
+
+            .asideLayout>main>h1>img {
+                display: block !important;
+            }
         }
     </style>
 </head>
