@@ -5,6 +5,57 @@
     <title>Orders Panel - Hontoria OMS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
+    <style>
+        @media (max-width: 500px) {
+            .asideLayout>main>section {
+                min-width: fit-content;
+                flex-direction: row-reverse;
+            }
+
+            .asideLayout>main>section>*:nth-child(2) {
+                min-width: calc(100vw - 3rem) !important;
+                max-width: calc(100vw - 3rem) !important;
+            }
+
+            .asideLayout>main>section>*:nth-child(1) {
+                min-width: calc(100vw - 3rem) !important;
+                max-width: calc(100vw - 3rem) !important;
+            }
+        }
+
+        @media (max-width: 450px) {
+            #orderProcess {
+                min-width: 450px !important;
+            }
+
+            #orderProcess>h3 {
+                text-align: left;
+            }
+
+            :has(> #orderProcess) {
+                overflow-y: scroll;
+            }
+
+            :has(> #orderProcess)>*:nth-child(1) {
+                position: sticky;
+                left: 0;
+            }
+
+            :has(> #orderProcess)>*:nth-child(1) {
+                position: sticky;
+                left: 0;
+            }
+
+            form[action="index.php?page=staff"] {
+                overflow-y: scroll;
+                padding: 0.1rem !important;
+            }
+
+            form[action="index.php?page=staff"] input[type="search"] {
+                width: 60vw !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="asideLayout fixedScreen">
