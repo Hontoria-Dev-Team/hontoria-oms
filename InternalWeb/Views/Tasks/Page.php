@@ -5,6 +5,47 @@
     <title>Tasks Panel - Hontoria OMS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
+
+    <style>
+        @media (max-width: 500px) {
+            .asideLayout>main>section {
+                min-width: fit-content;
+            }
+
+            .asideLayout>main>section>*:nth-child(1) {
+                min-width: calc(100vw - 3rem);
+                max-width: calc(100vw - 3rem);
+            }
+
+            .asideLayout>main>section>*:nth-child(2) {
+                min-width: calc(100vw - 3rem);
+                max-width: calc(100vw - 3rem);
+            }
+        }
+
+        @media (max-width: 450px) {
+            .asideLayout>main>section>*:nth-child(2)>*:nth-child(2) {
+                overflow-y: scroll;
+                padding: 0.3rem !important;
+            }
+
+            .asideLayout>main>section>*:nth-child(2)>*:nth-child(2)>*:nth-child(1) {
+                min-width: 150px !important;
+            }
+
+            .asideLayout>main>section>*:nth-child(2)>*:nth-child(2)>*:nth-child(2) {
+                min-width: 220px !important;
+            }
+
+            .asideLayout>main>h1 {
+                font-size: 1.25rem !important;
+            }
+
+            .asideLayout>main>h1>img {
+                display: block !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="asideLayout fixedScreen">
