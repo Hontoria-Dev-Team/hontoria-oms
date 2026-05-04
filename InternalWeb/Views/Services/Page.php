@@ -5,7 +5,87 @@
     <title>Services Panel - Hontoria OMS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
-    <link rel="stylesheet" href="../.CSS/ServicesPage.css">
+    <style>
+        @media (max-width: 500px) {
+            .asideLayout>main>section {
+                min-width: fit-content;
+            }
+
+            .asideLayout>main>section>*:nth-child(1) {
+                min-width: calc(100vw - 3rem);
+                max-width: calc(100vw - 3rem);
+            }
+
+            .asideLayout>main>section>*:nth-child(2) {
+                min-width: 120vw;
+                max-width: 120vw;
+            }
+
+            .gridFlex.midGrids.minGap>* {
+                width: 47% !important;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .asideLayout>main>section>*:nth-child(2) {
+                min-width: 140vw;
+                max-width: 140vw;
+            }
+
+            .gridFlex.midGrids.minGap>* {
+                width: 47% !important;
+            }
+
+            .asideLayout>main>section>*:nth-child(2)>*:nth-child(1) {
+                min-width: 130vw;
+                max-width: 130vw;
+                position: sticky;
+                left: calc(-30vw - 2rem);
+            }
+
+            .asideLayout>main>section>*:nth-child(2)>*:nth-child(2)>*:nth-child(1) {
+                min-width: 130vw;
+                max-width: 130vw;
+                position: sticky;
+                left: calc(-30vw - 2rem);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .asideLayout>main>section>*:nth-child(2) {
+                min-width: 160vw;
+                max-width: 160vw;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .asideLayout>main>section>*:nth-child(2)>*:nth-child(1) {
+                min-width: 140vw;
+                max-width: 140vw;
+                position: sticky;
+                left: calc(-40vw - 2rem);
+            }
+
+            .asideLayout>main>section>*:nth-child(2)>*:nth-child(2)>*:nth-child(1) {
+                min-width: 140vw;
+                max-width: 140vw;
+                position: sticky;
+                left: calc(-40vw - 2rem);
+            }
+
+            .asideLayout>main>section>*:nth-child(2) {
+                min-width: 180vw;
+                max-width: 180vw;
+            }
+        }
+
+        @media (max-width: 300px) {
+            .asideLayout>main>section>*:nth-child(2) {
+                min-width: 200vw;
+                max-width: 200vw;
+            }
+        }
+    </style>
 </head>
 
 <body class="asideLayout fixedScreen">
