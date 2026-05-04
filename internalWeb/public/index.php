@@ -123,25 +123,25 @@ switch ($page) {
         $subserviceID = filter_input(INPUT_GET, 'subserviceID', FILTER_VALIDATE_INT, ['options' => ['default' => -1]]);
 
         $serviceActions = [
-            'toggleServiceStatus' => fn() => $services->toggleServiceStatus(),
-            'toggleSubserviceStatus' => fn() => $services->toggleSubserviceStatus(),
-            'toggleHasDesign' => fn() => $services->toggleHasDesign(),
-            'toggleHasVariableList' => fn() => $services->toggleHasVariableList(),
-            'createService' => fn() => $services->createService(),
-            'deleteService' => fn() => $services->removeService(),
-            'createSubservice' => fn() => $services->createSubservice(),
-            'deleteSubservice' => fn() => $services->removeSubservice(),
-            'updateServiceProcess' => fn() => $services->setServiceProcess(),
-            'manageProcesses' => fn() => $services->showProcessesManagementPage(),
-            'createProcess' => fn() => $services->createProcess(),
-            'updateProcess' => fn() => $services->setProcess(),
-            'deleteProcess' => fn() => $services->removeProcess(),
-            'updateSubserviceInfo' => fn() => $services->setSubserviceInfo(),
-            'uploadSubserviceImages' => fn() => $services->uploadSubserviceImages(),
-            'removeSubserviceImage' => fn() => $services->removeSubserviceImage(),
+            'toggleServiceStatus'    => fn() => $services->ToggleServiceStatus(),
+            'toggleSubserviceStatus' => fn() => $services->ToggleSubserviceStatus(),
+            'toggleHasDesign'        => fn() => $services->ToggleHasDesign(),
+            'toggleHasVariableList'  => fn() => $services->ToggleHasVariableList(),
+            'createService'          => fn() => $services->CreateService(),
+            'deleteService'          => fn() => $services->DeleteService(),
+            'createSubservice'       => fn() => $services->CreateSubservice(),
+            'deleteSubservice'       => fn() => $services->DeleteSubservice(),
+            'updateServiceProcess'   => fn() => $services->UpdateServiceProcess(),
+            'manageProcesses'        => fn() => $services->ShowProcessesManagementPage(),
+            'createProcess'          => fn() => $services->CreateProcess(),
+            'updateProcess'          => fn() => $services->UpdateProcess(),
+            'deleteProcess'          => fn() => $services->DeleteProcess(),
+            'updateSubserviceInfo'   => fn() => $services->UpdateSubserviceInfo(),
+            'uploadSubserviceImages' => fn() => $services->UploadSubserviceImages(),
+            'removeSubserviceImage'  => fn() => $services->DeleteSubserviceImage(),
         ];
 
-        ($serviceActions[$action] ?? fn() => $services->showServices($serviceID, $subserviceID))();
+        ($serviceActions[$action] ?? fn() => $services->ShowServices($serviceID, $subserviceID))();
         break;
 
     case 'orders':
