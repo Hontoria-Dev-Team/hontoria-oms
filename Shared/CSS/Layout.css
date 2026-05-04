@@ -24,7 +24,8 @@
     padding: 1.25rem;
 }
 
-.asideLayout>main>h1>* {
+.asideLayout>main>h1>*,
+.asideLayout>main>span>h1>* {
     height: 100% !important;
 }
 
@@ -568,7 +569,8 @@ aside .gradientBorderVert {
         overflow-x: scroll;
     }
 
-    .asideLayout>main>h1 {
+    .asideLayout>main>h1,
+    .asideLayout>main>span {
         position: sticky;
         left: 0;
     }
@@ -583,7 +585,8 @@ aside .gradientBorderVert {
         align-items: center;
     }
 
-    .asideLayout>main>h1 {
+    .asideLayout>main>h1,
+    .asideLayout>main>span>h1 {
         height: 2rem !important;
     }
 
