@@ -6,6 +6,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
     <link rel="stylesheet" href="../.CSS/StaffPage.css">
+    <style>
+        @media (max-width: 500px) {
+            .asideLayout>main>section {
+                min-width: fit-content;
+            }
+
+            .asideLayout>main>section>*:nth-child(1) {
+                min-width: calc(100vw - 3rem);
+                max-width: calc(100vw - 3rem);
+            }
+
+            .asideLayout>main>section>*:nth-child(2) {
+                min-width: 500px;
+                max-width: 500px;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .asideLayout>main>span>h1 {
+                font-size: 1.25rem !important;
+            }
+
+            .asideLayout>main>span>h1>img {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .asideLayout>main>section>*:nth-child(2) {
+                min-width: 400px;
+                max-width: 400px;
+            }
+
+            .asideLayout>main>section>*:nth-child(2)>*:nth-child(2)>*:nth-child(2) {
+                overflow-x: scroll !important;
+                overflow-y: hidden !important;
+                padding: 0.3rem !important;
+            }
+
+            .asideLayout>main>section>*:nth-child(2)>*:nth-child(2)>*:nth-child(2)>*:nth-child(1) {
+                min-width: 250px !important;
+            }
+
+            .asideLayout>main>section>*:nth-child(2)>*:nth-child(2)>*:nth-child(2)>*:nth-child(2) {
+                min-width: 200px !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="asideLayout fixedScreen">
@@ -15,18 +63,20 @@
             <?php include("../Views/.Components/BackLink.php"); ?>
             <h1 class="titleLogo minGap tinHeight flexMax">
                 <img src="../../Shared/Img/PeopleIcon.png" alt="People"> Role Management
-                <div class="rowLayout minGap flexMax contentFlexEnd">
-                    <?php if (in_array("canCreateRoles", $_SESSION['permissions'])): ?>
-                        <a class="roundedMin centerColumnLayout importantInput regPadding emphasizedText shadowed" id="createRoleButton">Create Role</a>
-                    <?php endif; ?>
-                </div>
             </h1>
         </span>
         <?php include("../Views/.Components/MessageBox.php"); ?>
         <section class="rowLayout flexMax midGap">
             <section class="flexMid roundedMid centerColumnLayout">
                 <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
-                    <h2>Roles:</h2>
+                    <div class="centerHoriRowLayout">
+                        <h2 class="flexMax">Roles:</h2>
+                        <?php if (in_array("canCreateRoles", $_SESSION['permissions'])): ?>
+                            <button type="button" class="darkBG emphasizedText noBorder shadowed whiteText centerColumnLayout fullHeight" id="createRoleButton">
+                                <b>Create</b>
+                            </button>
+                        <?php endif; ?>
+                    </div>
                     <div id="processesContainer" class="scrollable columnLayout minGap regMinPadding flexMax">
                         <?php foreach ($roleTally as $role): ?>
                             <div class="noShrink roundedMin centerHoriRowLayout clickable shadowed fixedScreen roleElement"
