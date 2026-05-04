@@ -738,7 +738,9 @@ aside .gradientBorderVert {
 }
 
 @media (max-width: 450px) {
-    .asideLayout>main>h1 {
+
+    .asideLayout>main>h1,
+    .asideLayout>main>span>h1 {
         font-size: 0;
     }
 }
@@ -750,7 +752,9 @@ aside .gradientBorderVert {
 }
 
 @media (max-width: 300px) {
-    .asideLayout>main>h1>img {
+
+    .asideLayout>main>h1>img,
+    .asideLayout>main>span>h1>img {
         display: none;
     }
 }
