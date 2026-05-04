@@ -512,3 +512,9 @@
 .noWrapText {
     white-space: nowrap;
 }
+
+@media (max-width: 800px) {
+    #imageBoxImage {
+        height: fit-content !important;
+    }
+}
