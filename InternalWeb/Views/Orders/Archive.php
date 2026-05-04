@@ -6,6 +6,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
     <link rel="stylesheet" href="../.CSS/StaffPage.css">
+    <style>
+        .asideLayout>main>section {
+            min-width: fit-content !important;
+        }
+
+        .asideLayout>main>section>div>:nth-child(2)>* {
+            min-height: 255px !important;
+        }
+
+        @media (max-height: 650px) {
+            .asideLayout>main>section>div>:nth-child(2) {
+                overflow-y: scroll;
+                padding: 0.3rem !important;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .asideLayout>main>section>div>:nth-child(2) {
+                min-width: 500px !important;
+            }
+
+            .asideLayout>main>section>div>:nth-child(1) {
+                min-width: 210px !important;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .asideLayout>main>section>div>:nth-child(1) {
+                min-width: calc(100vw - 3rem) !important;
+                max-width: calc(100vw - 3rem) !important;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .asideLayout>main>span>h1 {
+                font-size: 1.25rem !important;
+            }
+
+            .asideLayout>main>span>h1>img {
+                display: block !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="asideLayout fixedScreen">
@@ -31,10 +74,10 @@
                                 ?>
                                 <div class="tinHeight noShrink roundedMin centerHoriRowLayout clickable shadowed fixedScreen orderElement <?= $elemStyle ?>"
                                     data-id="<?= $order['id'] ?>">
-                                    <h3 class="gradientDiagBG flexMid centerColumnLayout fullHeight whiteText skewedXNegBG shadowed capitalFirst <?= $idBG ?>">
+                                    <h3 class="gradientDiagBG flexMid centerColumnLayout fullHeight whiteText skewedXNegBG shadowed capitalFirst outlineText <?= $idBG ?>">
                                         <span>Order #<?= $order['id'] ?></span>
                                     </h3>
-                                    <b class="flexMax fullHeight centerColumnLayout"><?= $order['subserviceName'] ?> <?= $order['serviceName'] ?></b>
+                                    <b class="flexMax fullHeight centerColumnLayout whiteText outlineText"><?= $order['subserviceName'] ?> <?= $order['serviceName'] ?></b>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -206,24 +249,25 @@
         `;
 
         tempElement = document.createElement('div');
-        tempElement.className = 'flexMax bordered roundedMin centerHoriRowLayout shadowed fixedScreen noSelectHidden';
+        tempElement.className = 'flexMax bordered roundedMin centerColumnLayout shadowed fixedScreen noSelectHidden';
         detailsContainer.appendChild(tempElement);
 
+        tempDiv = document.createElement('h4');
+        tempDiv.className = 'centerColumnLayout darkBG shadowed whiteText fullWidth';
+        tempDiv.textContent = 'Groups';
+        tempElement.appendChild(tempDiv);
+
         tempDiv = document.createElement('div');
-        tempDiv.className = 'scrollable fullHeight flexMax gridCenterFlex minGap regMinPadding';
+        tempDiv.className = 'scrollable fullWidth flexMax gridCenterFlex minGap regMinPadding';
+        tempDiv.id = 'orderGroupsContainer';
         tempElement.appendChild(tempDiv);
 
         selectedOrderGroups.forEach(group => {
-            tempElement = document.createElement("b");
-            tempElement.className = "noShrink fitHeight roundedMin centerRowLayout minGap darkTransBG regMinPadding bordered";
-            tempElement.textContent = group.description + ": " + group.units;
+            tempElement = document.createElement("h5");
+            tempElement.className = "noShrink fitHeight roundedMin centerRowLayout minGap darkTransBG regMinPadding bordered capitalFirst whiteText outlineText shadowed";
+            tempElement.textContent = group.description + " : " + group.units;
             tempDiv.appendChild(tempElement);
         });
-
-        tempElement = document.createElement("b");
-        tempElement.className = "squareSize fullHeight centerColumnLayout darkBG shadowed whiteText regMinPadding";
-        tempElement.textContent = "Groups";
-        tempDiv.parentElement.appendChild(tempElement);
     }
 
     // Show Order design function logic
@@ -274,6 +318,7 @@
             orderProcessContainer.appendChild(tempDiv);
 
             tempElement = document.createElement('h3');
+            tempElement.className = "whiteText outlineText";
             tempElement.textContent = processName;
             tempDiv.appendChild(tempElement);
 
@@ -304,7 +349,7 @@
                     orderProcessAssigneesContainer.appendChild(tempDiv);
 
                     tempElement = document.createElement('b');
-                    tempElement.className = 'centerColumnLayout fullHeight skewedXNegBG shadowed capitalFirst darkFadedBG';
+                    tempElement.className = 'centerColumnLayout fullHeight skewedXNegBG shadowed capitalFirst darkFadedBG whiteText outlineText';
                     tempElement.innerHTML = `<span class="regMinPadding">${assignee.assigneeName}</span>`;
                     tempDiv.appendChild(tempElement);
 
