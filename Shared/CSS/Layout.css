@@ -731,6 +731,10 @@ aside .gradientBorderVert {
     .gridFlex.midGrids.minGap>* {
         width: 98% !important;
     }
+
+    .gridFlex.minGrids>* {
+        width: 99% !important;
+    }
 }
 
 @media (max-width: 450px) {
@@ -745,7 +749,7 @@ aside .gradientBorderVert {
     }
 }
 
-@media (max-width: 450px) {
+@media (max-width: 300px) {
     .asideLayout>main>h1>img {
         display: none;
     }
