@@ -6,6 +6,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
     <link rel="stylesheet" href="../.CSS/StaffPage.css">
+    <style>
+        .asideLayout>main>section {
+            min-width: unset;
+        }
+
+        :has(> a[href="index.php?page=logout"]) {
+            padding: 0.5rem !important;
+        }
+
+        @media (max-height: 600px) {
+            .asideLayout>main>section {
+                justify-content: flex-start;
+                overflow-x: scroll;
+                padding: 0.3rem !important;
+            }
+
+            .asideLayout>main>section>:last-child {
+                position: sticky !important;
+                background: none;
+                bottom: 0 !important;
+                right: 0 !important;
+                padding: 0 !important;
+            }
+
+            .asideLayout>main>section>:last-child>:nth-child(1) {
+                width: 12rem !important;
+            }
+
+            .asideLayout>main>section>:last-child>.gradientBorderDiag {
+                display: none;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .asideLayout>main>h1 {
+                font-size: 1.25rem !important;
+            }
+
+            .asideLayout>main>h1>img {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .asideLayout>main>section {
+                justify-content: flex-start;
+                overflow-x: scroll;
+                padding: 0.3rem !important;
+            }
+
+            .asideLayout>main>section>* {
+                min-width: 85vw !important;
+                max-width: 85vw !important;
+            }
+
+            .asideLayout>main>section>:nth-child(1) {
+                flex-direction: column;
+            }
+
+            .asideLayout>main>section>:nth-child(1)>*,
+            .asideLayout>main>section>:nth-child(1)>:nth-child(2)>* {
+                width: 100% !important;
+            }
+
+            .asideLayout>main>section>:nth-child(1)>:nth-child(1) {
+                min-height: 150px !important;
+                width: unset !important;
+                aspect-ratio: 1 / 1;
+            }
+
+            .asideLayout>main>section>:last-child {
+                position: sticky !important;
+                background: none;
+                bottom: 0 !important;
+                right: 0 !important;
+                padding: 0 !important;
+            }
+
+            .asideLayout>main>section>:last-child>:nth-child(1) {
+                height: 100% !important;
+                width: 100% !important;
+            }
+
+            .asideLayout>main>section>:last-child>.gradientBorderDiag {
+                display: none;
+            }
+
+            .triItemLayout {
+                flex-direction: column;
+            }
+
+            .triItemLayout>* {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 
 <body class="asideLayout fixedScreen">
@@ -15,7 +111,7 @@
             <img src="../../Shared/Img/AccountSettingsIcon.png" alt="AccountSettings"> Account Settings
         </h1>
         <?php include("../Views/.Components/MessageBox.php"); ?>
-        <section class="centerColumnLayout midGap">
+        <section class="centerColumnLayout midGap flexMax">
             <div class="rowLayout midGap extraWidth">
                 <section class="centerColumnLayout box roundedMid centerHoriSelf flexMax clickable noFlexBasis noMinHeight">
                     <div class="centerColumnLayout fullDimensions" id="userImageContainer" data-image="../../Storage/AccountImages/<?= htmlspecialchars($accountImage) ?>">
