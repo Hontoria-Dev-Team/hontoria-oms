@@ -6,6 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
     <link rel="stylesheet" href="../.CSS/StaffPage.css">
+    <style>
+        @media (max-width: 800px) {
+            .asideLayout>main>section {
+                min-width: unset !important;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .asideLayout>main>span>h1 {
+                font-size: 1.25rem !important;
+            }
+
+            .asideLayout>main>span>h1>img {
+                display: block !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="asideLayout fixedScreen">
