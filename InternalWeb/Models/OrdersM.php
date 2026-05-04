@@ -19,6 +19,7 @@ class OrdersM {
                 orders.createdAt,
                 orders.deadlineAt,
                 orders.messengerGCLink,
+                publicOrderPages.orderCode,
                 CASE
                     WHEN NOT EXISTS (
                         SELECT 1 FROM orderProcess
@@ -42,6 +43,7 @@ class OrdersM {
             FROM orders
             JOIN subservices ON orders.subserviceID = subservices.id
             JOIN services ON subservices.serviceID = services.id
+            LEFT JOIN publicOrderPages ON publicOrderPages.orderID = orders.id
             ORDER BY orders.id ASC
         ";
 
@@ -354,6 +356,14 @@ class OrdersM {
         $stmt->bindParam(':orderID', $orderID);
         $stmt->bindParam(':priceTotal', $priceTotal);
         $stmt->execute();
+
+        $orderCode = bin2hex(random_bytes(10)) . time();
+
+        $query = "INSERT INTO publicOrderPages (orderCode, orderID) VALUES (:orderCode, :orderID)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':orderCode', $orderCode);
+        $stmt->bindParam(':orderID', $orderID);
+        $stmt->execute();
     }
 
     public function getAllOrderGroups() {
@@ -387,6 +397,11 @@ class OrdersM {
         $stmt->execute();
 
         $query = "DELETE FROM salesOrder WHERE orderID = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        $query = "DELETE FROM publicOrderPages WHERE orderID = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
         $stmt->execute();

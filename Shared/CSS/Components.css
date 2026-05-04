@@ -395,6 +395,10 @@
     background: var(--yellowGreenTrans);
 }
 
+.darkText {
+    color: var(--dark) !important;
+}
+
 .whiteText {
     color: var(--white) !important;
 }
@@ -503,6 +507,10 @@
 
 .underlineText {
     text-decoration: underline;
+}
+
+.boldenText {
+    font-weight: bold;
 }
 
 .minText {

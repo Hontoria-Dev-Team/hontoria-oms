@@ -126,7 +126,8 @@
                                 ?>
                                 <div class="fitHeight regMidPadding roundedMin centerHoriColumnLayout tinGap flexStatic orderElement shadowed clickable <?= $divBgClass ?>"
                                     data-id="<?= $order['id'] ?>" data-due="<?= $order['deadlineAt'] ?>" data-customer="<?= $order['customerName'] ?>"
-                                    data-service="<?= $order['subserviceName'] . ' ' . $order['serviceName'] ?>">
+                                    data-service="<?= $order['subserviceName'] . ' ' . $order['serviceName'] ?>"
+                                    data-code="<?= $order['orderCode'] ?>">
                                     <h5 class="norEastAbsolute closeCorner transText">Order #<?= $order['id'] ?></h5>
                                     <div class="orderStatusElement souEastAbsolute closeCorner minPadding roundedMin shadowed whiteText <?= $statusStyleClass ?>"
                                         data-status="<?= $order['status'] ?>" data-id="<?= $order['id'] ?>">
@@ -995,6 +996,8 @@
             <div>
                 <h4 class="centerHoriRowLayout tinGap centerText fullWidth">Customer: ${elem.dataset.customer}</h4>
                 <h4 class="centerHoriRowLayout tinGap centerText fullWidth">Service: ${elem.dataset.service}</h4>
+                <a class="centerHoriRowLayout tinGap centerText fullWidth darkText underlineText boldenText"
+                    href="http://localhost/hontoria-oms/PublicWeb/Public/?page=order&code=${elem.dataset.code}">Order Page: ${elem.dataset.code}</a>
             </div>
             <button type="button" class="criticalInput centerColumnLayout shadowed noBorder norEastAbsolute deleteOrderButton" data-selected-id="${elem.dataset.id}">
                 <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
