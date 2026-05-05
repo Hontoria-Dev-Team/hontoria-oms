@@ -174,12 +174,19 @@ class StaffM {
             FROM users
             ORDER BY
                 CASE
-                    WHEN lastActivityAt >= NOW() - INTERVAL 15 MINUTE THEN 1
-                    ELSE 2
+                    WHEN lastActivityAt >= DATE_SUB(NOW(), INTERVAL 15 MINUTE) THEN 
+                        CASE 
+                            WHEN (SELECT COUNT(*) FROM userProcessTasks WHERE userProcessTasks.userID = users.id) > 0 OR (SELECT COUNT(*) FROM miscellaneousTasks WHERE miscellaneousTasks.userID = users.id) > 0 THEN 1
+                            ELSE 2
+                        END
+                    ELSE 
+                        CASE 
+                            WHEN (SELECT COUNT(*) FROM userProcessTasks WHERE userProcessTasks.userID = users.id) > 0 OR (SELECT COUNT(*) FROM miscellaneousTasks WHERE miscellaneousTasks.userID = users.id) > 0 THEN 3
+                            ELSE 4
+                        END
                 END,
-                firstName,
-                lastName,
-                lastActivityAt DESC
+                firstName ASC,
+                lastName ASC
         ";
 
         $stmt = $this->pdo->prepare($query);
@@ -188,38 +195,42 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getfilteredStaff($search, $status) {
+    public function getfilteredStaff($search, $onlineStatus = '', $activityStatus = '', $roleId = '') {
         $where = "(CONCAT(firstName,' ',middleName,' ',lastName) LIKE :query OR username LIKE :query)";
+        $params = [':query' => $search . '%'];
 
-        if ($status !== '') {
-            switch ($status) {
-                case 'active':
-                    $where .= " AND lastActivityAt >= DATE_SUB(NOW(), INTERVAL 15 MINUTE)";
-                    break;
-                case 'inactive':
-                    $where .= " AND (lastActivityAt IS NULL OR lastActivityAt < DATE_SUB(NOW(), INTERVAL 15 MINUTE))";
-                    break;
-            }
+        // Online status filter
+        if ($onlineStatus === 'active') {
+            $where .= " AND lastActivityAt >= DATE_SUB(NOW(), INTERVAL 15 MINUTE)";
+        } elseif ($onlineStatus === 'offline') {
+            $where .= " AND (lastActivityAt IS NULL OR lastActivityAt < DATE_SUB(NOW(), INTERVAL 15 MINUTE))";
+        }
+
+        // Activity status filter (busy = has tasks, idle = no tasks)
+        if ($activityStatus === 'busy') {
+            $where .= " AND (SELECT COUNT(*) FROM userProcessTasks WHERE userProcessTasks.userID = users.id) > 0 OR (SELECT COUNT(*) FROM miscellaneousTasks WHERE miscellaneousTasks.userID = users.id) > 0";
+        } elseif ($activityStatus === 'idle') {
+            $where .= " AND (SELECT COUNT(*) FROM userProcessTasks WHERE userProcessTasks.userID = users.id) = 0 AND (SELECT COUNT(*) FROM miscellaneousTasks WHERE miscellaneousTasks.userID = users.id) = 0";
+        }
+
+        // Role filter
+        $roleJoin = '';
+        if ($roleId !== '' && $roleId > 0) {
+            $roleJoin = "LEFT JOIN userRoles ON users.id = userRoles.userID";
+            $where .= " AND userRoles.roleID = :roleId";
+            $params[':roleId'] = $roleId;
         }
 
         $sql = "
-            SELECT id, username, firstName, middleName, lastName, phone, email, createdAt, lastActivityAt, note
+            SELECT DISTINCT users.id, users.username, users.firstName, users.middleName, users.lastName, users.phone, users.email, users.createdAt, users.lastActivityAt, users.note
             FROM users
+            {$roleJoin}
             WHERE {$where}
-            ORDER BY
-                CASE
-                    WHEN lastActivityAt >= NOW() - INTERVAL 15 MINUTE THEN 1
-                    ELSE 2
-                END,
-                firstName,
-                lastName,
-                lastActivityAt DESC
+            ORDER BY users.firstName ASC, users.lastName ASC
         ";
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':query', $search . '%');
-        $stmt->execute();
-
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

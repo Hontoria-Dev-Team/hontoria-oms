@@ -8,6 +8,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
+        @media (max-width: 1250px) {
+            form[action="index.php?page=staff"] {
+                overflow-y: scroll;
+                padding: 0.1rem !important;
+            }
+
+            form[action="index.php?page=staff"] input[type="search"] {
+                width: 250px !important;
+            }
+        }
+
+        @media (max-width: 1050px) {
+            form[action="index.php?page=staff"] {
+                overflow-y: scroll;
+                padding: 0.1rem !important;
+            }
+
+            form[action="index.php?page=staff"] input[type="search"] {
+                width: 150px !important;
+            }
+        }
+
         @media (max-width: 800px) {
             .asideLayout>main>section {
                 min-width: fit-content;
@@ -22,17 +44,6 @@
             .asideLayout>main>section>*:nth-child(2) {
                 min-width: calc(100vw - 3rem);
                 max-width: calc(100vw - 3rem);
-            }
-        }
-
-        @media (max-width: 500px) {
-            form[action="index.php?page=staff"] {
-                overflow-y: scroll;
-                padding: 0.1rem !important;
-            }
-
-            form[action="index.php?page=staff"] input[type="search"] {
-                width: 60vw !important;
             }
         }
     </style>
@@ -67,29 +78,35 @@
                     <div class="gradientBorderDiag"></div>
                 </section>
             </section>
-            <section class="flexMax roundedMid centerColumnLayout">
+            <section class="flexMax roundedMid centerColumnLayout noFlexBasis noMinWidth">
                 <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
                     <form method="GET" action="index.php?page=staff" class="rowLayout fullWidth minGap">
                         <input type="hidden" name="page" value="staff">
-                        <input type="hidden" name="action" value="filter">
 
                         <div class="iconInput flexMax centerHoriRowLayout">
-                            <input type="search" name="search" placeholder="Search Staff" class="fullWidth" value="<?= $search ?>">
+                            <input type="search" name="search" placeholder="Search Staff" class="fullWidth" value="<?= htmlspecialchars($search ?? '') ?>">
                             <img src="../../Shared/Img/MagnifierIcon.png" alt="Magnifier">
                         </div>
 
-                        <select name="status">
-                            <option value="" <?= $status === '' ? 'selected' : '' ?>>Any Status</option>
-                            <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Active</option>
-                            <option value="idle" <?= $status === 'idle' ? 'selected' : '' ?>>Idle</option>
-                            <option value="offline" <?= $status === 'offline' ? 'selected' : '' ?>>Offline</option>
+                        <select name="onlineStatus">
+                            <option value="">Any Online Status</option>
+                            <option value="active" <?= ($onlineStatus ?? '') === 'active' ? 'selected' : '' ?>>Active Now</option>
+                            <option value="offline" <?= ($onlineStatus ?? '') === 'offline' ? 'selected' : '' ?>>Offline</option>
                         </select>
 
-                        <select name="role">
+                        <select name="activityStatus">
+                            <option value="">Any Activity Status</option>
+                            <option value="busy" <?= ($activityStatus ?? '') === 'busy' ? 'selected' : '' ?>>Busy</option>
+                            <option value="idle" <?= ($activityStatus ?? '') === 'idle' ? 'selected' : '' ?>>Idle</option>
+                        </select>
+
+                        <select name="roleId" class="capitalFirst">
                             <option value="">Any Role</option>
-                            <option value="layoutArtist">Layout Artist</option>
-                            <option value="printer">Printer</option>
-                            <option value="seamster">Seamster</option>
+                            <?php foreach ($roleList as $role): ?>
+                                <option class="capitalFirst" value="<?= (int)$role['id'] ?>" <?= ($roleId ?? '') == $role['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($role['name']) ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
 
                         <input type="submit" value="Search" class="importantInput">
@@ -116,40 +133,57 @@
                             $userImageStyle = isset($accountImageMap[$staff['id']]) ?
                                 "imageCoverFull" : "";
 
+
                             $activityStatus = "Active now";
                             $activityStatusBG = "yellowBG";
                             $activityStatusColor = '--yellowTrans';
 
-                            if ($staff['lastActivityAt'] === null) {
+                            if ($staff['lastActivityAt'] === null || empty($staff['lastActivityAt'])) {
                                 $activityStatus = "No Activity";
                                 $activityStatusBG = "redBG";
                                 $activityStatusColor = '--redTrans';
                             } else {
-                                $lastActivity = strtotime($staff['lastActivityAt']);
-                                $now = time();
-                                $diff = $now - $lastActivity;
+                                // Always parse the database string as Manila time
+                                $manila = new DateTimeZone('Asia/Manila');
+                                $lastActivityDate = DateTime::createFromFormat(
+                                    'Y-m-d H:i:s',
+                                    $staff['lastActivityAt'],
+                                    $manila
+                                );
 
-                                if ($diff < 60) {
-                                    $activityStatus = "Active now";
-                                } elseif ($diff < 3600) {
-                                    $minutes = floor($diff / 60);
-                                    $activityStatus = "Active {$minutes} min ago";
-                                    $activityStatusBG = "redBG";
-                                    $activityStatusColor = '--redTrans';
-                                } elseif ($diff < 86400) {
-                                    $hours = floor($diff / 3600);
-                                    $activityStatus = "Active {$hours} hr ago";
+                                if ($lastActivityDate === false) {
+                                    // Could not parse – fallback
+                                    $activityStatus = "No Activity";
                                     $activityStatusBG = "redBG";
                                     $activityStatusColor = '--redTrans';
                                 } else {
-                                    $days = floor($diff / 86400);
-                                    $activityStatus = "Active {$days} day" . ($days > 1 ? "s" : "") . " ago";
-                                    $activityStatusBG = "redBG";
-                                    $activityStatusColor = '--redTrans';
+                                    $lastActivity = $lastActivityDate->getTimestamp();
+                                    $now = (new DateTime('now', $manila))->getTimestamp();
+                                    $fifteenMinutes = 15 * 60;
+
+                                    // Calculate seconds since last activity
+                                    $diff = $now - $lastActivity;
+
+                                    if ($diff < $fifteenMinutes) {
+                                        // Active within 15 minutes
+                                        if ($diff < 60) {
+                                            $activityStatus = "Active now";
+                                        } else {
+                                            $minutes = floor($diff / 60);
+                                            $activityStatus = "Active {$minutes} min ago";
+                                        }
+                                        $activityStatusBG = "yellowBG";
+                                        $activityStatusColor = '--yellowTrans';
+                                    } else {
+                                        // Offline
+                                        $activityStatus = "Offline";
+                                        $activityStatusBG = "redBG";
+                                        $activityStatusColor = '--redTrans';
+                                    }
                                 }
                             }
 
-                            $staffElementBG = "background: linear-gradient(to top, var(" . $statusColor . "), var(" . $activityStatusColor . ")) !important;"
+                            $staffElementBG = "background: linear-gradient(to top, var(" . $statusColor . "), var(" . $activityStatusColor . ")) !important;";
                             ?>
                             <div class="minHeight minPadding roundedMin rowLayout minGap flexStatic staffElement shadowed <?= $staffElementBorder ?>"
                                 style="<?= $staffElementBG ?>"

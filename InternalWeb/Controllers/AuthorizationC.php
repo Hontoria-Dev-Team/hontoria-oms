@@ -60,8 +60,14 @@ class AuthorizationC {
         }
     }
 
-    public function showStaff($search = '', $status = '', $error = '') {
+    public function showStaff() {
         $page = "staff";
+        
+        // Extract filter parameters from GET
+        $search = isset($_GET['search']) ? strtolower(trim($_GET['search'])) : '';
+        $onlineStatus = isset($_GET['onlineStatus']) ? strtolower(trim($_GET['onlineStatus'])) : '';
+        $activityStatus = isset($_GET['activityStatus']) ? strtolower(trim($_GET['activityStatus'])) : '';
+        $roleId = isset($_GET['roleId']) ? (int)$_GET['roleId'] : '';
 
         $roleList = $this->staffModel->getAllRoles();
         $userRoles = $this->staffModel->getAllUserRoles();
@@ -77,8 +83,8 @@ class AuthorizationC {
             $userMiscTaskMap[$miscTask['userID']] = $miscTask;
         }
 
-        if ($search !== '' || $status !== '') {
-            $staffList = $this->staffModel->getfilteredStaff($search, $status);
+        if ($search !== '' || $onlineStatus !== '' || $activityStatus !== '' || $roleId !== '') {
+            $staffList = $this->staffModel->getfilteredStaff($search, $onlineStatus, $activityStatus, $roleId);
         } else {
             $staffList = $this->staffModel->getStaffList();
         }
