@@ -7,351 +7,253 @@ class ServicesC {
         $this->servicesModel = new ServicesM($pdo);
     }
 
-    //
-    // Display the services management page with all services, subservices,
-    // processes, order counts and images.
-    //
-    public function ShowServices($serviceIdentifier, $subserviceIdentifier) {
+    // Display the services management page with all services, subservices, processes, and related data
+    public function showServices($serviceID, $subserviceID) {
         $page = "services";
-
-        // Provide the variable names the view uses
-        $serviceID    = $serviceIdentifier;
-        $subserviceID = $subserviceIdentifier;
-
-        $servicesList = $this->servicesModel->GetServices();
-        $serviceProcessList = $this->servicesModel->GetAllServiceProcesses();
-        $subserviceList = $this->servicesModel->GetAllSubservices();
-        $subserviceOrderCountTally = $this->servicesModel->GetAllSubservicesOrderCount();
-        $processesList = $this->servicesModel->GetAllProcesses();
-        $subserviceImageList = $this->servicesModel->GetAllSubserviceImages();
-        $serviceOrderCountMap = $this->servicesModel->GetAllServicesOrderCountMapped();
+        $servicesList = $this->servicesModel->getServices();
+        $serviceProcessList = $this->servicesModel->getAllServiceProcesses();
+        $subserviceList = $this->servicesModel->getAllSubservices();
+        $subserviceOrderCountTally = $this->servicesModel->getAllSubservicesOrderCount();
+        $processesList = $this->servicesModel->getAllProcesses();
+        $subserviceImageList = $this->servicesModel->getAllSubserviceImages();
+        $serviceOrderCountMap = $this->servicesModel->getAllServicesOrderCountMapped();
 
         require __DIR__ . '/../Views/Services/Page.php';
     }
 
-    //
-    // Create a new service after verifying permissions and name validity.
-    //
-    public function CreateService() {
+    // Create a new service with the given name, checking user permissions
+    public function createService() {
+        $name = ucwords(strtolower(trim($_POST['name'])));
+
         if (!in_array('canCreateServices', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to create services.";
-            header("Location: index.php?page=services");
-            exit;
+        } else {
+            $_SESSION['message'] = $this->servicesModel->insertService($name);
         }
 
-        $serviceName = ucwords(strtolower(trim($_POST['name'])));
-        $_SESSION['message'] = $this->servicesModel->InsertService($serviceName);
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
 
-        $selectedServiceIdentifier = $_POST['selectedServiceID'] ?? -1;
-        $selectedSubserviceIdentifier = $_POST['selectedSubserviceID'] ?? -1;
-        header("Location: index.php?page=services&serviceID=" . $selectedServiceIdentifier . "&subserviceID=" . $selectedSubserviceIdentifier);
-        exit;
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
-    //
-    // Delete a service after verifying permissions and order count.
-    //
-    public function DeleteService() {
+    // Delete a service, checking user permissions
+    public function removeService() {
+        $serviceID = $_POST['selectedServiceID'];
+
         if (!in_array('canDeleteServices', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to delete services.";
-            header('Location: index.php?page=services');
-            exit;
+        } else {
+            $_SESSION['message'] = $this->servicesModel->deleteService($serviceID);
         }
-
-        $serviceIdentifier = (int)$_POST['selectedServiceID'];
-        $_SESSION['message'] = $this->servicesModel->DeleteService($serviceIdentifier);
 
         header('Location: index.php?page=services');
-        exit;
     }
 
-    //
-    // Toggle the active/inactive status of a service.
-    //
-    public function ToggleServiceStatus() {
+    // Toggle the active/inactive status of a service
+    public function toggleServiceStatus() {
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+
         if (!in_array('canAlterServiceStatus', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to alter the service's status.";
-            $redirectParameters = $this->BuildServiceRedirectParameters();
-            header("Location: index.php?page=services" . $redirectParameters);
-            exit;
+        } else {
+            $_SESSION['message'] = $this->servicesModel->updateServiceStatus($selectedServiceID);
         }
 
-        $serviceIdentifier = (int)$_POST['selectedServiceID'];
-        $_SESSION['message'] = $this->servicesModel->UpdateServiceStatus($serviceIdentifier);
-
-        $redirectParameters = $this->BuildServiceRedirectParameters();
-        header("Location: index.php?page=services" . $redirectParameters);
-        exit;
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
-    //
-    // Toggle whether the service requires a design.
-    //
-    public function ToggleHasDesign() {
+    // Toggle whether a service supports design functionality
+    public function toggleHasDesign() {
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+
         if (!in_array('canAlterServices', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to alter services.";
-            $redirectParameters = $this->BuildServiceRedirectParameters();
-            header("Location: index.php?page=services" . $redirectParameters);
-            exit;
+        } else {
+            $_SESSION['message'] = $this->servicesModel->toggleServiceHasDesign($selectedServiceID);
         }
 
-        $serviceIdentifier = (int)$_POST['selectedServiceID'];
-        $_SESSION['message'] = $this->servicesModel->ToggleServiceHasDesign($serviceIdentifier);
-
-        $redirectParameters = $this->BuildServiceRedirectParameters();
-        header("Location: index.php?page=services" . $redirectParameters);
-        exit;
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
-    //
-    // Toggle whether the service requires a variable list.
-    //
-    public function ToggleHasVariableList() {
+    // Toggle whether a service supports variable lists
+    public function toggleHasVariableList() {
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+
         if (!in_array('canAlterServices', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to alter services.";
-            $redirectParameters = $this->BuildServiceRedirectParameters();
-            header("Location: index.php?page=services" . $redirectParameters);
-            exit;
+        } else {
+            $_SESSION['message'] = $this->servicesModel->toggleServiceHasVariableList($selectedServiceID);
         }
 
-        $serviceIdentifier = (int)$_POST['selectedServiceID'];
-        $_SESSION['message'] = $this->servicesModel->ToggleServiceHasVariableList($serviceIdentifier);
-
-        $redirectParameters = $this->BuildServiceRedirectParameters();
-        header("Location: index.php?page=services" . $redirectParameters);
-        exit;
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
+        exit();
     }
 
-    //
-    // Helper to build the query string for service/subservice persistence.
-    //
-    private function BuildServiceRedirectParameters() {
-        $selectedServiceID = $_POST['selectedServiceID'] ?? '';
-        $selectedSubserviceID = $_POST['selectedSubserviceID'] ?? '';
-        return "&serviceID=" . urlencode($selectedServiceID) . "&subserviceID=" . urlencode($selectedSubserviceID);
-    }
+    // Update the processes associated with a service
+    public function setServiceProcess() {
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
 
-    //
-    // Update the process sequence for a service.
-    //
-    public function SetServiceProcess() {
         if (!in_array('canAlterServices', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to alter services.";
-            $redirectParameters = $this->BuildServiceRedirectParameters();
-            header("Location: index.php?page=services" . $redirectParameters);
-            exit;
+        } else {
+            $processes = $_POST['processList'];
+            $_SESSION['message'] = $this->servicesModel->updateServiceProcess($selectedServiceID, $processes);
         }
 
-        $serviceIdentifier = (int)$_POST['selectedServiceID'];
-        $processIdentifiers = $_POST['processList'] ?? [];
-        // Ensure all process identifiers are integers
-        $processIdentifiers = array_map('intval', $processIdentifiers);
-        $_SESSION['message'] = $this->servicesModel->UpdateServiceProcess($serviceIdentifier, $processIdentifiers);
-
-        $redirectParameters = $this->BuildServiceRedirectParameters();
-        header("Location: index.php?page=services" . $redirectParameters);
-        exit;
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
-    //
-    // Display the process management page after verifying access.
-    //
-    public function ShowProcessesManagementPage() {
+    // Display the processes management page
+    public function showProcessesManagementPage() {
         if (!in_array('canManageServiceProcesses', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to manage service processes.";
             header("Location: index.php?page=services");
-            exit;
+            exit();
         }
 
         $page = "services";
         $lastPage = 'services';
         $backLink = 'index.php?page=services';
-        $processList = $this->servicesModel->GetAllProcesses();
-        $lockedProcessIdentifiers = [];
-        foreach ($processList as $process) {
-            if ($this->servicesModel->IsProcessLockedByOrders($process['id'])) {
-                $lockedProcessIdentifiers[] = (int)$process['id'];
-            }
-        }
+        $processList = $this->servicesModel->getAllProcesses();
 
         require __DIR__ . '/../Views/Services/ProcessManagement.php';
-        exit;
     }
 
-    //
-    // Create a new process after verifying permissions.
-    //
-    public function CreateProcess() {
-        if (!in_array('canManageServiceProcesses', $_SESSION['permissions'])) {
+    // Create a new process with the given name
+    public function createProcess() {
+        if (in_array('canManageServiceProcesses', $_SESSION['permissions'])) {
+            $processName = $_POST['name'];
+            $creation = $this->servicesModel->insertProcess($processName);
+
+            $_SESSION['message'] = $creation ? "Success: Created process" : "Error: Process name already exists.";
+        } else {
             $_SESSION['message'] = "Error: You do not have permission to manage service processes.";
-            header("Location: index.php?page=services&action=manageProcesses");
-            exit;
         }
-
-        $processName = ucfirst(strtolower(trim($_POST['name'])));
-        $creationResult = $this->servicesModel->InsertProcess($processName);
-
-        $_SESSION['message'] = $creationResult ? "Success: Created process." : "Error: Process name already exists or is invalid.";
         header("Location: index.php?page=services&action=manageProcesses");
-        exit;
     }
 
-    //
-    // Delete a process after verifying permissions.
-    //
-    public function RemoveProcess() {
-        if (!in_array('canManageServiceProcesses', $_SESSION['permissions'])) {
+    // Delete a process, checking if it's in use
+    public function removeProcess() {
+        if (in_array('canManageServiceProcesses', $_SESSION['permissions'])) {
+            $selectedID = (int) $_POST['selectedID'];
+
+            $_SESSION['message'] = $this->servicesModel->deleteProcess($selectedID);
+        } else {
             $_SESSION['message'] = "Error: You do not have permission to manage service processes.";
-            header("Location: index.php?page=services&action=manageProcesses");
-            exit;
         }
-
-        $processIdentifier = (int)$_POST['selectedID'];
-        $_SESSION['message'] = $this->servicesModel->DeleteProcess($processIdentifier);
-
         header("Location: index.php?page=services&action=manageProcesses");
-        exit;
     }
 
-    //
-    // Update a process's settings (assignments, access levels).
-    //
-    public function SetProcess() {
-        if (!in_array('canManageServiceProcesses', $_SESSION['permissions'])) {
+    // Update a process's settings (assignments, access levels)
+    public function setProcess() {
+        if (in_array('canManageServiceProcesses', $_SESSION['permissions'])) {
+            $selectedID = (int) $_POST['id'];
+            $minAssign = (int) $_POST['minAssign'];
+            $maxAssign = (int) $_POST['maxAssign'];
+            $hasGCAccess = $_POST['hasGCAccess'];
+            $designAccess = $_POST['designAccess'];
+            $variableListAccess = $_POST['variableListAccess'];
+
+            $this->servicesModel->updateProcess($selectedID, $minAssign, $maxAssign, $hasGCAccess, $designAccess, $variableListAccess);
+
+            $_SESSION['message'] = "Success: Updated process.";
+        } else {
             $_SESSION['message'] = "Error: You do not have permission to manage service processes.";
-            header("Location: index.php?page=services&action=manageProcesses");
-            exit;
         }
-
-        $processIdentifier = (int)$_POST['id'];
-        $minAssign = (int)$_POST['minAssign'];
-        $maxAssign = (int)$_POST['maxAssign'];
-        $hasGCAccess = (int)$_POST['hasGCAccess'];
-        $designAccess = $_POST['designAccess'];
-        $variableListAccess = $_POST['variableListAccess'];
-
-        $result = $this->servicesModel->UpdateProcess($processIdentifier, $minAssign, $maxAssign, $hasGCAccess, $designAccess, $variableListAccess);
-        $_SESSION['message'] = $result ? "Success: Updated process." : "Error: Process could not be updated.";
-
         header("Location: index.php?page=services&action=manageProcesses");
-        exit;
     }
 
-    //
-    // Create a new subservice under the selected service.
-    //
-    public function CreateSubservice() {
+    // Create a new subservice under a service
+    public function createSubservice() {
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+        $name = ucwords(strtolower(trim($_POST['name'])));
+
         if (!in_array('canCreateSubservices', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to create subservices.";
-            $redirectParameters = $this->BuildServiceRedirectParameters();
-            header("Location: index.php?page=services" . $redirectParameters);
-            exit;
+        } else {
+            $_SESSION['message'] = $this->servicesModel->insertSubservice($name, $selectedServiceID);
         }
 
-        $serviceIdentifier = (int)$_POST['selectedServiceID'];
-        $subserviceName = ucwords(strtolower(trim($_POST['name'])));
-        $_SESSION['message'] = $this->servicesModel->InsertSubservice($subserviceName, $serviceIdentifier);
-
-        $redirectParameters = $this->BuildServiceRedirectParameters();
-        header("Location: index.php?page=services" . $redirectParameters);
-        exit;
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
-    //
-    // Delete a subservice after verifying permissions.
-    //
-    public function RemoveSubservice() {
+    // Delete a subservice
+    public function removeSubservice() {
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+
         if (!in_array('canDeleteSubservices', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to delete subservices.";
-            $redirectParameters = $this->BuildServiceRedirectParameters();
-            header("Location: index.php?page=services" . $redirectParameters);
-            exit;
+        } else {
+            $_SESSION['message'] = $this->servicesModel->deleteSubservice($selectedSubserviceID);
         }
 
-        $subserviceIdentifier = (int)$_POST['selectedSubserviceID'];
-        $_SESSION['message'] = $this->servicesModel->DeleteSubservice($subserviceIdentifier);
-
-        $serviceIdentifier = (int)$_POST['selectedServiceID'];
-        header("Location: index.php?page=services&serviceID=" . $serviceIdentifier);
-        exit;
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID);
     }
 
-    //
-    // Update subservice description and price per unit.
-    //
-    public function SetSubserviceInfo() {
+    // Update subservice information (price per unit, description)
+    public function setSubserviceInfo() {
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+
         if (!in_array('canAlterSubservices', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to alter subservices.";
-            $redirectParameters = $this->BuildServiceRedirectParameters();
-            header("Location: index.php?page=services" . $redirectParameters);
-            exit;
+        } else {
+            $description = $_POST['description'];
+            $pricePerUnit = $_POST['pricePerUnit'];
+            $_SESSION['message'] = $this->servicesModel->updateSubserviceInfo($selectedSubserviceID, $pricePerUnit, $description);
         }
 
-        $subserviceIdentifier = (int)$_POST['selectedSubserviceID'];
-        $description = $_POST['description'] ?? '';
-        $pricePerUnit = (float)$_POST['pricePerUnit'];
-        $_SESSION['message'] = $this->servicesModel->UpdateSubserviceInfo($subserviceIdentifier, $pricePerUnit, $description);
-
-        $redirectParameters = $this->BuildServiceRedirectParameters();
-        header("Location: index.php?page=services" . $redirectParameters);
-        exit;
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
-    //
-    // Toggle the active/inactive status of a subservice.
-    //
-    public function ToggleSubserviceStatus() {
+    // Toggle the active/inactive status of a subservice
+    public function toggleSubserviceStatus() {
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+
         if (!in_array('canAlterSubserviceStatus', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to alter the subservice's status.";
-            $redirectParameters = $this->BuildServiceRedirectParameters();
-            header("Location: index.php?page=services" . $redirectParameters);
-            exit;
+        } else {
+            $_SESSION['message'] = $this->servicesModel->updateSubserviceStatus($selectedSubserviceID);
         }
 
-        $subserviceIdentifier = (int)$_POST['selectedSubserviceID'];
-        $_SESSION['message'] = $this->servicesModel->UpdateSubserviceStatus($subserviceIdentifier);
-
-        $redirectParameters = $this->BuildServiceRedirectParameters();
-        header("Location: index.php?page=services" . $redirectParameters);
-        exit;
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
-    //
-    // Upload one or more images for a subservice.
-    //
-    public function UploadSubserviceImages() {
+    // Upload images for a subservice
+    public function uploadSubserviceImages() {
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+
         if (!in_array('canAlterSubservices', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to alter subservices.";
-            $redirectParameters = $this->BuildServiceRedirectParameters();
-            header("Location: index.php?page=services" . $redirectParameters);
-            exit;
+        } else {
+            $images = $_FILES['images'];
+            $_SESSION['message'] = $this->servicesModel->insertSubserviceImages($selectedSubserviceID, $images);
         }
 
-        $subserviceIdentifier = (int)$_POST['selectedSubserviceID'];
-        $filesArray = $_FILES['images'] ?? [];
-        $_SESSION['message'] = $this->servicesModel->InsertSubserviceImages($subserviceIdentifier, $filesArray);
-
-        $redirectParameters = $this->BuildServiceRedirectParameters();
-        header("Location: index.php?page=services" . $redirectParameters);
-        exit;
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 
-    //
-    // Remove a single image from a subservice.
-    //
-    public function RemoveSubserviceImage() {
+    // Delete an image from a subservice
+    public function removeSubserviceImage() {
+        $selectedServiceID = $_POST['selectedServiceID'];
+        $selectedSubserviceID = $_POST['selectedSubserviceID'];
+
         if (!in_array('canAlterSubservices', $_SESSION['permissions'])) {
             $_SESSION['message'] = "Error: You do not have permission to alter subservices.";
-            $redirectParameters = $this->BuildServiceRedirectParameters();
-            header("Location: index.php?page=services" . $redirectParameters);
-            exit;
+        } else {
+            $selectedID = $_POST['selectedID'];
+            $_SESSION['message'] = $this->servicesModel->deleteSubserviceImage($selectedID);
         }
 
-        $imageIdentifier = (int)$_POST['selectedID'];
-        $_SESSION['message'] = $this->servicesModel->DeleteSubserviceImage($imageIdentifier);
-
-        $redirectParameters = $this->BuildServiceRedirectParameters();
-        header("Location: index.php?page=services" . $redirectParameters);
-        exit;
+        header("Location: index.php?page=services&serviceID=" . $selectedServiceID . "&subserviceID=" . $selectedSubserviceID);
     }
 }
