@@ -9,7 +9,7 @@
 
     <style>
         #staffList img {
-            width: 80% !important;
+            width: 80%;
             height: unset;
         }
 
