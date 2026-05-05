@@ -8,6 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
+        #staffList img {
+            width: 80% !important;
+            height: unset;
+        }
+
         @media (max-width: 1250px) {
             form[action="index.php?page=staff"] {
                 overflow-y: scroll;
