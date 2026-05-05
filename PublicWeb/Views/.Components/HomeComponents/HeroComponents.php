@@ -23,7 +23,7 @@
 
         <div class="hero-actions">
             <a href="?page=services" class="btn-primary"><i class="fas fa-layer-group"></i> VIEW SERVICES</a>
-            <a href="#" class="btn-secondary"><i class="fab fa-facebook-f"></i> ORDER VIA FACEBOOK</a>
+            <a href="https://www.facebook.com/jhong.hontoria.3" class="btn-secondary"><i class="fab fa-facebook-f"></i> ORDER VIA FACEBOOK</a>
         </div>
     </div>
 
