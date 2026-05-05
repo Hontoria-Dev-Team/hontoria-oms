@@ -46,6 +46,128 @@ class StaffM {
         return $user;
     }
 
+    /**
+     * Check if user account is locked due to failed login attempts
+     */
+    public function isUserLocked($userId) {
+        $query = "SELECT lockedUntil FROM users WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $userId);
+        $stmt->execute();
+
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user || !$user['lockedUntil']) {
+            return false;
+        }
+
+        // Check if lock period has expired
+        if (strtotime($user['lockedUntil']) <= time()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Format remaining lock time as human-readable string (days, hours, minutes, seconds)
+     */
+    public function getFormattedLockTimeRemaining($userId) {
+        $remainingSeconds = $this->getLockTimeRemaining($userId);
+
+        if ($remainingSeconds <= 0) {
+            return "0 seconds";
+        }
+
+        $days = intdiv($remainingSeconds, 86400);
+        $remainingSeconds %= 86400;
+
+        $hours = intdiv($remainingSeconds, 3600);
+        $remainingSeconds %= 3600;
+
+        $minutes = intdiv($remainingSeconds, 60);
+        $seconds = $remainingSeconds % 60;
+
+        $parts = [];
+        if ($days > 0) $parts[] = $days . " day" . ($days !== 1 ? "s" : "");
+        if ($hours > 0) $parts[] = $hours . " hour" . ($hours !== 1 ? "s" : "");
+        if ($minutes > 0) $parts[] = $minutes . " minute" . ($minutes !== 1 ? "s" : "");
+        if ($seconds > 0) $parts[] = $seconds . " second" . ($seconds !== 1 ? "s" : "");
+
+        return implode(", ", $parts);
+    }
+
+    /**
+     * Get remaining lock time in seconds
+     */
+    public function getLockTimeRemaining($userId) {
+        $query = "SELECT lockedUntil FROM users WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $userId);
+        $stmt->execute();
+
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user || !$user['lockedUntil']) {
+            return 0;
+        }
+
+        $remaining = strtotime($user['lockedUntil']) - time();
+        return max(0, $remaining);
+    }
+
+    /**
+     * Increment failed login attempts and apply lockout if necessary
+     * Lock escalation: at 5, 10, 15, 20... failed attempts, apply exponential backoff lockout
+     * 5 attempts = 30 sec, 10 attempts = 60 sec, 15 attempts = 120 sec, etc.
+     */
+    public function incrementFailedAttempts($userId) {
+        $query = "SELECT failedAttempts FROM users WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $userId);
+        $stmt->execute();
+
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $currentAttempts = $user['failedAttempts'] ?? 0;
+        $newAttempts = $currentAttempts + 1;
+
+        // Only apply lockout when attempts are exactly divisible by 5 (5, 10, 15, 20...)
+        if ($newAttempts % 5 === 0) {
+            // Calculate which 5-multiple this is (5→tier 1, 10→tier 2, 15→tier 3, etc.)
+            $tier = $newAttempts / 5;
+            // Calculate timeout in seconds: 30 * 2^(tier-1)
+            $timeoutSeconds = 30 * pow(2, $tier - 1);
+            $lockedUntil = date('Y-m-d H:i:s', time() + $timeoutSeconds);
+        } else {
+            $lockedUntil = null;
+        }
+
+        // Update failed attempts and lock time
+        $query = "UPDATE users SET failedAttempts = :attempts, lockedUntil = :lockedUntil WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':attempts', $newAttempts);
+        $stmt->bindParam(':lockedUntil', $lockedUntil);
+        $stmt->bindParam(':id', $userId);
+        $stmt->execute();
+
+        // Log every 5 failed attempts milestone
+        if ($newAttempts % 5 === 0) {
+            $this->insertUserActivityLog($userId, "Login Failure", "Login Failure {$newAttempts} times", "red");
+        }
+
+        return $newAttempts;
+    }
+
+    /**
+     * Reset failed login attempts on successful login
+     */
+    public function resetFailedAttempts($userId) {
+        $query = "UPDATE users SET failedAttempts = 0, lockedUntil = NULL WHERE id = :id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $userId);
+        return $stmt->execute();
+    }
+
     public function getStaffList() {
         $query = "
             SELECT id, username, firstName, middleName, lastName, phone, email, createdAt, lastActivityAt, note

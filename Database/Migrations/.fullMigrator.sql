@@ -47,7 +47,9 @@ CREATE TABLE users (
     phone VARCHAR(20) NOT NULL,
     note VARCHAR(30) NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lastActivityAt TIMESTAMP NULL
+    lastActivityAt TIMESTAMP NULL,
+    failedAttempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    lockedUntil DATETIME NULL
 );
 
 CREATE TABLE userImages (

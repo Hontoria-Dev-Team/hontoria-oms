@@ -101,10 +101,23 @@ class AuthorizationC {
         $username = trim($_POST['name'] ?? '');
         $password = $_POST['password'] ?? '';
 
-        $user = $this->staffModel->authenticate($username, $password);
+        $userRecord = $this->staffModel->findSingleStaff($username);
         $error = null;
 
+        // Check if user exists and is locked
+        if ($userRecord && $this->staffModel->isUserLocked($userRecord['id'])) {
+            $formattedTime = $this->staffModel->getFormattedLockTimeRemaining($userRecord['id']);
+            $_SESSION['message'] = "Error: Account locked due to too many failed login attempts. Please try again in {$formattedTime}.";
+            require __DIR__ . '/../Views/Login/Page.php';
+            return;
+        }
+
+        $user = $this->staffModel->authenticate($username, $password);
+
         if ($user) {
+            // Reset failed attempts on successful login
+            $this->staffModel->resetFailedAttempts($user['id']);
+
             // $this->staffModel->updateOnlineStatus($user['id'], true);
 
             session_regenerate_id(true);
@@ -120,7 +133,20 @@ class AuthorizationC {
             header('Location: index.php?page=dashboard');
             exit;
         } else {
-            $error = "Invalid username or password.";
+            // Handle failed login attempt
+            if ($userRecord) {
+                $failedCount = $this->staffModel->incrementFailedAttempts($userRecord['id']);
+
+                // Check if there's an active lockout with remaining time
+                if ($failedCount % 5 === 0 && $this->staffModel->getLockTimeRemaining($userRecord['id']) > 0) {
+                    $formattedTime = $this->staffModel->getFormattedLockTimeRemaining($userRecord['id']);
+                    $_SESSION['message'] = "Error: Invalid username or password. Account locked after {$failedCount} failed attempts. Try again in {$formattedTime}.";
+                } else {
+                    $_SESSION['message'] = "Error: Invalid username or password. ({$failedCount} failed attempt" . ($failedCount !== 1 ? "s" : "") . ")";
+                }
+            } else {
+                $_SESSION['message'] = "Error: Invalid username or password.";
+            }
             require __DIR__ . '/../Views/Login/Page.php';
         }
     }
