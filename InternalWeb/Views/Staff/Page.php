@@ -494,14 +494,14 @@
         if (currentUser.activityLogs.length === 0) {
             tempDiv = document.createElement('div');
             tempDiv.className = 'centerColumnLayout roundedTin regTinPadding shadowed fullWidth darkFadedBG bordered';
-            tempDiv.innerHTML = '<h5 class="centerText minHoriPadding">No User Activity</h5>';
+            tempDiv.innerHTML = '<h5 class="centerText minHoriPadding whiteText outlineText">No User Activity</h5>';
             logContainer.appendChild(tempDiv);
         } else {
             currentUser.activityLogs.forEach(activity => {
                 tempDiv = document.createElement('div');
                 tempDiv.className = 'centerColumnLayout roundedTin regTinPadding shadowed fitHeight fullWidth';
                 tempDiv.innerHTML = `
-                <h5 class="centerText minHoriPadding">${activity.log}</h5>
+                <h5 class="centerText minHoriPadding whiteText outlineText">${activity.log}</h5>
                 <h6>${formatDateTime(activity.loggedAt)}</h6>
             `;
                 // Apply color class
