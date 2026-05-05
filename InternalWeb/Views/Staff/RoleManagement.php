@@ -81,7 +81,9 @@
                         <?php foreach ($roleTally as $role): ?>
                             <div class="noShrink roundedMin centerHoriRowLayout clickable shadowed fixedScreen roleElement"
                                 data-id="<?= $role['id'] ?>" data-name="<?= $role['name'] ?>">
-                                <h3 class="regMinPadding gradientDiagBG flexMid centerColumnLayout fullHeight whiteText skewedXNegBG shadowed capitalFirst"><span><?= $role['name'] ?></span></h3>
+                                <h3 class="regMinPadding gradientDiagBG flexMid centerColumnLayout fullHeight whiteText skewedXNegBG shadowed capitalFirst">
+                                    <span class="outlineText"><?= $role['name'] ?></span>
+                                </h3>
                                 <h5 class="flexMin whiteBG fullHeight centerColumnLayout"><?= $role['count'] ?> Users</h5>
                             </div>
                         <?php endforeach; ?>
@@ -304,7 +306,7 @@
             tempDiv.className = "noShrink fitHeight roundedMin centerRowLayout minGap yellowTransBG regMinPadding bordered shadowed";
 
             tempElement = document.createElement("h5");
-            tempElement.className = "flexMax centerText capitalFirst";
+            tempElement.className = "flexMax centerText capitalFirst whiteText outlineText";
             tempElement.textContent = formatCamelCase(selectedRolePermissions[i].name);
             tempDiv.appendChild(tempElement);
 
@@ -356,7 +358,7 @@
             tempDiv.dataset.name = selectedRoleAvailablePerms[i].name;
 
             tempElement = document.createElement("h5");
-            tempElement.className = "flexMax centerText capitalFirst";
+            tempElement.className = "flexMax centerText capitalFirst whiteText outlineText";
             tempElement.textContent = formatCamelCase(selectedRoleAvailablePerms[i].name);
             tempDiv.appendChild(tempElement);
 
@@ -414,12 +416,9 @@
             }
 
             tempElement = document.createElement("h5");
-            tempElement.className = "flexMax centerColumnLayout capitalFirst";
+            tempElement.className = "flexMax centerColumnLayout capitalFirst whiteText outlineText";
             tempElement.textContent = rolesName[selectedRoleGovernance[i].roleSubjectID];
             tempDiv.appendChild(tempElement);
-
-            // tempElement = document.createElement("hr");
-            // tempDiv.appendChild(tempElement);
 
             tempElement = document.createElement("div");
             tempElement.className = "centerRowLayout minGap minHoriPadding";
@@ -661,7 +660,7 @@
             tempDiv.className = "yellowTransBG roundedMin bordered centerColumnLayout regMinPadding noShrink shadowed";
 
             tempElement = document.createElement("h5");
-            tempElement.className = "flexMax centerColumnLayout capitalFirst";
+            tempElement.className = "flexMax centerColumnLayout capitalFirst whiteText outlineText";
             tempElement.textContent = selectedRoleProcessTasks[i].name;
             tempDiv.appendChild(tempElement);
 
