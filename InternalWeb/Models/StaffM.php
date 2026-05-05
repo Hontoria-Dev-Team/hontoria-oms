@@ -285,7 +285,13 @@ class StaffM {
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+        $result = $stmt->execute();
+
+        if ($result) {
+            $this->insertUserActivityLog($id, "Account Update", "Changed username to {$username}", "yellow");
+        }
+
+        return $result;
     }
 
     public function updateContacts($id, $phoneNumber, $email) {
@@ -294,7 +300,17 @@ class StaffM {
         $stmt->bindParam(':id', $id);
         $stmt->bindParam(':phone', $phoneNumber);
         $stmt->bindParam(':email', $email);
-        return $stmt->execute();
+        $result = $stmt->execute();
+
+        if ($result) {
+            $changes = [];
+            $changes[] = "phone to {$phoneNumber}";
+            $changes[] = "email to {$email}";
+            $changeLog = implode(" and ", $changes);
+            $this->insertUserActivityLog($id, "Account Update", "Updated {$changeLog}", "yellow");
+        }
+
+        return $result;
     }
 
     public function updatePassword($id, $password) {
@@ -303,7 +319,13 @@ class StaffM {
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
         $stmt->bindParam(':passwordHash', $hash);
-        return $stmt->execute();
+        $result = $stmt->execute();
+
+        if ($result) {
+            $this->insertUserActivityLog($id, "Security Update", "Password changed successfully", "yellow");
+        }
+
+        return $result;
     }
 
     public function updateUsernote($id, $note) {
@@ -829,13 +851,15 @@ class StaffM {
                 }
             }
 
+            $this->insertUserActivityLog($userID, "Account Update", "Uploaded new profile photo", "yellow");
             return "Success: Upload successful.";
         } catch (PDOException $e) {
             // On exception, clean up the newly uploaded file
             if (file_exists($targetPath)) {
                 unlink($targetPath);
             }
-            return "Error: " . $e->getMessage();
+            $errorMsg = "Error: " . $e->getMessage();
+            return $errorMsg;
         }
     }
 

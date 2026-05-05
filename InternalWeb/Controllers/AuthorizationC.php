@@ -436,16 +436,27 @@ class AuthorizationC {
     public function setUsername() {
         $username = strtolower(trim($_POST['username'] ?? ''));
 
+        if (empty($username)) {
+            $_SESSION['message'] = "Error: Username cannot be empty.";
+            header('Location: index.php?page=account');
+            return;
+        }
+
+        if (strlen($username) < 3) {
+            $_SESSION['message'] = "Error: Username must be at least 3 characters long.";
+            header('Location: index.php?page=account');
+            return;
+        }
+
         $update = $this->staffModel->updateUsername($_SESSION['id'], $username);
-        $error = null;
 
         if ($update) {
             $_SESSION['username'] = $username;
+            $_SESSION['message'] = "Success: Username updated to {$username}.";
             header('Location: index.php?page=account');
         } else {
-            $page = 'account';
-            $error = "Username already exists.";
-            require __DIR__ . '/../Views/Account/Page.php';
+            $_SESSION['message'] = "Error: Username already exists.";
+            header('Location: index.php?page=account');
         }
     }
 
@@ -456,10 +467,30 @@ class AuthorizationC {
         $phoneNum = (!empty($postPhone)) ? $postPhone : $_SESSION['phoneNumber'];
         $emailAddress = (!empty($postEmail)) ? $postEmail : $_SESSION['email'];
 
+        // Validate phone format
+        if (!empty($postPhone) && !preg_match('/^09\d{9}$/', $postPhone)) {
+            $_SESSION['message'] = "Error: Invalid phone number format. Must be 09XXXXXXXXX.";
+            header('Location: index.php?page=account');
+            return;
+        }
+
+        // Validate email format
+        if (!empty($postEmail) && !filter_var($postEmail, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['message'] = "Error: Invalid email address format.";
+            header('Location: index.php?page=account');
+            return;
+        }
+
         $this->staffModel->updateContacts($_SESSION['id'], $phoneNum, $emailAddress);
+
+        $changes = [];
+        if (!empty($postPhone)) $changes[] = "phone to {$postPhone}";
+        if (!empty($postEmail)) $changes[] = "email to {$postEmail}";
+        $changeLog = !empty($changes) ? implode(" and ", $changes) : "contact information";
 
         $_SESSION['phoneNumber'] = $phoneNum;
         $_SESSION['email'] = $emailAddress;
+        $_SESSION['message'] = "Success: Contact information updated.";
         header('Location: index.php?page=account');
     }
 
@@ -471,20 +502,38 @@ class AuthorizationC {
         $user = $this->staffModel->authenticate($_SESSION['username'], $passCurrent);
 
         if (!$user) {
-            $page = 'account';
-            $error = "Incorrect Password.";
-            require __DIR__ . '/../Views/Account/Page.php';
+            $this->staffModel->insertUserActivityLog($_SESSION['id'], "Security Alert", "Failed password change attempt - incorrect current password", "red");
+            $_SESSION['message'] = "Error: Incorrect current password.";
+            header('Location: index.php?page=account');
+            return;
+        }
+
+        if (empty($passNew)) {
+            $_SESSION['message'] = "Error: New password cannot be empty.";
+            header('Location: index.php?page=account');
             return;
         }
 
         if ($passNew !== $passRetype) {
-            $page = 'account';
-            $error = "New And Retyped Password Mismatch.";
-            require __DIR__ . '/../Views/Account/Page.php';
+            $_SESSION['message'] = "Error: New and retyped password do not match.";
+            header('Location: index.php?page=account');
+            return;
+        }
+
+        if (!preg_match('/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/', $passNew)) {
+            $_SESSION['message'] = "Error: Password must have at least 8 characters, and must contain a number, alphabet, and symbol.";
+            header('Location: index.php?page=account');
+            return;
+        }
+
+        if ($passCurrent === $passNew) {
+            $_SESSION['message'] = "Error: New password must be different from current password.";
+            header('Location: index.php?page=account');
             return;
         }
 
         $this->staffModel->updatePassword($_SESSION['id'], $passNew);
+        $_SESSION['message'] = "Success: Password changed successfully.";
         header('Location: index.php?page=account');
     }
 
@@ -511,7 +560,8 @@ class AuthorizationC {
     public function uploadAccountImage() {
         $image = $_FILES['image'];
 
-        $_SESSION['message'] = $this->staffModel->insertAccountImage($_SESSION['id'], $image);
+        $result = $this->staffModel->insertAccountImage($_SESSION['id'], $image);
+        $_SESSION['message'] = $result;
 
         header("Location: index.php?page=account");
     }
