@@ -9,28 +9,86 @@ require_once __DIR__ . '/../Middleware/AuthorizationMid.php';
 
 session_start();
 
-$page = $_GET['page'] ?? 'login';
-$action = $_GET['action'] ?? 'show';
+// ─────────────────── security headers ───────────────────
+header("X-Frame-Options: SAMEORIGIN");
+header("X-Content-Type-Options: nosniff");
+header("Referrer-Policy: strict-origin-when-cross-origin");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; frame-ancestors 'self'; base-uri 'self'; form-action 'self';");
+if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+}
+
+if (!isset($_SESSION['permissions']) || !is_array($_SESSION['permissions'])) {
+    $_SESSION['permissions'] = [];
+}
+
+// ─────────────────── helpers ───────────────────
+
+//
+// Sanitise a GET value to only contain safe characters.
+// Returns a default if the value is missing or invalid.
+//
+function SanitiseRouteValue(string $key, string $default = 'show'): string {
+    $value = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW);
+    if ($value === null) {
+        return $default;
+    }
+    $value = trim($value);
+    // Allow only letters, digits, underscore, hyphen
+    $value = preg_replace('/[^a-zA-Z0-9_-]/', '', $value);
+    if ($value === '' || preg_match('/^[^a-zA-Z0-9]/', $value)) {
+        return $default;
+    }
+    return $value;
+}
+
+//
+// Send a redirect header and stop execution immediately.
+//
+function Redirect(string $uri): void {
+    header('Location: ' . $uri);
+    exit;
+}
+
+// ─────────────────── routing ───────────────────
+
+$page   = SanitiseRouteValue('page', 'login');
+$action = SanitiseRouteValue('action', 'show');
+
+$allowedPages = [
+    'login',
+    'logout',
+    'dashboard',
+    'staff',
+    'account',
+    'services',
+    'orders',
+    'tasks',
+    'inventory',
+    'sales'
+];
+if (!in_array($page, $allowedPages, true)) {
+    $page   = 'login';
+    $action = 'show';
+}
 
 $authorization = new AuthorizationC($pdo);
-$services = new ServicesC($pdo);
-$orders = new OrdersC($pdo);
-$inventory = new InventoryC($pdo);
-$sales = new SalesC($pdo);
+$services      = new ServicesC($pdo);
+$orders        = new OrdersC($pdo);
+$inventory     = new InventoryC($pdo);
+$sales         = new SalesC($pdo);
 
 $protectedPages = ['dashboard', 'account', 'staff', 'services', 'orders', 'tasks', 'inventory', 'sales'];
-
-if (in_array($page, $protectedPages)) {
+if (in_array($page, $protectedPages, true)) {
     AuthorizationMid::check($page);
 }
 
 switch ($page) {
+    // ────────────────── login ──────────────────
     case 'login':
-        if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] == true) {
-            header('Location: index.php?page=dashboard');
-            exit;
+        if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+            Redirect('index.php?page=dashboard');
         }
-
         if ($action === 'authenticate') {
             $authorization->login();
         } else {
@@ -38,179 +96,135 @@ switch ($page) {
         }
         break;
 
+    // ────────────────── logout ──────────────────
     case 'logout':
         $authorization->logout();
         break;
 
+    // ────────────────── dashboard ──────────────────
     case 'dashboard':
         require_once __DIR__ . '/../Views/Dashboard/Page.php';
         break;
 
+    // ────────────────── staff ──────────────────
     case 'staff':
-        if ($action === 'filter') {
-            $search = $_GET['search'] ?? '';
-            $status = $_GET['status'] ?? '';
-            $authorization->showStaff($search, $status);
-        } else if ($action === 'setRoles') {
-            $authorization->setUserRoles();
-        } else if ($action === 'create') {
-            $authorization->showAccountCreationPage();
-        } else if ($action === 'createFinal') {
-            $authorization->createAccount();
-        } else if ($action === 'manageRoles') {
-            $authorization->showRoleManagementPage();
-        } else if ($action === 'changeRolePermissions') {
-            $authorization->setRolePermissions();
-        } else if ($action === 'changeManagementRules') {
-            $authorization->setRoleManagementGovernance();
-        } else if ($action === 'changeProcessTasks') {
-            $authorization->setRoleProcessTasks();
-        } else if ($action === 'createRole') {
-            $authorization->createRole();
-        } else if ($action === 'deleteRole') {
-            $authorization->deleteRole();
-        } else if ($action === 'delete') {
-            $authorization->deleteAccount();
-        } else if ($action === 'assignMiscTask') {
-            $authorization->assignMiscTask();
-        } else if ($action === 'updateMiscTask') {
-            $authorization->setMiscTask();
-        } else {
-            $authorization->showStaff();
-        }
+        $staffActions = [
+            'filter'              => fn() => $authorization->showStaff(
+                filter_input(INPUT_GET, 'search', FILTER_UNSAFE_RAW) ?? '',
+                filter_input(INPUT_GET, 'status', FILTER_UNSAFE_RAW) ?? ''
+            ),
+            'setRoles'              => fn() => $authorization->setUserRoles(),
+            'create'                => fn() => $authorization->showAccountCreationPage(),
+            'createFinal'           => fn() => $authorization->createAccount(),
+            'manageRoles'           => fn() => $authorization->showRoleManagementPage(),
+            'changeRolePermissions' => fn() => $authorization->setRolePermissions(),
+            'changeManagementRules' => fn() => $authorization->setRoleManagementGovernance(),
+            'changeProcessTasks'    => fn() => $authorization->setRoleProcessTasks(),
+            'createRole'            => fn() => $authorization->createRole(),
+            'deleteRole'            => fn() => $authorization->deleteRole(),
+            'delete'                => fn() => $authorization->deleteAccount(),
+            'assignMiscTask'        => fn() => $authorization->assignMiscTask(),
+            'updateMiscTask'        => fn() => $authorization->setMiscTask(),
+        ];
+        ($staffActions[$action] ?? fn() => $authorization->showStaff())();
         break;
 
+    // ────────────────── account ──────────────────
     case 'account':
-        if ($action === 'rename') {
-            $authorization->setUsername();
-        } else if ($action === 'updateContacts') {
-            $authorization->setContacts();
-        } else if ($action === 'changePassword') {
-            $authorization->setPassword();
-        } else if ($action === 'uploadImage') {
-            $authorization->uploadAccountImage();
-        } else if ($action === 'setUserNote') {
-            $authorization->setUserNote();
-        } else {
-            $authorization->showAccountManagementPage();
-        }
+        $accountActions = [
+            'rename'         => fn() => $authorization->setUsername(),
+            'updateContacts' => fn() => $authorization->setContacts(),
+            'changePassword' => fn() => $authorization->setPassword(),
+            'uploadImage'    => fn() => $authorization->uploadAccountImage(),
+            'setUserNote'    => fn() => $authorization->setUserNote(),
+        ];
+        ($accountActions[$action] ?? fn() => $authorization->showAccountManagementPage())();
         break;
 
+    // ────────────────── services ──────────────────
     case 'services':
-        $serviceID = $_GET['serviceID'] ?? -1;
-        $subserviceID = $_GET['subserviceID'] ?? -1;
-        if ($action === 'toggleServiceStatus') {
-            $services->toggleServiceStatus();
-        } else if ($action === 'toggleSubserviceStatus') {
-            $services->toggleSubserviceStatus();
-        } else if ($action === 'toggleHasDesign') {
-            $services->toggleHasDesign();
-        } else if ($action === 'toggleHasVariableList') {
-            $services->toggleHasVariableList();
-        } else if ($action === 'createService') {
-            $services->createService();
-        } else if ($action === 'deleteService') {
-            $services->removeService();
-        } else if ($action === 'createSubservice') {
-            $services->createSubservice();
-        } else if ($action === 'deleteSubservice') {
-            $services->removeSubservice();
-        } else if ($action === 'updateServiceProcess') {
-            $services->setServiceProcess();
-        } else if ($action === 'manageProcesses') {
-            $services->showProcessesManagementPage();
-        } else if ($action === 'createProcess') {
-            $services->createProcess();
-        } else if ($action === 'updateProcess') {
-            $services->setProcess();
-        } else if ($action === 'deleteProcess') {
-            $services->removeProcess();
-        } else if ($action === 'updateSubserviceInfo') {
-            $services->setSubserviceInfo();
-        } else if ($action === 'uploadSubserviceImages') {
-            $services->uploadSubserviceImages();
-        } else if ($action === 'removeSubserviceImage') {
-            $services->removeSubserviceImage();
-        } else {
-            $services->showServices($serviceID, $subserviceID);
-        }
+        $serviceID    = filter_input(INPUT_GET, 'serviceID', FILTER_VALIDATE_INT, ['options' => ['default' => -1]]);
+        $subserviceID = filter_input(INPUT_GET, 'subserviceID', FILTER_VALIDATE_INT, ['options' => ['default' => -1]]);
+
+        $serviceActions = [
+            'toggleServiceStatus'    => fn() => $services->toggleServiceStatus(),
+            'toggleSubserviceStatus' => fn() => $services->toggleSubserviceStatus(),
+            'toggleHasDesign'        => fn() => $services->toggleHasDesign(),
+            'toggleHasVariableList'  => fn() => $services->toggleHasVariableList(),
+            'createService'          => fn() => $services->createService(),
+            'deleteService'          => fn() => $services->removeService(),
+            'createSubservice'       => fn() => $services->createSubservice(),
+            'deleteSubservice'       => fn() => $services->removeSubservice(),
+            'updateServiceProcess'   => fn() => $services->setServiceProcess(),
+            'manageProcesses'        => fn() => $services->showProcessesManagementPage(),
+            'createProcess'          => fn() => $services->createProcess(),
+            'updateProcess'          => fn() => $services->setProcess(),
+            'deleteProcess'          => fn() => $services->removeProcess(),
+            'updateSubserviceInfo'   => fn() => $services->setSubserviceInfo(),
+            'uploadSubserviceImages' => fn() => $services->uploadSubserviceImages(),
+            'removeSubserviceImage'  => fn() => $services->removeSubserviceImage(),
+        ];
+        ($serviceActions[$action] ?? fn() => $services->showServices($serviceID, $subserviceID))();
         break;
 
+    // ────────────────── orders ──────────────────
     case 'orders':
-        if ($action === 'create') {
-            $orders->showOrderCreation();
-        } else if ($action === 'createFinal') {
-            $orders->createOrder();
-        } else if ($action === 'changeDeadline') {
-            $orders->setDeadline();
-        } else if ($action === 'delete') {
-            $orders->deleteOrder();
-        } else if ($action === 'assignEmployeeToTask') {
-            $orders->assignEmployeeToTask();
-        } else if ($action === 'removeAssignment') {
-            $orders->unassignEmployeeToTask();
-        } else if ($action === 'verifyComplete') {
-            $orders->verifyCompleteOrder();
-        } else if ($action === 'uploadDesign') {
-            $orders->uploadOrderDesign();
-        } else if ($action === 'updateVariableList') {
-            $orders->updateVariableList();
-        } else if ($action === 'viewArchive') {
-            $orders->showArchive();
-        } else {
-            $orders->showOrders();
-        }
+        $orderActions = [
+            'create'               => fn() => $orders->showOrderCreation(),
+            'createFinal'          => fn() => $orders->createOrder(),
+            'changeDeadline'       => fn() => $orders->setDeadline(),
+            'delete'               => fn() => $orders->deleteOrder(),
+            'assignEmployeeToTask' => fn() => $orders->assignEmployeeToTask(),
+            'removeAssignment'     => fn() => $orders->unassignEmployeeToTask(),
+            'verifyComplete'       => fn() => $orders->verifyCompleteOrder(),
+            'uploadDesign'         => fn() => $orders->uploadOrderDesign(),
+            'updateVariableList'   => fn() => $orders->updateVariableList(),
+            'viewArchive'          => fn() => $orders->showArchive(),
+        ];
+        ($orderActions[$action] ?? fn() => $orders->showOrders())();
         break;
 
+    // ────────────────── tasks ──────────────────
     case 'tasks':
-        if ($action === 'assignToTask') {
-            $orders->assignToTask();
-        } else if ($action === 'uploadDesign') {
-            $orders->uploadOrderDesign();
-        } else if ($action === 'updateVariableList') {
-            $orders->updateVariableList();
-        } else if ($action === 'updateTaskStatus') {
-            $orders->changeUserProcessTaskStatus();
-        } else {
-            $orders->showTasks();
-        }
+        $taskActions = [
+            'assignToTask'       => fn() => $orders->assignToTask(),
+            'uploadDesign'       => fn() => $orders->uploadOrderDesign(),
+            'updateVariableList' => fn() => $orders->updateVariableList(),
+            'updateTaskStatus'   => fn() => $orders->changeUserProcessTaskStatus(),
+        ];
+        ($taskActions[$action] ?? fn() => $orders->showTasks())();
         break;
 
+    // ────────────────── inventory ──────────────────
     case 'inventory':
-        if ($action === 'updateRecord') {
-            $inventory->setInventoryRecord();
-        } else if ($action === 'resetRecord') {
-            $inventory->removeInventoryRecord();
-        } else if ($action === 'createItem') {
-            $inventory->createInventoryItem();
-        } else if ($action === 'deleteItem') {
-            $inventory->removeInventoryItem();
-        } else if ($action === 'changeMinQuantity') {
-            $inventory->changeInventoryItemMinQuantity();
-        } else if ($action === 'changeMaxAvgConsumption') {
-            $inventory->changeInventoryItemMaxAvgConsumption();
-        } else {
-            $inventory->showPage();
-        }
+        $inventoryActions = [
+            'updateRecord'            => fn() => $inventory->setInventoryRecord(),
+            'resetRecord'             => fn() => $inventory->removeInventoryRecord(),
+            'createItem'              => fn() => $inventory->createInventoryItem(),
+            'deleteItem'              => fn() => $inventory->removeInventoryItem(),
+            'changeMinQuantity'       => fn() => $inventory->changeInventoryItemMinQuantity(),
+            'changeMaxAvgConsumption' => fn() => $inventory->changeInventoryItemMaxAvgConsumption(),
+        ];
+        ($inventoryActions[$action] ?? fn() => $inventory->showPage())();
         break;
 
+    // ────────────────── sales ──────────────────
     case 'sales':
-        if ($action === 'createInflowRecord') {
-            $sales->createInflowRecord();
-        } else if ($action === 'createOutflowRecord') {
-            $sales->createOutflowRecord();
-        } else if ($action === 'deleteRecord') {
-            $sales->removeRecord();
-        } else {
-            $sales->showPage();
-        }
+        $salesActions = [
+            'createInflowRecord'  => fn() => $sales->createInflowRecord(),
+            'createOutflowRecord' => fn() => $sales->createOutflowRecord(),
+            'deleteRecord'        => fn() => $sales->removeRecord(),
+        ];
+        ($salesActions[$action] ?? fn() => $sales->showPage())();
         break;
 
+    // ────────────────── fallback ──────────────────
     default:
         require_once __DIR__ . '/../Views/.Misc/ErrorPage.php';
         break;
 }
 
+// Session maintenance (only for logged‑in sessions)
 if ($page !== 'login') {
     $authorization->checkUserExists();
     $authorization->refreshLastActiveAt();
