@@ -19,6 +19,7 @@
             <h3>Input credentials below</h3>
             <hr>
             <form method="POST" action="index.php?page=login&action=authenticate" class="centerColumnLayout minGap fullWidth">
+                <?php echo CsrfM::getTokenField(); ?>
                 <div class="fullWidth columnLayout">
                     <label for="name" class="leftStart">Name</label>
                     <input type="text" name="name" required="true" value="<?php echo htmlspecialchars($username ?? ''); ?>">

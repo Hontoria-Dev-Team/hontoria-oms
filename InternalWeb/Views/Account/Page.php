@@ -128,6 +128,7 @@
                 <div class="centerColumnLayout midGap flexMax">
                     <section class="centerColumnLayout box roundedMid centerHoriSelf">
                         <form method="POST" action="index.php?page=account&action=rename" class="centerColumnLayout minGap fullWidth">
+                            <?php echo CsrfM::getTokenField(); ?>
                             <div class="fullWidth columnLayout">
                                 <h3 class="leftStart">Change Username</h3>
                                 <div class="rowLayout minGap">
@@ -140,6 +141,7 @@
                     </section>
                     <section class="centerColumnLayout box roundedMid centerHoriSelf">
                         <form method="POST" action="index.php?page=account&action=updateContacts" class="centerColumnLayout minGap fullWidth">
+                            <?php echo CsrfM::getTokenField(); ?>
                             <div class="fullWidth">
                                 <h3 class="leftStart">Change Contact Information</h3>
                                 <div class="tinGap columnLayout">
@@ -162,6 +164,7 @@
             </div>
             <section class="centerColumnLayout box roundedMid extraWidth centerHoriSelf">
                 <form method="POST" action="index.php?page=account&action=setUserNote" class="centerColumnLayout minGap fullWidth">
+                    <?php echo CsrfM::getTokenField(); ?>
                     <div class="fullWidth">
                         <h3 class="leftStart">Set User Note</h3>
                         <div class="minGap rowLayout">
@@ -174,6 +177,7 @@
             </section>
             <section class="centerColumnLayout box roundedMid extraWidth centerHoriSelf">
                 <form method="POST" action="index.php?page=account&action=changePassword" class="centerColumnLayout minGap fullWidth">
+                    <?php echo CsrfM::getTokenField(); ?>
                     <div class="fullWidth">
                         <h3 class="leftStart">Change Password</h3>
                         <p class="marginMicro">Passwords must have at least 8 characters, and must contain a number, alphabet, and symbol.</p>
@@ -206,6 +210,7 @@
     <?php include("../Views/.Components/ImageBox.php"); ?>
 </body>
 <script src="../.JS/ConfirmationBox.js"></script>
+<script src="../. JS/CsrfHandler.js"></script>
 <script src="../.JS/ImageBox.js"></script>
 <script>
     const userImageContainer = document.getElementById('userImageContainer');

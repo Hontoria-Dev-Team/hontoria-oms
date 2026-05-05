@@ -99,6 +99,7 @@
         <?php include("../Views/.Components/MessageBox.php"); ?>
         <section class="flexMax">
             <form method="POST" action="index.php?page=orders&action=createFinal" class="centerHoriRowLayout midGap fullHeight">
+                <?php echo CsrfM::getTokenField(); ?>
                 <div class="centerColumnLayout flexMid fullHeight midGap">
                     <section class="flexMin fullWidth roundedMid centerColumnLayout">
                         <div class="box fullDimensions roundedMid columnLayout minGap">

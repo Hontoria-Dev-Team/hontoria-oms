@@ -190,6 +190,7 @@
                                     <h2 class="centerMarginsSelf">No Subservice Selected</h2>
                                     <div class="centerHoriRowLayout minGap fullHeight fullWidth hidden">
                                         <form method="POST" class="columnLayout minGap fullWidth flexMid fullHeight" action="index.php?page=services&action=updateSubserviceInfo">
+                                            <?php echo CsrfM::getTokenField(); ?>
                                             <input type="hidden" name="selectedServiceID">
                                             <input type="hidden" name="selectedSubserviceID">
                                             <div class="flexMax columnLayout tinGap">
@@ -228,6 +229,7 @@
     <?php include("../Views/.Components/ImageBox.php"); ?>
 </body>
 <script src="../.JS/ConfirmationBox.js"></script>
+<script src="../.JS/CsrfHandler.js"></script>
 <script src="../.JS/ImageBox.js"></script>
 <script>
     /**

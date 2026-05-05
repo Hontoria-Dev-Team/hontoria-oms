@@ -67,6 +67,7 @@
                                         <span class="flexMax"><?= $task['processName'] ?> Order #<?= $task['orderID'] ?></span>
                                     </h3>
                                     <form method="POST" action="index.php?page=tasks&action=assignToTask" class="norEastAbsolute closeCorner">
+                                        <?php echo CsrfM::getTokenField(); ?>
                                         <input type="hidden" name="orderProcessID" value="<?= $task['id'] ?>">
                                         <input type="submit" name="submit" value="Assign" class="importantInput shadowed noBorder">
                                     </form>
@@ -197,6 +198,7 @@
     <?php include("../Views/.Components/ImageBox.php"); ?>
 </body>
 <script src="../.JS/ConfirmationBox.js"></script>
+<script src="../.JS/CsrfHandler.js"></script>
 <script src="../.JS/ImageBox.js"></script>
 <script src="../.JS/TimeHelpers.js"></script>
 <script src="../.JS/MiscHelpers.js"></script>

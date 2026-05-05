@@ -53,6 +53,7 @@
                         <img src="../../Shared/Img/PeopleIcon.png" alt="People"> Staff Creation
                     </h1>
                     <form method="POST" action="index.php?page=staff&action=createFinal" class="centerColumnLayout minGap fullWidth">
+                        <?php echo CsrfM::getTokenField(); ?>
                         <div class="fullWidth columnLayout">
                             <label for="username" class="leftStart">Username (Unique)</label>
                             <input type="text" name="username" required="true">

@@ -42,6 +42,7 @@
                         <?php foreach ($processList as $process): ?>
                             <form method="POST" action="index.php?page=services&action=updateProcess"
                                 class="centerHoriColumnLayout minGap roundedMin yellowTransBG yellowBorder regMidPadding shadowed">
+                                <?php echo CsrfM::getTokenField(); ?>
                                 <h2 class="centerText"><?= $process['name'] ?></h2>
                                 <div class="centerRowLayout minGap">
                                     <div class="centerRowLayout tinGap canGrantCheck" data-index="0">

@@ -6,8 +6,12 @@ require_once __DIR__ . '/../Controllers/OrdersC.php';
 require_once __DIR__ . '/../Controllers/InventoryC.php';
 require_once __DIR__ . '/../Controllers/SalesC.php';
 require_once __DIR__ . '/../Middleware/AuthorizationMid.php';
+require_once __DIR__ . '/../Middleware/CsrfM.php';
 
 session_start();
+
+// ─────────────────── CSRF Protection ───────────────────
+CsrfM::initializeToken();
 
 // ─────────────────── security headers ───────────────────
 header("X-Frame-Options: SAMEORIGIN");
@@ -50,6 +54,34 @@ function Redirect(string $uri): void {
     exit;
 }
 
+//
+// Validate CSRF token for POST requests and state-changing operations
+//
+function ValidateCsrfToken(string $page, string $action): void {
+    // List of actions that require CSRF protection
+    $protectedActions = [
+        'login' => ['authenticate'],
+        'staff' => ['setRoles', 'createFinal', 'changeRolePermissions', 'changeManagementRules', 'changeProcessTasks', 'createRole', 'deleteRole', 'delete', 'assignMiscTask', 'updateMiscTask'],
+        'account' => ['rename', 'updateContacts', 'changePassword', 'uploadImage', 'setUserNote'],
+        'services' => ['toggleServiceStatus', 'toggleSubserviceStatus', 'toggleHasDesign', 'toggleHasVariableList', 'createService', 'deleteService', 'createSubservice', 'deleteSubservice', 'updateServiceProcess', 'createProcess', 'updateProcess', 'deleteProcess', 'updateSubserviceInfo', 'uploadSubserviceImages', 'removeSubserviceImage'],
+        'orders' => ['createFinal', 'changeDeadline', 'delete', 'assignEmployeeToTask', 'removeAssignment', 'verifyComplete', 'uploadDesign', 'updateVariableList'],
+        'tasks' => ['assignToTask', 'uploadDesign', 'updateVariableList', 'updateTaskStatus'],
+        'inventory' => ['updateRecord', 'resetRecord', 'createItem', 'deleteItem', 'changeMinQuantity', 'changeMaxAvgConsumption'],
+        'sales' => ['createInflowRecord', 'createOutflowRecord', 'deleteRecord'],
+    ];
+
+    // Check if this action requires CSRF protection
+    if (isset($protectedActions[$page]) && in_array($action, $protectedActions[$page], true) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        try {
+            CsrfM::validateToken();
+        } catch (Exception $e) {
+            // Log the attempted attack
+            error_log("CSRF token validation failed: " . $e->getMessage() . " | Page: $page | Action: $action | IP: " . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+            die('Security validation failed. Please try again.');
+        }
+    }
+}
+
 // ─────────────────── routing ───────────────────
 
 $page   = SanitiseRouteValue('page', 'login');
@@ -71,6 +103,9 @@ if (!in_array($page, $allowedPages, true)) {
     $page   = 'login';
     $action = 'show';
 }
+
+// Validate CSRF token for protected actions
+ValidateCsrfToken($page, $action);
 
 $authorization = new AuthorizationC($pdo);
 $services      = new ServicesC($pdo);
