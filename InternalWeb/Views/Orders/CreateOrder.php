@@ -11,7 +11,7 @@
             min-width: fit-content !important;
         }
 
-        @media (max-height: 1000px) {
+        @media (max-height: 925px) {
             .asideLayout>main>section>form>:nth-child(1) {
                 justify-content: flex-start;
                 overflow-y: scroll;
@@ -305,9 +305,10 @@
 
             processHead = document.createElement('h3');
             processHead.textContent = serviceProcesses[i].name;
-            processParagraph = document.createElement('p');
+            processHead.className = "whiteText outlineText";
+            processParagraph = document.createElement('h5');
             processParagraph.textContent = hasFirstProcess ? '(Pending)' : '(Active)';
-            processParagraph.className = "norWestAbsolute closeCorner";
+            processParagraph.className = "norWestAbsolute closeCorner transText";
 
             processDiv.appendChild(processHead);
             processDiv.appendChild(processParagraph);
