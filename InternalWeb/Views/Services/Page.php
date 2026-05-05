@@ -94,43 +94,35 @@
         <h1 class="titleLogo minGap tinHeight">
             <img src="../../Shared/Img/GearIcon.png" alt="Gear"> Services Panel
             <div class="rowLayout minGap flexMax contentFlexEnd">
-                <a href="index.php?page=services&action=manageProcesses"
-                    class="roundedMin centerColumnLayout importantInput regPadding emphasizedText shadowed">
+                <a href="index.php?page=services&action=manageProcesses" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText shadowed">
                     Manage Processes
                 </a>
             </div>
         </h1>
-
         <?php include("../Views/.Components/MessageBox.php"); ?>
-
         <section class="rowLayout flexMax midGap">
-            <!-- ========== SERVICES LIST (LEFT) ========== -->
             <div class="flexMinExtra columnLayout midGap">
                 <section class="centerColumnLayout roundedMid flexMid">
                     <div class="box fullHeight fullWidth roundedMid columnLayout tinGap">
                         <div class="centerHoriRowLayout">
                             <h2 class="flexMax">Services:</h2>
-                            <button type="button"
-                                class="darkBG emphasizedText noBorder shadowed whiteText centerColumnLayout fullHeight"
+                            <button type="button" class="darkBG emphasizedText noBorder shadowed whiteText centerColumnLayout fullHeight"
                                 id="createServiceButton">
                                 <b>Create</b>
                             </button>
                         </div>
-                        <section class="minGap columnLayout scrollable flexMax noFlexBasis noMinHeight contentFlexStart regMinPadding"
-                            id="servicesList">
+                        <section class="minGap columnLayout scrollable flexMax noFlexBasis noMinHeight contentFlexStart regMinPadding" id="servicesList">
                             <?php foreach ($servicesList as $service): ?>
                                 <?php
-                                $name = htmlspecialchars(trim($service['name']));
+                                $name = trim("{$service['name']}");
+                                $statusInvert = $service['isActive'] ? 'Disable' : 'Activate';
                                 $borderClass = $service['isActive'] ? 'yellowBorder' : 'redBorder';
                                 $bgClass = $service['isActive'] ? 'yellowTransBG' : 'redTransBG';
                                 $orderCount = $serviceOrderCountMap[$service['id']] ?? 0;
                                 ?>
                                 <div class="roundedMin centerHoriRowLayout flexStatic serviceElement <?= $borderClass ?> shadowed clickable fixedScreen noShrink"
-                                    data-id="<?= $service['id'] ?>"
-                                    data-name="<?= $name ?>"
-                                    data-is-active="<?= $service['isActive'] ?>"
-                                    data-has-design="<?= $service['hasDesign'] ?>"
-                                    data-has-variable-list="<?= $service['hasVariableList'] ?>"
+                                    data-id="<?= $service['id'] ?>" data-name="<?= $service['name'] ?>" data-is-active="<?= $service['isActive'] ?>"
+                                    data-has-design="<?= $service['hasDesign'] ?>" data-has-variable-list="<?= $service['hasVariableList'] ?>"
                                     data-order-count="<?= $orderCount ?>">
                                     <div class="capitalFirst centerText regMinPadding flexMax skewedXNegBG shadowed <?= $bgClass ?>">
                                         <h3 class="whiteText outlineText"><?= $name ?></h3>
@@ -143,10 +135,7 @@
                     <div class="gradientBorderDiag"></div>
                 </section>
             </div>
-
-            <!-- ========== SERVICE DETAILS (RIGHT) ========== -->
             <section class="columnLayout midGap flexMax">
-                <!-- Service title & status/objective buttons -->
                 <section class="centerColumnLayout roundedMid minGap">
                     <div class="centerHoriRowLayout minGap box roundedMid fullHeight fullWidth">
                         <h2 id="selectedServiceTitle" class="capitalFirst flexMax">No Service Selected</h2>
@@ -155,18 +144,16 @@
                     </div>
                     <div class="gradientBorderDiag"></div>
                 </section>
-
-                <!-- Service Process -->
                 <div class="columnLayout flexMax midGap">
                     <section class="centerColumnLayout roundedMid minGap flexMid">
                         <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
                             <div class="centerHoriRowLayout minGap">
                                 <h2 class="flexMax">Service Process:</h2>
-                                <button type="button"
-                                    class="darkBG emphasizedText noBorder shadowed whiteText centerColumnLayout hidden"
-                                    id="updateServiceProcessButton">
-                                    Update Service Process
-                                </button>
+                                <div class="centerHoriRowLayout minGap" id="objectiveButtonsContainer">
+                                    <button type="button" class="darkBG emphasizedText noBorder shadowed whiteText centerColumnLayout hidden" id="updateServiceProcessButton">
+                                        Update Service Process
+                                    </button>
+                                </div>
                             </div>
                             <div class="centerHoriRowLayout minGap flexMax" id="serviceProcess">
                                 <h2 class="centerMarginsSelf">No Service Selected</h2>
@@ -174,29 +161,23 @@
                         </div>
                         <div class="gradientBorderDiag"></div>
                     </section>
-
-                    <!-- Subservices & subservice details -->
                     <div class="rowLayout flexMax midGap noMinHeight noFlexBasis">
                         <section class="centerColumnLayout roundedMid minGap flexMid">
                             <div class="box fullHeight fullWidth roundedMid columnLayout tinGap">
                                 <div class="centerHoriRowLayout">
                                     <h2 class="flexMax">Subservices:</h2>
-                                    <button type="button"
-                                        class="darkBG emphasizedText noBorder shadowed whiteText centerColumnLayout fullHeight hidden"
+                                    <button type="button" class="darkBG emphasizedText noBorder shadowed whiteText centerColumnLayout fullHeight hidden"
                                         id="createSubserviceButton">
                                         <b>Create</b>
                                     </button>
                                 </div>
-                                <section class="minGap columnLayout scrollable flexMax noFlexBasis noMinHeight contentFlexStart regMinPadding"
-                                    id="subservicesContainer">
+                                <section class="minGap columnLayout scrollable flexMax noFlexBasis noMinHeight contentFlexStart regMinPadding" id="subservicesContainer">
                                     <h2 class="centerMarginsSelf">No Service Selected</h2>
                                 </section>
                             </div>
                             <div class="gradientBorderDiag"></div>
                         </section>
-
                         <div class="columnLayout midGap flexMax">
-                            <!-- Subservice title & status -->
                             <section class="centerRowLayout roundedMid">
                                 <div class="centerHoriRowLayout minGap box roundedMid fullHeight fullWidth">
                                     <h2 class="flexMax capitalFirst" id="selectedSubserviceTitle">No Subservice Selected</h2>
@@ -204,20 +185,16 @@
                                 </div>
                                 <div class="gradientBorderDiag"></div>
                             </section>
-
-                            <!-- Subservice Data (description, price, images) -->
                             <section class="centerRowLayout roundedMid flexMax">
                                 <div class="centerHoriRowLayout minGap box roundedMid fullHeight fullWidth" id="subserviceDataContainer">
                                     <h2 class="centerMarginsSelf">No Subservice Selected</h2>
                                     <div class="centerHoriRowLayout minGap fullHeight fullWidth hidden">
-                                        <form method="POST" class="columnLayout minGap fullWidth flexMid fullHeight"
-                                            action="index.php?page=services&action=updateSubserviceInfo">
+                                        <form method="POST" class="columnLayout minGap fullWidth flexMid fullHeight" action="index.php?page=services&action=updateSubserviceInfo">
                                             <input type="hidden" name="selectedServiceID">
                                             <input type="hidden" name="selectedSubserviceID">
                                             <div class="flexMax columnLayout tinGap">
                                                 <b>Description</b>
-                                                <textarea name="description"
-                                                    class="scrollableTextarea minHeight fullWidth flexMax minPadding justifiedText unresizeable"
+                                                <textarea name="description" class="scrollableTextarea minHeight fullWidth flexMax minPadding justifiedText unresizeable"
                                                     id="descriptionText"></textarea>
                                             </div>
                                             <div class="centerHoriRowLayout tinGap">
@@ -229,8 +206,7 @@
                                         <div class="flexMid fullHeight columnLayout minGap">
                                             <div class="centerHoriRowLayout">
                                                 <b class="flexMax">Images</b>
-                                                <button type="button"
-                                                    class="darkBG noBorder shadowed whiteText centerColumnLayout fullHeight roundedTin"
+                                                <button type="button" class="darkBG noBorder shadowed whiteText centerColumnLayout fullHeight roundedTin"
                                                     id="addSubserviceImageButton">
                                                     <h5>Add Image</h5>
                                                 </button>
@@ -248,139 +224,152 @@
             </section>
         </section>
     </main>
-
     <?php include("../Views/.Components/ConfirmationBox.php"); ?>
     <?php include("../Views/.Components/ImageBox.php"); ?>
 </body>
 <script src="../.JS/ConfirmationBox.js"></script>
 <script src="../.JS/ImageBox.js"></script>
 <script>
+    /**
+     * Services Management Page Script
+     * Handles service selection, process management, subservice CRUD, and image uploads.
+     * Depends on global confirmation dialog elements (confirmationForm, confirmationTitle, etc.)
+     */
+
     // ================================
-    // DOM References
+    // DOM Elements
     // ================================
     const createServiceButton = document.getElementById('createServiceButton');
     const serviceElements = document.querySelectorAll('.serviceElement');
-    const serviceStatusContainer = document.getElementById('serviceStatusButtonsContainer');
-    const objectiveContainer = document.getElementById('objectiveButtonsContainer');
+    const serviceStatusButtonsContainer = document.getElementById('serviceStatusButtonsContainer');
+    const objectiveButtonsContainer = document.getElementById('objectiveButtonsContainer');
     const updateServiceProcessButton = document.getElementById('updateServiceProcessButton');
     const serviceProcess = document.getElementById('serviceProcess');
     const subservicesContainer = document.getElementById('subservicesContainer');
     const createSubserviceButton = document.getElementById('createSubserviceButton');
-    const subserviceStatusContainer = document.getElementById('subserviceStatusButtonsContainer');
+    const subserviceStatusButtonsContainer = document.getElementById('subserviceStatusButtonsContainer');
     const subserviceDataContainer = document.getElementById('subserviceDataContainer');
-    const addImageButton = document.getElementById('addSubserviceImageButton');
-    const imagesContainer = document.getElementById('subserviceImagesContainer');
+    const addSubserviceImageButton = document.getElementById('addSubserviceImageButton');
+    const subserviceImagesContainer = document.getElementById('subserviceImagesContainer');
 
     // ================================
     // Server Data (injected via PHP)
     // ================================
-    const serviceProcessList = <?= json_encode($serviceProcessList) ?>;
-    const subserviceList = <?= json_encode($subserviceList) ?>;
-    const subserviceOrderTally = <?= json_encode($subserviceOrderCountTally) ?>;
-    const processesList = <?= json_encode($processesList) ?>;
-    const subserviceImageList = <?= json_encode($subserviceImageList) ?>;
-    const lastServiceID = <?= $serviceID ?>;
-    const lastSubserviceID = <?= $subserviceID ?>;
+    const serviceProcessList = <?php echo json_encode($serviceProcessList); ?>; // [{serviceID, id, name}, ...]
+    const subserviceList = <?php echo json_encode($subserviceList); ?>; // [{serviceID, id, name, isActive, description, pricePerUnit}, ...]
+    const subserviceOrderCountTally = <?php echo json_encode($subserviceOrderCountTally); ?>; // [{subserviceID, orderCount}]
+    const processesList = <?php echo json_encode($processesList); ?>; // [{id, name}, ...]
+    const subserviceImageList = <?php echo json_encode($subserviceImageList); ?>; // [{subserviceID, id, imageName}, ...]
+    const lastServiceID = <?php echo $serviceID; ?>; // Previously selected service ID (for persistence)
+    const lastSubserviceID = <?php echo $subserviceID; ?>; // Previously selected subservice ID
 
-    // Build fast lookup maps
-    const serviceProcessMap = {}; // serviceID -> [{id, name}]
-    serviceProcessList.forEach(p => {
-        if (!serviceProcessMap[p.serviceID]) serviceProcessMap[p.serviceID] = [];
-        serviceProcessMap[p.serviceID].push({
-            id: p.id,
-            name: p.name
+    // ================================
+    // Build Lookup Maps
+    // ================================
+    const serviceProcessMap = {}; // serviceID -> array of {id, name}
+    serviceProcessList.forEach(item => {
+        if (!serviceProcessMap[item.serviceID]) serviceProcessMap[item.serviceID] = [];
+        serviceProcessMap[item.serviceID].push({
+            id: item.id,
+            name: item.name
         });
     });
 
-    const subserviceMap = {}; // serviceID -> full subservice objects
-    subserviceList.forEach(s => {
-        if (!subserviceMap[s.serviceID]) subserviceMap[s.serviceID] = [];
-        subserviceMap[s.serviceID].push(s);
+    const subserviceMap = {}; // serviceID -> array of full subservice objects
+    subserviceList.forEach(item => {
+        if (!subserviceMap[item.serviceID]) subserviceMap[item.serviceID] = [];
+        subserviceMap[item.serviceID].push({
+            id: item.id,
+            name: item.name,
+            isActive: item.isActive,
+            description: item.description,
+            pricePerUnit: item.pricePerUnit
+        });
     });
 
-    const subserviceOrderCountMap = {}; // subserviceID -> count
-    subserviceOrderTally.forEach(t => subserviceOrderCountMap[t.subserviceID] = t.orderCount);
+    const subserviceOrderCountMap = {}; // subserviceID -> order count
+    subserviceOrderCountTally.forEach(item => {
+        subserviceOrderCountMap[item.subserviceID] = item.orderCount;
+    });
 
-    const subserviceImageMap = {}; // subserviceID -> [{id, name}]
-    subserviceImageList.forEach(img => {
-        if (!subserviceImageMap[img.subserviceID]) subserviceImageMap[img.subserviceID] = [];
-        subserviceImageMap[img.subserviceID].push({
-            id: img.id,
-            name: img.imageName
+    const subserviceImageMap = {}; // subserviceID -> array of {id, name}
+    subserviceImageList.forEach(item => {
+        if (!subserviceImageMap[item.subserviceID]) subserviceImageMap[item.subserviceID] = [];
+        subserviceImageMap[item.subserviceID].push({
+            id: item.id,
+            name: item.imageName
         });
     });
 
     // ================================
-    // State
+    // Set default cancel button text
     // ================================
-    const currentService = {
+    document.addEventListener("DOMContentLoaded", () => {
+        confirmationCancel.value = "No Cancel";
+    });
+
+    // ================================
+    // Hidden inputs for confirmation form
+    // ================================
+    const selectedServiceIdInput = document.createElement("input");
+    selectedServiceIdInput.type = "hidden";
+    selectedServiceIdInput.name = "selectedServiceID";
+    selectedServiceIdInput.value = lastServiceID || -1;
+    confirmationForm.appendChild(selectedServiceIdInput);
+
+    const selectedSubserviceIdInput = document.createElement("input");
+    selectedSubserviceIdInput.type = "hidden";
+    selectedSubserviceIdInput.name = "selectedSubserviceID";
+    selectedSubserviceIdInput.value = lastSubserviceID || -1;
+    confirmationForm.appendChild(selectedSubserviceIdInput);
+
+    // ================================
+    // Reusable temporary variables
+    // ================================
+    let tempElement;
+    let tempDiv;
+
+    // ================================
+    // Central State Objects (separate)
+    // ================================
+    let currentService = {
         id: null,
         name: '',
-        status: 0,
+        status: 0, // 1 = active, 0 = inactive
         orderCount: 0,
         hasDesign: false,
         hasVariableList: false,
-        processes: [],
-        subservices: [],
-        subservicesMap: {}
+        processes: [], // array of {id, name}
+        subservices: [], // array of full subservice objects
+        subservicesMap: {} // subserviceID -> {description, pricePerUnit}
     };
 
-    const currentSubservice = {
+    let currentSubservice = {
         id: null,
         name: '',
         isActive: 0,
         orderCount: 0,
         description: '',
         pricePerUnit: 0,
-        images: []
+        images: [] // array of {id, name}
     };
 
     // ================================
-    // Initialization
-    // ================================
-    document.addEventListener("DOMContentLoaded", () => {
-        confirmationCancel.value = "No Cancel";
-
-        // Persistent hidden inputs for service/subservice IDs
-        const sidInput = document.createElement("input");
-        sidInput.type = "hidden";
-        sidInput.name = "selectedServiceID";
-        sidInput.value = lastServiceID || -1;
-        confirmationForm.appendChild(sidInput);
-
-        const ssidInput = document.createElement("input");
-        ssidInput.type = "hidden";
-        ssidInput.name = "selectedSubserviceID";
-        ssidInput.value = lastSubserviceID || -1;
-        confirmationForm.appendChild(ssidInput);
-
-        // Attach service click handlers
-        serviceElements.forEach(el => el.addEventListener('click', () => OnServiceClick(el)));
-
-        // Auto‑select if ID provided
-        if (lastServiceID != -1) {
-            for (const el of serviceElements) {
-                if (el.dataset.id == lastServiceID) {
-                    OnServiceClick(el);
-                    break;
-                }
-            }
-        }
-    });
-
-    // ================================
-    // Helper Functions
+    // Helper: rebuild subservices map from currentService.subservices
     // ================================
     function RebuildSubservicesMap() {
         currentService.subservicesMap = {};
-        currentService.subservices.forEach(s => {
-            currentService.subservicesMap[s.id] = {
-                description: s.description,
-                pricePerUnit: s.pricePerUnit
+        currentService.subservices.forEach(sub => {
+            currentService.subservicesMap[sub.id] = {
+                description: sub.description,
+                pricePerUnit: sub.pricePerUnit
             };
         });
     }
 
+    // ================================
+    // Helper: update currentSubservice from a subservice object
+    // ================================
     function SetCurrentSubservice(sub) {
         currentSubservice.id = sub.id;
         currentSubservice.name = sub.name;
@@ -391,19 +380,11 @@
         currentSubservice.images = [...(subserviceImageMap[sub.id] || [])];
     }
 
-    function ResetSubservicePanel() {
-        document.getElementById('selectedSubserviceTitle').textContent = "No Subservice Selected";
-        subserviceStatusContainer.innerHTML = '';
-        const h2 = subserviceDataContainer.getElementsByTagName('h2')[0];
-        const div = subserviceDataContainer.getElementsByTagName('div')[0];
-        h2.classList.remove("hidden");
-        div.classList.add("hidden");
-    }
-
     // ================================
-    // OnServiceClick
+    // SERVICE SELECTION & INITIALIZATION
     // ================================
     function OnServiceClick(elem) {
+        // Update service state
         currentService.id = elem.dataset.id;
         currentService.name = elem.dataset.name;
         currentService.status = parseInt(elem.dataset.isActive);
@@ -411,55 +392,86 @@
         currentService.hasDesign = elem.dataset.hasDesign === '1';
         currentService.hasVariableList = elem.dataset.hasVariableList === '1';
 
-        confirmationForm.querySelector('input[name="selectedServiceID"]').value = currentService.id;
+        selectedServiceIdInput.value = currentService.id;
 
         document.getElementById('selectedServiceTitle').textContent = currentService.name + " Service";
 
+        // Load processes and subservices from maps
         currentService.processes = [...(serviceProcessMap[currentService.id] || [])];
         currentService.subservices = [...(subserviceMap[currentService.id] || [])];
         RebuildSubservicesMap();
 
-        // Reset subservice
+        // Reset subservice state
         currentSubservice.id = null;
         currentSubservice.name = '';
-        confirmationForm.querySelector('input[name="selectedSubserviceID"]').value = -1;
+        selectedSubserviceIdInput.value = -1;
+        document.getElementById('selectedSubserviceTitle').textContent = "No Subservice Selected";
 
-        ShowServiceStatusButtons();
-        ShowObjectiveButtons();
+        // Render UI
+        ShowServiceStatusButtonsContainer();
+        ShowObjectiveButtonsContainer();
         ShowServiceProcess();
-        ResetSubservicePanel();
+        ResetSubserviceHeader();
         ShowSubservices();
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Attach click handlers to service elements
+        serviceElements.forEach(elem => {
+            elem.addEventListener('click', () => OnServiceClick(elem));
+        });
+
+        // Persistence: if a service ID was provided, simulate click
+        if (lastServiceID != -1) {
+            for (const elem of serviceElements) {
+                if (elem.dataset.id == lastServiceID) {
+                    OnServiceClick(elem);
+                    break;
+                }
+            }
+        }
+    });
 
     // ================================
     // SERVICE STATUS BUTTONS
     // ================================
-    function ShowServiceStatusButtons() {
-        serviceStatusContainer.innerHTML = '';
+    function ShowServiceStatusButtonsContainer() {
+        serviceStatusButtonsContainer.innerHTML = '';
 
         if (currentService.status == 1) {
-            const disableButton = MakeButton("Disable", "redBG", "serviceStatusButton");
-            serviceStatusContainer.appendChild(disableButton);
+            // Active -> Disable button
+            tempElement = document.createElement("button");
+            tempElement.type = "button";
+            tempElement.className = "redBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight";
+            tempElement.textContent = "Disable";
+            tempElement.id = "serviceStatusButton";
+            serviceStatusButtonsContainer.appendChild(tempElement);
         } else {
-            const activateButton = MakeButton("Activate", "yellowBG", "serviceStatusButton");
+            // Inactive -> Activate button
+            tempElement = document.createElement("button");
+            tempElement.type = "button";
+            tempElement.className = "yellowBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight";
+            tempElement.textContent = "Activate";
+            tempElement.id = "serviceStatusButton";
+            serviceStatusButtonsContainer.appendChild(tempElement);
+
             const canActivate = currentService.processes.length > 0 &&
                 currentService.subservices.length > 0 &&
                 currentService.subservices[0].isActive == 1;
-            if (!canActivate) activateButton.classList.add("faded", "unclickable");
-            serviceStatusContainer.appendChild(activateButton);
+            if (!canActivate) tempElement.classList.add("faded", "unclickable");
 
-            // Delete button
-            const deleteButton = document.createElement("button");
-            deleteButton.type = "button";
-            deleteButton.className = "redBG noBorder shadowed centerColumnLayout fullHeight";
-            deleteButton.innerHTML = '<img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors unitHeight">';
-            deleteButton.id = "deleteServiceButton";
-            serviceStatusContainer.appendChild(deleteButton);
+            // Delete button (only for inactive services)
+            tempElement = document.createElement("button");
+            tempElement.type = "button";
+            tempElement.className = "redBG noBorder shadowed centerColumnLayout fullHeight";
+            tempElement.innerHTML = '<img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors unitHeight">';
+            tempElement.id = "deleteServiceButton";
+            serviceStatusButtonsContainer.appendChild(tempElement);
 
             if (currentService.orderCount > 0) {
-                deleteButton.classList.add("faded", "unclickable");
+                tempElement.classList.add("faded", "unclickable");
             } else {
-                deleteButton.addEventListener('click', () => {
+                document.getElementById('deleteServiceButton').addEventListener('click', () => {
                     confirmationTitle.innerHTML = "Delete Service?";
                     confirmationForm.action = "index.php?page=services&action=deleteService";
                     confirmationText.innerHTML = "Are you sure to delete the " + currentService.name + " service?";
@@ -469,177 +481,231 @@
             }
         }
 
-        // Status toggle action
-        const statusButton = document.getElementById('serviceStatusButton');
-        if (statusButton) {
-            statusButton.addEventListener('click', function() {
-                const canActivate = currentService.processes.length > 0 &&
-                    currentService.subservices.length > 0 &&
-                    currentService.subservices[0].isActive == 1;
-                if (canActivate || currentService.status == 1) {
-                    confirmationTitle.innerHTML = "Toggle Service Status?";
-                    confirmationForm.action = "index.php?page=services&action=toggleServiceStatus";
-                    confirmationText.innerHTML = "Are you sure to " + this.textContent + " the " + currentService.name + " service?";
-                    confirmationSubmit.value = "Yes " + this.textContent;
-                    if (this.textContent == "Activate") confirmationSubmit.classList.add("yellowBG");
-                    confirmation.style.display = 'flex';
-                }
-            });
-        }
+        // Toggle status
+        document.getElementById('serviceStatusButton').addEventListener('click', function() {
+            const canActivate = currentService.processes.length > 0 &&
+                currentService.subservices.length > 0 &&
+                currentService.subservices[0].isActive == 1;
+            if (canActivate) {
+                confirmationTitle.innerHTML = "Toggle Service Status?";
+                confirmationForm.action = "index.php?page=services&action=toggleServiceStatus";
+                confirmationText.innerHTML = "Are you sure to " + this.textContent + " the " + currentService.name + " service?";
+                confirmationSubmit.value = "Yes " + this.textContent;
+                if (this.textContent == "Activate") confirmationSubmit.classList.add("yellowBG");
+                confirmation.style.display = 'flex';
+            }
+        });
     }
 
     // ================================
-    // OBJECTIVE BUTTONS (Design / Variable List)
+    // OBJECTIVE BUTTONS
     // ================================
-    function ShowObjectiveButtons() {
-        objectiveContainer.innerHTML = '';
+    function ShowObjectiveButtonsContainer() {
+        objectiveButtonsContainer.innerHTML = '';
+
+        // Has Design button
+        tempElement = document.createElement("button");
+        tempElement.type = "button";
+        tempElement.className = currentService.hasDesign ?
+            "yellowBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight" :
+            "redBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight";
+        tempElement.textContent = currentService.hasDesign ? "Has Design" : "No Design";
+        tempElement.id = "hasDesignButton";
+        objectiveButtonsContainer.appendChild(tempElement);
+
+        // Has Variable List button
+        tempElement = document.createElement("button");
+        tempElement.type = "button";
+        tempElement.className = currentService.hasVariableList ?
+            "yellowBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight" :
+            "redBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight";
+        tempElement.textContent = currentService.hasVariableList ? "Has Variable List" : "No Variable List";
+        tempElement.id = "hasVariableListButton";
+        objectiveButtonsContainer.appendChild(tempElement);
+
         const editable = (currentService.orderCount == 0 && currentService.status == 0);
-
-        // Design button
-        const designButton = MakeButton(
-            currentService.hasDesign ? "Has Design" : "No Design",
-            currentService.hasDesign ? "yellowBG" : "redBG",
-            "hasDesignButton"
-        );
-        objectiveContainer.appendChild(designButton);
-
-        // Variable list button
-        const listButton = MakeButton(
-            currentService.hasVariableList ? "Has Variable List" : "No Variable List",
-            currentService.hasVariableList ? "yellowBG" : "redBG",
-            "hasVariableListButton"
-        );
-        objectiveContainer.appendChild(listButton);
-
-        if (!editable) {
-            designButton.classList.add("faded", "unclickable");
-            listButton.classList.add("faded", "unclickable");
-        } else {
+        if (editable) {
             document.getElementById('hasDesignButton').addEventListener('click', function() {
                 confirmationTitle.innerHTML = "Toggle Design Objective?";
                 confirmationForm.action = "index.php?page=services&action=toggleHasDesign";
-                confirmationText.innerHTML = this.textContent == "No Design" ?
-                    "Are you sure to activate the design objective?" :
-                    "Are you sure to disable the design objective?";
-                confirmationSubmit.value = this.textContent == "No Design" ? "Yes Active" : "Yes Disable";
-                if (this.textContent == "No Design") confirmationSubmit.classList.add("yellowBG");
+                if (this.textContent == "No Design") {
+                    confirmationSubmit.classList.add("yellowBG");
+                    confirmationText.innerHTML = "Are you sure to activate the design objective?";
+                    confirmationSubmit.value = "Yes Active";
+                } else {
+                    confirmationText.innerHTML = "Are you sure to disable the design objective?";
+                    confirmationSubmit.value = "Yes Disable";
+                }
                 confirmation.style.display = 'flex';
             });
+
             document.getElementById('hasVariableListButton').addEventListener('click', function() {
                 confirmationTitle.innerHTML = "Toggle Variable List Objective?";
                 confirmationForm.action = "index.php?page=services&action=toggleHasVariableList";
-                confirmationText.innerHTML = this.textContent == "No Variable List" ?
-                    "Are you sure to activate the variable list objective?" :
-                    "Are you sure to disable the variable list objective?";
-                confirmationSubmit.value = this.textContent == "No Variable List" ? "Yes Active" : "Yes Disable";
-                if (this.textContent == "No Variable List") confirmationSubmit.classList.add("yellowBG");
+                if (this.textContent == "No Variable List") {
+                    confirmationSubmit.classList.add("yellowBG");
+                    confirmationText.innerHTML = "Are you sure to activate the variable list objective?";
+                    confirmationSubmit.value = "Yes Active";
+                } else {
+                    confirmationText.innerHTML = "Are you sure to disable the variable list objective?";
+                    confirmationSubmit.value = "Yes Disable";
+                }
                 confirmation.style.display = 'flex';
             });
+        } else {
+            document.getElementById('hasDesignButton').classList.add("faded", "unclickable");
+            document.getElementById('hasVariableListButton').classList.add("faded", "unclickable");
         }
     }
 
     // ================================
-    // SERVICE PROCESS
+    // SERVICE PROCESS MANAGEMENT
     // ================================
     function ShowServiceProcess() {
         const editable = (currentService.orderCount == 0 && currentService.status == 0);
-        updateServiceProcessButton.classList.toggle("faded", !editable);
-        updateServiceProcessButton.classList.toggle("unclickable", !editable);
-        updateServiceProcessButton.dataset.interactable = editable ? "1" : "0";
-        updateServiceProcessButton.classList.remove("hidden");
+        if (editable) {
+            updateServiceProcessButton.classList.remove("faded", "unclickable");
+            updateServiceProcessButton.dataset.interactable = "1";
+        } else {
+            updateServiceProcessButton.classList.add("faded", "unclickable");
+            updateServiceProcessButton.dataset.interactable = "0";
+        }
+
         serviceProcess.innerHTML = '';
+        updateServiceProcessButton.classList.remove("hidden");
 
         if (currentService.processes.length === 0) {
-            const emptyDiv = document.createElement("div");
-            emptyDiv.className = "flexMin minHeight darkFadedBG bordered roundedMin centerRowLayout minGap shadowed";
-            emptyDiv.innerHTML = "<b class='whiteText outlineText'>No Service Process</b>";
-            serviceProcess.appendChild(emptyDiv);
+            tempElement = document.createElement("div");
+            tempElement.className = "flexMin minHeight darkFadedBG bordered roundedMin centerRowLayout minGap shadowed";
+            tempElement.innerHTML = "<b class='whiteText outlineText'>No Service Process</b>";
+            serviceProcess.appendChild(tempElement);
+
             if (editable) {
-                const addBtn = CreateAddProcessButton();
-                serviceProcess.appendChild(addBtn);
+                tempElement = document.createElement("div");
+                tempElement.className = "circle squareSize duoHeight darkBG roundedMin shadowed centerRowLayout regMinPadding";
+                tempElement.innerHTML = '<img src="../../Shared/Img/CrossIcon.png" alt="Cross" class="invertColors">';
+                tempElement.id = "addProcessButton";
+                serviceProcess.appendChild(tempElement);
+                document.getElementById('addProcessButton').addEventListener('click', ShowAddProcessesBox);
             }
             return;
         }
 
-        // Render each process with arrows
-        const processElements = [];
-        for (let i = 0; i < currentService.processes.length; i++) {
-            const proc = currentService.processes[i];
-            const div = document.createElement("div");
-            div.className = "flexMin minHeight darkFadedBG bordered roundedMin centerRowLayout minGap shadowed";
-            let inner = `<b class='whiteText outlineText'>${proc.name}</b>`;
+        // First process
+        tempElement = document.createElement("div");
+        tempElement.className = "flexMin minHeight darkFadedBG bordered roundedMin centerRowLayout minGap shadowed";
+        tempElement.innerHTML = currentService.processes.length === 1 ? `
+        <b class='whiteText outlineText'>${currentService.processes[0].name}</b>
+        <a class="squareSize unitHeight norWestAbsolute centerColumnLayout closeCorner processRemove" data-index="0">
+            <img src="../../Shared/Img/XIcon.png" alt="X">
+        </a>
+    ` : `
+        <b class='whiteText outlineText'>${currentService.processes[0].name}</b>
+        <a class="squareSize unitHeight norWestAbsolute centerColumnLayout closeCorner processRemove" data-index="0">
+            <img src="../../Shared/Img/XIcon.png" alt="X">
+        </a>
+        <a class="circle squareSize unitHeight souEastAbsolute centerColumnLayout importantInput closeCorner swapRight shadowed" data-index="0">
+            <img src="../../Shared/Img/ArrowIcon.png" alt="Arrow" class="invertColors">
+        </a>
+    `;
+        serviceProcess.appendChild(tempElement);
+
+        // Middle processes
+        for (let i = 1; i < currentService.processes.length - 1; i++) {
+            tempElement = document.createElement("h2");
+            tempElement.textContent = ">";
+            serviceProcess.appendChild(tempElement);
+
+            tempElement = document.createElement("div");
+            tempElement.className = "flexMin minHeight darkFadedBG bordered roundedMin centerRowLayout minGap shadowed";
+            tempElement.innerHTML = `
+            <b class='whiteText outlineText'>${currentService.processes[i].name}</b>
+            <a class="squareSize unitHeight norWestAbsolute centerColumnLayout closeCorner processRemove" data-index="${i}">
+                <img src="../../Shared/Img/XIcon.png" alt="X">
+            </a>
+            <a class="circle squareSize unitHeight souWestAbsolute centerColumnLayout importantInput closeCorner swapLeft shadowed" data-index="${i}">
+                <img src="../../Shared/Img/ArrowIcon.png" alt="Arrow" class="invertColors mirrorX">
+            </a>
+            <a class="circle squareSize unitHeight souEastAbsolute centerColumnLayout importantInput closeCorner swapRight shadowed" data-index="${i}">
+                <img src="../../Shared/Img/ArrowIcon.png" alt="Arrow" class="invertColors">
+            </a>
+        `;
+            serviceProcess.appendChild(tempElement);
+        }
+
+        // Last process (if more than one)
+        if (currentService.processes.length > 1) {
+            tempElement = document.createElement("h2");
+            tempElement.textContent = ">";
+            serviceProcess.appendChild(tempElement);
+
+            tempElement = document.createElement("div");
+            tempElement.className = "flexMin minHeight darkFadedBG bordered roundedMin centerRowLayout minGap shadowed";
+            tempElement.innerHTML = `
+            <b class='whiteText outlineText'>${currentService.processes[currentService.processes.length - 1].name}</b>
+            <a class="squareSize unitHeight norWestAbsolute centerColumnLayout closeCorner processRemove" data-index="${currentService.processes.length - 1}">
+                <img src="../../Shared/Img/XIcon.png" alt="X">
+            </a>
+            <a class="circle squareSize unitHeight souWestAbsolute centerColumnLayout importantInput closeCorner swapLeft shadowed"
+                data-index="${currentService.processes.length - 1}">
+                <img src="../../Shared/Img/ArrowIcon.png" alt="Arrow" class="invertColors mirrorX">
+            </a>
+        `;
+            serviceProcess.appendChild(tempElement);
+        }
+
+        // Add process button (plus)
+        if (editable) {
+            tempElement = document.createElement("div");
+            tempElement.className = "circle squareSize duoHeight darkBG roundedMin shadowed centerRowLayout regMinPadding";
+            tempElement.innerHTML = '<img src="../../Shared/Img/CrossIcon.png" alt="Cross" class="invertColors">';
+            tempElement.id = "addProcessButton";
+            serviceProcess.appendChild(tempElement);
+            document.getElementById('addProcessButton').addEventListener('click', ShowAddProcessesBox);
+        }
+
+        // Event handlers for remove/swap (only if editable)
+        document.querySelectorAll('.processRemove').forEach(el => {
             if (editable) {
-                inner += `<a class="squareSize unitHeight norWestAbsolute centerColumnLayout closeCorner processRemove" data-index="${i}">
-                            <img src="../../Shared/Img/XIcon.png" alt="X">
-                          </a>`;
-                if (i > 0 || currentService.processes.length > 1) {
-                    if (i < currentService.processes.length - 1) {
-                        inner += `<a class="circle squareSize unitHeight souEastAbsolute centerColumnLayout importantInput closeCorner swapRight shadowed" data-index="${i}">
-                                    <img src="../../Shared/Img/ArrowIcon.png" alt="Arrow" class="invertColors">
-                                  </a>`;
-                    }
-                    if (i > 0) {
-                        inner += `<a class="circle squareSize unitHeight souWestAbsolute centerColumnLayout importantInput closeCorner swapLeft shadowed" data-index="${i}">
-                                    <img src="../../Shared/Img/ArrowIcon.png" alt="Arrow" class="invertColors mirrorX">
-                                  </a>`;
-                    }
-                }
-            }
-            div.innerHTML = inner;
-            processElements.push(div);
-        }
-
-        // Add ">" between them
-        for (let i = 0; i < processElements.length; i++) {
-            serviceProcess.appendChild(processElements[i]);
-            if (i < processElements.length - 1) {
-                const arrow = document.createElement("h2");
-                arrow.textContent = ">";
-                serviceProcess.appendChild(arrow);
-            }
-        }
-
-        // Plus button at the end
-        if (editable) {
-            serviceProcess.appendChild(CreateAddProcessButton());
-        }
-
-        // Event listeners for remove/swap (only when editable)
-        if (editable) {
-            document.querySelectorAll('.processRemove').forEach(el => {
                 el.addEventListener('click', function() {
                     const idx = parseInt(this.dataset.index);
                     currentService.processes.splice(idx, 1);
                     ShowServiceProcess();
                 });
-            });
-            document.querySelectorAll('.swapRight').forEach(el => {
+            } else {
+                el.classList.add("hidden");
+            }
+        });
+
+        document.querySelectorAll('.swapRight').forEach(el => {
+            if (editable) {
                 el.addEventListener('click', function() {
                     const idx = parseInt(this.dataset.index);
                     [currentService.processes[idx], currentService.processes[idx + 1]] = [currentService.processes[idx + 1], currentService.processes[idx]];
                     ShowServiceProcess();
                 });
-            });
-            document.querySelectorAll('.swapLeft').forEach(el => {
+            } else {
+                el.classList.add("hidden");
+            }
+        });
+
+        document.querySelectorAll('.swapLeft').forEach(el => {
+            if (editable) {
                 el.addEventListener('click', function() {
                     const idx = parseInt(this.dataset.index);
                     [currentService.processes[idx], currentService.processes[idx - 1]] = [currentService.processes[idx - 1], currentService.processes[idx]];
                     ShowServiceProcess();
                 });
-            });
-        }
-    }
-
-    function CreateAddProcessButton() {
-        const btn = document.createElement("div");
-        btn.className = "circle squareSize duoHeight darkBG roundedMin shadowed centerRowLayout regMinPadding";
-        btn.innerHTML = '<img src="../../Shared/Img/CrossIcon.png" alt="Cross" class="invertColors">';
-        btn.addEventListener('click', ShowAddProcessesBox);
-        return btn;
+            } else {
+                el.classList.add("hidden");
+            }
+        });
     }
 
     function ShowAddProcessesBox() {
         const currentNames = new Set(currentService.processes.map(p => p.name));
+        let hasAddable = false;
+
         confirmationTitle.innerHTML = "Add Processes";
         confirmationText.innerHTML = "Click on processes that you want to add to the " + currentService.name + " service process.";
         confirmationSubmit.classList.add("hidden");
@@ -647,126 +713,164 @@
 
         document.querySelectorAll('.tempElement').forEach(el => el.remove());
 
-        const listDiv = document.createElement("div");
-        listDiv.className = 'midHeight scrollable columnLayout minGap regMinPadding tempElement';
+        tempDiv = document.createElement("div");
+        tempDiv.className = 'midHeight scrollable columnLayout minGap regMinPadding tempElement';
 
         processesList.forEach(proc => {
             if (currentNames.has(proc.name)) return;
-            const item = document.createElement('div');
-            item.className = 'tinHeight noShrink roundedMin centerColumnLayout bordered darkTransBG emphasizedText capitalFirst shadowed clickable';
-            item.innerHTML = '<b>' + proc.name + '</b>';
-            item.dataset.id = proc.id;
-            item.dataset.name = proc.name;
-            item.addEventListener('click', () => {
-                currentService.processes.push({
-                    id: proc.id,
-                    name: proc.name
-                });
-                ShowServiceProcess();
-                ShowAddProcessesBox(); // refresh
-            });
-            listDiv.appendChild(item);
+            tempElement = document.createElement('div');
+            tempElement.className = 'tinHeight noShrink roundedMin centerColumnLayout bordered darkTransBG emphasizedText capitalFirst shadowed clickable addProcessElement';
+            tempElement.innerHTML = '<b>' + proc.name + '</b>';
+            tempElement.dataset.id = proc.id;
+            tempElement.dataset.name = proc.name;
+            tempDiv.appendChild(tempElement);
+            hasAddable = true;
         });
 
-        if (listDiv.children.length === 0) {
-            const msg = document.createElement("b");
-            msg.className = "centerMarginsSelf";
-            msg.textContent = "No Processes To Add";
-            listDiv.appendChild(msg);
+        if (!hasAddable) {
+            tempElement = document.createElement("b");
+            tempElement.className = "centerMarginsSelf";
+            tempElement.textContent = "No Processes To Add";
+            tempDiv.appendChild(tempElement);
         }
 
-        confirmationForm.appendChild(listDiv);
+        confirmationForm.appendChild(tempDiv);
+
+        document.querySelectorAll('.addProcessElement').forEach(el => {
+            el.addEventListener('click', () => {
+                currentService.processes.push({
+                    id: el.dataset.id,
+                    name: el.dataset.name
+                });
+                ShowServiceProcess();
+                ShowAddProcessesBox(); // refresh modal
+            });
+        });
+
         confirmation.style.display = 'flex';
     }
 
+    updateServiceProcessButton.addEventListener('click', function() {
+        if (updateServiceProcessButton.dataset.interactable === "0") return;
+        confirmationTitle.innerHTML = "Update Service Process?";
+        confirmationForm.action = "index.php?page=services&action=updateServiceProcess";
+        confirmationText.innerHTML = "Are you sure to update the process of the " + currentService.name + " service?";
+        confirmationSubmit.value = "Yes Update";
+        confirmationSubmit.classList.add("yellowBG");
+
+        document.querySelectorAll('.processListElement').forEach(el => el.remove());
+        currentService.processes.forEach(proc => {
+            tempElement = document.createElement('input');
+            tempElement.type = 'hidden';
+            tempElement.name = 'processList[]';
+            tempElement.value = proc.id;
+            tempElement.className = "processListElement tempElement";
+            confirmationForm.appendChild(tempElement);
+        });
+        confirmation.style.display = 'flex';
+    });
+
     // ================================
-    // SUBSERVICES LIST
+    // SUB SERVICE LIST AND INTERACTION
     // ================================
     function ShowSubservices() {
         subservicesContainer.innerHTML = '';
         createSubserviceButton.classList.remove("hidden");
 
         if (currentService.subservices.length === 0) {
-            const msg = document.createElement("h2");
-            msg.className = "centerMarginsSelf";
-            msg.innerHTML = "No Subservices";
-            subservicesContainer.appendChild(msg);
+            tempElement = document.createElement("h2");
+            tempElement.className = "centerMarginsSelf";
+            tempElement.innerHTML = "No Subservices";
+            subservicesContainer.appendChild(tempElement);
             return;
         }
 
         currentService.subservices.forEach(sub => {
-            const card = document.createElement("div");
-            card.className = 'roundedMin centerHoriRowLayout flexStatic shadowed clickable fixedScreen noShrink subserviceElement';
-            card.dataset.id = sub.id;
+            tempDiv = document.createElement("div");
+            tempDiv.className = 'roundedMin centerHoriRowLayout flexStatic shadowed clickable fixedScreen noShrink subserviceElement';
+            tempDiv.dataset.id = sub.id;
+            subservicesContainer.appendChild(tempDiv);
 
-            const nameDiv = document.createElement("div");
-            nameDiv.className = 'capitalFirst centerText regMinPadding flexMax skewedXNegBG shadowed';
-            nameDiv.innerHTML = '<h4 class="whiteText outlineText">' + htmlspecialchars(sub.name) + '</h4>';
-            card.appendChild(nameDiv);
-
-            const orderCount = subserviceOrderCountMap[sub.id] || 0;
-            const countSpan = document.createElement("h5");
-            countSpan.className = 'capitalFirst centerText regMinPadding minWidth';
-            countSpan.textContent = "Orders: " + orderCount;
-            card.appendChild(countSpan);
+            tempElement = document.createElement("div");
+            tempElement.className = 'capitalFirst centerText regMinPadding flexMax skewedXNegBG shadowed';
+            tempElement.innerHTML = `<h4 class="whiteText outlineText">${sub.name}</h4>`;
+            tempDiv.appendChild(tempElement);
 
             if (sub.isActive == 1) {
-                card.classList.add("yellowBorder");
-                nameDiv.classList.add("yellowTransBG");
+                tempDiv.classList.add("yellowBorder");
+                tempElement.classList.add("yellowTransBG");
             } else {
-                card.classList.add("redBorder");
-                nameDiv.classList.add("redTransBG");
+                tempDiv.classList.add("redBorder");
+                tempElement.classList.add("redTransBG");
             }
 
-            card.addEventListener('click', () => {
+            tempElement = document.createElement("h5");
+            tempElement.className = 'capitalFirst centerText regMinPadding minWidth';
+            tempElement.textContent = "Orders: " + (subserviceOrderCountMap[sub.id] || 0);
+            tempDiv.appendChild(tempElement);
+
+            tempDiv.addEventListener('click', () => {
                 SetCurrentSubservice(sub);
-                confirmationForm.querySelector('input[name="selectedSubserviceID"]').value = currentSubservice.id;
+                selectedSubserviceIdInput.value = currentSubservice.id;
                 document.getElementById('selectedSubserviceTitle').textContent = currentSubservice.name;
-                ShowSubserviceStatusButtons();
-                ShowSubserviceData();
+                ShowSubserviceStatusButtonsContainer();
+                ShowSubserviceDataContainer();
                 ShowSubserviceImages();
             });
 
-            subservicesContainer.appendChild(card);
-
-            // Persistence selection
+            // Persistence
             if (lastSubserviceID != -1 && Number(sub.id) == Number(lastSubserviceID)) {
                 SetCurrentSubservice(sub);
-                confirmationForm.querySelector('input[name="selectedSubserviceID"]').value = currentSubservice.id;
+                selectedSubserviceIdInput.value = currentSubservice.id;
                 document.getElementById('selectedSubserviceTitle').textContent = currentSubservice.name;
-                ShowSubserviceStatusButtons();
-                ShowSubserviceData();
+                ShowSubserviceStatusButtonsContainer();
+                ShowSubserviceDataContainer();
                 ShowSubserviceImages();
             }
         });
     }
 
     // ================================
-    // SUBSERVICE STATUS BUTTONS
+    // SUB SERVICE STATUS BUTTONS
     // ================================
-    function ShowSubserviceStatusButtons() {
-        subserviceStatusContainer.innerHTML = '';
-        const activeSubserviceCount = currentService.subservices.filter(s => s.isActive == 1).length;
+    function ShowSubserviceStatusButtonsContainer() {
+        subserviceStatusButtonsContainer.innerHTML = '';
 
         if (currentSubservice.isActive == 1) {
-            const disableButton = MakeButton("Disable", "redBG", "subserviceStatusButton");
-            if (activeSubserviceCount === 1) disableButton.classList.add("faded", "unclickable");
-            subserviceStatusContainer.appendChild(disableButton);
-        } else {
-            const activateButton = MakeButton("Activate", "yellowBG", "subserviceStatusButton");
-            subserviceStatusContainer.appendChild(activateButton);
+            // Disable button
+            tempElement = document.createElement("button");
+            tempElement.type = "button";
+            tempElement.className = "redBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight";
+            tempElement.textContent = "Disable";
+            tempElement.id = "subserviceStatusButton";
+            subserviceStatusButtonsContainer.appendChild(tempElement);
 
-            const deleteButton = document.createElement("button");
-            deleteButton.type = "button";
-            deleteButton.className = "redBG noBorder shadowed centerColumnLayout fullHeight";
-            deleteButton.innerHTML = '<img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors unitHeight">';
-            deleteButton.id = "deleteSubserviceButton";
-            subserviceStatusContainer.appendChild(deleteButton);
+            // Prevent disabling if this is the only active subservice
+            const activeCount = currentService.subservices.filter(s => s.isActive == 1).length;
+            if (activeCount === 1) {
+                tempElement.classList.add("faded", "unclickable");
+            }
+        } else {
+            // Activate button
+            tempElement = document.createElement("button");
+            tempElement.type = "button";
+            tempElement.className = "yellowBG emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight";
+            tempElement.textContent = "Activate";
+            tempElement.id = "subserviceStatusButton";
+            subserviceStatusButtonsContainer.appendChild(tempElement);
+
+            // Delete button
+            tempElement = document.createElement("button");
+            tempElement.type = "button";
+            tempElement.className = "redBG noBorder shadowed centerColumnLayout fullHeight";
+            tempElement.innerHTML = '<img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors unitHeight">';
+            tempElement.id = "deleteSubserviceButton";
+            subserviceStatusButtonsContainer.appendChild(tempElement);
 
             if (currentSubservice.orderCount > 0) {
-                deleteButton.classList.add("faded", "unclickable");
+                tempElement.classList.add("faded", "unclickable");
             } else {
-                deleteButton.addEventListener('click', () => {
+                document.getElementById('deleteSubserviceButton').addEventListener('click', () => {
                     confirmationTitle.innerHTML = "Delete Subservice?";
                     confirmationForm.action = "index.php?page=services&action=deleteSubservice";
                     confirmationText.innerHTML = "Are you sure to delete the " + currentSubservice.name + " subservice?";
@@ -776,9 +880,10 @@
             }
         }
 
-        const statusBtn = document.getElementById('subserviceStatusButton');
-        if (statusBtn && !(currentSubservice.isActive == 1 && activeSubserviceCount === 1)) {
-            statusBtn.addEventListener('click', function() {
+        // Toggle status (if not blocked)
+        const isBlocked = (currentSubservice.isActive == 1 && currentService.subservices.filter(s => s.isActive == 1).length === 1);
+        if (!isBlocked) {
+            document.getElementById('subserviceStatusButton').addEventListener('click', function() {
                 confirmationTitle.innerHTML = "Toggle Subservice Status?";
                 confirmationForm.action = "index.php?page=services&action=toggleSubserviceStatus";
                 confirmationText.innerHTML = "Are you sure to " + this.textContent + " the " + currentSubservice.name + " subservice?";
@@ -790,43 +895,70 @@
     }
 
     // ================================
-    // SUBSERVICE DATA (Description, Price)
+    // SUB SERVICE DATA CONTAINER (description & price)
     // ================================
-    function ShowSubserviceData() {
-        const h2 = subserviceDataContainer.getElementsByTagName('h2')[0];
-        const div = subserviceDataContainer.getElementsByTagName('div')[0];
-        h2.classList.add("hidden");
-        div.classList.remove("hidden");
+    function ShowSubserviceDataContainer() {
+        subserviceDataContainer.getElementsByTagName('h2')[0].classList.add("hidden");
 
-        const form = div.getElementsByTagName('form')[0];
-        form.querySelector('input[name="selectedServiceID"]').value = currentService.id;
-        form.querySelector('input[name="selectedSubserviceID"]').value = currentSubservice.id;
-        form.querySelector('textarea[name="description"]').value = currentSubservice.description;
-        form.querySelector('textarea[name="description"]').placeholder = currentSubservice.description;
-        form.querySelector('input[name="pricePerUnit"]').value = currentSubservice.pricePerUnit;
-        form.querySelector('input[name="pricePerUnit"]').placeholder = currentSubservice.pricePerUnit;
+        const container = subserviceDataContainer.getElementsByTagName('div')[0];
+        const formElement = container.getElementsByTagName('form')[0];
+        const descriptionInput = formElement.getElementsByTagName('textarea')[0];
+        const serviceIdInput = formElement.getElementsByTagName('input')[0];
+        const subserviceIdInput = formElement.getElementsByTagName('input')[1];
+        const priceInput = formElement.getElementsByTagName('input')[2];
+
+        container.classList.remove("hidden");
+
+        serviceIdInput.value = currentService.id;
+        subserviceIdInput.value = currentSubservice.id;
+        descriptionInput.value = currentSubservice.description;
+        descriptionInput.placeholder = currentSubservice.description;
+        priceInput.value = currentSubservice.pricePerUnit;
+        priceInput.placeholder = currentSubservice.pricePerUnit;
     }
 
     // ================================
-    // SUBSERVICE IMAGES
+    // SUB SERVICE IMAGES GALLERY
     // ================================
     function ShowSubserviceImages() {
-        imagesContainer.innerHTML = '';
+        subserviceImagesContainer.innerHTML = '';
+
         if (currentSubservice.images.length === 0) {
-            imagesContainer.innerHTML = '<div class="centerMarginsSelf fullHeight centerColumnLayout fitWidth"><b>No Images</b></div>';
+            subserviceImagesContainer.innerHTML = `<div class="centerMarginsSelf fullHeight centerColumnLayout fitWidth"><b>No Images</b></div>`;
             return;
         }
 
         currentSubservice.images.forEach(img => {
-            const card = document.createElement("div");
-            card.className = "squareSize fixedScreen centerColumnLayout relatived shadowed roundedTin";
+            tempDiv = document.createElement("div");
+            tempDiv.className = "squareSize fixedScreen centerColumnLayout relatived shadowed roundedTin";
 
-            const removeLink = document.createElement("a");
-            removeLink.className = "circle squareSize unitHeight norEastAbsolute centerColumnLayout importantInput closeCorner swapRight shadowed minZ";
-            removeLink.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X" class="invertColors">';
-            removeLink.dataset.id = img.id;
-            removeLink.dataset.imageName = img.name;
-            removeLink.addEventListener('click', () => {
+            // Remove button
+            tempElement = document.createElement("a");
+            tempElement.className = "circle squareSize unitHeight norEastAbsolute centerColumnLayout importantInput closeCorner swapRight shadowed minZ removeImageButton";
+            tempElement.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X" class="invertColors">';
+            tempElement.dataset.id = img.id;
+            tempElement.dataset.imageName = img.name;
+            tempDiv.appendChild(tempElement);
+
+            // Image
+            tempElement = document.createElement("img");
+            tempElement.className = "fullHeight absoluted clickable subserviceImageElement";
+            tempElement.src = "../../Storage/SubserviceImages/" + img.name;
+            tempElement.alt = "Image";
+            tempDiv.appendChild(tempElement);
+
+            subserviceImagesContainer.appendChild(tempDiv);
+        });
+
+        document.querySelectorAll('.subserviceImageElement').forEach(el => {
+            el.addEventListener('click', () => {
+                imageBoxImage.src = el.src;
+                imageBox.style.display = 'flex';
+            });
+        });
+
+        document.querySelectorAll('.removeImageButton').forEach(el => {
+            el.addEventListener('click', () => {
                 confirmationTitle.innerHTML = "Remove Subservice Image?";
                 confirmationForm.action = "index.php?page=services&action=removeSubserviceImage";
                 confirmationText.innerHTML = "Are you sure to remove this image from the " + currentSubservice.name + " subservice?";
@@ -835,48 +967,39 @@
                 const hiddenId = document.createElement("input");
                 hiddenId.type = "hidden";
                 hiddenId.name = "selectedID";
-                hiddenId.value = img.id;
+                hiddenId.value = el.dataset.id;
                 hiddenId.className = "tempElement";
                 confirmationForm.appendChild(hiddenId);
 
                 const previewDiv = document.createElement("div");
                 previewDiv.className = "fullWidth tempElement centerHoriRowLayout regMinPadding";
+                confirmationForm.appendChild(previewDiv);
+
                 const previewImg = document.createElement("img");
                 previewImg.className = "fullWidth roundedMin shadowed";
-                previewImg.src = "../../Storage/SubserviceImages/" + img.name;
+                previewImg.src = "../../Storage/SubserviceImages/" + el.dataset.imageName;
                 previewDiv.appendChild(previewImg);
-                confirmationForm.appendChild(previewDiv);
 
                 confirmation.style.display = 'flex';
             });
-            card.appendChild(removeLink);
-
-            const imageEl = document.createElement("img");
-            imageEl.className = "fullHeight absoluted clickable";
-            imageEl.src = "../../Storage/SubserviceImages/" + img.name;
-            imageEl.alt = "Image";
-            imageEl.addEventListener('click', () => {
-                imageBoxImage.src = imageEl.src;
-                imageBox.style.display = 'flex';
-            });
-            card.appendChild(imageEl);
-
-            imagesContainer.appendChild(card);
         });
     }
 
     // ================================
-    // IMAGE UPLOAD
+    // SUB SERVICE IMAGE UPLOAD (Multiple)
     // ================================
-    addImageButton.addEventListener('click', function() {
+    addSubserviceImageButton.addEventListener('click', function() {
         confirmationContent.classList.add("fitWidth");
         confirmationForm.action = "index.php?page=services&action=uploadSubserviceImages";
 
-        const fileRow = document.createElement("div");
-        fileRow.className = "tempElement centerHoriRowLayout minGap";
-        const label = document.createElement("b");
-        label.textContent = "Upload File:";
-        fileRow.appendChild(label);
+        // File input row
+        tempDiv = document.createElement("div");
+        tempDiv.className = "tempElement centerHoriRowLayout minGap";
+        confirmationForm.appendChild(tempDiv);
+
+        tempElement = document.createElement("b");
+        tempElement.textContent = "Upload File:";
+        tempDiv.appendChild(tempElement);
 
         const fileInput = document.createElement("input");
         fileInput.type = "file";
@@ -885,18 +1008,18 @@
         fileInput.multiple = true;
         fileInput.required = true;
         fileInput.className = "flexMax";
-        fileRow.appendChild(fileInput);
-        confirmationForm.appendChild(fileRow);
+        tempDiv.appendChild(fileInput);
 
+        // Preview container
         const previewDiv = document.createElement("div");
-        previewDiv.className = "tempElement hidden centerHoriRowLayout minGap regPadding fitWidth scrollableX" +
-            " halfScreenMaxWidth fullMinWidth halfScreenHeight";
+        previewDiv.className = "tempElement hidden centerHoriRowLayout minGap regPadding fitWidth scrollableX halfScreenMaxWidth fullMinWidth halfScreenHeight";
         confirmationForm.appendChild(previewDiv);
 
         confirmationTitle.innerHTML = "Upload Design Image";
         confirmationText.innerHTML = "Please upload images for this subservice.";
         confirmationSubmit.value = "Upload";
         confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
+
         confirmationForm.enctype = "multipart/form-data";
         confirmation.style.display = 'flex';
 
@@ -907,6 +1030,7 @@
                 previewDiv.classList.add("hidden");
                 return;
             }
+
             for (let i = 0; i < files.length; i++) {
                 if (!files[i].type.startsWith("image/")) {
                     alert("Only images are allowed. File: " + files[i].name);
@@ -914,15 +1038,33 @@
                     return;
                 }
             }
-            Array.from(files).forEach(file => {
-                const img = document.createElement("img");
-                img.className = "fullHeight roundedMin shadowed";
-                img.src = URL.createObjectURL(file);
-                previewDiv.appendChild(img);
-            });
+
+            if (files.length === 1) {
+                const uploadedImage = document.createElement("img");
+                uploadedImage.className = "fullHeight roundedMin shadowed centerMarginsSelf";
+                uploadedImage.src = URL.createObjectURL(files[0]);
+                previewDiv.appendChild(uploadedImage);
+            } else {
+                Array.from(files).forEach(file => {
+                    const uploadedImage = document.createElement("img");
+                    uploadedImage.className = "fullHeight roundedMin shadowed";
+                    uploadedImage.src = URL.createObjectURL(file);
+                    previewDiv.appendChild(uploadedImage);
+                });
+            }
             previewDiv.classList.remove("hidden");
         });
     });
+
+    // ================================
+    // UTILITIES: Reset subservice panel when service changes
+    // ================================
+    function ResetSubserviceHeader() {
+        document.getElementById('selectedSubserviceTitle').textContent = "No Subservice Selected";
+        subserviceStatusButtonsContainer.innerHTML = '';
+        subserviceDataContainer.getElementsByTagName('h2')[0].classList.remove("hidden");
+        subserviceDataContainer.getElementsByTagName('div')[0].classList.add("hidden");
+    }
 
     // ================================
     // CREATE SERVICE MODAL
@@ -934,13 +1076,14 @@
         confirmationSubmit.value = "Create";
         confirmationSubmit.classList.add("yellowBG", "noBorder");
 
-        const input = document.createElement("input");
-        input.type = "text";
-        input.name = "name";
-        input.placeholder = "Service Name";
-        input.className = "tempElement";
-        input.required = true;
-        confirmationForm.appendChild(input);
+        tempElement = document.createElement("input");
+        tempElement.type = "text";
+        tempElement.name = "name";
+        tempElement.placeholder = "Service Name";
+        tempElement.id = "nameInput";
+        tempElement.className = "tempElement";
+        tempElement.required = true;
+        confirmationForm.appendChild(tempElement);
 
         confirmation.style.display = 'flex';
     });
@@ -959,46 +1102,30 @@
         confirmationSubmit.value = "Create";
         confirmationSubmit.classList.add("yellowBG", "noBorder");
 
-        const input = document.createElement("input");
-        input.type = "text";
-        input.name = "name";
-        input.placeholder = "Subservice Name";
-        input.className = "tempElement";
-        input.required = true;
-        confirmationForm.appendChild(input);
+        tempElement = document.createElement("input");
+        tempElement.type = "text";
+        tempElement.name = "name";
+        tempElement.placeholder = "Subservice Name";
+        tempElement.id = "nameInput";
+        tempElement.className = "tempElement";
+        tempElement.required = true;
+        confirmationForm.appendChild(tempElement);
 
         confirmation.style.display = 'flex';
     });
 
     // ================================
-    // CLEANUP
+    // CONFIRMATION DIALOG CLEANUP
     // ================================
     confirmationCancel.addEventListener('click', () => {
         confirmationSubmit.classList.remove("yellowBG", "hidden");
         document.querySelectorAll('.tempElement').forEach(el => el.remove());
     });
+
     confirmationBG.addEventListener('click', () => {
         confirmationSubmit.classList.remove("yellowBG", "hidden");
         document.querySelectorAll('.tempElement').forEach(el => el.remove());
     });
-
-    // ================================
-    // UTILITY
-    // ================================
-    function MakeButton(text, bgClass, id) {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = `${bgClass} emphasizedText noBorder shadowed whiteText outlineText centerColumnLayout flexMax noPadding fullHeight`;
-        btn.textContent = text;
-        btn.id = id;
-        return btn;
-    }
-
-    function htmlspecialchars(str) {
-        const div = document.createElement("div");
-        div.appendChild(document.createTextNode(str));
-        return div.innerHTML;
-    }
 </script>
 
 </html>
