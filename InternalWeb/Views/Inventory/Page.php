@@ -225,6 +225,14 @@
     const monthRangeInput = document.getElementById('monthRangeInput');
     const inventoryRecordList = <?php echo json_encode($inventoryRecordList); ?>;
 
+    // Permission flags from PHP
+    const userPermissions = {
+        canCreateItems: <?php echo in_array('canCreateItems', $_SESSION['permissions']) ? 'true' : 'false'; ?>,
+        canDeleteItems: <?php echo in_array('canDeleteItems', $_SESSION['permissions']) ? 'true' : 'false'; ?>,
+        canModifyItems: <?php echo in_array('canModifyItems', $_SESSION['permissions']) ? 'true' : 'false'; ?>,
+        canUpdateItemQuantity: <?php echo in_array('canUpdateItemQuantity', $_SESSION['permissions']) ? 'true' : 'false'; ?>
+    };
+
     const inventoryRecordMap = {};
     inventoryRecordList.forEach(item => {
         if (!inventoryRecordMap[item.inventoryID]) {
@@ -309,6 +317,21 @@
         currentSelected.name = elem.dataset.name;
         currentSelected.minQuantity = parseInt(elem.dataset.minQuantity) || 0;
         currentSelected.maxAvgConsumption = parseInt(elem.dataset.maxConsumption) || 0;
+        
+        // Get current month range value
+        const monthRange = parseInt(monthRangeInput.value, 10) || 12;
+        
+        // Reload page with selected item ID and month range
+        // This loads records server-side for this item only
+        window.location.href = `index.php?page=inventory&id=${elem.dataset.id}&months=${monthRange}`;
+    }
+    
+    // Process selected item after page reload
+    function LoadSelectedItemData(elem) {
+        currentSelected.id = elem.dataset.id;
+        currentSelected.name = elem.dataset.name;
+        currentSelected.minQuantity = parseInt(elem.dataset.minQuantity) || 0;
+        currentSelected.maxAvgConsumption = parseInt(elem.dataset.maxConsumption) || 0;
         currentSelected.records = [...(inventoryRecordMap[currentSelected.id] || [])];
 
         selectedTitle.textContent = currentSelected.name;
@@ -353,6 +376,22 @@
         lastRestockQuantityText.textContent = "Last Restock Quantity: " + elem.dataset.restockQuantity;
 
         RenderCharts();
+    }
+    
+    // Check if an item was selected on page load
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedID = urlParams.get('id');
+    const selectedMonths = urlParams.get('months');
+    if (selectedID && inventoryRecordList.length > 0) {
+        // Update month range input to match what was loaded
+        if (selectedMonths) {
+            monthRangeInput.value = selectedMonths;
+        }
+        // Find and load the selected item's data
+        const selectedElem = document.querySelector(`.inventoryElement[data-id="${selectedID}"]`);
+        if (selectedElem) {
+            LoadSelectedItemData(selectedElem);
+        }
     }
 
     function ShowUpdateBox() {
@@ -500,17 +539,48 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Apply permission-based UI controls
+        if (!userPermissions.canCreateItems) {
+            if (createButton) {
+                createButton.classList.add('faded', 'unclickable');
+            }
+        }
+        if (!userPermissions.canDeleteItems) {
+            if (deleteButton) {
+                deleteButton.classList.add('faded', 'unclickable', 'hidden');
+            }
+        }
+        if (!userPermissions.canUpdateItemQuantity) {
+            if (updateButton) updateButton.classList.add('faded', 'unclickable', 'hidden');
+            if (resetButton) resetButton.classList.add('faded', 'unclickable', 'hidden');
+        }
+        if (!userPermissions.canModifyItems) {
+            if (minQuantityText) minQuantityText.classList.add('unclickable');
+            if (avgConsumptionText) avgConsumptionText.classList.add('unclickable');
+        }
+
         inventoryElement.forEach(elem => {
             elem.addEventListener('click', () => OnElementClick(elem));
         });
 
-        updateButton.addEventListener('click', () => ShowUpdateBox());
-        resetButton.addEventListener('click', () => ShowResetBox());
-        createButton.addEventListener('click', () => ShowCreateBox());
-        deleteButton.addEventListener('click', () => ShowDeleteBox());
-
-        minQuantityText.addEventListener('click', () => ShowEditMinQuantityBox());
-        avgConsumptionText.addEventListener('click', () => ShowEditMaxAvgConsumptionBox());
+        if (createButton && userPermissions.canCreateItems) {
+            createButton.addEventListener('click', () => ShowCreateBox());
+        }
+        if (updateButton && userPermissions.canUpdateItemQuantity) {
+            updateButton.addEventListener('click', () => ShowUpdateBox());
+        }
+        if (resetButton && userPermissions.canUpdateItemQuantity) {
+            resetButton.addEventListener('click', () => ShowResetBox());
+        }
+        if (deleteButton && userPermissions.canDeleteItems) {
+            deleteButton.addEventListener('click', () => ShowDeleteBox());
+        }
+        if (minQuantityText && userPermissions.canModifyItems) {
+            minQuantityText.addEventListener('click', () => ShowEditMinQuantityBox());
+        }
+        if (avgConsumptionText && userPermissions.canModifyItems) {
+            avgConsumptionText.addEventListener('click', () => ShowEditMaxAvgConsumptionBox());
+        }
 
         downloadButton.addEventListener('click', () => {
             if (currentSelected.records && currentSelected.records.length > 0) {
@@ -567,7 +637,11 @@
             const max = parseInt(this.max, 10) || 24;
             if (isNaN(val) || val < min) this.value = min;
             if (val > max) this.value = max;
-            RenderCharts();
+            
+            // If an item is selected, reload page with new month range
+            if (currentSelected.id) {
+                window.location.href = `index.php?page=inventory&id=${currentSelected.id}&months=${this.value}`;
+            }
         });
         monthRangeInput.addEventListener('blur', function() {
             let val = parseInt(this.value, 10);
@@ -922,6 +996,9 @@
         // Reuse or create chart instances
         if (chartInstances.daily) {
             chartInstances.daily.updateOptions(prepared.CreateChartOptions(dailyData, 'daily'));
+            if (!daily.querySelector('h4')) {
+                daily.insertAdjacentHTML('afterbegin', '<h4 class="norAbsolute closeCorner topZ">Daily Data</h4>');
+            }
         } else {
             daily.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Daily Data</h4>';
             chartInstances.daily = new ApexCharts(daily, prepared.CreateChartOptions(dailyData, 'daily'));
@@ -930,6 +1007,9 @@
 
         if (chartInstances.weekly) {
             chartInstances.weekly.updateOptions(prepared.CreateChartOptions(weeklyData, 'weekly'));
+            if (!weekly.querySelector('h4')) {
+                weekly.insertAdjacentHTML('afterbegin', '<h4 class="norAbsolute closeCorner topZ">Weekly Data</h4>');
+            }
         } else {
             weekly.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Weekly Data</h4>';
             chartInstances.weekly = new ApexCharts(weekly, prepared.CreateChartOptions(weeklyData, 'weekly'));
@@ -938,6 +1018,9 @@
 
         if (chartInstances.monthly) {
             chartInstances.monthly.updateOptions(prepared.CreateChartOptions(monthlyData, 'monthly'));
+            if (!monthly.querySelector('h4')) {
+                monthly.insertAdjacentHTML('afterbegin', '<h4 class="norAbsolute closeCorner topZ">Monthly Data</h4>');
+            }
         } else {
             monthly.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Monthly Data</h4>';
             chartInstances.monthly = new ApexCharts(monthly, prepared.CreateChartOptions(monthlyData, 'monthly'));

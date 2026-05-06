@@ -239,6 +239,7 @@ switch ($page) {
             'deleteItem'              => fn() => $inventory->removeInventoryItem(),
             'changeMinQuantity'       => fn() => $inventory->changeInventoryItemMinQuantity(),
             'changeMaxAvgConsumption' => fn() => $inventory->changeInventoryItemMaxAvgConsumption(),
+            'getRecords'              => fn() => $inventory->getRecordsByItemAndDateRange(),
         ];
         ($inventoryActions[$action] ?? fn() => $inventory->showPage())();
         break;

@@ -100,6 +100,37 @@ class InventoryM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getInventoryRecordsByIDAndDateRange($inventoryID, $monthRange = 12) {
+        // Validate inputs
+        $inventoryID = (int)$inventoryID;
+        $monthRange = max(1, (int)$monthRange);
+
+        // If inventory ID is invalid, return empty array
+        if ($inventoryID <= 0) {
+            return [];
+        }
+
+        // Calculate start date in PHP: (today - N months - 7 days)
+        $startDate = date('Y-m-d', strtotime("-$monthRange months -7 days"));
+        $endDate = date('Y-m-d');
+
+        $query = "
+            SELECT * FROM inventoryRecords
+            WHERE inventoryID = :inventoryID
+            AND date >= :startDate
+            AND date <= :endDate
+            ORDER BY date DESC
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':inventoryID', $inventoryID, PDO::PARAM_INT);
+        $stmt->bindParam(':startDate', $startDate, PDO::PARAM_STR);
+        $stmt->bindParam(':endDate', $endDate, PDO::PARAM_STR);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getInventoryRecord($inventoryID, $date) {
         $query = "SELECT * FROM inventoryRecords WHERE inventoryID = :inventoryID AND date = :date";
         $stmt = $this->pdo->prepare($query);
@@ -271,27 +302,27 @@ class InventoryM {
     }
 
     public function insertInventoryItem($name, $quantity) {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
 
         if (empty($name)) {
-            return "Error: Empty item name.";
+            return "Error: Item name cannot be empty.";
         }
 
         if ($quantity < 1) {
-            return "Error: Initial Quantity is equal to or less than 0.";
+            return "Error: Initial quantity must be at least 1.";
         }
 
         $item = $this->getInventoryByName($name);
 
         if ($item) {
-            return "Error: Item name already exists.";
+            return "Error: Item name already exists. Please choose a different name.";
         }
 
         $this->insertUserActivityLog(
             $_SESSION['id'],
             'inventory creation',
-            'Created a new inventory item called ' . ucfirst($name) . '.',
-            'yellow'
+            'Created a new inventory item called ' . ucfirst($name) . ' with initial quantity ' . $quantity . '.',
+            'green'
         );
 
         $query = "INSERT INTO inventory (name) VALUES (:name);";
@@ -301,7 +332,7 @@ class InventoryM {
 
         $this->updateInventoryRecord($this->pdo->lastInsertId(), $quantity);
 
-        return "Success: Created inventory item.";
+        return "Success: Inventory item created successfully.";
     }
 
     public function deleteInventoryItem($inventoryID) {
