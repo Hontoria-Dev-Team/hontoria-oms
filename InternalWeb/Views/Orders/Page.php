@@ -83,12 +83,11 @@
             <div class="columnLayout midGap flexMax roundedMid">
                 <section class="centerColumnLayout roundedMid flexMax minHeight">
                     <div class="box fullHeight fullWidth roundedMid columnLayout minGap">
-                        <form method="GET" action="index.php?page=staff" class="rowLayout fullWidth minGap">
+                        <form method="GET" action="?page=orders&action=filter" class="rowLayout fullWidth minGap">
                             <input type="hidden" name="page" value="orders">
                             <input type="hidden" name="action" value="filter">
-
                             <div class="iconInput flexMax centerHoriRowLayout">
-                                <input type="search" name="search" placeholder="Search Order" class="fullWidth" value="<?= $search ?>">
+                                <input type="search" name="search" placeholder="Search by order ID or customer name" class="fullWidth" value="<?= htmlspecialchars($search) ?>">
                                 <img src="../../Shared/Img/MagnifierIcon.png" alt="Magnifier">
                             </div>
 
@@ -96,6 +95,15 @@
                                 <option value="" <?= $status === '' ? 'selected' : '' ?>>Any Status</option>
                                 <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Active</option>
                                 <option value="idle" <?= $status === 'idle' ? 'selected' : '' ?>>Idle</option>
+                                <option value="unpaid" <?= $status === 'unpaid' ? 'selected' : '' ?>>Unpaid</option>
+                                <option value="for verification" <?= $status === 'for verification' ? 'selected' : '' ?>>For Verification</option>
+                            </select>
+
+                            <select name="serviceID">
+                                <option value="-1" <?= $serviceID < 1 ? 'selected' : '' ?>>All Services</option>
+                                <?php foreach ($serviceList as $service): ?>
+                                    <option value="<?= $service['id'] ?>" <?= $serviceID === (int)$service['id'] ? 'selected' : '' ?>><?= htmlspecialchars($service['name']) ?></option>
+                                <?php endforeach; ?>
                             </select>
 
                             <input type="submit" value="Search" class="importantInput">

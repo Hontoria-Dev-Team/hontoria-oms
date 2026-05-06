@@ -13,10 +13,14 @@ class OrdersC {
         $this->servicesModel = new ServicesM($pdo);
     }
 
-    public function showOrders($search = '', $status = '') {
+    public function showOrders() {
         $page = "orders";
+        $search = trim($_GET['search'] ?? '');
+        $status = trim(strtolower($_GET['status'] ?? ''));
+        $serviceID = filter_input(INPUT_GET, 'serviceID', FILTER_VALIDATE_INT, ['options' => ['default' => -1]]);
 
-        $orderList = $this->ordersModel->getAllOrders();
+        $serviceList = $this->servicesModel->getServices();
+        $orderList = $this->ordersModel->getFilteredOrders($search, $status, $serviceID);
         $orderProcessList = $this->ordersModel->getAllOrderProcesses();
         $taskAssigneeList = $this->ordersModel->getAllTaskAssigneeList();
         $userProcessList = $this->staffModel->getAllUserAssignableProcessTasks();

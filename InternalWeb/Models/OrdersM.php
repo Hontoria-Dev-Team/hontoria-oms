@@ -7,49 +7,97 @@ class OrdersM {
     }
 
     public function getAllOrders() {
+        return $this->getFilteredOrders('', '', -1);
+    }
+
+    public function getFilteredOrders($search = '', $status = '', $serviceID = -1) {
+        $search = trim($search);
+        $normalizedStatus = strtolower(trim($status));
+        $serviceID = intval($serviceID);
+        $searchId = ctype_digit($search) ? intval($search) : 0;
+        $searchName = '%' . $search . '%';
+
         $query = "
-            SELECT
-                orders.id,
-                services.name AS serviceName,
-                subservices.name AS subserviceName,
-                services.hasDesign AS hasDesign,
-                services.hasVariableList AS hasVariableList,
-                orders.priceTotal,
-                orders.customerName,
-                orders.createdAt,
-                orders.deadlineAt,
-                orders.messengerGCLink,
-                publicOrderPages.orderCode,
-                CASE
-                    WHEN NOT EXISTS (
-                        SELECT 1 FROM orderProcess
-                        WHERE orderProcess.orderID = orders.id
-                        AND orderProcess.status != 'complete'
-                    ) THEN
-                        CASE
-                            WHEN NOT EXISTS (
-                                SELECT 1 FROM salesOrder
-                                WHERE salesOrder.orderID = orders.id
-                            ) THEN 'For Verification'
-                            ELSE 'Unpaid'
-                        END
-                    WHEN NOT EXISTS (
-                        SELECT 1 FROM userProcessTasks
-                        JOIN orderProcess ON userProcessTasks.orderProcessID = orderProcess.id
-                        WHERE orderProcess.orderID = orders.id
-                    ) THEN 'Idle'
-                    ELSE 'Active'
-                END AS status
-            FROM orders
-            JOIN subservices ON orders.subserviceID = subservices.id
-            JOIN services ON subservices.serviceID = services.id
-            LEFT JOIN publicOrderPages ON publicOrderPages.orderID = orders.id
-            ORDER BY orders.id ASC
+            SELECT *
+            FROM (
+                SELECT
+                    orders.id,
+                    services.id AS serviceID,
+                    services.name AS serviceName,
+                    subservices.name AS subserviceName,
+                    services.hasDesign AS hasDesign,
+                    services.hasVariableList AS hasVariableList,
+                    orders.priceTotal,
+                    orders.customerName,
+                    orders.createdAt,
+                    orders.deadlineAt,
+                    orders.messengerGCLink,
+                    publicOrderPages.orderCode,
+                    CASE
+                        WHEN NOT EXISTS (
+                            SELECT 1 FROM orderProcess
+                            WHERE orderProcess.orderID = orders.id
+                            AND orderProcess.status != 'complete'
+                        ) THEN
+                            CASE
+                                WHEN NOT EXISTS (
+                                    SELECT 1 FROM salesOrder
+                                    WHERE salesOrder.orderID = orders.id
+                                ) THEN 'For Verification'
+                                ELSE 'Unpaid'
+                            END
+                        WHEN NOT EXISTS (
+                            SELECT 1 FROM userProcessTasks
+                            JOIN orderProcess ON userProcessTasks.orderProcessID = orderProcess.id
+                            WHERE orderProcess.orderID = orders.id
+                        ) THEN 'Idle'
+                        ELSE 'Active'
+                    END AS status
+                FROM orders
+                JOIN subservices ON orders.subserviceID = subservices.id
+                JOIN services ON subservices.serviceID = services.id
+                LEFT JOIN publicOrderPages ON publicOrderPages.orderID = orders.id
+            ) AS ordersView
+            WHERE 1=1
         ";
 
-        $stmt = $this->pdo->prepare($query);
-        $stmt->execute();
+        if ($search !== '') {
+            $query .= " AND (ordersView.id = :searchId OR ordersView.customerName LIKE :searchName)";
+        }
 
+        $statusMap = [
+            'idle' => 'Idle',
+            'active' => 'Active',
+            'unpaid' => 'Unpaid',
+            'for verification' => 'For Verification',
+        ];
+
+        if ($normalizedStatus !== '' && isset($statusMap[$normalizedStatus])) {
+            $query .= " AND ordersView.status = :status";
+        }
+
+        if ($serviceID > 0) {
+            $query .= " AND ordersView.serviceID = :serviceID";
+        }
+
+        $query .= " ORDER BY ordersView.id ASC";
+
+        $stmt = $this->pdo->prepare($query);
+
+        if ($search !== '') {
+            $stmt->bindValue(':searchId', $searchId, PDO::PARAM_INT);
+            $stmt->bindValue(':searchName', $searchName, PDO::PARAM_STR);
+        }
+
+        if ($normalizedStatus !== '' && isset($statusMap[$normalizedStatus])) {
+            $stmt->bindValue(':status', $statusMap[$normalizedStatus], PDO::PARAM_STR);
+        }
+
+        if ($serviceID > 0) {
+            $stmt->bindValue(':serviceID', $serviceID, PDO::PARAM_INT);
+        }
+
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
