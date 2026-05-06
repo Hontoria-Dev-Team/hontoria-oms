@@ -275,7 +275,19 @@
 
     // Due time calculation
     document.querySelectorAll('.dueInText').forEach(function(elem) {
-        elem.textContent = elem.dataset.dueDate == '0000-00-00 00:00:00' ? "No due date" : getDueTime(elem.dataset.dueDate) + " (" + formatDate(elem.dataset.dueDate) + ")";
+        if (elem.dataset.dueDate === '0000-00-00 00:00:00') {
+            elem.textContent = "No due date";
+            return;
+        }
+
+        let due = getDueTime(elem.dataset.dueDate);
+
+        if (due.toString().startsWith('-')) {
+            elem.textContent = "OVERDUE " + due.replace(/-/g, '') + " (" + formatDate(elem.dataset.dueDate) + ")";
+            elem.classList.add("redText");
+        } else {
+            elem.textContent = due + " (" + formatDate(elem.dataset.dueDate) + ")";
+        }
     });
 
     // Order Process Graph Show Function
