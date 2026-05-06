@@ -210,7 +210,7 @@
     <?php include("../Views/.Components/ImageBox.php"); ?>
 </body>
 <script src="../.JS/ConfirmationBox.js"></script>
-<script src="../. JS/CsrfHandler.js"></script>
+<script src="../.JS/CsrfHandler.js"></script>
 <script src="../.JS/ImageBox.js"></script>
 <script>
     const userImageContainer = document.getElementById('userImageContainer');

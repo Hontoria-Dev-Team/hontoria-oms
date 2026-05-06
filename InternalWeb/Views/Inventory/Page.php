@@ -205,7 +205,7 @@
     <?php include("../Views/.Components/ConfirmationBox.php"); ?>
 </body>
 <script src="../.JS/ConfirmationBox.js"></script>
-<script src="../. JS/CsrfHandler.js"></script>
+<script src="../.JS/CsrfHandler.js"></script>
 <script src="../.JS/TimeHelpers.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts" crossorigin="anonymous"></script>
 <script>

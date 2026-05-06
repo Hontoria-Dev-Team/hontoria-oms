@@ -156,7 +156,7 @@
     <?php include("../Views/.Components/ConfirmationBox.php"); ?>
 </body>
 <script src="../.JS/ConfirmationBox.js"></script>
-<script src="../. JS/CsrfHandler.js"></script>
+<script src="../.JS/CsrfHandler.js"></script>
 <script src="../.JS/MiscHelpers.js"></script>
 <script>
     const selectedRoleTitle = document.getElementById('selectedRoleTitle');
