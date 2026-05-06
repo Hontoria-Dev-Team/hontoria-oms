@@ -6,11 +6,20 @@ class SalesM {
         $this->pdo = $pdo;
     }
 
-    public function getAllSalesRecords() {
-        $query = "SELECT * FROM salesRecords";
+    public function getSalesRecordsForLastYear() {
+        $query = "SELECT * FROM salesRecords WHERE date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR) ORDER BY date DESC";
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getFilteredSalesRecords($startDate, $endDate) {
+        $query = "SELECT * FROM salesRecords WHERE date >= :startDate AND date <= :endDate ORDER BY date DESC";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute([':startDate' => $startDate, ':endDate' => $endDate]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -100,6 +109,7 @@ class SalesM {
                 $query = "UPDATE salesRecords SET value = :val WHERE id = :id";
                 $stmt = $this->pdo->prepare($query);
                 $stmt->execute([':val' => $newValue, ':id' => $existing['id']]);
+                $this->insertUserActivityLog($_SESSION['id'], 'sales', "Updated inflow record: $description", 'green');
                 return "Success: Existing order payment record updated.";
             }
         }
@@ -114,6 +124,7 @@ class SalesM {
             ':description' => $description,
             ':value'       => $value
         ]);
+        $this->insertUserActivityLog($_SESSION['id'], 'sales', "Created inflow record: $type - $description", 'green');
         return "Success: Inflow record added.";
     }
 
@@ -130,6 +141,7 @@ class SalesM {
             ':description' => $description,
             ':value' => $value
         ]);
+        $this->insertUserActivityLog($_SESSION['id'], 'sales', "Created outflow record: $type - $description", 'green');
     }
 
     public function deleteRecord($recordID) {
@@ -160,9 +172,21 @@ class SalesM {
                 return "Error: Invalid order payment record.";
             }
             $orderID = (int)$matches[1];
-            $paymentAmount = (float)$record['value'];
 
-            // Check if salesOrder row still exists
+            // Check if order exists in orders table
+            $query = "SELECT id FROM orders WHERE id = :orderID";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':orderID', $orderID, PDO::PARAM_INT);
+            $stmt->execute();
+            $order = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // If order doesn't exist, prevent deletion
+            if (!$order) {
+                return "Error: Cannot delete this record since the associated order is not found.";
+            }
+
+            // Order exists, check if salesOrder record exists and deduct from pricePaid
+            $paymentAmount = (float)$record['value'];
             $query = "SELECT * FROM salesOrder WHERE orderID = :orderID";
             $stmt = $this->pdo->prepare($query);
             $stmt->bindParam(':orderID', $orderID, PDO::PARAM_INT);
@@ -195,6 +219,12 @@ class SalesM {
         $stmt->bindParam(':id', $recordID, PDO::PARAM_INT);
         $stmt->execute();
 
+        $this->insertUserActivityLog(
+            $_SESSION['id'],
+            'sales',
+            "Deleted sales record: " . $record['description'],
+            'red'
+        );
         return "Success: Record deleted.";
     }
 

@@ -10,13 +10,42 @@ class SalesC {
     public function showPage() {
         $page = "sales";
 
-        $salesRecords = $this->salesModel->getAllSalesRecords();
+        $granularity = $_GET['granularity'] ?? 'daily';
+        $range = (int)($_GET['range'] ?? 30);
+        $selectedDateRaw = $_GET['selectedDate'] ?? date('Y-m-d');
+        $selectedTimestamp = strtotime($selectedDateRaw);
+        if ($selectedTimestamp === false) {
+            $selectedDate = date('Y-m-d');
+        } else {
+            $selectedDate = date('Y-m-d', $selectedTimestamp);
+        }
+        $endDate = $selectedDate;
+
+        if ($granularity === 'daily') {
+            $startDate = date('Y-m-d', strtotime("$selectedDate - $range days - 7 days"));
+        } elseif ($granularity === 'weekly') {
+            $days = $range * 7;
+            $startDate = date('Y-m-d', strtotime("$selectedDate - $days days - 7 days"));
+        } elseif ($granularity === 'monthly') {
+            $startDate = date('Y-m-d', strtotime("$selectedDate - $range months - 7 days"));
+        } else {
+            $startDate = date('Y-m-d', strtotime("$selectedDate - 30 days - 7 days"));
+        }
+
+        $salesRecords = $this->salesModel->getFilteredSalesRecords($startDate, $endDate);
         $salesOrders = $this->salesModel->getAllSalesOrders();
+        $canManageSalesRecords = in_array('canManageSalesRecords', $_SESSION['permissions'] ?? []);
 
         require __DIR__ . '/../Views/Sales/Page.php';
     }
 
     public function createInflowRecord() {
+        if (!in_array('canManageSalesRecords', $_SESSION['permissions'] ?? [])) {
+            $_SESSION['message'] = "Error: No proper permission to do action.";
+            header("Location: index.php?page=sales");
+            exit;
+        }
+
         $value = $_POST['value'] ?? '';
         if ($value === '' || !is_numeric($value) || $value <= 0) {
             $_SESSION['message'] = "Error: Value must be a positive number.";
@@ -60,6 +89,12 @@ class SalesC {
     }
 
     public function createOutflowRecord() {
+        if (!in_array('canManageSalesRecords', $_SESSION['permissions'] ?? [])) {
+            $_SESSION['message'] = "Error: No proper permission to do action.";
+            header("Location: index.php?page=sales");
+            exit;
+        }
+
         $type        = $_POST['type'] ?? '';
         $description = $_POST['description'] ?? '';
         $value       = $_POST['value'] ?? '';
@@ -82,6 +117,12 @@ class SalesC {
     }
 
     public function removeRecord() {
+        if (!in_array('canManageSalesRecords', $_SESSION['permissions'] ?? [])) {
+            $_SESSION['message'] = "Error: No proper permission to do action.";
+            header("Location: index.php?page=sales");
+            exit;
+        }
+
         $recordID = $_POST['recordID'] ?? null;
 
         if ($recordID === null) {

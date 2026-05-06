@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html>
 
+<?php
+$canManageSalesRecords = $canManageSalesRecords ?? false;
+$granularity = $granularity ?? 'daily';
+$range = $range ?? 30;
+$selectedDate = $selectedDate ?? date('Y-m-d');
+?>
+
 <head>
     <title>Sales Panel - Hontoria OMS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -136,9 +143,11 @@
                                 <div class="flexMax scrollable regTinPadding columnLayout tinGap noFlexBasis noMinHeight" id="inflowRecordsContainer">
                                     <h4 class="centerMarginsSelf">No Inflow</h4>
                                 </div>
-                                <button type="button" class="darkBG noBorder shadowed centerColumnLayout fitHeight clickable roundedTin" id="addInflowRecordButton">
-                                    <h5 class="whiteText">Add Inflow Record</h5>
-                                </button>
+                                <?php if ($canManageSalesRecords): ?>
+                                    <button type="button" class="darkBG noBorder shadowed centerColumnLayout fitHeight clickable roundedTin" id="addInflowRecordButton">
+                                        <h5 class="whiteText">Add Inflow Record</h5>
+                                    </button>
+                                <?php endif; ?>
                             </div>
                             <div class="fullHeight flexMax columnLayout minGap">
                                 <h5 id="selectedDateOutflowText" class="capitalFirst midZ roundedTin centerText redTransBG redBorder whiteText outlineText shadowed">
@@ -147,9 +156,11 @@
                                 <div class="flexMax scrollable regTinPadding columnLayout tinGap noFlexBasis noMinHeight" id="outflowRecordsContainer">
                                     <h4 class="centerMarginsSelf">No Outflow</h4>
                                 </div>
-                                <button type="button" class="darkBG noBorder shadowed centerColumnLayout fitHeight clickable roundedTin" id="addOutflowRecordButton">
-                                    <h5 class="whiteText">Add Outflow Record</h5>
-                                </button>
+                                <?php if ($canManageSalesRecords): ?>
+                                    <button type="button" class="darkBG noBorder shadowed centerColumnLayout fitHeight clickable roundedTin" id="addOutflowRecordButton">
+                                        <h5 class="whiteText">Add Outflow Record</h5>
+                                    </button>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -248,6 +259,8 @@
 
     const salesOrders = <?php echo json_encode($salesOrders); ?>;
 
+    const canManageSalesRecords = <?php echo $canManageSalesRecords ? 'true' : 'false'; ?>;
+
     // ========================== GLOBAL DATA ==========================
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
@@ -296,7 +309,7 @@
     const goYearBtn = document.getElementById('goYearBtn');
     const todayBtn = document.getElementById('todayBtn');
 
-    let currentDate = new Date();
+    let currentDate = new Date('<?php echo htmlspecialchars($selectedDate); ?>');
 
     function daysInMonth(year, month) {
         return new Date(year, month + 1, 0).getDate();
@@ -455,9 +468,7 @@
         }
         const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
         selectedDateStr = lastDay.getFullYear() + '-' + String(lastDay.getMonth() + 1).padStart(2, '0') + '-' + String(lastDay.getDate()).padStart(2, '0');
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), selectedDateStr);
-        updateSalesDetail(selectedDateStr);
-        renderSalesGraphs();
+        window.location.href = `index.php?page=sales&granularity=${granularitySelect.value}&range=${granularityRangeInput.value}&selectedDate=${selectedDateStr}`;
     }
 
     function goToNextMonth() {
@@ -472,9 +483,7 @@
             currentDate.setMonth(currentDate.getMonth() + 1);
         }
         selectedDateStr = currentDate.getFullYear() + '-' + String(currentDate.getMonth() + 1).padStart(2, '0') + '-01';
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), selectedDateStr);
-        updateSalesDetail(selectedDateStr);
-        renderSalesGraphs();
+        window.location.href = `index.php?page=sales&granularity=${granularitySelect.value}&range=${granularityRangeInput.value}&selectedDate=${selectedDateStr}`;
     }
 
     function goToYear(year) {
@@ -496,17 +505,13 @@
                 String(newDay).padStart(2, '0');
         }
 
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), selectedDateStr);
-        updateSalesDetail(selectedDateStr);
-        renderSalesGraphs();
+        window.location.href = `index.php?page=sales&granularity=${granularitySelect.value}&range=${granularityRangeInput.value}&selectedDate=${selectedDateStr}`;
     }
 
     function goToToday() {
         currentDate = new Date();
         selectedDateStr = todayStr;
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), selectedDateStr);
-        updateSalesDetail(selectedDateStr);
-        renderSalesGraphs();
+        window.location.href = `index.php?page=sales&granularity=${granularitySelect.value}&range=${granularityRangeInput.value}&selectedDate=${selectedDateStr}`;
     }
 
     prevMonthBtn.addEventListener('click', goToPrevMonth);
@@ -590,7 +595,7 @@
                     'relatived'
                 );
                 div.innerHTML = `
-                    ${isToday ? `<a class="squareSize unitHeight norWestAbsolute centerColumnLayout edgeCorner clickable recordRemove" data-id="${rec.id}">
+                    ${isToday && canManageSalesRecords ? `<a class="squareSize unitHeight norWestAbsolute centerColumnLayout edgeCorner clickable recordRemove" data-id="${rec.id}">
                         <img src="../../Shared/Img/XIcon.png" alt="X">
                     </a>` : ''}
                     <h5 class="capitalFirst centerText regtinPadding flexMax shadowed greenTransBG whiteText outlineText">
@@ -616,7 +621,7 @@
                     'relatived'
                 );
                 div.innerHTML = `
-                    ${isToday ? `<a class="squareSize unitHeight norWestAbsolute centerColumnLayout edgeCorner clickable recordRemove" data-id="${rec.id}">
+                    ${isToday && canManageSalesRecords ? `<a class="squareSize unitHeight norWestAbsolute centerColumnLayout edgeCorner clickable recordRemove" data-id="${rec.id}">
                         <img src="../../Shared/Img/XIcon.png" alt="X">
                     </a>` : ''}
                     <h5 class="capitalFirst centerText regtinPadding flexMax shadowed redTransBG whiteText outlineText">
@@ -699,7 +704,7 @@
         String(todayObj.getMonth() + 1).padStart(2, '0') + '-' +
         String(todayObj.getDate()).padStart(2, '0');
 
-    let selectedDateStr = todayStr;
+    let selectedDateStr = '<?php echo htmlspecialchars($selectedDate); ?>';
 
     // ========================== SALES SUMMARY ==========================
     const monthInflowText = document.getElementById('monthInflowText');
@@ -829,18 +834,19 @@
     };
 
     function setGranularityUI(gran) {
-        granularityRangeInput.value = defaultRanges[gran];
         granularityRangeInput.min = minRanges[gran];
         granularityRangeInput.max = maxRanges[gran];
         granularityText.textContent = gran === 'daily' ? 'Days:' : (gran === 'weekly' ? 'Weeks:' : 'Months:');
     }
 
     // Initialize and attach listeners
-    setGranularityUI('daily');
+    granularitySelect.value = '<?php echo htmlspecialchars($granularity); ?>';
+    granularityRangeInput.value = '<?php echo htmlspecialchars($range); ?>';
+    setGranularityUI(granularitySelect.value);
 
     granularitySelect.addEventListener('change', function() {
-        setGranularityUI(this.value);
-        renderSalesGraphs();
+        granularityRangeInput.value = defaultRanges[this.value];
+        window.location.href = `index.php?page=sales&granularity=${this.value}&range=${granularityRangeInput.value}&selectedDate=${selectedDateStr}`;
     });
 
     granularityRangeInput.addEventListener('input', function() {
@@ -849,7 +855,7 @@
         const max = parseInt(this.max, 10);
         if (isNaN(val) || val < min) this.value = min;
         if (val > max) this.value = max;
-        renderSalesGraphs();
+        window.location.href = `index.php?page=sales&granularity=${granularitySelect.value}&range=${this.value}&selectedDate=${selectedDateStr}`;
     });
 
     granularityRangeInput.addEventListener('blur', function() {
