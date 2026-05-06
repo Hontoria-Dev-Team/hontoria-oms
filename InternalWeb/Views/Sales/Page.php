@@ -821,6 +821,13 @@
         monthly: 24
     };
 
+    // Chart instance storage for performance
+    let salesChartInstances = {
+        general: null,
+        inflow: null,
+        outflow: null
+    };
+
     function setGranularityUI(gran) {
         granularityRangeInput.value = defaultRanges[gran];
         granularityRangeInput.min = minRanges[gran];
@@ -1282,16 +1289,31 @@
         const outflowStreamsGraph = document.getElementById('outflowStreamsGraph');
 
         if (salesGraph) {
-            salesGraph.innerHTML = '<h4 class="norAbsolute closeCorner topZ">General Sales Graph</h4>';
-            new ApexCharts(salesGraph, opts.generalSalesOptions).render();
+            if (salesChartInstances.general) {
+                salesChartInstances.general.updateOptions(opts.generalSalesOptions);
+            } else {
+                salesGraph.innerHTML = '<h4 class="norAbsolute closeCorner topZ">General Sales Graph</h4>';
+                salesChartInstances.general = new ApexCharts(salesGraph, opts.generalSalesOptions);
+                salesChartInstances.general.render();
+            }
         }
         if (inflowStreamsGraph) {
-            inflowStreamsGraph.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Inflow Streams Graph</h4>';
-            new ApexCharts(inflowStreamsGraph, opts.inflowStreamsOptions).render();
+            if (salesChartInstances.inflow) {
+                salesChartInstances.inflow.updateOptions(opts.inflowStreamsOptions);
+            } else {
+                inflowStreamsGraph.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Inflow Streams Graph</h4>';
+                salesChartInstances.inflow = new ApexCharts(inflowStreamsGraph, opts.inflowStreamsOptions);
+                salesChartInstances.inflow.render();
+            }
         }
         if (outflowStreamsGraph) {
-            outflowStreamsGraph.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Outflow Streams Graph</h4>';
-            new ApexCharts(outflowStreamsGraph, opts.outflowStreamsOptions).render();
+            if (salesChartInstances.outflow) {
+                salesChartInstances.outflow.updateOptions(opts.outflowStreamsOptions);
+            } else {
+                outflowStreamsGraph.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Outflow Streams Graph</h4>';
+                salesChartInstances.outflow = new ApexCharts(outflowStreamsGraph, opts.outflowStreamsOptions);
+                salesChartInstances.outflow.render();
+            }
         }
     }
 

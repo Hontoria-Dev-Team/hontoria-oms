@@ -248,6 +248,13 @@
         records: []
     };
 
+    // Chart instance storage for performance
+    let chartInstances = {
+        daily: null,
+        weekly: null,
+        monthly: null
+    };
+
     inventoryElement.forEach(elem => {
         const currentQty = parseInt(elem.dataset.quantity) || 0;
         const minQty = parseInt(elem.dataset.minQuantity) || 0;
@@ -908,17 +915,34 @@
         const weekly = document.getElementById('weeklyGraph');
         const monthly = document.getElementById('monthlyGraph');
 
-        daily.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Daily Data</h4>';
-        weekly.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Weekly Data</h4>';
-        monthly.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Monthly Data</h4>';
-
         const dailyData = prepared.GenerateDailyData();
         const weeklyData = prepared.GenerateWeeklyData();
         const monthlyData = prepared.GenerateMonthlyData();
 
-        new ApexCharts(daily, prepared.CreateChartOptions(dailyData, 'daily')).render();
-        new ApexCharts(weekly, prepared.CreateChartOptions(weeklyData, 'weekly')).render();
-        new ApexCharts(monthly, prepared.CreateChartOptions(monthlyData, 'monthly')).render();
+        // Reuse or create chart instances
+        if (chartInstances.daily) {
+            chartInstances.daily.updateOptions(prepared.CreateChartOptions(dailyData, 'daily'));
+        } else {
+            daily.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Daily Data</h4>';
+            chartInstances.daily = new ApexCharts(daily, prepared.CreateChartOptions(dailyData, 'daily'));
+            chartInstances.daily.render();
+        }
+
+        if (chartInstances.weekly) {
+            chartInstances.weekly.updateOptions(prepared.CreateChartOptions(weeklyData, 'weekly'));
+        } else {
+            weekly.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Weekly Data</h4>';
+            chartInstances.weekly = new ApexCharts(weekly, prepared.CreateChartOptions(weeklyData, 'weekly'));
+            chartInstances.weekly.render();
+        }
+
+        if (chartInstances.monthly) {
+            chartInstances.monthly.updateOptions(prepared.CreateChartOptions(monthlyData, 'monthly'));
+        } else {
+            monthly.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Monthly Data</h4>';
+            chartInstances.monthly = new ApexCharts(monthly, prepared.CreateChartOptions(monthlyData, 'monthly'));
+            chartInstances.monthly.render();
+        }
     }
 
     let resizeTimer;
