@@ -40,6 +40,11 @@
         }
 
         @media (max-width: 450px) {
+            #userImageContainer img {
+                height: unset !important;
+                width: 75% !important;
+            }
+
             .asideLayout>main>h1 {
                 font-size: 1.25rem !important;
             }
@@ -47,9 +52,7 @@
             .asideLayout>main>h1>img {
                 display: block !important;
             }
-        }
 
-        @media (max-width: 400px) {
             .asideLayout>main>section {
                 justify-content: flex-start;
                 overflow-x: scroll;
