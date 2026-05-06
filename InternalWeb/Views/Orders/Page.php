@@ -21,6 +21,15 @@
                 min-width: calc(100vw - 3rem) !important;
                 max-width: calc(100vw - 3rem) !important;
             }
+
+            form[action="?page=orders&action=filter"] {
+                overflow-y: scroll;
+                padding: 0.1rem !important;
+            }
+
+            form[action="?page=orders&action=filter"] input[type="search"] {
+                width: 250px !important;
+            }
         }
 
         @media (max-width: 450px) {
@@ -45,14 +54,11 @@
                 position: sticky;
                 left: 0;
             }
+        }
 
-            form[action="index.php?page=staff"] {
-                overflow-y: scroll;
-                padding: 0.1rem !important;
-            }
-
-            form[action="index.php?page=staff"] input[type="search"] {
-                width: 60vw !important;
+        @media (max-width: 400px) {
+            form[action="?page=orders&action=filter"] input[type="search"] {
+                width: 200px !important;
             }
         }
     </style>
