@@ -49,6 +49,11 @@ class AuthorizationC {
     public function showAccountManagementPage() {
         $page = "account";
         $accountImage = $this->staffModel->getAccountImage($_SESSION['id']);
+
+        $roleList = $this->staffModel->getAllUserRolesByUserID($_SESSION['id']);
+        $stats = $this->staffModel->getUserStatsByID($_SESSION['id']);
+        $logsList = $this->staffModel->getUserActivityLogsByID($_SESSION['id']);
+
         $note = $this->staffModel->getAccount($_SESSION['id'])['note'] ?? '';
         require_once __DIR__ . '/../Views/Account/Page.php';
     }
@@ -62,7 +67,7 @@ class AuthorizationC {
 
     public function showStaff() {
         $page = "staff";
-        
+
         // Extract filter parameters from GET
         $search = isset($_GET['search']) ? strtolower(trim($_GET['search'])) : '';
         $onlineStatus = isset($_GET['onlineStatus']) ? strtolower(trim($_GET['onlineStatus'])) : '';

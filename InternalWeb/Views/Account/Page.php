@@ -112,6 +112,12 @@
     <main class="columnLayout midGap">
         <h1 class="titleLogo minGap tinHeight">
             <img src="../../Shared/Img/AccountSettingsIcon.png" alt="AccountSettings"> Account Settings
+            <div class="rowLayout minGap flexMax contentFlexEnd">
+                <div class="roundedMin centerColumnLayout importantInput regTinPadding emphasizedText shadowed squareSize clickable"
+                    id="additionalInfoButton">
+                    <img src="../../Shared/Img/QuestionIcon.png" alt="Question" class="invertColors">
+                </div>
+            </div>
         </h1>
         <?php include("../Views/.Components/MessageBox.php"); ?>
         <section class="centerColumnLayout midGap flexMax">
@@ -215,8 +221,14 @@
 <script src="../.JS/ConfirmationBox.js"></script>
 <script src="../.JS/CsrfHandler.js"></script>
 <script src="../.JS/ImageBox.js"></script>
+<script src="../.JS/TimeHelpers.js"></script>
 <script>
     const userImageContainer = document.getElementById('userImageContainer');
+    const additionalInfoButton = document.getElementById('additionalInfoButton');
+    const permissionList = <?php echo json_encode($_SESSION['permissions']); ?>;
+    const roleList = <?php echo json_encode($roleList); ?>;
+    const stats = <?php echo json_encode($stats); ?>;
+    const logsList = <?php echo json_encode($logsList); ?>;
 
     document.addEventListener("DOMContentLoaded", () => {
         confirmationCancel.value = "No Cancel";
@@ -304,6 +316,100 @@
         });
     });
 
+    additionalInfoButton.addEventListener('click', function() {
+        confirmationContent.classList.add("maxWidth");
+        confirmationForm.action = "";
+
+        confirmationTitle.innerHTML = "Additional Account Info";
+        confirmationText.innerHTML = "Additional account info such as your statistics, role/s, permission/s, and system activity logs";
+        confirmationSubmit.classList.add("hidden");
+
+        const completed = stats['tasksCompleted'] || 0;
+        const totalDuration = stats['tasksCompletedDuration'] || 0;
+        const avgDuration = completed > 0 ? (totalDuration / completed).toFixed(2) : 0;
+
+        const containerDiv = document.createElement("div");
+        containerDiv.className = "maxHeight scrollable regMinPadding tempElement columnLayout tinGap";
+        confirmationForm.appendChild(containerDiv);
+
+        const completedTasksText = document.createElement("h5");
+        completedTasksText.textContent = "Tasks Completed (#): " + completed;
+        containerDiv.appendChild(completedTasksText);
+
+        const averageTaskDurationText = document.createElement("h5");
+        averageTaskDurationText.textContent = "Average Task Duration: " + avgDuration;
+        containerDiv.appendChild(averageTaskDurationText);
+
+        const roleText = document.createElement("h5");
+        roleText.textContent = "Your roles: ";
+        containerDiv.appendChild(roleText);
+
+        const rolesContainer = document.createElement("div");
+        rolesContainer.className = "gridCenterVertFlex tinGap";
+        containerDiv.appendChild(rolesContainer);
+
+        roleList.forEach(element => {
+            const roleElement = document.createElement("h5");
+            roleElement.className = "yellowTransBG yellowBorder whiteText outlineText capitalFirst regMinPadding roundedMin shadowed";
+            roleElement.textContent = element['name'];
+            rolesContainer.appendChild(roleElement);
+        });
+
+        if (rolesContainer.childElementCount === 0) {
+            const noRolesText = document.createElement("h5");
+            noRolesText.className = "darkTransBG bordered whiteText outlineText capitalFirst regMinPadding roundedMin fullWidth centerText shadowed";
+            noRolesText.textContent = "No Roles Assigned";
+            rolesContainer.appendChild(noRolesText);
+        } else {
+            const permissionText = document.createElement("h5");
+            permissionText.textContent = "Your permissions: ";
+            containerDiv.appendChild(permissionText);
+
+            const permissionContainer = document.createElement("div");
+            permissionContainer.className = "gridCenterVertFlex tinGap";
+            containerDiv.appendChild(permissionContainer);
+
+            permissionList.forEach(element => {
+                const permissionElement = document.createElement("h5");
+                permissionElement.className = "yellowTransBG yellowBorder whiteText outlineText capitalFirst regMinPadding roundedMin shadowed";
+                permissionElement.textContent = element;
+                permissionContainer.appendChild(permissionElement);
+            });
+        }
+
+        const logText = document.createElement("h5");
+        logText.textContent = "Your recent activity logs: ";
+        containerDiv.appendChild(logText);
+
+        const logContainer = document.createElement("div");
+        logContainer.className = "gridCenterVertFlex minGap";
+        containerDiv.appendChild(logContainer);
+
+        logsList.forEach(element => {
+            const logDiv = document.createElement('div');
+            logDiv.className = 'centerColumnLayout roundedTin regTinPadding shadowed fitHeight fullWidth';
+            logDiv.innerHTML = `
+                <h5 class="centerText minHoriPadding whiteText outlineText">${element['log']}</h5>
+                <h6>${formatDateTime(element['loggedAt'])}</h6>
+            `;
+            // Apply color class
+            if (element['color'] === 'red') logDiv.classList.add('redTransBG', 'redBorder');
+            else if (element['color'] === 'yellow') logDiv.classList.add('yellowTransBG', 'yellowBorder');
+            else if (element['color'] === 'green') logDiv.classList.add('greenTransBG', 'greenBorder');
+            else logDiv.classList.add('darkFadedBG', 'bordered');
+            logContainer.appendChild(logDiv);
+        });
+
+        if (logContainer.childElementCount === 0) {
+            const noLogsText = document.createElement("h5");
+            noLogsText.className = "darkTransBG bordered whiteText outlineText capitalFirst regMinPadding roundedMin fullWidth centerText shadowed";
+            noLogsText.textContent = "No Recent Activity Logs";
+            logContainer.appendChild(noLogsText);
+        }
+
+        confirmation.style.display = 'flex';
+    });
+
     // Added cancellation events
     confirmationCancel.addEventListener('click', function() {
         document.querySelectorAll('.tempElement').forEach(function(elem) {
@@ -312,6 +418,7 @@
 
         confirmationForm.removeAttribute("enctype");
         confirmationSubmit.classList.remove("hidden");
+        confirmationContent.classList.remove("maxWidth", "fitWidth");
     });
 
     confirmationBG.addEventListener('click', function() {
@@ -321,6 +428,7 @@
 
         confirmationForm.removeAttribute("enctype");
         confirmationSubmit.classList.remove("hidden");
+        confirmationContent.classList.remove("maxWidth", "fitWidth");
     });
 </script>
 

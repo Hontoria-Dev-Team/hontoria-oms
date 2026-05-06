@@ -174,13 +174,13 @@ class StaffM {
             FROM users
             ORDER BY
                 CASE
-                    WHEN lastActivityAt >= DATE_SUB(NOW(), INTERVAL 15 MINUTE) THEN 
-                        CASE 
+                    WHEN lastActivityAt >= DATE_SUB(NOW(), INTERVAL 15 MINUTE) THEN
+                        CASE
                             WHEN (SELECT COUNT(*) FROM userProcessTasks WHERE userProcessTasks.userID = users.id) > 0 OR (SELECT COUNT(*) FROM miscellaneousTasks WHERE miscellaneousTasks.userID = users.id) > 0 THEN 1
                             ELSE 2
                         END
-                    ELSE 
-                        CASE 
+                    ELSE
+                        CASE
                             WHEN (SELECT COUNT(*) FROM userProcessTasks WHERE userProcessTasks.userID = users.id) > 0 OR (SELECT COUNT(*) FROM miscellaneousTasks WHERE miscellaneousTasks.userID = users.id) > 0 THEN 3
                             ELSE 4
                         END
@@ -429,6 +429,14 @@ class StaffM {
     public function getAllUserRoles() {
         $query = "SELECT userRoles.userID, userRoles.roleID, roles.name FROM userRoles JOIN roles ON roles.id = userRoles.roleID";
         $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getAllUserRolesByUserID($userID) {
+        $query = "SELECT roles.name FROM userRoles JOIN roles ON roles.id = userRoles.roleID WHERE userRoles.userID = :userID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -907,9 +915,25 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getUserStatsByID($userID) {
+        $query = "SELECT * FROM userStats WHERE userID = :userID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function getAllUserActivityLogs() {
         $query = "SELECT * FROM userActivityLog ORDER BY loggedAt DESC";
         $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getUserActivityLogsByID($userID) {
+        $query = "SELECT * FROM userActivityLog WHERE userID = :userID ORDER BY loggedAt DESC";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
