@@ -8,6 +8,7 @@ class SalesC {
     }
 
     public function showPage() {
+        date_default_timezone_set('Asia/Manila');
         $page = "sales";
 
         $granularity = $_GET['granularity'] ?? 'daily';

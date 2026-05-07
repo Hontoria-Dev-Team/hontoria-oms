@@ -7,6 +7,7 @@ class SalesM {
     }
 
     public function getSalesRecordsForLastYear() {
+        date_default_timezone_set('Asia/Manila');
         $query = "SELECT * FROM salesRecords WHERE date >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR) ORDER BY date DESC";
 
         $stmt = $this->pdo->prepare($query);
@@ -16,6 +17,7 @@ class SalesM {
     }
 
     public function getFilteredSalesRecords($startDate, $endDate) {
+        date_default_timezone_set('Asia/Manila');
         $query = "SELECT * FROM salesRecords WHERE date >= :startDate AND date <= :endDate ORDER BY date DESC";
 
         $stmt = $this->pdo->prepare($query);
