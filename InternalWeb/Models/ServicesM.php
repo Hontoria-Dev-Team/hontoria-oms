@@ -437,6 +437,21 @@ class ServicesM {
 
     // Update process settings
     public function updateProcess($id, $minAssignDefault, $maxAssignDefault, $hasGCAccess, $designAccess, $variableListAccess) {
+        // Check if process is used in any service
+        $serviceProcesses = $this->getAllServiceProcesses();
+        $isInUse = false;
+
+        foreach ($serviceProcesses as $serviceProcess) {
+            if ((int)$serviceProcess['id'] === (int)$id) {
+                $isInUse = true;
+                break;
+            }
+        }
+
+        if ($isInUse) {
+            return "Error: Cannot update this process because it is in use in a service";
+        }
+
         // Log process update
         $this->insertUserActivityLog(
             $_SESSION['id'],

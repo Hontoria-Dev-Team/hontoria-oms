@@ -159,9 +159,7 @@ class ServicesC {
             $designAccess = $_POST['designAccess'];
             $variableListAccess = $_POST['variableListAccess'];
 
-            $this->servicesModel->updateProcess($selectedID, $minAssign, $maxAssign, $hasGCAccess, $designAccess, $variableListAccess);
-
-            $_SESSION['message'] = "Success: Updated process.";
+            $_SESSION['message'] = $this->servicesModel->updateProcess($selectedID, $minAssign, $maxAssign, $hasGCAccess, $designAccess, $variableListAccess);
         } else {
             $_SESSION['message'] = "Error: You do not have permission to manage service processes.";
         }
