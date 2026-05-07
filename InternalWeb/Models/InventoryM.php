@@ -101,6 +101,8 @@ class InventoryM {
     }
 
     public function getInventoryRecordsByIDAndDateRange($inventoryID, $monthRange = 12) {
+        date_default_timezone_set('Asia/Manila');
+
         // Validate inputs
         $inventoryID = (int)$inventoryID;
         $monthRange = max(1, (int)$monthRange);
