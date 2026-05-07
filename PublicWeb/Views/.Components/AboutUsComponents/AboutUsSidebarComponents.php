@@ -6,7 +6,9 @@ $sectionItems = [
     ['id' => 'location',  'icon' => 'fa-map-marker-alt', 'label' => 'Location'],
     ['id' => 'workplace', 'icon' => 'fa-store',          'label' => 'Inside the Shop'],
     ['id' => 'owner',     'icon' => 'fa-user-tie',       'label' => 'The Owner'],
-    ['id' => 'employees', 'icon' => 'fa-users',          'label' => 'Our Team'],
+
+    /**['id' => 'employees', 'icon' => 'fa-users',          'label' => 'Our Team'],
+     */
 ];
 
 // UPDATED: Changed the direct file paths to use your index.php routing
