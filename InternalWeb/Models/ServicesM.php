@@ -476,7 +476,9 @@ class ServicesM {
         $stmt->bindParam(':designAccess', $designAccess);
         $stmt->bindParam(':variableListAccess', $variableListAccess);
 
-        return $stmt->execute();
+        $stmt->execute();
+
+        return "Success: Updated the process.";
     }
 
     // Subservice Getters
