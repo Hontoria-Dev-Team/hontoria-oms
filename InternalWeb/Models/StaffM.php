@@ -342,7 +342,8 @@ class StaffM {
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
-            return "Error: " . $e->getMessage();
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 
@@ -632,7 +633,8 @@ class StaffM {
             return "Success: Role '{$roleName}' deleted successfully.";
         } catch (PDOException $e) {
             $this->pdo->rollBack();
-            return "Error: " . $e->getMessage();
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 
@@ -1078,8 +1080,8 @@ class StaffM {
             if (file_exists($targetPath)) {
                 unlink($targetPath);
             }
-            $errorMsg = "Error: " . $e->getMessage();
-            return $errorMsg;
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 

@@ -252,7 +252,8 @@ class InventoryM {
             return "Success: Inventory record updated successfully.";
         } catch (Exception $e) {
             $this->pdo->rollBack();
-            return "Error: Failed. " . ($e->getMessage());
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 
@@ -299,7 +300,8 @@ class InventoryM {
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
-            return "Error: Failed. " . $e->getMessage();
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 
@@ -368,7 +370,8 @@ class InventoryM {
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
-            return "Error: Failed. " . $e->getMessage();
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 
@@ -403,7 +406,8 @@ class InventoryM {
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
-            return "Error: Failed. " . $e->getMessage();
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 
@@ -438,7 +442,8 @@ class InventoryM {
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
-            return "Error: Failed. " . $e->getMessage();
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 

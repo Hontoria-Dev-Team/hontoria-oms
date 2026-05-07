@@ -296,7 +296,8 @@ class OrdersM {
                 if (file_exists($targetPath)) {
                     unlink($targetPath);
                 }
-                return "Error: " . $e->getMessage();
+                error_log($e->getMessage());
+                return "An error occurred. Please try again.";
             }
         }
 
@@ -636,7 +637,8 @@ class OrdersM {
             return "Success: Variable list updated.";
         } catch (Exception $e) {
             $this->pdo->rollBack();
-            return "Error: " . $e->getMessage();
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 
@@ -1353,7 +1355,8 @@ class OrdersM {
                 $this->pdo->rollBack();
             }
 
-            return "Error: Failed to create order. " . $e->getMessage();
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         } catch (Exception $e) {
             // Rollback on any other error
             if ($this->pdo->inTransaction()) {
@@ -1553,7 +1556,8 @@ class OrdersM {
             return $isCompleted ? "Success: Order has been verified and archived." : "Success: Order has been deleted and archived.";
         } catch (PDOException $e) {
             $this->pdo->rollBack();
-            return "Error: Failed. " . $e->getMessage();
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 

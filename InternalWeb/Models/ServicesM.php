@@ -155,7 +155,8 @@ class ServicesM {
             return "Success: Deleted service.";
         } catch (PDOException $e) {
             $this->pdo->rollBack();
-            return "Error: Failed. " . ($e->getMessage());
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 
@@ -641,7 +642,8 @@ class ServicesM {
             return "Success: Deleted subservice.";
         } catch (PDOException $e) {
             $this->pdo->rollBack();
-            return "Error: Failed. " . $e->getMessage();
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 
@@ -832,7 +834,8 @@ class ServicesM {
                     unlink($filePath);
                 }
             }
-            return "Error: Failed. " . $e->getMessage();
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 
@@ -882,7 +885,8 @@ class ServicesM {
 
             return "Success: Deletion successful.";
         } catch (PDOException $e) {
-            return "Error: Failed. " . $e->getMessage();
+            error_log($e->getMessage());
+            return "An error occurred. Please try again.";
         }
     }
 
