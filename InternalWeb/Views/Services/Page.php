@@ -311,6 +311,24 @@
     });
 
     // ================================
+    // Helper: Refresh CSRF token in confirmation form before submission
+    // ================================
+    function refreshCsrfToken() {
+        // Get the current CSRF token from the page
+        const pageToken = document.querySelector('input[name="_csrf_token"]');
+        if (pageToken) {
+            // Remove old token from confirmation form if exists
+            const oldToken = confirmationForm.querySelector('input[name="_csrf_token"]');
+            if (oldToken) {
+                oldToken.remove();
+            }
+            // Clone and add fresh token to confirmation form
+            const tokenClone = pageToken.cloneNode(true);
+            confirmationForm.insertBefore(tokenClone, confirmationForm.firstChild);
+        }
+    }
+
+    // ================================
     // Hidden inputs for confirmation form
     // ================================
     const selectedServiceIdInput = document.createElement("input");
@@ -873,6 +891,10 @@
                 tempElement.classList.add("faded", "unclickable");
             } else {
                 document.getElementById('deleteSubserviceButton').addEventListener('click', () => {
+                    // Clean up and refresh token before showing confirmation
+                    document.querySelectorAll('.tempElement').forEach(el => el.remove());
+                    refreshCsrfToken();
+
                     confirmationTitle.innerHTML = "Delete Subservice?";
                     confirmationForm.action = "index.php?page=services&action=deleteSubservice";
                     confirmationText.innerHTML = "Are you sure to delete the " + currentSubservice.name + " subservice?";
@@ -886,6 +908,10 @@
         const isBlocked = (currentSubservice.isActive == 1 && currentService.subservices.filter(s => s.isActive == 1).length === 1);
         if (!isBlocked) {
             document.getElementById('subserviceStatusButton').addEventListener('click', function() {
+                // Clean up and refresh token before showing confirmation
+                document.querySelectorAll('.tempElement').forEach(el => el.remove());
+                refreshCsrfToken();
+
                 confirmationTitle.innerHTML = "Toggle Subservice Status?";
                 confirmationForm.action = "index.php?page=services&action=toggleSubserviceStatus";
                 confirmationText.innerHTML = "Are you sure to " + this.textContent + " the " + currentSubservice.name + " subservice?";
@@ -904,12 +930,23 @@
 
         const container = subserviceDataContainer.getElementsByTagName('div')[0];
         const formElement = container.getElementsByTagName('form')[0];
-        const descriptionInput = formElement.getElementsByTagName('textarea')[0];
-        const serviceIdInput = formElement.getElementsByTagName('input')[0];
-        const subserviceIdInput = formElement.getElementsByTagName('input')[1];
-        const priceInput = formElement.getElementsByTagName('input')[2];
+        const descriptionInput = formElement.querySelector('textarea[name="description"]');
+        const serviceIdInput = formElement.querySelector('input[name="selectedServiceID"]');
+        const subserviceIdInput = formElement.querySelector('input[name="selectedSubserviceID"]');
+        const priceInput = formElement.querySelector('input[name="pricePerUnit"]');
 
         container.classList.remove("hidden");
+
+        // Refresh CSRF token in this form
+        const pageToken = document.querySelector('input[name="_csrf_token"]');
+        if (pageToken) {
+            const oldToken = formElement.querySelector('input[name="_csrf_token"]');
+            if (oldToken) {
+                oldToken.remove();
+            }
+            const tokenClone = pageToken.cloneNode(true);
+            formElement.insertBefore(tokenClone, formElement.firstChild);
+        }
 
         serviceIdInput.value = currentService.id;
         subserviceIdInput.value = currentSubservice.id;
@@ -961,6 +998,10 @@
 
         document.querySelectorAll('.removeImageButton').forEach(el => {
             el.addEventListener('click', () => {
+                // Clean up and refresh token before showing confirmation
+                document.querySelectorAll('.tempElement').forEach(elem => elem.remove());
+                refreshCsrfToken();
+
                 confirmationTitle.innerHTML = "Remove Subservice Image?";
                 confirmationForm.action = "index.php?page=services&action=removeSubserviceImage";
                 confirmationText.innerHTML = "Are you sure to remove this image from the " + currentSubservice.name + " subservice?";
@@ -991,6 +1032,10 @@
     // SUB SERVICE IMAGE UPLOAD (Multiple)
     // ================================
     addSubserviceImageButton.addEventListener('click', function() {
+        // Clean up and refresh token before showing confirmation
+        document.querySelectorAll('.tempElement').forEach(el => el.remove());
+        refreshCsrfToken();
+
         confirmationContent.classList.add("fitWidth");
         confirmationForm.action = "index.php?page=services&action=uploadSubserviceImages";
 
