@@ -6,6 +6,11 @@ class StaffM {
         $this->pdo = $pdo;
     }
 
+    // ================================================================
+    //  USER LOOKUP & AUTHENTICATION
+    // ================================================================
+
+    // Look up a single user by their username.
     public function findSingleStaff($username) {
         $query = "SELECT id, username, email, passwordHash, firstName, middleName, lastName, phone, createdAt, lastActivityAt
                   FROM users
@@ -19,6 +24,7 @@ class StaffM {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // Get full account details for a given user id.
     public function getAccount($id) {
         $query = "SELECT username, email, passwordHash, firstName, middleName, lastName, phone, createdAt, lastActivityAt, note
                   FROM users
@@ -32,6 +38,7 @@ class StaffM {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // Verify username and password. Returns user array on success, false otherwise.
     public function authenticate($username, $password) {
         $user = $this->findSingleStaff($username);
 
@@ -46,9 +53,11 @@ class StaffM {
         return $user;
     }
 
-    /**
-     * Check if user account is locked due to failed login attempts
-     */
+    // ================================================================
+    //  ACCOUNT LOCKOUT / BRUTE-FORCE PROTECTION
+    // ================================================================
+
+    // Check whether a user is currently locked out.
     public function isUserLocked($userId) {
         $query = "SELECT lockedUntil FROM users WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
@@ -61,7 +70,7 @@ class StaffM {
             return false;
         }
 
-        // Check if lock period has expired
+        // Lock period has expired?
         if (strtotime($user['lockedUntil']) <= time()) {
             return false;
         }
@@ -69,9 +78,7 @@ class StaffM {
         return true;
     }
 
-    /**
-     * Format remaining lock time as human-readable string (days, hours, minutes, seconds)
-     */
+    // Return a human-readable string for the remaining lock time (days, hours, minutes, seconds).
     public function getFormattedLockTimeRemaining($userId) {
         $remainingSeconds = $this->getLockTimeRemaining($userId);
 
@@ -97,9 +104,7 @@ class StaffM {
         return implode(", ", $parts);
     }
 
-    /**
-     * Get remaining lock time in seconds
-     */
+    // Get remaining lock time in seconds (0 if not locked).
     public function getLockTimeRemaining($userId) {
         $query = "SELECT lockedUntil FROM users WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
@@ -116,11 +121,7 @@ class StaffM {
         return max(0, $remaining);
     }
 
-    /**
-     * Increment failed login attempts and apply lockout if necessary
-     * Lock escalation: at 5, 10, 15, 20... failed attempts, apply exponential backoff lockout
-     * 5 attempts = 30 sec, 10 attempts = 60 sec, 15 attempts = 120 sec, etc.
-     */
+    // Increment failed login attempts and apply exponential lockout on multiples of 5 (5,10,15…).
     public function incrementFailedAttempts($userId) {
         $query = "SELECT failedAttempts FROM users WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
@@ -131,11 +132,11 @@ class StaffM {
         $currentAttempts = $user['failedAttempts'] ?? 0;
         $newAttempts = $currentAttempts + 1;
 
-        // Only apply lockout when attempts are exactly divisible by 5 (5, 10, 15, 20...)
+        // Lock only when attempts reach a multiple of 5
         if ($newAttempts % 5 === 0) {
-            // Calculate which 5-multiple this is (5→tier 1, 10→tier 2, 15→tier 3, etc.)
+            // Determine which tier (5→tier1, 10→tier2, …)
             $tier = $newAttempts / 5;
-            // Calculate timeout in seconds: 30 * 2^(tier-1)
+            // Exponentially increasing timeout: 30s * 2^(tier-1)
             $timeoutSeconds = 30 * pow(2, $tier - 1);
             $lockedUntil = date('Y-m-d H:i:s', time() + $timeoutSeconds);
         } else {
@@ -158,9 +159,7 @@ class StaffM {
         return $newAttempts;
     }
 
-    /**
-     * Reset failed login attempts on successful login
-     */
+    // Reset failed login counter after successful login.
     public function resetFailedAttempts($userId) {
         $query = "UPDATE users SET failedAttempts = 0, lockedUntil = NULL WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
@@ -168,6 +167,11 @@ class StaffM {
         return $stmt->execute();
     }
 
+    // ================================================================
+    //  STAFF LISTS
+    // ================================================================
+
+    // Get all staff ordered by online activity and busy/idle status.
     public function getStaffList() {
         $query = "
             SELECT id, username, firstName, middleName, lastName, phone, email, createdAt, lastActivityAt, note
@@ -195,25 +199,26 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Filter staff by search term, online status, activity status and/or role.
     public function getfilteredStaff($search, $onlineStatus = '', $activityStatus = '', $roleId = '') {
         $where = "(CONCAT(firstName,' ',middleName,' ',lastName) LIKE :query OR username LIKE :query)";
         $params = [':query' => $search . '%'];
 
-        // Online status filter
+        // Online status filter: active = seen in last 15 minutes, offline = not seen
         if ($onlineStatus === 'active') {
             $where .= " AND lastActivityAt >= DATE_SUB(NOW(), INTERVAL 15 MINUTE)";
         } elseif ($onlineStatus === 'offline') {
             $where .= " AND (lastActivityAt IS NULL OR lastActivityAt < DATE_SUB(NOW(), INTERVAL 15 MINUTE))";
         }
 
-        // Activity status filter (busy = has tasks, idle = no tasks)
+        // Activity status: busy = has tasks, idle = no tasks
         if ($activityStatus === 'busy') {
             $where .= " AND (SELECT COUNT(*) FROM userProcessTasks WHERE userProcessTasks.userID = users.id) > 0 OR (SELECT COUNT(*) FROM miscellaneousTasks WHERE miscellaneousTasks.userID = users.id) > 0";
         } elseif ($activityStatus === 'idle') {
             $where .= " AND (SELECT COUNT(*) FROM userProcessTasks WHERE userProcessTasks.userID = users.id) = 0 AND (SELECT COUNT(*) FROM miscellaneousTasks WHERE miscellaneousTasks.userID = users.id) = 0";
         }
 
-        // Role filter
+        // Role filter (requires LEFT JOIN)
         $roleJoin = '';
         if ($roleId !== '' && $roleId > 0) {
             $roleJoin = "LEFT JOIN userRoles ON users.id = userRoles.userID";
@@ -234,18 +239,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // public function updateLastLogin($userId) {
-    //     $query = "UPDATE users SET lastActivityAt = NOW() WHERE id = :id";
-    //     $stmt = $this->pdo->prepare($query);
-    //     $stmt->bindParam(':id', $userId);
-    //     return $stmt->execute();
-    // }
-
-    // public function updateOnlineStatus($userId, $status) {
-    //     // The isOnline field was removed from the users table. Use lastActivityAt updates instead.
-    //     return false;
-    // }
-
+    // Update the current user's last-activity timestamp.
     public function updateLastActiveAt() {
         $query = "UPDATE users SET lastActivityAt = NOW() WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
@@ -253,6 +247,11 @@ class StaffM {
         return $stmt->execute();
     }
 
+    // ================================================================
+    //  ACCOUNT CRUD (CREATE, READ, UPDATE, DELETE)
+    // ================================================================
+
+    // Create a new user account (password defaults to "password").
     public function insertAccount($username, $firstName, $middleName, $lastName, $phoneNumber, $emailAddress) {
         $user = $this->findSingleStaff($username);
 
@@ -261,7 +260,7 @@ class StaffM {
         }
 
         $query = "INSERT INTO users (username, email, passwordHash, firstName, middleName, lastName, phone) VALUES
-            (:username, :email, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', :firstName, :middleName, :lastName, :phoneNumber);";
+            (:username, :email, :password, :firstName, :middleName, :lastName, :phoneNumber);";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':username', $username);
         $stmt->bindParam(':firstName', $firstName);
@@ -269,21 +268,85 @@ class StaffM {
         $stmt->bindParam(':lastName', $lastName);
         $stmt->bindParam(':phoneNumber', $phoneNumber);
         $stmt->bindParam(':email', $emailAddress);
-        return $stmt->execute();
+        $stmt->bindValue(':password', '$2a$12$GneJMn6XG0CpMy.q4hjvRO2REhToNFFIh2k3ulHN6K2ztX1mhPyCm');
+        $result = $stmt->execute();
+
+        if ($result) {
+            $this->insertUserActivityLog($_SESSION['id'], "Account Creation", "Created a new account named {$username}", "yellow");
+        }
+
+        return $result;
     }
 
+    // Delete a user account and all associated data (roles, permissions, tasks, etc.).
     public function removeAccount($id) {
-        $query = "DELETE FROM userRoles WHERE userID = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
+        try {
+            $this->pdo->beginTransaction();
 
-        $query = "DELETE FROM users WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+            $account = $this->getAccount($id);
+            if (!$account) {
+                $this->pdo->rollBack();
+                return "Error: Account not found.";
+            }
+
+            $username = $account['username'];
+
+            // Remove physical account image file first, if present
+            $storageDir = __DIR__ . '/../../Storage/AccountImages/';
+            $existingImage = $this->findSingleAccountImageByID($id);
+
+            if ($existingImage && !empty($existingImage['imageName'])) {
+                $imagePath = $storageDir . $existingImage['imageName'];
+                if (file_exists($imagePath) && !unlink($imagePath)) {
+                    $this->pdo->rollBack();
+                    return "Error: Failed to delete account image file.";
+                }
+            }
+
+            $dependentTables = [
+                'userRoles',
+                'userPermissions',
+                'userStats',
+                'userActivityLog',
+                'userProcessTasks',
+                'miscellaneousTasks'
+            ];
+
+            foreach ($dependentTables as $table) {
+                $query = "DELETE FROM {$table} WHERE userID = :id";
+                $stmt = $this->pdo->prepare($query);
+                $stmt->bindParam(':id', $id);
+                $stmt->execute();
+            }
+
+            // Delete image record after removing the physical file
+            $query = "DELETE FROM userImages WHERE userID = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+
+            $query = "DELETE FROM users WHERE id = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $id);
+            $result = $stmt->execute();
+
+            if ($result) {
+                $this->pdo->commit();
+                $this->insertUserActivityLog($_SESSION['id'], "Account Deletion", "Deleted an account named {$username}.", "red");
+                return "Success: Account '{$username}' deleted successfully.";
+            }
+
+            $this->pdo->rollBack();
+            return "Error: Failed to delete account.";
+        } catch (PDOException $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            return "Error: " . $e->getMessage();
+        }
     }
 
+    // Change a user's username (must be unique).
     public function updateUsername($id, $username) {
         $user = $this->findSingleStaff($username);
 
@@ -305,6 +368,7 @@ class StaffM {
         return $result;
     }
 
+    // Update phone and email for a user.
     public function updateContacts($id, $phoneNumber, $email) {
         $query = "UPDATE users SET phone = :phone, email = :email WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
@@ -324,6 +388,7 @@ class StaffM {
         return $result;
     }
 
+    // Change a user's password (hashes automatically).
     public function updatePassword($id, $password) {
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $query = "UPDATE users SET passwordHash = :passwordHash WHERE id = :id";
@@ -333,12 +398,13 @@ class StaffM {
         $result = $stmt->execute();
 
         if ($result) {
-            $this->insertUserActivityLog($id, "Security Update", "Password changed successfully", "yellow");
+            $this->insertUserActivityLog($id, "Account Security", "Password changed successfully", "yellow");
         }
 
         return $result;
     }
 
+    // Set or clear the user's note (max 30 characters).
     public function updateUsernote($id, $note) {
         $note = trim($note);
 
@@ -362,6 +428,11 @@ class StaffM {
         return 'Success: User note updated.';
     }
 
+    // ================================================================
+    //  PERMISSIONS
+    // ================================================================
+
+    // Get all distinct permissions granted to a user through their roles.
     public function getUserPermissions($id) {
         $query = "SELECT DISTINCT permissions.id, permissions.name
                       FROM userRoles
@@ -375,6 +446,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get all permissions defined in the system.
     public function getAllPermissions() {
         $query = "SELECT id, name FROM permissions ORDER BY id ASC";
         $stmt = $this->pdo->prepare($query);
@@ -383,6 +455,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get all role-permission assignments.
     public function getAllRolePermissions() {
         $query = "SELECT rolePermissions.roleID, rolePermissions.permissionID, permissions.name FROM rolePermissions
                   JOIN permissions ON permissions.id = rolePermissions.permissionID
@@ -393,6 +466,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get the permissions assigned to a specific role.
     public function getRolePermissions($roleID) {
         $query = "SELECT permissions.id, permissions.name FROM rolePermissions
                   JOIN permissions ON permissions.id = rolePermissions.permissionID WHERE rolePermissions.roleID = :roleID
@@ -404,21 +478,11 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function grantPermissions($id, $permissions) {
-        $query = "DELETE FROM userPermissions WHERE userID = :id;";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
+    // ================================================================
+    //  ROLES
+    // ================================================================
 
-        foreach ($permissions as $permission) {
-            $query = "INSERT INTO userPermissions (userID, permissionID) VALUES (:id, :permission);";
-            $stmt = $this->pdo->prepare($query);
-            $stmt->bindParam(':id', $id);
-            $stmt->bindParam(':permission', $permission);
-            $stmt->execute();
-        }
-    }
-
+    // Get all roles.
     public function getAllRoles() {
         $query = "SELECT id, name FROM roles";
         $stmt = $this->pdo->prepare($query);
@@ -426,6 +490,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get all user-role assignments.
     public function getAllUserRoles() {
         $query = "SELECT userRoles.userID, userRoles.roleID, roles.name FROM userRoles JOIN roles ON roles.id = userRoles.roleID";
         $stmt = $this->pdo->prepare($query);
@@ -433,6 +498,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get the role names for a specific user.
     public function getAllUserRolesByUserID($userID) {
         $query = "SELECT roles.name FROM userRoles JOIN roles ON roles.id = userRoles.roleID WHERE userRoles.userID = :userID";
         $stmt = $this->pdo->prepare($query);
@@ -441,6 +507,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get the role IDs assigned to a user.
     public function getUserRoles($userID) {
         $query = "SELECT roleID FROM userRoles WHERE userID = :userID";
         $stmt = $this->pdo->prepare($query);
@@ -449,6 +516,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
     }
 
+    // Get roles (with user counts) that the current actor can alter.
     public function getAllRolesTally($actorID) {
         $unalterableRoles = [];
         $params = [];
@@ -476,6 +544,103 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Find a role by its name (used for duplicate checks).
+    public function getRoleByName($name) {
+        $query = "SELECT id FROM roles WHERE name = :name LIMIT 1";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':name', $name);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Find a role by its id
+    public function getRoleByID($id) {
+        $query = "SELECT name FROM roles WHERE id = :id LIMIT 1";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Create a new role.
+    public function insertRole($name) {
+        $role = $this->getRoleByName($name);
+
+        if ($role) {
+            return false;
+        }
+
+        $query = "INSERT INTO roles (name) VALUES (:name)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':name', $name);
+        $result = $stmt->execute();
+
+        if ($result) {
+            $this->insertUserActivityLog($_SESSION['id'], 'Role Creation', "Created a new role named {$name}.", 'yellow');
+        }
+
+        return $result;
+    }
+
+    // Delete a role and all its dependencies (permissions, process tasks, governance, user assignments).
+    public function removeRole($id) {
+        try {
+            $this->pdo->beginTransaction();
+
+            // Fetch role name for logging before deletion
+            $role = $this->getRoleByID($id);
+
+            if (!$role) {
+                return "Error: Cannot find role";
+            }
+
+            $roleName = $role ? $role['name'] : 'Unknown';
+
+            // Delete dependent records
+            $tables = [
+                'rolePermissions'         => 'roleID',
+                'roleProcessTasks'        => 'roleID',
+                'roleManagementGovernance' => 'roleSubjectID = :id OR roleAgentID',
+                'userRoles'               => 'roleID'
+            ];
+
+            foreach ($tables as $table => $condition) {
+                // For the governance table, condition uses OR
+                if ($table === 'roleManagementGovernance') {
+                    $query = "DELETE FROM {$table} WHERE roleSubjectID = :id OR roleAgentID = :id";
+                } else {
+                    $query = "DELETE FROM {$table} WHERE {$condition} = :id";
+                }
+                $stmt = $this->pdo->prepare($query);
+                $stmt->bindParam(':id', $id);
+                $stmt->execute();
+            }
+
+            // Delete the role itself
+            $query = "DELETE FROM roles WHERE id = :id";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->bindParam(':id', $id);
+            $stmt->execute();
+
+            $this->pdo->commit();
+
+            // Log the deletion
+            $this->insertUserActivityLog($_SESSION['id'], 'Role Deletion', "Deleted a role named {$roleName}.", 'red');
+
+            return "Success: Role '{$roleName}' deleted successfully.";
+        } catch (PDOException $e) {
+            $this->pdo->rollBack();
+            return "Error: " . $e->getMessage();
+        }
+    }
+
+    // ================================================================
+    //  ROLE GOVERNANCE
+    // ================================================================
+
+    // Get all governance rules.
     public function getAllRoleManagementGovernance() {
         $query = "SELECT * FROM roleManagementGovernance ORDER BY roleAgentID ASC";
         $stmt = $this->pdo->prepare($query);
@@ -483,6 +648,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get governance rules for a set of agent roles.
     public function getRoleManagementGovernance($roles) {
         $placeholders = implode(',', array_fill(0, count($roles), '?'));
 
@@ -494,6 +660,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Compute the effective governance rights one user (actor) has over another (subject).
     public function getGovernanceRulesBetweenUsers($subjectID, $actorID) {
         $subjectRoles = $this->getUserRoles($subjectID);
 
@@ -529,6 +696,10 @@ class StaffM {
         return $governanceRules;
     }
 
+    // ================================================================
+    //  ROLE & PERMISSION MUTATIONS (clear & update pairs)
+    // ================================================================
+
     public function clearUserRoles($userID) {
         $query = "DELETE FROM userRoles WHERE userID = :userID";
         $stmt = $this->pdo->prepare($query);
@@ -538,6 +709,7 @@ class StaffM {
 
     public function updateUserRoles($userID, $userRoles) {
         $this->clearUserRoles($userID);
+        $userFullName = 'Unknown';
 
         if (!empty($userRoles)) {
             $query = "INSERT INTO userRoles (userID, roleID) VALUES (:userID, :roleID)";
@@ -549,7 +721,34 @@ class StaffM {
                     ':roleID' => $userRoles[$i]
                 ]);
             }
+
+            $user = $this->getAccount($userID);
+            if ($user) {
+                $userFullName = $user['firstName'];
+                if (!empty($user['middleName'])) {
+                    $userFullName .= ' ' . strtoupper($user['middleName'][0]) . '.';
+                }
+                $userFullName .= ' ' . $user['lastName'];
+            } else {
+                $userFullName = 'Unknown';
+            }
+
+            // Log to admin/actor who made the change
+            $this->insertUserActivityLog($_SESSION['id'], 'Account Update', "Updated the roles for {$userFullName}.", 'yellow');
+
+            // Log to the user whose roles were updated
+            $actorName = $this->getAccount($_SESSION['id']);
+            $actorFullName = $actorName ? $actorName['firstName'] : 'Unknown';
+            if ($actorName && !empty($actorName['middleName'])) {
+                $actorFullName .= ' ' . strtoupper($actorName['middleName'][0]) . '.';
+            }
+            if ($actorName) {
+                $actorFullName .= ' ' . $actorName['lastName'];
+            }
+            $this->insertUserActivityLog($userID, 'Account Update', "Roles were updated by {$actorFullName}.", 'yellow');
         }
+
+        return "Success: Updated the role of {$userFullName}.";
     }
 
     public function clearRolePermissions($roleID) {
@@ -561,6 +760,7 @@ class StaffM {
 
     public function updateRolePermissions($roleID, $permissions) {
         $this->clearRolePermissions($roleID);
+        $roleName = 'Unknown';
 
         if (!empty($permissions)) {
             $query = "INSERT INTO rolePermissions (roleID, permissionID) VALUES (:roleID, :permissionID)";
@@ -572,7 +772,23 @@ class StaffM {
                     ':permissionID' => $permissions[$i]
                 ]);
             }
+
+            // Get role name for logging
+            $role = $this->getRoleByID($roleID);
+            $roleName = $role ? $role['name'] : 'Unknown';
+
+            // Get permission names for logging
+            $query = "SELECT GROUP_CONCAT(permissions.name SEPARATOR ', ') AS permissionNames FROM permissions WHERE id IN (" . implode(',', $permissions) . ")";
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $permissionNames = $result['permissionNames'] ?? 'No permissions assigned';
+
+            // Log that we updated the role permissions with its name in yellow color
+            $this->insertUserActivityLog($_SESSION['id'], 'Role Update', "Updated permissions for role '{$roleName}'.", 'yellow');
         }
+
+        return "Success: Updated permissions for role '{$roleName}'.";
     }
 
     public function clearRoleManagementGovernance($roleID) {
@@ -584,6 +800,7 @@ class StaffM {
 
     public function updateRoleManagementGovernance($roleID, $rules) {
         $this->clearRoleManagementGovernance($roleID);
+        $roleName = 'Unknown';
 
         if (!empty($rules)) {
             $query = "INSERT INTO roleManagementGovernance (roleSubjectID, roleAgentID, canGrant, canRevoke, canAlter, canDelete) VALUES
@@ -600,58 +817,23 @@ class StaffM {
                     ':canDelete' => $rules[$i]['canDelete'],
                 ]);
             }
-        }
-    }
 
-    public function getRoleByName($name) {
-        $query = "SELECT id FROM roles WHERE name = :name LIMIT 1";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':name', $name);
-        $stmt->execute();
+            // Get role name for logging
+            $role = $this->getRoleByID($roleID);
+            $roleName = $role ? $role['name'] : 'Unknown';
 
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    public function insertRole($name) {
-        $role = $this->getRoleByName($name);
-
-        if ($role) {
-            return false;
+            // Log that we updated the role management governance of this role with its name (don't include the changes themselves)
+            $this->insertUserActivityLog($_SESSION['id'], 'Role Update', "Updated governance rules for role '{$roleName}'.", 'yellow');
         }
 
-        $query = "INSERT INTO roles (name) VALUES (:name)";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':name', $name);
-        return $stmt->execute();
+        return "Success: Updated governance rules for role '{$roleName}'.";
     }
 
-    public function removeRole($id) {
-        $query = "DELETE FROM rolePermissions WHERE roleID = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
+    // ================================================================
+    //  PROCESS TASKS
+    // ================================================================
 
-        $query = "DELETE FROM roleProcessTasks WHERE roleID = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
-
-        $query = "DELETE FROM roleManagementGovernance WHERE roleSubjectID = :id OR roleAgentID = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
-
-        $query = "DELETE FROM userRoles WHERE roleID = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
-
-        $query = "DELETE FROM roles WHERE id = :id";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
-    }
-
+    // Get all role-process-task assignments.
     public function getAllRoleProcessTasks() {
         $query = "SELECT roleProcessTasks.roleID, roleProcessTasks.processID, processes.name FROM roleProcessTasks
                   JOIN processes ON roleProcessTasks.processID = processes.id
@@ -661,6 +843,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get all users and the processes they can be assigned to (via their roles).
     public function getAllUserAssignableProcessTasks() {
         $query = "
             SELECT
@@ -690,6 +873,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get all user process tasks with roles.
     public function getAllUserProcessTasks() {
         $query = "
             SELECT
@@ -731,6 +915,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get all user process tasks with detailed order/process info.
     public function getAllUserProcessTasksDetailed() {
         $query = "
             SELECT
@@ -757,6 +942,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get the process tasks available to a user through their roles.
     public function getUserRoleProcessTasks($id) {
         $roles = $this->getUserRoles($id);
 
@@ -783,6 +969,7 @@ class StaffM {
 
     public function updateRoleProcessTasks($roleID, $processes) {
         $this->clearRoleProcessTasks($roleID);
+        $roleName = 'Unknown';
 
         if (!empty($processes)) {
             $query = "INSERT INTO roleProcessTasks (roleID, processID) VALUES (:roleID, :processID)";
@@ -794,15 +981,29 @@ class StaffM {
                     ':processID' => $processes[$i],
                 ]);
             }
+
+            // Get role name for logging
+            $role = $this->getRoleByID($roleID);
+            $roleName = $role ? $role['name'] : 'Unknown';
+
+            // Log that we updated the process tasks for this role with its name in yellow color
+            $this->insertUserActivityLog($_SESSION['id'], 'Role Update', "Updated process tasks for role '{$roleName}'.", 'yellow');
         }
+
+        return "Success: Updated process tasks for role '{$roleName}'.";
     }
 
+    // Get task counts grouped by user.
     public function getAllUsersTaskCount() {
         $query = "SELECT userID, COUNT(userID) AS taskCount FROM userProcessTasks GROUP BY userID";
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    // ================================================================
+    //  ACCOUNT IMAGES
+    // ================================================================
 
     public function findSingleAccountImageByID($userID) {
         $query = "SELECT imageName FROM userImages WHERE userID = :userID LIMIT 1";
@@ -882,6 +1083,7 @@ class StaffM {
         }
     }
 
+    // Get a user's account image filename (null if none).
     public function getAccountImage($userID) {
         $query = "SELECT imageName FROM userImages WHERE userID = :userID LIMIT 1";
         $stmt = $this->pdo->prepare($query);
@@ -898,6 +1100,7 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Return an associative array mapping userID to image filename.
     public function getAllAccountImagesMapped() {
         $map = [];
 
@@ -907,6 +1110,10 @@ class StaffM {
 
         return $map;
     }
+
+    // ================================================================
+    //  USER STATS & ACTIVITY LOGS
+    // ================================================================
 
     public function getAllUserStats() {
         $query = "SELECT * FROM userStats";
@@ -938,6 +1145,10 @@ class StaffM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // ================================================================
+    //  MISCELLANEOUS TASKS
+    // ================================================================
+
     public function getAllMiscellaneousTasks() {
         $query = "SELECT * FROM miscellaneousTasks";
         $stmt = $this->pdo->prepare($query);
@@ -953,6 +1164,7 @@ class StaffM {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // Assign a miscellaneous task to a user and log for both parties.
     public function insertMiscellaneousTask($assigneeID, $description) {
         // Get assignee name
         $query = "SELECT firstName, middleName, lastName FROM users WHERE id = :id";
@@ -998,6 +1210,7 @@ class StaffM {
         return "Success: Miscellaneous task assigned.";
     }
 
+    // Mark a miscellaneous task as complete, update user stats and log.
     public function completeMiscellaneousTask($userID) {
         $query = "SELECT description, assignedAt FROM miscellaneousTasks WHERE userID = :userID";
         $stmt = $this->pdo->prepare($query);
@@ -1055,6 +1268,7 @@ class StaffM {
         return "Success: Miscellaneous task completed.";
     }
 
+    // Unassign a miscellaneous task from a user and log.
     public function unassignMiscellaneousTask($userID) {
         $query = "SELECT description FROM miscellaneousTasks WHERE userID = :userID";
         $stmt = $this->pdo->prepare($query);
@@ -1100,6 +1314,10 @@ class StaffM {
 
         return "Success: Miscellaneous task unassigned.";
     }
+
+    // ================================================================
+    //  ACTIVITY LOGGING (utility used throughout the model)
+    // ================================================================
 
     public function insertUserActivityLog($userID, $head, $log, $color) {
         $query = "INSERT INTO userActivityLog (userID, head, log, color) VALUES (:userID, :head, :log, :color)";

@@ -63,7 +63,7 @@
                 <?php if (in_array("canCreateUserAccounts", $_SESSION['permissions'])): ?>
                     <a href="index.php?page=staff&action=create" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText shadowed">Create Staff</a>
                 <?php endif; ?>
-                <?php if (in_array("canAlterAccountRoles", $_SESSION['permissions'])): ?>
+                <?php if (in_array("canAlterRoles", $_SESSION['permissions'])): ?>
                     <a href="index.php?page=staff&action=manageRoles" class="roundedMin centerColumnLayout importantInput regPadding emphasizedText shadowed">Manage Roles</a>
                 <?php endif; ?>
             </div>
@@ -250,6 +250,7 @@
     const userStatsList = <?php echo json_encode($userStatsList); ?>; // [{userID, tasksCompleted, tasksCompletedDuration}, ...]
     const userActivityLogsList = <?php echo json_encode($userActivityLogsList); ?>; // [{userID, head, log, color, loggedAt}, ...]
     const userMiscTaskList = <?php echo json_encode($userMiscTaskList); ?>;
+    const userPermissions = <?php echo json_encode($_SESSION['permissions'] ?? []); ?>;
 
     // ================================
     // Build Lookup Maps
@@ -414,23 +415,30 @@
         const assignMiscTaskBtn = document.getElementById('assignMiscTaskButton');
         const updateMiscTaskBtn = document.getElementById('updateMiscTaskButton');
 
-        if (governanceRules.canGrant) {
-            if (assignMiscTaskBtn) assignMiscTaskBtn.classList.remove('unclickable', 'faded');
-            if (updateMiscTaskBtn) updateMiscTaskBtn.classList.remove('unclickable', 'faded');
-        } else {
-            if (assignMiscTaskBtn) assignMiscTaskBtn.classList.add('unclickable', 'faded');
-            if (updateMiscTaskBtn) updateMiscTaskBtn.classList.add('unclickable', 'faded');
+        // Helper to apply classes based on a condition
+        function SetButtonState(button, enabled) {
+            if (!button) return;
+            if (enabled) {
+                button.classList.remove('unclickable');
+                button.classList.remove('faded');
+            } else {
+                button.classList.add('unclickable');
+                button.classList.add('faded');
+            }
         }
-        if (governanceRules.canGrant || governanceRules.canRevoke) {
-            modifyBtn.classList.remove('unclickable', 'faded');
-        } else {
-            modifyBtn.classList.add('unclickable', 'faded');
-        }
-        if (governanceRules.canDelete) {
-            deleteBtn.classList.remove('unclickable', 'faded');
-        } else {
-            deleteBtn.classList.add('unclickable', 'faded');
-        }
+
+        // Combined permission + governance checks
+        const canModifyRoles = userPermissions.includes('canAlterAccountRoles') && (governanceRules.canGrant || governanceRules.canRevoke);
+        SetButtonState(modifyBtn, canModifyRoles);
+
+        const canDeleteUser = userPermissions.includes('canDeleteUserAccounts') && governanceRules.canDelete;
+        SetButtonState(deleteBtn, canDeleteUser);
+
+        const canAssignMisc = userPermissions.includes('canAssignMiscTasksToStaff') && governanceRules.canGrant;
+        SetButtonState(assignMiscTaskBtn, canAssignMisc);
+
+        const canUpdateMisc = userPermissions.includes('canFinalizeMiscTasksToStaff') && governanceRules.canGrant;
+        SetButtonState(updateMiscTaskBtn, canUpdateMisc);
 
         // Attach event listeners for this user
         document.getElementById('userStatsButton').addEventListener('click', ShowUserStatsModal);

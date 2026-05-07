@@ -96,7 +96,6 @@
                     <div class="centerHoriRowLayout minGap box roundedMid fullHeight fullWidth">
                         <h2 id="selectedRoleTitle" class="capitalFirst">No Role Selected</h2>
                         <?php if (in_array("canDeleteRoles", $_SESSION['permissions'])): ?>
-                            <!-- SOMEHOW MAKE THIS UNCLICKABLE FRONTEND IF WE CANT DELETE IT -->
                             <button type="button" class="criticalInput centerColumnLayout eastAbsolute hidden" id="deleteButton">
                                 <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
                             </button>
@@ -260,7 +259,7 @@
 
                 submitRolePermissionsButton.classList.remove("hidden");
                 confirmTaskChangesButton.classList.remove("hidden");
-                deleteButton.classList.remove("hidden");
+                if (deleteButton) deleteButton.classList.remove("hidden");
                 addTaskButton.classList.remove("hidden");
 
                 updateSelection();
@@ -539,36 +538,40 @@
     });
 
     // Role creation logic functionality
-    createRoleButton.addEventListener('click', function() {
-        confirmationTitle.innerHTML = "Create Service";
-        confirmationForm.action = "index.php?page=staff&action=createRole";
+    if (createRoleButton) {
+        createRoleButton.addEventListener('click', function() {
+            confirmationTitle.innerHTML = "Create Service";
+            confirmationForm.action = "index.php?page=staff&action=createRole";
 
-        confirmationText.innerHTML = "Please enter a unique role name.";
-        confirmationSubmit.value = "Create";
-        confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
+            confirmationText.innerHTML = "Please enter a unique role name.";
+            confirmationSubmit.value = "Create";
+            confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
 
-        tempElement = document.createElement("input");
-        tempElement.type = "text";
-        tempElement.name = "name";
-        tempElement.placeholder = "Role Name";
-        tempElement.id = "nameInput";
-        tempElement.classList.add("tempElement");
-        confirmationForm.appendChild(tempElement);
+            tempElement = document.createElement("input");
+            tempElement.type = "text";
+            tempElement.name = "name";
+            tempElement.placeholder = "Role Name";
+            tempElement.id = "nameInput";
+            tempElement.classList.add("tempElement");
+            confirmationForm.appendChild(tempElement);
 
-        confirmation.style.display = 'flex';
-    });
+            confirmation.style.display = 'flex';
+        });
+    }
 
     // Role deletion logic functionality
-    deleteButton.addEventListener('click', function() {
-        confirmationForm.action = "index.php?page=staff&action=deleteRole"
+    if (deleteButton) {
+        deleteButton.addEventListener('click', function() {
+            confirmationForm.action = "index.php?page=staff&action=deleteRole"
 
-        confirmationTitle.innerHTML = "Delete Role?";
-        confirmationText.innerHTML = 'Are you sure to delete the <span class="capitalFirst">' + selectedRoleName + '</span> role?';
-        confirmationSubmit.value = "Yes Delete";
-        confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
+            confirmationTitle.innerHTML = "Delete Role?";
+            confirmationText.innerHTML = 'Are you sure to delete the <span class="capitalFirst">' + selectedRoleName + '</span> role?';
+            confirmationSubmit.value = "Yes Delete";
+            confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
 
-        confirmation.style.display = 'flex';
-    });
+            confirmation.style.display = 'flex';
+        });
+    }
 
     // Rule addition logic functionality
     addRuleButton.addEventListener('click', function() {
