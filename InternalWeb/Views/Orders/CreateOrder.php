@@ -161,13 +161,10 @@
                             <h3>Order Pricing</h3>
                             <p class="flexMin">Total Price: ₱<span id="priceTotalText"></span></p>
                             <p class="flexMin">Price Per Unit: ₱<span id="pricePerUnitText"></span></p>
-                            <input type="hidden" name="priceTotal" id="priceTotal">
-                            <?php if (in_array('canApplyDiscountToOrders', $_SESSION['permissions'])): ?>
-                                <div>
-                                    <label for="priceDiscount">Price Discount</label>
-                                    <input type="number" name="priceDiscount" class="fullWidth" id="priceDiscount" min="0" value="0">
-                                </div>
-                            <?php endif; ?>
+                            <div class="<?= in_array('canApplyDiscountToOrders', $_SESSION['permissions']) ? '' : 'hidden' ?>">
+                                <label for="priceDiscount">Price Discount</label>
+                                <input type="number" name="priceDiscount" class="fullWidth" id="priceDiscount" min="0" value="0">
+                            </div>
                         </div>
                         <div class="gradientBorderDiag"></div>
                     </section>
@@ -467,7 +464,6 @@
             quantities += parseFloat(input.value) || 0;
         });
 
-        priceTotal.value = (quantities * currentPricePerUnit) - priceDiscount.value;
         priceTotalText.textContent = priceDiscount.value != 0 ?
             (quantities * currentPricePerUnit) + " - " + priceDiscount.value + " = ₱" + ((quantities * currentPricePerUnit) - priceDiscount.value) :
             quantities * currentPricePerUnit;

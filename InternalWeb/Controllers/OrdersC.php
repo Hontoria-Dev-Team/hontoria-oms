@@ -126,12 +126,33 @@ class OrdersC {
             $customerName = $_POST['customerName'];
             $messengerGCLink = $_POST['messengerGCLink'];
             $deadlineAt = $_POST['deadlineAt'];
-            $priceTotal = $_POST['priceTotal'];
             $groupDescriptions = $_POST['groupDescriptions'];
             $groupQuantities = $_POST['groupQuantities'];
             $processStatuses = $_POST['orderProcessStatus'];
             $minAssigns = $_POST['minAssigns'];
             $maxAssigns = $_POST['maxAssigns'];
+
+            // Calculate total quantity
+            $totalQuantity = array_sum($groupQuantities);
+
+            // Get the selected subservice
+            $subservice = $this->servicesModel->getSubservice($subserviceID);
+
+            if (!$subservice) {
+                $_SESSION['message'] = "Error: Invalid subservice selected.";
+                header('Location: index.php?page=orders');
+                return;
+            }
+
+            $pricePerUnit = $subservice['pricePerUnit'];
+            $priceTotal = $totalQuantity * $pricePerUnit;
+
+            // Apply discount if permission and provided
+            if (in_array('canApplyDiscountToOrders', $_SESSION['permissions'])) {
+                $discount = (float)($_POST['priceDiscount'] ?? 0);
+                $priceTotal -= $discount;
+                if ($priceTotal < 0) $priceTotal = 0;
+            }
 
             $orderProcess = [];
 
