@@ -118,6 +118,8 @@ if (in_array($page, $protectedPages, true)) {
     AuthorizationMid::check($page);
 }
 
+date_default_timezone_set('Asia/Manila');
+
 switch ($page) {
     // ────────────────── login ──────────────────
     case 'login':
