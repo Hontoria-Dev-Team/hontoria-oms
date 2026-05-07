@@ -55,8 +55,11 @@
             <img src="../../Shared/Img/CheckBoxIcon.png" alt="CheckBox"> Tasks Panel
         </h1>
         <?php include("../Views/.Components/MessageBox.php"); ?>
+        <?php
+        $hideClass = in_array('canSelfAssignToTasks', $_SESSION['permissions']) ? '' : 'hidden';
+        ?>
         <section class="rowLayout flexMax midGap">
-            <section class="flexMid roundedMid centerColumnLayout">
+            <section class="flexMid roundedMid centerColumnLayout <?= $hideClass ?>">
                 <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
                     <h3>Available Tasks</h3>
                     <div class="gridFlex minGrids minGap scrollable flexMax noFlexBasis noMinHeight contentFlexStart regTinPadding">
@@ -66,6 +69,7 @@
                                     <h3 class="centerHoriRowLayout whiteText outlineText">
                                         <span class="flexMax"><?= $task['processName'] ?> Order #<?= $task['orderID'] ?></span>
                                     </h3>
+
                                     <form method="POST" action="index.php?page=tasks&action=assignToTask" class="norEastAbsolute closeCorner">
                                         <?php echo CsrfM::getTokenField(); ?>
                                         <input type="hidden" name="orderProcessID" value="<?= $task['id'] ?>">
@@ -180,7 +184,7 @@
             </section>
         </section>
         <?php if (!empty($miscTaskAssigned)): ?>
-            <div class="absoluted fullDimensions darkTransBG noMargin centerColumnLayout">
+            <div class="fullDimensions darkTransBG noMargin centerColumnLayout norWestAbsolute edgeCorner">
                 <div class="centerColumnLayout roundedMid maxWidth">
                     <div class="box centerColumnLayout roundedMid fullWidth fullHeight minGap midZ">
                         <h1>You cannot do other tasks</h1>

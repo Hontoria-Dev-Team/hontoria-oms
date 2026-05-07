@@ -175,11 +175,21 @@
         </section>
     </main>
     <?php include("../Views/.Components/ConfirmationBox.php"); ?>
+    <?php include("../Views/.Components/ImageBox.php"); ?>
 </body>
 <script src="../.JS/ConfirmationBox.js"></script>
+<script src="../.JS/ImageBox.js"></script>
 <script src="../.JS/CsrfHandler.js"></script>
 <script src="../.JS/TimeHelpers.js"></script>
 <script>
+    // Create a hidden container with CSRF token for cloning
+    const csrfTokenContainer = document.createElement("div");
+    csrfTokenContainer.style.display = "none";
+    csrfTokenContainer.innerHTML = `<?php echo CsrfM::getTokenField(); ?>`;
+    document.body.appendChild(csrfTokenContainer);
+    const csrfTokenTemplate = csrfTokenContainer.querySelector('input[name="_csrf_token"]');
+
+    const userPermissions = <?php echo json_encode($_SESSION['permissions'] ?? []); ?>;
     const orderProcess = document.getElementById('orderProcess');
     const selectedOrderSection = document.getElementById('selectedOrderSection');
     const orders = <?php echo json_encode($orderList); ?>;
@@ -411,21 +421,77 @@
 
                     assignedEmployees.forEach(function(employee) {
                         tempElement = document.createElement("div");
-                        tempElement.innerHTML = `
-                            <div class="flexMax columnLayout tinGap regMinPadding">
-                                <b>${employee.name}</b>
-                                <b class="capitalFirst">${employee.roles}</b>
-                                <b>Assigned At: ${formatDate(employee.assignedAt)}</b>
-                            </div>
-                            <form class="squareSize unitHeight norEastAbsolute centerColumnLayout closeCorner clickable"
-                                method="POST" action="index.php?page=orders&action=removeAssignment">
-                                <input type="hidden" name="userID" value="${employee.userID}">
-                                <input type="hidden" name="orderProcessID" value="${elem.dataset.orderProcessID}">
-                                <input type="submit" name="submit" class="absoluted fullDimensions invisible">
-                                <img src="../../Shared/Img/XIcon.png" alt="X">
-                            </form>
-                        `;
-                        tempElement.className = "centerText noShrink centerHoriColumnLayout shadowed roundedTin yellowBorder yellowTransBG selectedEmployeeAssign fixedScreen";
+                        tempElement.className = "centerText relatived centerHoriColumnLayout shadowed roundedTin yellowTransBG yellowBorder selectedEmployeeAssign fixedScreen noShrink";
+
+                        // Add CSRF token
+                        if (csrfTokenTemplate) {
+                            const tokenClone = csrfTokenTemplate.cloneNode(true);
+                            tempElement.appendChild(tokenClone);
+                        }
+
+                        const userIDInput = document.createElement("input");
+                        userIDInput.type = "hidden";
+                        userIDInput.name = "userID";
+                        userIDInput.value = employee.userID;
+                        tempElement.appendChild(userIDInput);
+
+                        const orderProcessIDInput = document.createElement("input");
+                        orderProcessIDInput.type = "hidden";
+                        orderProcessIDInput.name = "orderProcessID";
+                        orderProcessIDInput.value = elem.dataset.orderProcessID;
+                        tempElement.appendChild(orderProcessIDInput);
+
+                        const infoDiv = document.createElement("div");
+                        infoDiv.className = "flexMax columnLayout tinGap regMinPadding";
+                        const nameB = document.createElement("h4");
+                        nameB.textContent = employee.name;
+                        nameB.className = "whiteText outlineText"
+                        infoDiv.appendChild(nameB);
+                        const roleB = document.createElement("h5");
+                        roleB.className = "capitalFirst";
+                        roleB.textContent = employee.roles;
+                        infoDiv.appendChild(roleB);
+                        const dateB = document.createElement("h5");
+                        dateB.textContent = "Assigned At: " + formatDate(employee.assignedAt);
+                        infoDiv.appendChild(dateB);
+                        tempElement.appendChild(infoDiv);
+
+                        const xForm = document.createElement("form");
+                        xForm.method = "POST";
+                        xForm.action = "index.php?page=orders&action=removeAssignment";
+                        xForm.className = "squareSize unitHeight norEastAbsolute centerColumnLayout closeCorner clickable";
+
+                        // Add CSRF token to X button form
+                        if (csrfTokenTemplate) {
+                            const tokenClone2 = csrfTokenTemplate.cloneNode(true);
+                            xForm.appendChild(tokenClone2);
+                        }
+
+                        const xUserID = document.createElement("input");
+                        xUserID.type = "hidden";
+                        xUserID.name = "userID";
+                        xUserID.value = employee.userID;
+                        xForm.appendChild(xUserID);
+
+                        const xOrderProcessID = document.createElement("input");
+                        xOrderProcessID.type = "hidden";
+                        xOrderProcessID.name = "orderProcessID";
+                        xOrderProcessID.value = elem.dataset.orderProcessID;
+                        xForm.appendChild(xOrderProcessID);
+
+                        const xSubmit = document.createElement("input");
+                        xSubmit.type = "submit";
+                        xSubmit.name = "submit";
+                        xSubmit.className = "absoluted fullDimensions invisible";
+                        xForm.appendChild(xSubmit);
+
+                        const xImg = document.createElement("img");
+                        xImg.src = "../../Shared/Img/XIcon.png";
+                        xImg.alt = "X";
+                        xForm.appendChild(xImg);
+
+                        tempElement.appendChild(xForm);
+
                         tempDiv.appendChild(tempElement);
 
                         hasAssignees = true;
@@ -578,7 +644,9 @@
         if (!designButton || !variableListButton) return;
 
         designButton.onclick = function() {
-            if (selectedOrderDesignAccess === 'view only') {
+            const canAlter = userPermissions && userPermissions.includes('canAlterOrders');
+
+            if (!canAlter || selectedOrderDesignAccess === 'view only') {
                 if (selectedOrderDesign) {
                     imageBoxImage.src = selectedOrderDesign;
                     imageBox.style.display = 'flex';
@@ -602,13 +670,20 @@
             tempElement.required = "true";
             tempElement.className = "flexMax";
             tempDiv.appendChild(tempElement);
+            const designFileInput = tempElement;
+
+            tempElement = document.createElement("input");
+            tempElement.type = "hidden";
+            tempElement.name = "orderPageUpdate";
+            tempElement.value = 1;
+            confirmationForm.appendChild(tempElement);
 
             tempDiv = document.createElement("div");
             tempDiv.className = "fullWidth tempElement hidden scrollable halfScreenMaxHeight";
             confirmationForm.appendChild(tempDiv);
 
             uploadedImage = document.createElement("img");
-            uploadedImage.className = "fullWidth";
+            uploadedImage.className = "fullWidth unsetHeight";
             uploadedImage.id = "imageUploaded";
             tempDiv.appendChild(uploadedImage);
 
@@ -626,18 +701,18 @@
                 tempDiv.classList.remove("hidden");
             }
 
-            tempElement.addEventListener('change', () => {
-                const files = tempElement.files;
+            designFileInput.addEventListener('change', () => {
+                const files = designFileInput.files;
                 if (files.length === 0) return;
                 if (files.length > 1) {
                     alert("Only one file allowed");
-                    tempElement.value = "";
+                    designFileInput.value = "";
                     return;
                 }
                 const file = files[0];
                 if (!file.type.startsWith("image/")) {
                     alert("Only images are allowed");
-                    tempElement.value = "";
+                    designFileInput.value = "";
                     return;
                 }
                 uploadedImage.src = URL.createObjectURL(file);
@@ -646,7 +721,8 @@
         };
 
         variableListButton.onclick = function() {
-            const viewOnly = selectedOrderVariableListAccess === 'view only';
+            const canAlter = userPermissions && userPermissions.includes('canAlterOrders');
+            const viewOnly = !canAlter || selectedOrderVariableListAccess === 'view only';
 
             if (!viewOnly) {
                 confirmationContent.classList.remove('maxWidth');
@@ -659,6 +735,12 @@
             confirmationSubmit.value = "Save List";
             confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
             if (viewOnly) confirmationSubmit.classList.add("hidden");
+
+            tempElement = document.createElement("input");
+            tempElement.type = "hidden";
+            tempElement.name = "orderPageUpdate";
+            tempElement.value = 1;
+            confirmationForm.appendChild(tempElement);
 
             const container = document.createElement("div");
             container.className = "tempElement columnLayout minGap";
@@ -1017,8 +1099,13 @@
         elem.addEventListener('click', function() {
             const today = new Date().toISOString().split('T')[0];
 
-            // ----- Build the section (now includes the assign panel) -----
-            selectedOrderSection.innerHTML = `
+            // Check user permissions
+            const hasDeletePermission = userPermissions && userPermissions.includes('canDeleteOrders');
+            const hasAlterPermission = userPermissions && userPermissions.includes('canAlterOrders');
+            const hasAssignPermission = userPermissions && userPermissions.includes('canAssignStaffToOrders');
+
+            // Build HTML conditionally based on permissions
+            let htmlContent = `
             <h4 class="centerHoriRowLayout tinGap centerText fullWidth">Order #${elem.dataset.id}</h4>
             <div>
                 <h4 class="centerHoriRowLayout tinGap centerText fullWidth">Customer: ${elem.dataset.customer}</h4>
@@ -1026,14 +1113,14 @@
                 <a class="centerHoriRowLayout tinGap centerText fullWidth darkText underlineText boldenText"
                     href="http://localhost/hontoria-oms/PublicWeb/Public/?page=order&code=${elem.dataset.code}">Order Page: ${elem.dataset.code}</a>
             </div>
-            <button type="button" class="criticalInput centerColumnLayout shadowed noBorder norEastAbsolute deleteOrderButton" data-selected-id="${elem.dataset.id}">
+            ${hasDeletePermission ? `<button type="button" class="criticalInput centerColumnLayout shadowed noBorder norEastAbsolute deleteOrderButton" data-selected-id="${elem.dataset.id}">
                 <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
-            </button>
-            <form method="POST" action="index.php?page=orders&action=changeDeadline" class="centerHoriRowLayout minGap">
+            </button>` : ''}
+            ${hasAlterPermission ? `<form method="POST" action="index.php?page=orders&action=changeDeadline" class="centerHoriRowLayout minGap">
                 <h6>Due Date</h6>
                 <input type="date" name="deadlineAt" class="flexMax deadlineAt" value="${elem.dataset.due.split(' ')[0]}" min="${today}">
                 <button type="button" class="importantInput shadowed noBorder changeDeadlineButton">Change</button>
-            </form>
+            </form>` : ''}
             <div class="centerHoriRowLayout minGap orderObjectivesContainer">
                 <div id="designButton" class="bordered flexMin duoHeight roundedMin centerHoriRowLayout shadowed fixedScreen clickable hidden">
                     <h4 class="flexMax centerText">Design</h4>
@@ -1048,11 +1135,13 @@
                     </div>
                 </div>
             </div>
-            <div class="centerColumnLayout roundedMin flexMax noFlexBasis noMinHeight">
+            ${hasAssignPermission ? `<div class="centerColumnLayout roundedMin flexMax noFlexBasis noMinHeight">
                 <div class="assignEmployeesPanel columnLayout minGap fullDimensions whiteBG midZ roundedMin regMidPadding"></div>
                 <div class="gradientBorderDiag minZ"></div>
-            <div>
+            </div>` : ''}
         `;
+
+            selectedOrderSection.innerHTML = htmlContent;
 
             // ----- Get fresh references -----
             const deleteOrderButton = selectedOrderSection.querySelector('.deleteOrderButton');
@@ -1074,35 +1163,45 @@
             updateOrderObjectives();
             setupOrderObjectiveListeners();
 
-            // ----- Delete order listener -----
-            deleteOrderButton.addEventListener('click', function() {
-                confirmationTitle.innerHTML = "Delete Order?";
-                confirmationForm.action = "index.php?page=orders&action=delete";
+            // ----- Delete order listener (only if user has permission and button exists) -----
+            if (deleteOrderButton) {
+                deleteOrderButton.addEventListener('click', function() {
+                    confirmationTitle.innerHTML = "Delete Order?";
+                    confirmationForm.action = "index.php?page=orders&action=delete";
 
-                confirmationText.innerHTML = "Are you sure to delete Order #" + selectedID.value + "?";
-                confirmationSubmit.value = "Yes Delete";
-                confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
+                    confirmationText.innerHTML = "Are you sure to delete Order #" + selectedID.value + "?";
+                    confirmationSubmit.value = "Yes Delete";
+                    confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
 
-                confirmation.style.display = 'flex';
-            });
+                    confirmation.style.display = 'flex';
+                });
+            }
 
-            // ----- Change deadline listener -----
-            changeDeadlineButton.addEventListener('click', function() {
-                confirmationTitle.innerHTML = "Change Order Deadline?";
-                confirmationForm.action = "index.php?page=orders&action=changeDeadline";
+            // ----- Change deadline listener (only if user has permission and form exists) -----
+            if (changeDeadlineButton) {
+                changeDeadlineButton.addEventListener('click', function() {
+                    confirmationTitle.innerHTML = "Change Order Deadline?";
+                    confirmationForm.action = "index.php?page=orders&action=changeDeadline";
 
-                confirmationText.innerHTML = "Are you sure to change the deadline of Order #" + selectedID.value + "?";
-                confirmationSubmit.value = "Yes Change";
-                confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
+                    confirmationText.innerHTML = "Are you sure to change the deadline of Order #" + selectedID.value + "?";
+                    confirmationSubmit.value = "Yes Change";
+                    confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
 
-                confirmation.style.display = 'flex';
-            });
+                    confirmation.style.display = 'flex';
+                });
 
-            deadlineAt.addEventListener('change', function() {
-                newDeadline.value = deadlineAt.value;
-            });
+                if (deadlineAt) {
+                    deadlineAt.addEventListener('change', function() {
+                        newDeadline.value = deadlineAt.value;
+                    });
+                }
+            }
 
-            // ----- Build Assign Employees UI inline -----
+            // ----- Build Assign Employees UI inline (only if user has permission and panel exists) -----
+            if (assignPanel) {
+                buildAssignPanel();
+            }
+
             function buildAssignPanel() {
                 assignPanel.innerHTML = '<h3>Assign Employees To Order</h3>'; // clear
 
@@ -1174,22 +1273,53 @@
 
                             const form = document.createElement("form");
                             form.method = "POST";
-                            form.innerHTML = `
-                            <input type="hidden" name="userID" value="${employee.userID}">
-                            <input type="hidden" name="orderProcessID" value="${procElem.dataset.orderProcessID}">
-                            <div class="rowLayout unitHeight">
-                                <h5 class="flexMax yellowBG whiteText outlineText fullHeight centerColumnLayout skewedXNegBG">
-                                    <span>${employee.name}</span>
-                                </h5>
-                                <h5 class="midHoriPadding fullHeight centerColumnLayout">Tasks: ${userTaskCountMap[employee.userID] || 0}</h5>
-                            </div>
-                            <div class="capitalFirst yellowTransBG centerColumnLayout">
-                                <h5 class="whiteText outlineText">${employee.roles}</h5>
-                            </div>
-                            <input type="submit" name="submit" class="fullDimensions invisible absoluted">
-                        `;
-                            form.className = "centerText relatived centerHoriColumnLayout shadowed roundedTin yellowBorder selectedEmployeeAssign fixedScreen noShrink";
                             form.action = "index.php?page=orders&action=assignEmployeeToTask";
+                            form.className = "centerText relatived centerHoriColumnLayout shadowed roundedTin yellowBorder selectedEmployeeAssign fixedScreen noShrink";
+
+                            // Add CSRF token
+                            if (csrfTokenTemplate) {
+                                const tokenClone = csrfTokenTemplate.cloneNode(true);
+                                form.appendChild(tokenClone);
+                            }
+
+                            const userIDInput = document.createElement("input");
+                            userIDInput.type = "hidden";
+                            userIDInput.name = "userID";
+                            userIDInput.value = employee.userID;
+                            form.appendChild(userIDInput);
+
+                            const orderProcessIDInput = document.createElement("input");
+                            orderProcessIDInput.type = "hidden";
+                            orderProcessIDInput.name = "orderProcessID";
+                            orderProcessIDInput.value = procElem.dataset.orderProcessID;
+                            form.appendChild(orderProcessIDInput);
+
+                            const rowDiv = document.createElement("div");
+                            rowDiv.className = "rowLayout unitHeight";
+                            const h5Name = document.createElement("h5");
+                            h5Name.className = "flexMax yellowBG whiteText outlineText fullHeight centerColumnLayout skewedXNegBG";
+                            h5Name.innerHTML = `<span>${employee.name}</span>`;
+                            rowDiv.appendChild(h5Name);
+                            const h5Tasks = document.createElement("h5");
+                            h5Tasks.className = "midHoriPadding fullHeight centerColumnLayout";
+                            h5Tasks.textContent = `Tasks: ${userTaskCountMap[employee.userID] || 0}`;
+                            rowDiv.appendChild(h5Tasks);
+                            form.appendChild(rowDiv);
+
+                            const rolesDiv = document.createElement("div");
+                            rolesDiv.className = "capitalFirst yellowTransBG centerColumnLayout";
+                            const h5Roles = document.createElement("h5");
+                            h5Roles.className = "whiteText outlineText";
+                            h5Roles.textContent = employee.roles;
+                            rolesDiv.appendChild(h5Roles);
+                            form.appendChild(rolesDiv);
+
+                            const submitInput = document.createElement("input");
+                            submitInput.type = "submit";
+                            submitInput.name = "submit";
+                            submitInput.className = "fullDimensions invisible absoluted";
+                            form.appendChild(submitInput);
+
                             container.appendChild(form);
                             hasAssignableEmployee = true;
                         });
@@ -1203,9 +1333,6 @@
                     });
                 });
             }
-
-            // Build the assign panel immediately (no button press needed)
-            buildAssignPanel();
         });
     });
 

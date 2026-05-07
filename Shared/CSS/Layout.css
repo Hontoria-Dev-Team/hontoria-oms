@@ -262,6 +262,10 @@ aside .gradientBorderVert {
     height: 50dvh !important;
 }
 
+.unsetHeight {
+    height: unset !important;
+}
+
 .fullMinWidth {
     min-width: 100% !important;
 }
