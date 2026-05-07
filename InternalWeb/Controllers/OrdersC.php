@@ -108,10 +108,21 @@ class OrdersC {
         $miscTaskAssigned = $this->staffModel->getMiscellaneousTaskByUserID($_SESSION['id']);
         $roleProcessTasks = $this->staffModel->getUserRoleProcessTasks($_SESSION['id']);
         $availableTasks =  $this->ordersModel->getAvailableOrderTasks($_SESSION['id'], $roleProcessTasks);
-        $assigneeList =  $this->ordersModel->getAllTaskAssigneeList();
-        $designList = $this->ordersModel->getAllOrderDesigns();
-        $variableListMap = $this->ordersModel->getAllOrderVariableListMapped();
-        $orderGroupList = $this->ordersModel->getAllOrderGroups();
+
+        // Extract unique order IDs from available tasks to scope other data
+        $orderIDsInScope = [];
+        foreach ($availableTasks as $task) {
+            if (!in_array($task['orderID'], $orderIDsInScope)) {
+                $orderIDsInScope[] = $task['orderID'];
+            }
+        }
+
+        // Only fetch designs, variable lists, groups, and assignees for orders in scope
+        $designList = !empty($orderIDsInScope) ? $this->ordersModel->getOrderDesignsByOrderIDs($orderIDsInScope) : [];
+        $variableListMap = !empty($orderIDsInScope) ? $this->ordersModel->getOrderVariableListsByOrderIDs($orderIDsInScope) : [];
+        $orderGroupList = !empty($orderIDsInScope) ? $this->ordersModel->getOrderGroupsByOrderIDs($orderIDsInScope) : [];
+        $assigneeList = !empty($orderIDsInScope) ? $this->ordersModel->getTaskAssigneeListByOrderIDs($orderIDsInScope) : [];
+
         require __DIR__ . '/../Views/Tasks/Page.php';
     }
 
@@ -250,6 +261,14 @@ class OrdersC {
     public function unassignEmployeeToTask() {
         $userID = $_POST['userID'];
         $orderProcessID = $_POST['orderProcessID'];
+
+        // Check if the task is marked as complete - cannot unassign completed tasks
+        $taskStatus = $this->ordersModel->getUserProcessTaskStatus($userID, $orderProcessID);
+        if ($taskStatus === 'complete') {
+            $_SESSION['message'] = "Error: Cannot unassign a task that has been marked as complete.";
+            header('Location: index.php?page=orders');
+            return;
+        }
 
         if ($userID == $_SESSION['id']) {
             if (!in_array('canSelfUnassignToTasks', $_SESSION['permissions'])) {

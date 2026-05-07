@@ -169,6 +169,19 @@ class OrdersM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get order groups filtered by an array of order IDs (for scoped data).
+    public function getOrderGroupsByOrderIDs($orderIDs) {
+        if (empty($orderIDs)) return [];
+
+        $placeholders = implode(',', array_fill(0, count($orderIDs), '?'));
+        $query = "SELECT orderID, description, quantity FROM orderGroups WHERE orderID IN ($placeholders)";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute($orderIDs);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // ================================================================
     //  ORDER DESIGN
     // ================================================================
@@ -323,6 +336,40 @@ class OrdersM {
         return $results;
     }
 
+    // Get order designs filtered by an array of order IDs (for scoped data).
+    public function getOrderDesignsByOrderIDs($orderIDs) {
+        if (empty($orderIDs)) return [];
+
+        $storageDir = __DIR__ . '/../../Storage/Designs/';
+        $placeholders = implode(',', array_fill(0, count($orderIDs), '?'));
+
+        $query = "SELECT orderID, imageName, approved FROM orderDesigns WHERE orderID IN ($placeholders)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute($orderIDs);
+        $designs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $results = [];
+
+        foreach ($designs as $design) {
+            $filePath = $storageDir . $design['imageName'];
+
+            if (file_exists($filePath)) {
+                $fileData = file_get_contents($filePath);
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                $mimeType = $finfo->file($filePath);
+                $base64Image = 'data:' . $mimeType . ';base64,' . base64_encode($fileData);
+
+                $results[] = [
+                    'orderID' => $design['orderID'],
+                    'image' => $base64Image,
+                    'approved' => $design['approved']
+                ];
+            }
+        }
+
+        return $results;
+    }
+
     // ================================================================
     //  VARIABLE LISTS
     // ================================================================
@@ -385,6 +432,26 @@ class OrdersM {
 
         $map = [];
         foreach ($orderIDs as $oid) {
+            $map[$oid] = $this->getOrderVariableListByID($oid);
+        }
+
+        return $map;
+    }
+
+    // Get variable lists filtered by an array of order IDs (for scoped data).
+    public function getOrderVariableListsByOrderIDs($orderIDs) {
+        if (empty($orderIDs)) return [];
+
+        // Build placeholders for IN clause
+        $placeholders = implode(',', array_fill(0, count($orderIDs), '?'));
+
+        $query = "SELECT orderID FROM variableLists WHERE orderID IN ($placeholders)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute($orderIDs);
+        $fetchedOrderIDs = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        $map = [];
+        foreach ($fetchedOrderIDs as $oid) {
             $map[$oid] = $this->getOrderVariableListByID($oid);
         }
 
@@ -995,6 +1062,29 @@ class OrdersM {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Get task assignments filtered by an array of order IDs (for scoped data).
+    public function getTaskAssigneeListByOrderIDs($orderIDs) {
+        if (empty($orderIDs)) return [];
+
+        $placeholders = implode(',', array_fill(0, count($orderIDs), '?'));
+        $query = "
+            SELECT
+                userProcessTasks.userID,
+                userProcessTasks.orderProcessID,
+                users.firstName,
+                users.middleName,
+                users.lastName,
+                userProcessTasks.status
+            FROM userProcessTasks
+            JOIN users ON userProcessTasks.userID = users.id
+            JOIN orderProcess ON userProcessTasks.orderProcessID = orderProcess.id
+            WHERE orderProcess.orderID IN ($placeholders)
+        ";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute($orderIDs);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // Update the status of a user's process task (pending → partially complete → complete).
     public function updateUserProcessTaskStatus($userID, $orderProcessID, $status) {
         $status = strtolower(trim($status));
@@ -1514,6 +1604,21 @@ class OrdersM {
         $stmt->bindParam(':userID', $userID);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
+    }
+
+    // ================================================================
+    //  TASK STATUS CHECKS
+    // ================================================================
+
+    // Get the status of a user's task assignment.
+    public function getUserProcessTaskStatus($userID, $orderProcessID) {
+        $query = "SELECT status FROM userProcessTasks WHERE userID = :userID AND orderProcessID = :orderProcessID";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':userID', $userID);
+        $stmt->bindParam(':orderProcessID', $orderProcessID);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ? $result['status'] : null;
     }
 
     // ================================================================
