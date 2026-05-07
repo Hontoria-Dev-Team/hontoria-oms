@@ -47,7 +47,9 @@ if (!function_exists('getProcessIcon')) {
 <div class="op-card op-card-full">
 
     <div class="op-card-head">
-        <i class="fas fa-diagram-project op-card-icon"></i>
+        <div class="op-card-icon">
+            <i class="fas fa-diagram-project"></i>
+        </div>
         <span>Order Process</span>
     </div>
 
