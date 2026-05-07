@@ -53,13 +53,21 @@ function getProcessIcon($status) {
 }
 
 $componentsDir = __DIR__ . '/../.Components/OrderPageComponents/';
+
+$siteName = $siteName ?? 'Hontoria Printing Services';
+$logoPath = $logoPath ?? '../.Images/Logo.png';
+$fbLink   = $fbLink   ?? 'https://www.facebook.com/jhong.hontoria.3';
+$address  = $address  ?? 'Feeder Road 2, Brgy. Tibal-og Santo tomas, Davao del Norte';
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Order Status — Hontoria Printing</title>
+    <title>Order Status — <?php echo htmlspecialchars($siteName); ?></title>
+    <link rel="icon" type="image/png" href="<?php echo htmlspecialchars($logoPath); ?>"/>
+
     <link rel="stylesheet" href="../.CSS/Shared.css" />
     <link rel="stylesheet" href="../.CSS/OrderPage.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />

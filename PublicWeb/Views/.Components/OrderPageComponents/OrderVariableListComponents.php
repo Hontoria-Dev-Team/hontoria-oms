@@ -10,7 +10,9 @@
 <div class="op-card op-card-full">
 
     <div class="op-card-head">
-        <i class="fas fa-table-list op-card-icon"></i>
+        <div class="op-card-icon">
+            <i class="fas fa-table-list"></i>
+        </div>
         <span>Variable List</span>
         <?php if (!empty($variableList)): ?>
             <span class="op-approval-pill <?php echo $variableList['approved'] ? 'pill-approved' : 'pill-pending'; ?>">
