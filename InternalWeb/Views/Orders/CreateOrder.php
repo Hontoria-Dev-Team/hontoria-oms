@@ -162,10 +162,12 @@
                             <p class="flexMin">Total Price: ₱<span id="priceTotalText"></span></p>
                             <p class="flexMin">Price Per Unit: ₱<span id="pricePerUnitText"></span></p>
                             <input type="hidden" name="priceTotal" id="priceTotal">
-                            <div>
-                                <label for="priceDiscount">Price Discount</label>
-                                <input type="number" name="priceDiscount" class="fullWidth" id="priceDiscount" min="0" value="0">
-                            </div>
+                            <?php if (in_array('canApplyDiscountToOrders', $_SESSION['permissions'])): ?>
+                                <div>
+                                    <label for="priceDiscount">Price Discount</label>
+                                    <input type="number" name="priceDiscount" class="fullWidth" id="priceDiscount" min="0" value="0">
+                                </div>
+                            <?php endif; ?>
                         </div>
                         <div class="gradientBorderDiag"></div>
                     </section>
