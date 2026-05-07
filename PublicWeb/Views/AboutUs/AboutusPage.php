@@ -47,7 +47,14 @@ $navItems = [
                 <?php include __DIR__ . '/../.Components/AboutUsComponents/LocationComponents.php'; ?>
                 <?php include __DIR__ . '/../.Components/AboutUsComponents/WorkPlaceComponents.php'; ?>
                 <?php include __DIR__ . '/../.Components/AboutUsComponents/OwnerComponents.php'; ?>
-                <?php include __DIR__ . '/../.Components/AboutUsComponents/StaffComponents.php'; ?>
+
+                
+                <?php 
+                /*
+include __DIR__ . '/../.Components/AboutUsComponents/StaffComponents.php';
+*/
+                ?>
+                
             </div>
             
         </section>

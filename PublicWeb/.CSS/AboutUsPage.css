@@ -330,7 +330,7 @@
 
 /* ========== WORKPLACE AREAS ========== */
 .workplace-section {
-    background: var(--light);
+    background: var(--white);
 }
 
 .areas-grid {
@@ -340,7 +340,7 @@
 }
 
 .area-card {
-    background:    var(--white);
+    background:    var(--light);
     border:        2px solid var(--border);
     border-radius: var(--radius-md);
     overflow:      hidden;
@@ -401,50 +401,6 @@
     color:       var(--gray);
     line-height: 1.6;
 }
-
-/* ========== PRODUCTS ========== */
-.products-section { background: var(--black); }
-
-.products-section .section-title  { color:      var(--white); }
-.products-section .section-eyebrow{ color:      var(--y); }
-.products-section .section-line   { background: var(--y); }
-.products-section .section-desc   { color:      rgba(255,255,255,0.55); }
-
-.products-grid {
-    display:               grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap:                   20px;
-}
-
-.product-pill {
-    background:    rgba(255,255,255,0.06);
-    border:        1px solid rgba(255,255,255,0.1);
-    border-radius: var(--radius-md);
-    padding:       24px 20px;
-    text-align:    center;
-    transition:    background var(--tr), transform var(--tr);
-}
-
-.product-pill:hover {
-    background:   rgba(255,208,0,0.1);
-    border-color: var(--y);
-    transform:    translateY(-4px);
-}
-
-.product-pill i {
-    font-size:     28px;
-    color:         var(--y);
-    margin-bottom: 12px;
-    display:       block;
-}
-
-.product-pill span {
-    font-size:      14px;
-    font-weight:    700;
-    color:          var(--white);
-    letter-spacing: 0.5px;
-}
-
 /* ========== LOCATION ========== */
 .location-section {
     background: var(--white);
@@ -548,7 +504,7 @@
 
 /* ========== OWNER ========== */
 .owner-section {
-    background: var(--y);
+    background: var(--white);
 }
 
 .owner-layout {
@@ -577,7 +533,7 @@
     border-radius:   50%;
     border:          5px solid var(--dk);
     box-shadow:      0 0 0 4px var(--red), var(--shadow-lg);
-    background:      var(--white);
+    background:      var(--light);
     display:         flex;
     flex-direction:  column;
     align-items:     center;

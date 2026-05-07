@@ -6,9 +6,11 @@
         <div class="owner-layout">
 
             <div class="owner-img-wrap">
-                <div class="owner-img-placeholder">
-                    <i class="fas fa-user"></i>
-                </div>
+                <img 
+                    src="/hontoria-oms/PublicWeb/.Images/Owner.png"
+                    alt="Jhong Hontoria - Founder & Owner" 
+                    class="owner-img"
+                >
                 <span class="owner-tag">Owner</span>
             </div>
 
