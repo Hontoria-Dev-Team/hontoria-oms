@@ -429,6 +429,10 @@ INSERT INTO orderGroups (orderID, description, quantity) VALUES
 (@order_id, 'Large', 7),
 (@order_id, 'Extra Large', 2);
 
+-- 2a. Sales Order (tracks payment status)
+INSERT INTO salesOrder (orderID, priceTotal, pricePaid) VALUES
+(@order_id, 20000, 1000);
+
 -- 3. Order Process (serviceID=1, phases 1-4, minAssign=1, maxAssign=5)
 INSERT INTO orderProcess (orderID, phase, minAssign, maxAssign, status) VALUES
 (@order_id, 1, 1, 5, 'active'),
