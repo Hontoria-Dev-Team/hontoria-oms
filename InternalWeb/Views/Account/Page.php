@@ -1,3 +1,11 @@
+<?php
+// XSS escape helper – define only once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -123,12 +131,13 @@
         <section class="centerColumnLayout midGap flexMax">
             <div class="rowLayout midGap extraWidth">
                 <section class="centerColumnLayout box roundedMid centerHoriSelf flexMax clickable noFlexBasis noMinHeight">
-                    <div class="centerColumnLayout fullDimensions" id="userImageContainer" data-image="../../Storage/AccountImages/<?= htmlspecialchars($accountImage) ?>">
+                    <!-- Account image: path is escaped; fallback to empty to avoid broken path -->
+                    <div class="centerColumnLayout fullDimensions" id="userImageContainer" data-image="../../Storage/AccountImages/<?= e($accountImage ?? '') ?>">
                         <?php if (empty($accountImage)): ?>
                             <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="midHeight">
                             <h3>Upload Account Photo</h3>
                         <?php else: ?>
-                            <img src="../../Storage/AccountImages/<?= htmlspecialchars($accountImage) ?>" alt="Account Photo"
+                            <img src="../../Storage/AccountImages/<?= e($accountImage) ?>" alt="Account Photo"
                                 class="roundedMin shadowed imageCoverFull squareSize">
                         <?php endif; ?>
                     </div>
@@ -141,7 +150,7 @@
                             <div class="fullWidth columnLayout">
                                 <h3 class="leftStart">Change Username</h3>
                                 <div class="rowLayout minGap">
-                                    <input type="text" name="username" required="true" placeholder="<?php echo $_SESSION['username']; ?>" class="flexMax">
+                                    <input type="text" name="username" required="true" placeholder="<?= e($_SESSION['username']) ?>" class="flexMax">
                                     <input type="submit" name="submit" value="Update" class="fullWidth importantInput flexMin shadowed noBorder">
                                 </div>
                             </div>
@@ -156,12 +165,12 @@
                                 <div class="tinGap columnLayout">
                                     <div class="fullWidth">
                                         <label for="phoneNum" class="leftStart">Phone Number</label>
-                                        <input type="tel" name="phoneNum" placeholder="<?php echo $_SESSION['phoneNumber']; ?>" pattern="^09\d{9}$" class="fullWidth"
-                                            value="<?php echo htmlspecialchars($phoneNum ?? ''); ?>">
+                                        <input type="tel" name="phoneNum" placeholder="<?= e($_SESSION['phoneNumber']) ?>" pattern="^09\d{9}$" class="fullWidth"
+                                            value="<?= e($phoneNum ?? '') ?>">
                                     </div>
                                     <div class="fullWidth">
                                         <label for="emailAddress" class="leftStart">Email Address</label>
-                                        <input type="email" class="fullWidth" name="emailAddress" placeholder="<?php echo $_SESSION['email']; ?>">
+                                        <input type="email" class="fullWidth" name="emailAddress" placeholder="<?= e($_SESSION['email']) ?>" value="<?= e($emailAddress ?? '') ?>">
                                     </div>
                                 </div>
                             </div>
@@ -177,7 +186,7 @@
                     <div class="fullWidth">
                         <h3 class="leftStart">Set User Note</h3>
                         <div class="minGap rowLayout">
-                            <input type="text" name="userNote" placeholder="Enter your note here..." class="flexMax capitalFirst" value="<?= $note ?>">
+                            <input type="text" name="userNote" placeholder="Enter your note here..." class="flexMax capitalFirst" value="<?= e($note ?? '') ?>">
                             <input type="submit" name="submit" value="Submit" class="importantInput shadowed noBorder">
                         </div>
                     </div>
@@ -273,9 +282,9 @@
             previewContainer.classList.remove("hidden");
         }
 
-        // Set dialog texts and button style
-        confirmationTitle.innerHTML = "Upload Your Image";
-        confirmationText.innerHTML = "Please upload a photo to represent you.";
+        // Set dialog texts and button style (hardcoded strings – safe)
+        confirmationTitle.textContent = "Upload Your Image";
+        confirmationText.textContent = "Please upload a photo to represent you.";
         confirmationSubmit.value = "Upload";
         confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
 
@@ -285,7 +294,9 @@
 
         // Handle file selection
         fileInput.addEventListener('change', () => {
-            previewContainer.innerHTML = '';
+            // Clear preview container safely without innerHTML
+            while (previewContainer.firstChild) previewContainer.removeChild(previewContainer.firstChild);
+
             const files = fileInput.files;
 
             if (files.length === 0) {
@@ -320,8 +331,8 @@
         confirmationContent.classList.add("maxWidth");
         confirmationForm.action = "";
 
-        confirmationTitle.innerHTML = "Additional Account Info";
-        confirmationText.innerHTML = "Additional account info such as your statistics, role/s, permission/s, and system activity logs";
+        confirmationTitle.textContent = "Additional Account Info";
+        confirmationText.textContent = "Additional account info such as your statistics, role/s, permission/s, and system activity logs";
         confirmationSubmit.classList.add("hidden");
 
         const completed = stats['tasksCompleted'] || 0;
@@ -388,15 +399,24 @@
         logsList.forEach(element => {
             const logDiv = document.createElement('div');
             logDiv.className = 'centerColumnLayout roundedTin regTinPadding shadowed fitHeight fullWidth';
-            logDiv.innerHTML = `
-                <h5 class="centerText minHoriPadding whiteText outlineText">${element['log']}</h5>
-                <h6>${formatDateTime(element['loggedAt'])}</h6>
-            `;
+
+            // Build log entry safely without innerHTML
+            const logHeading = document.createElement('h5');
+            logHeading.className = 'centerText minHoriPadding whiteText outlineText';
+            logHeading.textContent = element['log'];
+
+            const logTime = document.createElement('h6');
+            logTime.textContent = formatDateTime(element['loggedAt']);
+
+            logDiv.appendChild(logHeading);
+            logDiv.appendChild(logTime);
+
             // Apply color class
             if (element['color'] === 'red') logDiv.classList.add('redTransBG', 'redBorder');
             else if (element['color'] === 'yellow') logDiv.classList.add('yellowTransBG', 'yellowBorder');
             else if (element['color'] === 'green') logDiv.classList.add('greenTransBG', 'greenBorder');
             else logDiv.classList.add('darkFadedBG', 'bordered');
+
             logContainer.appendChild(logDiv);
         });
 

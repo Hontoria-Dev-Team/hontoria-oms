@@ -1,3 +1,11 @@
+<?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -18,11 +26,12 @@
             <?php include("../Views/.Components/TitleLogo.php"); ?>
             <h3>Input credentials below</h3>
             <hr>
+            <!-- POST login form with CSRF protection -->
             <form method="POST" action="index.php?page=login&action=authenticate" class="centerColumnLayout minGap fullWidth">
                 <?php echo CsrfM::getTokenField(); ?>
                 <div class="fullWidth columnLayout">
                     <label for="name" class="leftStart">Name</label>
-                    <input type="text" name="name" required="true" value="<?php echo htmlspecialchars($username ?? ''); ?>">
+                    <input type="text" name="name" required="true" value="<?= e($username ?? '') ?>">
                 </div>
                 <div class="fullWidth columnLayout">
                     <label for="password" class="leftStart">Password</label>

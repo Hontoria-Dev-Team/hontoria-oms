@@ -1,3 +1,11 @@
+<?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -69,15 +77,16 @@
                         <div id="ordersContainer" class="scrollable columnLayout minGap regMinPadding flexMax noFlexBasis noMinHeight">
                             <?php foreach ($orderList as $order): ?>
                                 <?php
+                                // Style based on completion status
                                 $elemStyle = $order['isCompleted'] ? "yellowBorder yellowTransBG" : "redBorder redTransBG";
                                 $idBG = $order['isCompleted'] ? "yellowBG" : "redBG";
                                 ?>
-                                <div class="tinHeight noShrink roundedMin centerHoriRowLayout clickable shadowed fixedScreen orderElement <?= $elemStyle ?>"
-                                    data-id="<?= $order['id'] ?>">
-                                    <h3 class="gradientDiagBG flexMid centerColumnLayout fullHeight whiteText skewedXNegBG shadowed capitalFirst outlineText <?= $idBG ?>">
-                                        <span>Order #<?= $order['id'] ?></span>
+                                <div class="tinHeight noShrink roundedMin centerHoriRowLayout clickable shadowed fixedScreen orderElement <?= e($elemStyle) ?>"
+                                    data-id="<?= e($order['id']) ?>">
+                                    <h3 class="gradientDiagBG flexMid centerColumnLayout fullHeight whiteText skewedXNegBG shadowed capitalFirst outlineText <?= e($idBG) ?>">
+                                        <span>Order #<?= e($order['id']) ?></span>
                                     </h3>
-                                    <b class="flexMax fullHeight centerColumnLayout whiteText outlineText"><?= $order['subserviceName'] ?> <?= $order['serviceName'] ?></b>
+                                    <b class="flexMax fullHeight centerColumnLayout whiteText outlineText"><?= e($order['subserviceName']) ?> <?= e($order['serviceName']) ?></b>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -131,13 +140,14 @@
     const orderDesignContainer = document.getElementById('orderDesignContainer');
     const orderProcessContainer = document.getElementById('orderProcessContainer');
     const orderProcessAssigneesContainer = document.getElementById('orderProcessAssigneesContainer');
+
+    // REVIEW: Entire order archive data is exposed to JavaScript. Ensure only authorized users can access this page.
     const orderList = <?php echo json_encode($orderList); ?>;
     const orderGroupList = <?php echo json_encode($orderGroupList); ?>;
     const orderDesignList = <?php echo json_encode($orderDesignList); ?>;
     const orderAssignmentList = <?php echo json_encode($orderAssignmentList); ?>;
 
     const orderMap = {};
-
     orderList.forEach(item => {
         orderMap[item.id] = {
             serviceName: item.serviceName,
@@ -153,12 +163,10 @@
     });
 
     const orderGroupMap = {};
-
     orderGroupList.forEach(item => {
         if (!orderGroupMap[item.orderArchiveID]) {
             orderGroupMap[item.orderArchiveID] = [];
         }
-
         orderGroupMap[item.orderArchiveID].push({
             description: item.description,
             units: item.units
@@ -166,22 +174,18 @@
     });
 
     const orderDesignMap = {};
-
     orderDesignList.forEach(item => {
         orderDesignMap[item.orderArchiveID] = item.imageName;
     });
 
     const orderAssignmentMap = {};
-
     orderAssignmentList.forEach(item => {
         if (!orderAssignmentMap[item.orderArchiveID]) {
             orderAssignmentMap[item.orderArchiveID] = {};
         }
-
         if (!orderAssignmentMap[item.orderArchiveID][item.processName]) {
             orderAssignmentMap[item.orderArchiveID][item.processName] = [];
         }
-
         orderAssignmentMap[item.orderArchiveID][item.processName].push({
             assigneeName: item.userFirstName + " " + (item.userMiddleName ? item.userMiddleName.charAt(0) + ". " : "") + item.userLastName,
             assignedAt: item.assignedAt
@@ -202,7 +206,6 @@
     document.querySelectorAll('.orderElement').forEach(function(elem) {
         elem.addEventListener('click', function() {
             selectedOrderID = elem.dataset.id;
-
             selectedOrder = orderMap[selectedOrderID];
             selectedOrderGroups = [...(orderGroupMap[selectedOrderID] || [])];
             selectedOrderDesign = orderDesignMap[selectedOrderID];
@@ -215,148 +218,178 @@
         });
     });
 
-    // Show Order details function logic
+    // Show Order details using safe DOM methods (no innerHTML with variables)
     function ShowDetails() {
-        detailsContainer.innerHTML = `
-            <b>Order #1 <span class="${selectedOrder.isCompleted == 1 ? "yellowText" : "redText"}">(${selectedOrder.isCompleted == 1 ? "Completed" : "Not Completed"})</span></b>
-            <div class="gridFlex tinGap">
-                <div class="centerHoriRowLayout tinGap marginRightMin">
-                    <b>Service: <span class="fontWeightNormal">${selectedOrder.serviceName},</span></b>
-                </div>
-                <div class="centerHoriRowLayout tinGap marginRightMin">
-                    <b>Subservice: <span class="fontWeightNormal">${selectedOrder.subserviceName},</span></b>
-                </div>
-                <div class="centerHoriRowLayout tinGap marginRightMin">
-                    <b>Customer: <span class="fontWeightNormal">${selectedOrder.customerName},</span></b>
-                </div>
-                <div class="centerHoriRowLayout tinGap marginRightMin">
-                    <b>Total Price: <span class="fontWeightNormal">₱${selectedOrder.priceTotal},</span></b>
-                </div>
-                <div class="centerHoriRowLayout tinGap marginRightMin">
-                    <b>Created At: <span class="fontWeightNormal">${formatDate(selectedOrder.createdAt)},</span></b>
-                </div>
-                <div class="centerHoriRowLayout tinGap marginRightMin">
-                    <b>Deadline At:
-                        <span class="fontWeightNormal">
-                            ${selectedOrder.deadlineAt == '0000-00-00 00:00:00' ? "No Deadline" : formatDate(selectedOrder.deadlineAt)},
-                        </span>
-                    </b>
-                </div>
-                <div class="centerHoriRowLayout tinGap marginRightMin">
-                    <b>Archived At: <span class="fontWeightNormal">${formatDate(selectedOrder.archivedAt)}</span></b>
-                </div>
-            </div>
-        `;
+        // Clear previous content safely
+        while (detailsContainer.firstChild) detailsContainer.removeChild(detailsContainer.firstChild);
 
-        tempElement = document.createElement('div');
-        tempElement.className = 'flexMax bordered roundedMin centerColumnLayout shadowed fixedScreen noSelectHidden';
-        detailsContainer.appendChild(tempElement);
+        // Order header
+        var headerBold = document.createElement('b');
+        headerBold.appendChild(document.createTextNode('Order #1 '));
+        var statusSpan = document.createElement('span');
+        statusSpan.textContent = '(' + (selectedOrder.isCompleted == 1 ? 'Completed' : 'Not Completed') + ')';
+        statusSpan.className = selectedOrder.isCompleted == 1 ? 'yellowText' : 'redText';
+        headerBold.appendChild(statusSpan);
+        detailsContainer.appendChild(headerBold);
 
-        tempDiv = document.createElement('h4');
-        tempDiv.className = 'centerColumnLayout darkBG shadowed whiteText fullWidth';
-        tempDiv.textContent = 'Groups';
-        tempElement.appendChild(tempDiv);
+        // Grid container for details
+        var gridDiv = document.createElement('div');
+        gridDiv.className = 'gridFlex tinGap';
+        detailsContainer.appendChild(gridDiv);
 
-        tempDiv = document.createElement('div');
-        tempDiv.className = 'scrollable fullWidth flexMax gridCenterFlex minGap regMinPadding';
-        tempDiv.id = 'orderGroupsContainer';
-        tempElement.appendChild(tempDiv);
+        // Helper to create a detail row
+        function addDetail(label, value) {
+            var row = document.createElement('div');
+            row.className = 'centerHoriRowLayout tinGap marginRightMin';
+            var b = document.createElement('b');
+            b.appendChild(document.createTextNode(label + ': '));
+            var span = document.createElement('span');
+            span.className = 'fontWeightNormal';
+            span.textContent = value;
+            b.appendChild(span);
+            row.appendChild(b);
+            gridDiv.appendChild(row);
+        }
 
-        selectedOrderGroups.forEach(group => {
-            tempElement = document.createElement("h5");
-            tempElement.className = "noShrink fitHeight roundedMin centerRowLayout minGap darkTransBG regMinPadding bordered capitalFirst whiteText outlineText shadowed";
-            tempElement.textContent = group.description + " : " + group.units;
-            tempDiv.appendChild(tempElement);
+        addDetail('Service', selectedOrder.serviceName + ',');
+        addDetail('Subservice', selectedOrder.subserviceName + ',');
+        addDetail('Customer', selectedOrder.customerName + ',');
+        addDetail('Total Price', '₱' + selectedOrder.priceTotal + ',');
+        addDetail('Created At', formatDate(selectedOrder.createdAt) + ',');
+        var deadlineText = selectedOrder.deadlineAt == '0000-00-00 00:00:00' ? 'No Deadline' : formatDate(selectedOrder.deadlineAt);
+        addDetail('Deadline At', deadlineText + ',');
+        addDetail('Archived At', formatDate(selectedOrder.archivedAt));
+
+        // Groups container
+        var groupSection = document.createElement('div');
+        groupSection.className = 'flexMax bordered roundedMin centerColumnLayout shadowed fixedScreen noSelectHidden';
+        detailsContainer.appendChild(groupSection);
+
+        var groupHeader = document.createElement('h4');
+        groupHeader.className = 'centerColumnLayout darkBG shadowed whiteText fullWidth';
+        groupHeader.textContent = 'Groups';
+        groupSection.appendChild(groupHeader);
+
+        var groupListDiv = document.createElement('div');
+        groupListDiv.className = 'scrollable fullWidth flexMax gridCenterFlex minGap regMinPadding';
+        groupListDiv.id = 'orderGroupsContainer';
+        groupSection.appendChild(groupListDiv);
+
+        selectedOrderGroups.forEach(function(group) {
+            var groupItem = document.createElement('h5');
+            groupItem.className = 'noShrink fitHeight roundedMin centerRowLayout minGap darkTransBG regMinPadding bordered capitalFirst whiteText outlineText shadowed';
+            groupItem.textContent = group.description + ' : ' + group.units;
+            groupListDiv.appendChild(groupItem);
         });
     }
 
-    // Show Order design function logic
+    // Show Order design
     function ShowDesign() {
-        orderDesignContainer.innerHTML = '';
+        while (orderDesignContainer.firstChild) orderDesignContainer.removeChild(orderDesignContainer.firstChild);
 
         if (!selectedOrderDesign) {
-            orderDesignContainer.innerHTML = '<h2 class="centerMarginsSelf">No Design Found</h2>';
+            var noDesignMsg = document.createElement('h2');
+            noDesignMsg.className = 'centerMarginsSelf';
+            noDesignMsg.textContent = 'No Design Found';
+            orderDesignContainer.appendChild(noDesignMsg);
             return;
         }
 
-        tempElement = document.createElement("img");
-        tempElement.id = "orderDesign";
-        tempElement.className = "roundedMid shadowed clickable";
-        tempElement.style = "max-height: 100%; max-width: 100%; height: unset; width: unset;";
-        tempElement.src = "../../Storage/Designs/" + selectedOrderDesign;
-        orderDesignContainer.appendChild(tempElement);
+        var img = document.createElement('img');
+        img.id = 'orderDesign';
+        img.className = 'roundedMid shadowed clickable';
+        img.style.maxHeight = '100%';
+        img.style.maxWidth = '100%';
+        img.style.height = 'unset';
+        img.style.width = 'unset';
+        img.src = '../../Storage/Designs/' + selectedOrderDesign;
+        orderDesignContainer.appendChild(img);
 
         // View order design focus logic
-        document.getElementById('orderDesign').addEventListener('click', function() {
-            imageBoxImage.src = "../../Storage/Designs/" + selectedOrderDesign;
+        img.addEventListener('click', function() {
+            imageBoxImage.src = '../../Storage/Designs/' + selectedOrderDesign;
             imageBox.style.display = 'flex';
         });
     }
 
-    // Show Order Process Function Logic
+    // Show Order Process
     function ShowProcess() {
-        orderProcessContainer.innerHTML = '';
-        let hasFirstProcess = false;
+        while (orderProcessContainer.firstChild) orderProcessContainer.removeChild(orderProcessContainer.firstChild);
+        var hasFirstProcess = false;
 
         if (Object.keys(selectedOrderProcess).length == 0) {
-            orderProcessContainer.innerHTML = '<h2 class="centerMarginsSelf">No Process Archived</h2>';
+            var msg = document.createElement('h2');
+            msg.className = 'centerMarginsSelf';
+            msg.textContent = 'No Process Archived';
+            orderProcessContainer.appendChild(msg);
             return;
         }
 
         selectedOrderProcessNames = Object.keys(orderAssignmentMap[selectedOrderID]);
 
-        selectedOrderProcessNames.forEach((processName, index) => {
+        selectedOrderProcessNames.forEach(function(processName, index) {
             if (hasFirstProcess) {
-                tempElement = document.createElement('h1');
-                tempElement.textContent = '>';
-                orderProcessContainer.appendChild(tempElement);
+                var arrow = document.createElement('h1');
+                arrow.textContent = '>';
+                orderProcessContainer.appendChild(arrow);
             }
 
-            tempDiv = document.createElement('div');
-            tempDiv.className = 'flexMin minHeight bordered darkFadedBG roundedMin centerColumnLayout tinGap clickable processElement';
-            tempDiv.dataset.name = processName;
-            orderProcessContainer.appendChild(tempDiv);
+            var procDiv = document.createElement('div');
+            procDiv.className = 'flexMin minHeight bordered darkFadedBG roundedMin centerColumnLayout tinGap clickable processElement';
+            procDiv.dataset.name = processName;
+            orderProcessContainer.appendChild(procDiv);
 
-            tempElement = document.createElement('h3');
-            tempElement.className = "whiteText outlineText";
-            tempElement.textContent = processName;
-            tempDiv.appendChild(tempElement);
+            var procNameH3 = document.createElement('h3');
+            procNameH3.className = 'whiteText outlineText';
+            procNameH3.textContent = processName;
+            procDiv.appendChild(procNameH3);
 
-            tempElement = document.createElement('div');
-            tempElement.className = "centerHoriRowLayout tinGap unitHeight"
+            var assigneeInfo = document.createElement('div');
+            assigneeInfo.className = 'centerHoriRowLayout tinGap unitHeight';
+            procDiv.appendChild(assigneeInfo);
 
-            const assignees = selectedOrderProcess[processName] || [];
+            // People icon
+            var peopleIcon = document.createElement('img');
+            peopleIcon.src = '../../Shared/Img/PeopleIcon.png';
+            peopleIcon.alt = 'People';
+            peopleIcon.className = 'unitHeight';
+            assigneeInfo.appendChild(peopleIcon);
 
-            tempElement.innerHTML = `
-                <img src="../../Shared/Img/PeopleIcon.png" alt="People" class="unitHeight">
-                <div class="centerHoriRowLayout tinGap">
-                    <p>Assigned: ${assignees.length}</p>
-                </div>
-            `;
-            tempDiv.appendChild(tempElement);
+            var assigneeCountDiv = document.createElement('div');
+            assigneeCountDiv.className = 'centerHoriRowLayout tinGap';
+            assigneeInfo.appendChild(assigneeCountDiv);
+
+            var p = document.createElement('p');
+            p.textContent = 'Assigned: ' + (selectedOrderProcess[processName] || []).length;
+            assigneeCountDiv.appendChild(p);
 
             hasFirstProcess = true;
         });
 
-        // Selecting process element show its archived assignees function logic
+        // Selecting process element shows its archived assignees
         document.querySelectorAll('.processElement').forEach(function(elem) {
             elem.addEventListener('click', function() {
-                orderProcessAssigneesContainer.innerHTML = '';
+                while (orderProcessAssigneesContainer.firstChild) orderProcessAssigneesContainer.removeChild(orderProcessAssigneesContainer.firstChild);
 
-                selectedOrderProcess[elem.dataset.name].forEach((assignee) => {
-                    tempDiv = document.createElement('div');
-                    tempDiv.className = 'noShrink roundedMin centerHoriRowLayout clickable shadowed fixedScreen bordered';
-                    orderProcessAssigneesContainer.appendChild(tempDiv);
+                var assignees = selectedOrderProcess[elem.dataset.name] || [];
+                assignees.forEach(function(assignee) {
+                    var assigneeDiv = document.createElement('div');
+                    assigneeDiv.className = 'noShrink roundedMin centerHoriRowLayout clickable shadowed fixedScreen bordered';
+                    orderProcessAssigneesContainer.appendChild(assigneeDiv);
 
-                    tempElement = document.createElement('b');
-                    tempElement.className = 'centerColumnLayout fullHeight skewedXNegBG shadowed capitalFirst darkFadedBG whiteText outlineText';
-                    tempElement.innerHTML = `<span class="regMinPadding">${assignee.assigneeName}</span>`;
-                    tempDiv.appendChild(tempElement);
+                    var nameBold = document.createElement('b');
+                    nameBold.className = 'centerColumnLayout fullHeight skewedXNegBG shadowed capitalFirst darkFadedBG whiteText outlineText';
+                    assigneeDiv.appendChild(nameBold);
 
-                    tempElement = document.createElement('b');
-                    tempElement.className = 'centerText capitalFirst regMinPadding';
-                    tempElement.textContent = "Assigned: " + formatDate(assignee.assignedAt);
-                    tempDiv.appendChild(tempElement);
+                    var nameSpan = document.createElement('span');
+                    nameSpan.className = 'regMinPadding';
+                    nameSpan.textContent = assignee.assigneeName;
+                    nameBold.appendChild(nameSpan);
+
+                    var dateBold = document.createElement('b');
+                    dateBold.className = 'centerText capitalFirst regMinPadding';
+                    dateBold.textContent = 'Assigned: ' + formatDate(assignee.assignedAt);
+                    assigneeDiv.appendChild(dateBold);
                 });
             });
         });
@@ -364,7 +397,11 @@
 
     // Selecting on other order reset the assignees container
     function ResetAssignees() {
-        orderProcessAssigneesContainer.innerHTML = '<h2 class="centerMarginsSelf">No Process Selected</h2>';
+        while (orderProcessAssigneesContainer.firstChild) orderProcessAssigneesContainer.removeChild(orderProcessAssigneesContainer.firstChild);
+        var msg = document.createElement('h2');
+        msg.className = 'centerMarginsSelf';
+        msg.textContent = 'No Process Selected';
+        orderProcessAssigneesContainer.appendChild(msg);
     }
 </script>
 

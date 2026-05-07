@@ -14,9 +14,10 @@
             <h1 class="titleLogo tinHeight">
                 <img src="../../Shared/Img/Logo.png" alt="logo"> Hontoria OMS
             </h1>
+            <!-- All dynamic output is properly escaped with htmlspecialchars -->
             <section class="box centerColumnLayout roundedMid">
-                <h3>Welcome, <?php echo htmlspecialchars($_SESSION['full_name'] ?? 'User'); ?>!</h3>
-                <p>You are logged in as: <?php echo htmlspecialchars($_SESSION['username'] ?? ''); ?></p>
+                <h3>Welcome, <?php echo htmlspecialchars($_SESSION['full_name'] ?? 'User', ENT_QUOTES, 'UTF-8'); ?>!</h3>
+                <p>You are logged in as: <?php echo htmlspecialchars($_SESSION['username'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
                 <div class="gradientBorderDiag"></div>
             </section>
         </section>

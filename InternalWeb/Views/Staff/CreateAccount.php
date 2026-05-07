@@ -1,3 +1,11 @@
+<?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -63,15 +71,15 @@
                             <div class="triItemLayout minGap rowLayout">
                                 <div>
                                     <label for="firstName" class="leftStart">First Name</label>
-                                    <input type="text" name="firstName" required="true" class="fullWidth" value="<?php echo htmlspecialchars($firstName ?? ''); ?>">
+                                    <input type="text" name="firstName" required="true" class="fullWidth" value="<?= e($firstName ?? '') ?>">
                                 </div>
                                 <div>
                                     <label for="middleName" class="leftStart">Middle Name</label>
-                                    <input type="text" name="middleName" class="fullWidth" value="<?php echo htmlspecialchars($middleName ?? ''); ?>">
+                                    <input type="text" name="middleName" class="fullWidth" value="<?= e($middleName ?? '') ?>">
                                 </div>
                                 <div>
                                     <label for="lastName" class="leftStart">Last Name</label>
-                                    <input type="text" name="lastName" required="true" class="fullWidth" value="<?php echo htmlspecialchars($lastName ?? ''); ?>">
+                                    <input type="text" name="lastName" required="true" class="fullWidth" value="<?= e($lastName ?? '') ?>">
                                 </div>
                             </div>
                         </div>
@@ -81,11 +89,11 @@
                                 <div>
                                     <label for="phoneNum" class="leftStart">Phone Number</label>
                                     <input type="tel" name="phoneNum" required="true" placeholder="09171234567" pattern="^09\d{9}$" class="fullWidth"
-                                        value="<?php echo htmlspecialchars($phoneNum ?? ''); ?>">
+                                        value="<?= e($phoneNum ?? '') ?>">
                                 </div>
                                 <div class="flexMax columnLayout">
                                     <label for="emailAddress" class="leftStart flexMax">Email Address</label>
-                                    <input type="email" name="emailAddress" required="true" value="<?php echo htmlspecialchars($emailAddress ?? ''); ?>">
+                                    <input type="email" name="emailAddress" required="true" value="<?= e($emailAddress ?? '') ?>">
                                 </div>
                             </div>
                         </div>

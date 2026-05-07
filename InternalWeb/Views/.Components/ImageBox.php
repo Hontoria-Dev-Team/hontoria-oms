@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Image lightbox component – no dynamic output, no forms. Safe as-is. -->
 <section id="imageBox" class="centerColumnLayout topZ" style="display: none;">
     <div id="imageBoxContent" class="centerColumnLayout roundedMid">
         <a id="imageBoxCloseButton" class="norEastAbsolute distantCorner squareSize tinHeight centerColumnLayout importantInput roundedMin">

@@ -1,3 +1,11 @@
+<?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -43,7 +51,7 @@
                             <form method="POST" action="index.php?page=services&action=updateProcess"
                                 class="centerHoriColumnLayout minGap roundedMin yellowTransBG yellowBorder regMidPadding shadowed">
                                 <?php echo CsrfM::getTokenField(); ?>
-                                <h2 class="centerText"><?= $process['name'] ?></h2>
+                                <h2 class="centerText"><?= e($process['name']) ?></h2>
                                 <div class="centerRowLayout minGap">
                                     <div class="centerRowLayout tinGap canGrantCheck" data-index="0">
                                         <input type="checkbox" name="hasGCAccess" value="1" <?= $process['hasGCAccess'] ? 'checked' : '' ?>>
@@ -54,12 +62,12 @@
                                         <div class="centerHoriRowLayout tinGap">
                                             <label for="minAssign">Min</label>
                                             <input type="number" name="minAssign" required="true" class="unitHeight unitWidth regTinPadding centerText roundedTin minAssign"
-                                                value="<?= $process['minAssignDefault'] ?>" min="1" max="50">
+                                                value="<?= e($process['minAssignDefault']) ?>" min="1" max="50">
                                         </div>
                                         <div class="centerHoriRowLayout tinGap">
                                             <label for="maxAssign">Max</label>
                                             <input type="number" name="maxAssign" required="true" class="unitHeight unitWidth regTinPadding centerText roundedTin maxAssign"
-                                                value="<?= $process['maxAssignDefault'] ?>" max="50">
+                                                value="<?= e($process['maxAssignDefault']) ?>" max="50">
                                         </div>
                                     </div>
                                 </div>
@@ -80,10 +88,11 @@
                                     </select>
                                 </div>
                                 <div class="rowLayout minGap">
-                                    <input type="hidden" name="id" value="<?= $process['id'] ?>">
+                                    <input type="hidden" name="id" value="<?= e($process['id']) ?>">
                                     <input type="submit" name="submit" value="Update Process" class="flexMax importantInput shadowed">
+                                    <!-- Delete button: data attributes are escaped to prevent XSS -->
                                     <button type="button" class="deleteButton criticalInput centerColumnLayout shadowed"
-                                        data-id="<?= $process['id'] ?>" data-name="<?= $process['name'] ?>">
+                                        data-id="<?= e($process['id']) ?>" data-name="<?= e($process['name']) ?>">
                                         <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
                                     </button>
                                 </div>
@@ -118,12 +127,12 @@
     selectedID.name = "selectedID";
     confirmationForm.appendChild(selectedID);
 
-    //Process Creation function logic
+    // Process creation modal
     createProcessButton.addEventListener('click', function() {
-        confirmationTitle.innerHTML = "Create Process";
+        // All strings are hardcoded – safe to use innerHTML/textContent (textContent used for consistency)
+        confirmationTitle.textContent = "Create Process";
         confirmationForm.action = "index.php?page=services&action=createProcess";
-
-        confirmationText.innerHTML = "Please enter a unique process name.";
+        confirmationText.textContent = "Please enter a unique process name.";
         confirmationSubmit.value = "Create";
         confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
 
@@ -138,52 +147,47 @@
         confirmation.style.display = 'flex';
     });
 
-    //Process Delete function logic
-    document.addEventListener('DOMContentLoaded', function() {
-        deleteButtons.forEach(function(elem) {
-            elem.addEventListener('click', function() {
-                confirmationTitle.innerHTML = "Delete Process?";
-                confirmationForm.action = "index.php?page=services&action=deleteProcess";
+    // Process delete modal
+    deleteButtons.forEach(function(elem) {
+        elem.addEventListener('click', function() {
+            confirmationTitle.textContent = "Delete Process?";
+            confirmationForm.action = "index.php?page=services&action=deleteProcess";
 
-                selectedID.value = elem.dataset.id;
-                confirmationText.innerHTML = "Are you sure to delete the " + elem.dataset.name + " process?";
-                confirmationSubmit.value = "Yes Delete";
-                confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
+            selectedID.value = elem.dataset.id;
+            // The process name is user‑controlled, so we use textContent to avoid XSS
+            confirmationText.textContent = "Are you sure to delete the " + elem.dataset.name + " process?";
+            confirmationSubmit.value = "Yes Delete";
+            confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
 
-                confirmation.style.display = 'flex';
-            });
+            confirmation.style.display = 'flex';
         });
     });
 
-    // Limit max assign minumum equal to min assign logic
+    // Enforce min ≤ max on assignment inputs
     document.addEventListener('input', function(e) {
         const container = e.target.closest('.assignRange');
         if (!container) return;
 
         const minInput = container.querySelector('.minAssign');
         const maxInput = container.querySelector('.maxAssign');
-
         if (!minInput || !maxInput) return;
 
         const minVal = parseInt(minInput.value) || 1;
-
         maxInput.min = minVal;
-
         if (parseInt(maxInput.value) < minVal) {
             maxInput.value = minVal;
         }
     });
 
-    // Added cancellation events
+    // Cleanup temporary elements on cancel
     confirmationCancel.addEventListener('click', function() {
-        document.querySelectorAll('.tempElement').forEach(function(elem) {
-            elem.remove();
+        document.querySelectorAll('.tempElement').forEach(function(el) {
+            el.remove();
         });
     });
-
     confirmationBG.addEventListener('click', function() {
-        document.querySelectorAll('.tempElement').forEach(function(elem) {
-            elem.remove();
+        document.querySelectorAll('.tempElement').forEach(function(el) {
+            el.remove();
         });
     });
 </script>

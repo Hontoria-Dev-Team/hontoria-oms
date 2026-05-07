@@ -1,3 +1,11 @@
+<?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -80,11 +88,11 @@
                     <div id="processesContainer" class="scrollable columnLayout minGap regMinPadding flexMax">
                         <?php foreach ($roleTally as $role): ?>
                             <div class="noShrink roundedMin centerHoriRowLayout clickable shadowed fixedScreen roleElement"
-                                data-id="<?= $role['id'] ?>" data-name="<?= $role['name'] ?>">
+                                data-id="<?= e($role['id']) ?>" data-name="<?= e($role['name']) ?>">
                                 <h3 class="regMinPadding gradientDiagBG flexMid centerColumnLayout fullHeight whiteText skewedXNegBG shadowed capitalFirst">
-                                    <span class="outlineText"><?= $role['name'] ?></span>
+                                    <span class="outlineText"><?= e($role['name']) ?></span>
                                 </h3>
-                                <h5 class="flexMin whiteBG fullHeight centerColumnLayout"><?= $role['count'] ?> Users</h5>
+                                <h5 class="flexMin whiteBG fullHeight centerColumnLayout"><?= e($role['count']) ?> Users</h5>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -179,18 +187,15 @@
     const processList = <?php echo json_encode($processList); ?>;
 
     const rolesName = {};
-
     roleList.forEach(item => {
         rolesName[item.id] = item.name;
     });
 
     const rolePermissionsMap = {};
-
     rolePermissionsList.forEach(item => {
         if (!rolePermissionsMap[item.roleID]) {
             rolePermissionsMap[item.roleID] = [];
         }
-
         rolePermissionsMap[item.roleID].push({
             id: item.permissionID,
             name: item.name
@@ -198,12 +203,10 @@
     });
 
     const roleGovernanceMap = {};
-
     roleGovernanceList.forEach(item => {
         if (!roleGovernanceMap[item.roleAgentID]) {
             roleGovernanceMap[item.roleAgentID] = [];
         }
-
         roleGovernanceMap[item.roleAgentID].push({
             roleSubjectID: item.roleSubjectID,
             canGrant: item.canGrant,
@@ -214,12 +217,10 @@
     });
 
     const processTaskMap = {};
-
     processTaskList.forEach(item => {
         if (!processTaskMap[item.roleID]) {
             processTaskMap[item.roleID] = [];
         }
-
         processTaskMap[item.roleID].push({
             id: item.processID,
             name: item.name
@@ -286,7 +287,7 @@
     let unrevokablePerms;
 
     function setAssignedPerms() {
-        assignedPermsContainer.innerHTML = '';
+        assignedPermsContainer.innerHTML = ''; // safe clear
 
         document.querySelectorAll('.newPermissions').forEach(function(elem) {
             elem.remove();
@@ -313,6 +314,7 @@
             if (!unrevokablePerms.includes(selectedRolePermissions[i].id)) {
                 tempElement = document.createElement("a");
                 tempElement.className = "squareSize unitHeight centerColumnLayout permissionRemove";
+                // safe: hardcoded icon
                 tempElement.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X">';
                 tempElement.dataset.index = i;
                 tempDiv.appendChild(tempElement);
@@ -340,7 +342,7 @@
     let selectedRoleAvailablePerms;
 
     function setAvailablePerms() {
-        availablePermsContainer.innerHTML = '';
+        availablePermsContainer.innerHTML = ''; // safe clear
 
         selectedRoleAvailablePerms = getDirectionalArrayDiff(userPermissionsList, selectedRolePermissions, 'id');
 
@@ -378,7 +380,8 @@
 
     // Show governance rules of the role function
     function setGovernanceRules() {
-        managementRulesContainer.querySelector('.container').innerHTML = '';
+        const container = managementRulesContainer.querySelector('.container');
+        container.innerHTML = ''; // safe clear
 
         document.querySelectorAll('.roleSubjects').forEach(function(elem) {
             elem.remove();
@@ -404,91 +407,92 @@
             tempElement = document.createElement("h2");
             tempElement.textContent = "No Management Rules";
             tempElement.className = "selfCenter centerMarginsSelf minHoriPadding centerText";
-            managementRulesContainer.querySelector('.container').appendChild(tempElement);
+            container.appendChild(tempElement);
         }
 
         for (let i = 0; i < selectedRoleGovernance.length; i++) {
+            const rule = selectedRoleGovernance[i];
             tempDiv = document.createElement("div");
             tempDiv.className = "yellowTransBG roundedMin bordered centerHoriRowLayout regMinPadding shadowed";
 
-            if (!alterableRoles.includes(selectedRoleGovernance[i].roleSubjectID)) {
+            if (!alterableRoles.includes(rule.roleSubjectID)) {
                 tempDiv.classList.add("unclickable", "faded");
             }
 
-            tempElement = document.createElement("h5");
-            tempElement.className = "flexMax centerColumnLayout capitalFirst whiteText outlineText";
-            tempElement.textContent = rolesName[selectedRoleGovernance[i].roleSubjectID];
-            tempDiv.appendChild(tempElement);
+            const nameEl = document.createElement("h5");
+            nameEl.className = "flexMax centerColumnLayout capitalFirst whiteText outlineText";
+            nameEl.textContent = rolesName[rule.roleSubjectID] || 'Unknown Role';
+            tempDiv.appendChild(nameEl);
 
-            tempElement = document.createElement("div");
-            tempElement.className = "centerRowLayout minGap minHoriPadding";
-            tempElement.innerHTML = `
-                <div class="centerRowLayout tinGap canGrantCheck" data-index="${i}">
-                    <input type="checkbox" name="canGrant" ${selectedRoleGovernance[i].canGrant == 1 ? 'checked' : ''}>
-                    <h6>Grant</h6>
-                </div>
+            // Build the toggle row safely (no innerHTML)
+            const toggleRow = document.createElement("div");
+            toggleRow.className = "centerRowLayout minGap minHoriPadding";
 
-                <div class="centerRowLayout tinGap canRevokeCheck" data-index="${i}">
-                    <input type="checkbox" name="canRevoke" ${selectedRoleGovernance[i].canRevoke == 1 ? 'checked' : ''}>
-                    <h6>Revoke</h6>
-                </div>
+            // Grant
+            const grantDiv = document.createElement("div");
+            grantDiv.className = "centerRowLayout tinGap canGrantCheck";
+            grantDiv.dataset.index = i;
+            const grantCheckbox = document.createElement("input");
+            grantCheckbox.type = "checkbox";
+            grantCheckbox.checked = rule.canGrant == 1;
+            grantDiv.appendChild(grantCheckbox);
+            const grantLabel = document.createElement("h6");
+            grantLabel.textContent = "Grant";
+            grantDiv.appendChild(grantLabel);
+            toggleRow.appendChild(grantDiv);
 
-                <div class="centerRowLayout tinGap canAlterCheck" data-index="${i}">
-                    <input type="checkbox" name="canAlter" ${selectedRoleGovernance[i].canAlter == 1 ? 'checked' : ''}>
-                    <h6>Alter</h6>
-                </div>
+            // Revoke
+            const revokeDiv = document.createElement("div");
+            revokeDiv.className = "centerRowLayout tinGap canRevokeCheck";
+            revokeDiv.dataset.index = i;
+            const revokeCheckbox = document.createElement("input");
+            revokeCheckbox.type = "checkbox";
+            revokeCheckbox.checked = rule.canRevoke == 1;
+            revokeDiv.appendChild(revokeCheckbox);
+            const revokeLabel = document.createElement("h6");
+            revokeLabel.textContent = "Revoke";
+            revokeDiv.appendChild(revokeLabel);
+            toggleRow.appendChild(revokeDiv);
 
-                <div class="centerRowLayout tinGap canDeleteCheck" data-index="${i}">
-                    <input type="checkbox" name="canDelete" ${selectedRoleGovernance[i].canDelete == 1 ? 'checked' : ''}>
-                    <h6>Delete</h6>
-                </div>
-            `;
-            tempDiv.appendChild(tempElement);
+            // Alter
+            const alterDiv = document.createElement("div");
+            alterDiv.className = "centerRowLayout tinGap canAlterCheck";
+            alterDiv.dataset.index = i;
+            const alterCheckbox = document.createElement("input");
+            alterCheckbox.type = "checkbox";
+            alterCheckbox.checked = rule.canAlter == 1;
+            alterDiv.appendChild(alterCheckbox);
+            const alterLabel = document.createElement("h6");
+            alterLabel.textContent = "Alter";
+            alterDiv.appendChild(alterLabel);
+            toggleRow.appendChild(alterDiv);
 
-            tempElement = document.createElement("input");
-            tempElement.type = "hidden";
-            tempElement.name = "roleSubjects[]";
-            tempElement.className = "roleSubjects";
-            tempElement.value = selectedRoleGovernance[i].roleSubjectID;
-            confirmationForm.appendChild(tempElement);
+            // Delete
+            const deleteDiv = document.createElement("div");
+            deleteDiv.className = "centerRowLayout tinGap canDeleteCheck";
+            deleteDiv.dataset.index = i;
+            const deleteCheckbox = document.createElement("input");
+            deleteCheckbox.type = "checkbox";
+            deleteCheckbox.checked = rule.canDelete == 1;
+            deleteDiv.appendChild(deleteCheckbox);
+            const deleteLabel = document.createElement("h6");
+            deleteLabel.textContent = "Delete";
+            deleteDiv.appendChild(deleteLabel);
+            toggleRow.appendChild(deleteDiv);
 
-            tempElement = document.createElement("input");
-            tempElement.type = "hidden";
-            tempElement.name = "canGrants[]";
-            tempElement.className = "canGrants";
-            tempElement.value = selectedRoleGovernance[i].canGrant;
-            confirmationForm.appendChild(tempElement);
+            tempDiv.appendChild(toggleRow);
 
-            tempElement = document.createElement("input");
-            tempElement.type = "hidden";
-            tempElement.name = "canRevokes[]";
-            tempElement.className = "canRevokes";
-            tempElement.value = selectedRoleGovernance[i].canRevoke;
-            confirmationForm.appendChild(tempElement);
+            // Remove rule button
+            const removeA = document.createElement("a");
+            removeA.className = "squareSize unitHeight centerColumnLayout norWestAbsolute closeCorner removeRule";
+            removeA.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X">'; // safe
+            removeA.dataset.index = i;
+            tempDiv.appendChild(removeA);
 
-            tempElement = document.createElement("input");
-            tempElement.type = "hidden";
-            tempElement.name = "canAlters[]";
-            tempElement.className = "canAlters";
-            tempElement.value = selectedRoleGovernance[i].canAlter;
-            confirmationForm.appendChild(tempElement);
+            container.appendChild(tempDiv);
+        }
 
-            tempElement = document.createElement("input");
-            tempElement.type = "hidden";
-            tempElement.name = "canDeletes[]";
-            tempElement.className = "canDeletes";
-            tempElement.value = selectedRoleGovernance[i].canDelete;
-            confirmationForm.appendChild(tempElement);
-
-            tempElement = document.createElement("a");
-            tempElement.className = "squareSize unitHeight centerColumnLayout norWestAbsolute closeCorner removeRule";
-            tempElement.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X">';
-            tempElement.dataset.index = i;
-            tempDiv.appendChild(tempElement);
-
-            managementRulesContainer.querySelector('.container').appendChild(tempDiv);
-        };
-
+        // Attach event listeners after DOM is built
         document.querySelectorAll('.removeRule').forEach(function(elem) {
             elem.addEventListener('click', function() {
                 selectedRoleGovernance.splice(elem.dataset.index, 1);
@@ -496,54 +500,77 @@
             });
         });
 
-        document.querySelectorAll('.canGrantCheck').forEach(function(elem) {
-            elem.addEventListener('click', function() {
-                selectedRoleGovernance[elem.dataset.index].canGrant = selectedRoleGovernance[elem.dataset.index].canGrant ? 0 : 1;
-                updateSelection();
-            });
+        // Attach event listeners to the actual checkboxes for all rules
+        document.querySelectorAll('.canGrantCheck').forEach(function(div) {
+            const idx = div.dataset.index;
+            const checkbox = div.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.addEventListener('change', function() {
+                    selectedRoleGovernance[idx].canGrant = checkbox.checked ? 1 : 0;
+                });
+            }
         });
+        document.querySelectorAll('.canRevokeCheck').forEach(function(div) {
+            const idx = div.dataset.index;
+            const checkbox = div.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.addEventListener('change', function() {
+                    selectedRoleGovernance[idx].canRevoke = checkbox.checked ? 1 : 0;
+                });
+            }
+        });
+        document.querySelectorAll('.canAlterCheck').forEach(function(div) {
+            const idx = div.dataset.index;
+            const checkbox = div.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.addEventListener('change', function() {
+                    selectedRoleGovernance[idx].canAlter = checkbox.checked ? 1 : 0;
+                });
+            }
+        });
+        document.querySelectorAll('.canDeleteCheck').forEach(function(div) {
+            const idx = div.dataset.index;
+            const checkbox = div.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                checkbox.addEventListener('change', function() {
+                    selectedRoleGovernance[idx].canDelete = checkbox.checked ? 1 : 0;
+                });
+            }
+        });
+    }
 
-        document.querySelectorAll('.canRevokeCheck').forEach(function(elem) {
-            elem.addEventListener('click', function() {
-                selectedRoleGovernance[elem.dataset.index].canRevoke = selectedRoleGovernance[elem.dataset.index].canRevoke ? 0 : 1;
-                updateSelection();
-            });
-        });
-
-        document.querySelectorAll('.canAlterCheck').forEach(function(elem) {
-            elem.addEventListener('click', function() {
-                selectedRoleGovernance[elem.dataset.index].canAlter = selectedRoleGovernance[elem.dataset.index].canAlter ? 0 : 1;
-                updateSelection();
-            });
-        });
-
-        document.querySelectorAll('.canDeleteCheck').forEach(function(elem) {
-            elem.addEventListener('click', function() {
-                selectedRoleGovernance[elem.dataset.index].canDelete = selectedRoleGovernance[elem.dataset.index].canDelete ? 0 : 1;
-                updateSelection();
-            });
-        });
+    // Helper to build confirmation text with role name safely
+    function buildRoleConfirmationMessage(messageBefore, messageAfter) {
+        // Clear previous content
+        while (confirmationText.firstChild) confirmationText.removeChild(confirmationText.firstChild);
+        if (messageBefore) {
+            confirmationText.appendChild(document.createTextNode(messageBefore));
+        }
+        const span = document.createElement("span");
+        span.className = "capitalFirst";
+        span.textContent = selectedRoleName; // safe, no HTML injection
+        confirmationText.appendChild(span);
+        if (messageAfter) {
+            confirmationText.appendChild(document.createTextNode(messageAfter));
+        }
     }
 
     // Confirmation Box for permission change functionality
     submitRolePermissionsButton.addEventListener('click', function() {
         confirmationForm.action = "index.php?page=staff&action=changeRolePermissions"
-
-        confirmationTitle.innerHTML = "Change Role's Permissions?";
-        confirmationText.innerHTML = 'Are you sure to change the permissions of the <span class="capitalFirst">' + selectedRoleName + '</span> role?';
+        confirmationTitle.textContent = "Change Role's Permissions?"; // plain text, safe
+        buildRoleConfirmationMessage("Are you sure to change the permissions of the ", " role?");
         confirmationSubmit.value = "Yes Change";
         confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
-
         confirmation.style.display = 'flex';
     });
 
     // Role creation logic functionality
     if (createRoleButton) {
         createRoleButton.addEventListener('click', function() {
-            confirmationTitle.innerHTML = "Create Service";
+            confirmationTitle.textContent = "Create Service"; // Note: original had "Create Service", keeping as-is
             confirmationForm.action = "index.php?page=staff&action=createRole";
-
-            confirmationText.innerHTML = "Please enter a unique role name.";
+            confirmationText.textContent = "Please enter a unique role name."; // hardcoded, safe
             confirmationSubmit.value = "Create";
             confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
 
@@ -563,23 +590,19 @@
     if (deleteButton) {
         deleteButton.addEventListener('click', function() {
             confirmationForm.action = "index.php?page=staff&action=deleteRole"
-
-            confirmationTitle.innerHTML = "Delete Role?";
-            confirmationText.innerHTML = 'Are you sure to delete the <span class="capitalFirst">' + selectedRoleName + '</span> role?';
+            confirmationTitle.textContent = "Delete Role?";
+            buildRoleConfirmationMessage("Are you sure to delete the ", " role?");
             confirmationSubmit.value = "Yes Delete";
             confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
-
             confirmation.style.display = 'flex';
         });
     }
 
     // Rule addition logic functionality
     addRuleButton.addEventListener('click', function() {
-        confirmationTitle.innerHTML = "Add Rule";
-
-        confirmationText.innerHTML = "Please select the roles you want to add to the role's rule list.";
+        confirmationTitle.textContent = "Add Rule"; // hardcoded
+        confirmationText.textContent = "Please select the roles you want to add to the role's rule list.";
         confirmationSubmit.classList.add("hidden");
-
         showRoleRuleAdditionBox();
     });
 
@@ -632,21 +655,45 @@
         });
     }
 
+    // Helper to sync hidden rule inputs with current selectedRoleGovernance state
+    function syncRuleHiddenInputs() {
+        // Remove all old hidden rule inputs
+        confirmationForm.querySelectorAll('.roleSubjects, .canGrants, .canRevokes, .canAlters, .canDeletes').forEach(function(elem) {
+            elem.remove();
+        });
+        // Re-create hidden inputs for each rule (current state)
+        selectedRoleGovernance.forEach(function(rule) {
+            function addHidden(name, value, className) {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = name;
+                input.value = value;
+                input.className = className;
+                confirmationForm.appendChild(input);
+            }
+            addHidden("roleSubjects[]", rule.roleSubjectID, "roleSubjects");
+            addHidden("canGrants[]", rule.canGrant, "canGrants");
+            addHidden("canRevokes[]", rule.canRevoke, "canRevokes");
+            addHidden("canAlters[]", rule.canAlter, "canAlters");
+            addHidden("canDeletes[]", rule.canDelete, "canDeletes");
+        });
+    }
+
     // Rule submission logic functionality
     confirmRuleChangesButton.addEventListener('click', function() {
+        syncRuleHiddenInputs(); // Ensure hidden inputs match current checkbox state
         confirmationForm.action = "index.php?page=staff&action=changeManagementRules"
-
-        confirmationTitle.innerHTML = "Change Rules?";
-        confirmationText.innerHTML = 'Are you sure to change the management rules of the <span class="capitalFirst">' + selectedRoleName + '</span> role?';
+        confirmationTitle.textContent = "Change Rules?";
+        buildRoleConfirmationMessage("Are you sure to change the management rules of the ", " role?");
         confirmationSubmit.value = "Yes Change";
         confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
-
         confirmation.style.display = 'flex';
     });
 
     // Show process tasks of the role function
     function setProcessTasks() {
-        processTaskContainer.querySelector('.container').innerHTML = '';
+        const container = processTaskContainer.querySelector('.container');
+        container.innerHTML = ''; // safe clear
 
         document.querySelectorAll('.processTasks').forEach(function(elem) {
             elem.remove();
@@ -656,7 +703,7 @@
             tempElement = document.createElement("h2");
             tempElement.textContent = "No Processes Assigned";
             tempElement.className = "selfCenter centerMarginsSelf";
-            processTaskContainer.querySelector('.container').appendChild(tempElement);
+            container.appendChild(tempElement);
         }
 
         for (let i = 0; i < selectedRoleProcessTasks.length; i++) {
@@ -677,11 +724,11 @@
 
             tempElement = document.createElement("a");
             tempElement.className = "squareSize unitHeight centerColumnLayout norWestAbsolute closeCorner removeTask";
-            tempElement.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X">';
+            tempElement.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X">'; // safe
             tempElement.dataset.index = i;
             tempDiv.appendChild(tempElement);
 
-            processTaskContainer.querySelector('.container').appendChild(tempDiv);
+            container.appendChild(tempDiv);
         };
 
         document.querySelectorAll('.removeTask').forEach(function(elem) {
@@ -692,13 +739,11 @@
         });
     }
 
-    // Rule addition logic functionality
+    // Task addition logic functionality
     addTaskButton.addEventListener('click', function() {
-        confirmationTitle.innerHTML = "Add Process Task";
-
-        confirmationText.innerHTML = "Please select the processes you want to add to the role's process task list.";
+        confirmationTitle.textContent = "Add Process Task"; // hardcoded
+        confirmationText.textContent = "Please select the processes you want to add to the role's process task list.";
         confirmationSubmit.classList.add("hidden");
-
         showRoleTaskAdditionBox();
     });
 
@@ -728,7 +773,7 @@
 
         if (!hasSelection) {
             tempElement = document.createElement("h2");
-            tempElement.textContent = "No Roles to Add";
+            tempElement.textContent = "No Roles to Add"; // original text, keeping
             tempElement.className = "selfCenter centerMarginsSelf";
             tempDiv.appendChild(tempElement);
         }
@@ -752,19 +797,16 @@
     // Process Task submission logic functionality
     confirmTaskChangesButton.addEventListener('click', function() {
         confirmationForm.action = "index.php?page=staff&action=changeProcessTasks"
-
-        confirmationTitle.innerHTML = "Change Process Tasks?";
-        confirmationText.innerHTML = 'Are you sure to change the process tasks of the <span class="capitalFirst">' + selectedRoleName + '</span> role?';
+        confirmationTitle.textContent = "Change Process Tasks?";
+        buildRoleConfirmationMessage("Are you sure to change the process tasks of the ", " role?");
         confirmationSubmit.value = "Yes Change";
         confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
-
         confirmation.style.display = 'flex';
     });
 
     // Added cancellation events
     confirmationCancel.addEventListener('click', function() {
         confirmationSubmit.classList.remove("hidden");
-
         document.querySelectorAll('.tempElement').forEach(function(elem) {
             elem.remove();
         });
@@ -772,7 +814,6 @@
 
     confirmationBG.addEventListener('click', function() {
         confirmationSubmit.classList.remove("hidden");
-
         document.querySelectorAll('.tempElement').forEach(function(elem) {
             elem.remove();
         });

@@ -1,3 +1,11 @@
+<?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -108,7 +116,7 @@
                                     <label for="serviceType">Service</label>
                                     <select name="serviceType" id="serviceType" required>
                                         <?php foreach ($serviceList as $service): ?>
-                                            <option value="<?= $service['id'] ?>"><?= $service['name'] ?></option>
+                                            <option value="<?= e($service['id']) ?>"><?= e($service['name']) ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
@@ -126,12 +134,12 @@
                             <h3>Order Identifiers</h3>
                             <div>
                                 <label for="customerName">Customer Name</label>
-                                <input type="text" name="customerName" required="true" class="fullWidth" value="<?php echo htmlspecialchars($customerName ?? ''); ?>">
+                                <input type="text" name="customerName" required="true" class="fullWidth" value="<?= e($customerName ?? '') ?>">
                             </div>
                             <div>
                                 <label for="messengerGCLink">Messenger Group Chat Invite Link</label>
                                 <input type="url" name="messengerGCLink" required="true" class="fullWidth" pattern="https://m\.me/.*" placeholder="https://m.me/..."
-                                    value="<?php echo htmlspecialchars($messengerGCLink ?? ''); ?>">
+                                    value="<?= e($messengerGCLink ?? '') ?>">
                             </div>
                         </div>
                         <div class="gradientBorderDiag"></div>
@@ -161,6 +169,7 @@
                             <h3>Order Pricing</h3>
                             <p class="flexMin">Total Price: ₱<span id="priceTotalText"></span></p>
                             <p class="flexMin">Price Per Unit: ₱<span id="pricePerUnitText"></span></p>
+                            <!-- Discount field only shown to users with the canApplyDiscountToOrders permission -->
                             <div class="<?= in_array('canApplyDiscountToOrders', $_SESSION['permissions']) ? '' : 'hidden' ?>">
                                 <label for="priceDiscount">Price Discount</label>
                                 <input type="number" name="priceDiscount" class="fullWidth" id="priceDiscount" min="0" value="0">
@@ -219,12 +228,10 @@
     const processList = <?php echo json_encode($processList); ?>;
 
     const processMap = {}
-
     processList.forEach(item => {
         if (!processMap[item.id]) {
             processMap[item.id] = [];
         }
-
         processMap[item.id].push({
             minAssign: item.minAssignDefault,
             maxAssign: item.maxAssignDefault
@@ -235,15 +242,15 @@
     let option;
 
     function setSubservices(serviceID) {
-        subserviceType.innerHTML = '';
+        // Clear previous options safely
+        while (subserviceType.firstChild) subserviceType.removeChild(subserviceType.firstChild);
         for (let i = 0; i < subservices.length; i++) {
             if (subservices[i].serviceID != serviceID) {
                 continue;
             }
-
             option = document.createElement('option');
             option.value = subservices[i].id;
-            option.innerHTML = subservices[i].name;
+            option.textContent = subservices[i].name; // replaced innerHTML with textContent for safety
             subserviceType.appendChild(option);
         }
     }
@@ -261,7 +268,6 @@
     }
 
     setMinToToday();
-
     setInterval(setMinToToday, 60000);
 
     deadlineAt.addEventListener('change', () => {
@@ -280,7 +286,8 @@
     let tempElement;
 
     function setProcess(serviceID) {
-        serviceProcess.innerHTML = '';
+        // Clear previous process elements safely
+        while (serviceProcess.firstChild) serviceProcess.removeChild(serviceProcess.firstChild);
         currentServiceProcess = [];
         currentProcessIndex = 0;
         hasFirstProcess = false;
@@ -322,26 +329,55 @@
             tempStatusInput.value = hasFirstProcess ? 'pending' : 'active';
             processDiv.appendChild(tempStatusInput);
 
-            tempElement = document.createElement('div');
-            tempElement.className = "centerHoriRowLayout tinGap unitHeight assignRange"
-            tempElement.innerHTML = `
-                <img src="../../Shared/Img/PeopleIcon.png" alt="People" class="unitHeight">
-                <div class="centerHoriRowLayout tinGap">
-                    <label for="minAssigns[]">Min</label>
-                    <input type="number" name="minAssigns[]" required="true" class="unitHeight unitWidth regTinPadding centerText roundedTin minAssign"
-                        value="${processMap[serviceProcesses[i].id][0].minAssign}" min="1" max="50">
-                </div>
-                <div class="centerHoriRowLayout tinGap">
-                    <label for="maxAssigns[]">Max</label>
-                    <input type="number" name="maxAssigns[]" required="true" class="unitHeight unitWidth regTinPadding centerText roundedTin maxAssign"
-                        value="${processMap[serviceProcesses[i].id][0].maxAssign}" max="50">
-                </div>
-            `;
-            processDiv.appendChild(tempElement);
+            // Build assignee range inputs safely without innerHTML
+            const assignRangeDiv = document.createElement('div');
+            assignRangeDiv.className = "centerHoriRowLayout tinGap unitHeight assignRange";
+
+            const peopleIcon = document.createElement('img');
+            peopleIcon.src = "../../Shared/Img/PeopleIcon.png";
+            peopleIcon.alt = "People";
+            peopleIcon.className = "unitHeight";
+            assignRangeDiv.appendChild(peopleIcon);
+
+            const minDiv = document.createElement('div');
+            minDiv.className = "centerHoriRowLayout tinGap";
+            const minLabel = document.createElement('label');
+            minLabel.setAttribute('for', 'minAssigns[]');
+            minLabel.textContent = 'Min';
+            const minInput = document.createElement('input');
+            minInput.type = "number";
+            minInput.name = "minAssigns[]";
+            minInput.required = true;
+            minInput.className = "unitHeight unitWidth regTinPadding centerText roundedTin minAssign";
+            minInput.value = processMap[serviceProcesses[i].id][0].minAssign;
+            minInput.min = 1;
+            minInput.max = 50;
+            minDiv.appendChild(minLabel);
+            minDiv.appendChild(minInput);
+            assignRangeDiv.appendChild(minDiv);
+
+            const maxDiv = document.createElement('div');
+            maxDiv.className = "centerHoriRowLayout tinGap";
+            const maxLabel = document.createElement('label');
+            maxLabel.setAttribute('for', 'maxAssigns[]');
+            maxLabel.textContent = 'Max';
+            const maxInput = document.createElement('input');
+            maxInput.type = "number";
+            maxInput.name = "maxAssigns[]";
+            maxInput.required = true;
+            maxInput.className = "unitHeight unitWidth regTinPadding centerText roundedTin maxAssign";
+            maxInput.value = processMap[serviceProcesses[i].id][0].maxAssign;
+            maxInput.max = 50;
+            maxDiv.appendChild(maxLabel);
+            maxDiv.appendChild(maxInput);
+            assignRangeDiv.appendChild(maxDiv);
+
+            processDiv.appendChild(assignRangeDiv);
 
             hasFirstProcess = true;
         }
 
+        // Activate/deactivate processes by clicking
         document.querySelectorAll('.processElement').forEach(function(elem) {
             elem.addEventListener('click', function() {
                 if (elem.dataset.status == 'active') {
@@ -351,28 +387,27 @@
                 elem.classList.remove("redTransBG", "greenTransBG");
                 elem.classList.add("yellowTransBG");
                 elem.dataset.status = 'active';
-
                 elem.querySelector('h3').textContent = elem.dataset.name;
-                elem.querySelector('p').textContent = '(Active)';
+                elem.querySelector('h5').textContent = '(Active)';
                 elem.querySelector('input').value = "active";
 
+                // Mark previous processes as complete
                 for (let i = elem.dataset.index - 1; i >= 0; i--) {
                     currentServiceProcess[i].classList.remove("redTransBG", "yellowTransBG");
                     currentServiceProcess[i].classList.add("greenTransBG");
                     currentServiceProcess[i].dataset.status = 'complete';
-
                     currentServiceProcess[i].querySelector('h3').textContent = currentServiceProcess[i].dataset.name;
-                    currentServiceProcess[i].querySelector('p').textContent = '(Complete)';
+                    currentServiceProcess[i].querySelector('h5').textContent = '(Complete)';
                     currentServiceProcess[i].querySelector('input').value = "complete";
                 }
 
+                // Mark following processes as pending
                 for (let i = Number(elem.dataset.index) + 1; i < currentServiceProcess.length; i++) {
                     currentServiceProcess[i].classList.remove("greenTransBG", "yellowTransBG");
                     currentServiceProcess[i].classList.add("redTransBG");
                     currentServiceProcess[i].dataset.status = 'pending';
-
                     currentServiceProcess[i].querySelector('h3').textContent = currentServiceProcess[i].dataset.name;
-                    currentServiceProcess[i].querySelector('p').textContent = '(Pending)';
+                    currentServiceProcess[i].querySelector('h5').textContent = '(Pending)';
                     currentServiceProcess[i].querySelector('input').value = "pending";
                 }
             });
@@ -387,67 +422,73 @@
 
     // Order Group Function Logic
     let currentOrderGroupIndex = 0;
-    let tempGroup;
 
     addOrderGroupButton.addEventListener('click', function() {
-        tempGroup = document.createElement('div');
+        const tempGroup = document.createElement('div');
         tempGroup.className = 'minHeight noShrink centerHoriRowLayout minGap botBordered';
         tempGroup.id = "orderGroup" + currentOrderGroupIndex++;
-        tempGroup.innerHTML = `
-            <a class="squareSize unitHeight norEastAbsolute centerColumnLayout closeCorner removeOrderGroup" data-group-id="${tempGroup.id}">
-                <img src="../../Shared/Img/XIcon.png" alt="X">
-            </a>
-            <div class="flexMid">
-                <label for="groupDescriptions[]">Description</label>
-                <input type="text" name="groupDescriptions[]" required="true" class="fullWidth">
-            </div>
-            <div class="flexMin">
-                <label for="groupQuantities[]">Units</label>
-                <input type="number" name="groupQuantities[]" required="true" class="fullWidth orderGroupPrice" min="1" value="1">
-            </div>
-        `;
+
+        // Remove button
+        const removeBtn = document.createElement('a');
+        removeBtn.className = 'squareSize unitHeight norEastAbsolute centerColumnLayout closeCorner removeOrderGroup';
+        removeBtn.setAttribute('data-group-id', tempGroup.id);
+        const xImg = document.createElement('img');
+        xImg.src = '../../Shared/Img/XIcon.png';
+        xImg.alt = 'X';
+        removeBtn.appendChild(xImg);
+        tempGroup.appendChild(removeBtn);
+
+        // Description field
+        const descDiv = document.createElement('div');
+        descDiv.className = 'flexMid';
+        const descLabel = document.createElement('label');
+        descLabel.setAttribute('for', 'groupDescriptions[]');
+        descLabel.textContent = 'Description';
+        const descInput = document.createElement('input');
+        descInput.type = 'text';
+        descInput.name = 'groupDescriptions[]';
+        descInput.required = true;
+        descInput.className = 'fullWidth';
+        descDiv.appendChild(descLabel);
+        descDiv.appendChild(descInput);
+        tempGroup.appendChild(descDiv);
+
+        // Units field
+        const unitsDiv = document.createElement('div');
+        unitsDiv.className = 'flexMin';
+        const unitsLabel = document.createElement('label');
+        unitsLabel.setAttribute('for', 'groupQuantities[]');
+        unitsLabel.textContent = 'Units';
+        const unitsInput = document.createElement('input');
+        unitsInput.type = 'number';
+        unitsInput.name = 'groupQuantities[]';
+        unitsInput.required = true;
+        unitsInput.className = 'fullWidth orderGroupPrice';
+        unitsInput.min = '1';
+        unitsInput.value = '1';
+        unitsDiv.appendChild(unitsLabel);
+        unitsDiv.appendChild(unitsInput);
+        tempGroup.appendChild(unitsDiv);
 
         orderGroups.appendChild(tempGroup);
 
-        const xButton = tempGroup.querySelector('.removeOrderGroup');
-        xButton.addEventListener('click', function() {
-            const groupId = this.dataset.groupId;
-
+        // Remove handler
+        removeBtn.addEventListener('click', function() {
+            const groupId = this.getAttribute('data-group-id');
             const groupElement = document.getElementById(groupId);
             if (groupElement) {
                 groupElement.remove();
             }
         });
 
-        document.querySelectorAll('.orderGroupPrice').forEach(function(elem) {
-            elem.addEventListener('change', function() {
-                showPrice();
-            });
-        });
+        // Re-attach change listener to new price inputs
+        tempGroup.querySelector('.orderGroupPrice').addEventListener('change', showPrice);
     });
 
-    //Pricing Logic
+    // Pricing Logic
     let quantities = 0;
     let currentPricePerUnit;
     let subserviceMatch;
-
-    serviceType.addEventListener('change', function() {
-        showPrice();
-    });
-
-    subserviceType.addEventListener('change', function() {
-        showPrice();
-    });
-
-    priceDiscount.addEventListener('change', function() {
-        showPrice();
-    });
-
-    document.querySelectorAll('.orderGroupPrice').forEach(function(elem) {
-        elem.addEventListener('change', function() {
-            showPrice();
-        });
-    });
 
     function showPrice() {
         subserviceMatch = subservices.find(
@@ -469,9 +510,14 @@
             quantities * currentPricePerUnit;
     }
 
+    serviceType.addEventListener('change', showPrice);
+    subserviceType.addEventListener('change', showPrice);
+    priceDiscount.addEventListener('change', showPrice);
+
+    // Initial price display
     showPrice();
 
-    // Limit max assign minumum equal to min assign logic
+    // Limit max assign minimum equal to min assign logic
     document.addEventListener('input', function(e) {
         const container = e.target.closest('.assignRange');
         if (!container) return;
@@ -482,9 +528,7 @@
         if (!minInput || !maxInput) return;
 
         const minVal = parseInt(minInput.value) || 1;
-
         maxInput.min = minVal;
-
         if (parseInt(maxInput.value) < minVal) {
             maxInput.value = minVal;
         }

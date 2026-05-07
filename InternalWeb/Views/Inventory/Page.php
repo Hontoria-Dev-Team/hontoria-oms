@@ -1,3 +1,11 @@
+<?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -75,18 +83,29 @@
                         </div>
                         <section class="minGap columnLayout scrollable flexMax noFlexBasis noMinHeight contentFlexStart regMinPadding" id="inventoryList">
                             <?php foreach ($inventoryList as $inventory): ?>
+                                <?php
+                                // Prepare escaped values once for reuse across data attributes and display
+                                $itemId               = e($inventory['id']);
+                                $itemName             = e($inventory['name']);
+                                $itemQuantity         = e($inventoryQuantityMap[$inventory['id']] ?? 0);
+                                $itemMinQuantity      = e($inventory['minQuantity']);
+                                $itemMaxConsumption   = e($inventory['maxAvgConsumption']);
+                                $itemRestockDate      = e($inventoryLastRestockMap[$inventory['id']]['date'] ?? '');
+                                $itemRestockQuantity  = e($inventoryLastRestockMap[$inventory['id']]['quantity'] ?? '');
+                                ?>
                                 <div class="roundedMin centerHoriRowLayout flexStatic inventoryElement yellowBorder shadowed clickable fixedScreen noShrink"
-                                    data-id="<?= htmlspecialchars($inventory['id']) ?>" data-name="<?= htmlspecialchars($inventory['name']) ?>"
-                                    data-quantity="<?= htmlspecialchars($inventoryQuantityMap[$inventory['id']] ?? 0) ?>"
-                                    data-min-quantity="<?= htmlspecialchars($inventory['minQuantity']) ?>"
-                                    data-max-consumption="<?= htmlspecialchars($inventory['maxAvgConsumption']) ?>"
-                                    data-restock-date="<?= $inventoryLastRestockMap[$inventory['id']]['date'] ?>"
-                                    data-restock-quantity="<?= $inventoryLastRestockMap[$inventory['id']]['quantity'] ?>">
+                                    data-id="<?= $itemId ?>"
+                                    data-name="<?= $itemName ?>"
+                                    data-quantity="<?= $itemQuantity ?>"
+                                    data-min-quantity="<?= $itemMinQuantity ?>"
+                                    data-max-consumption="<?= $itemMaxConsumption ?>"
+                                    data-restock-date="<?= $itemRestockDate ?>"
+                                    data-restock-quantity="<?= $itemRestockQuantity ?>">
                                     <div class="capitalFirst centerText regMinPadding flexMax skewedXNegBG shadowed yellowTransBG">
-                                        <h3 class="whiteText outlineText"><?= htmlspecialchars($inventory['name']) ?></h3>
+                                        <h3 class="whiteText outlineText"><?= $itemName ?></h3>
                                     </div>
                                     <h5 class="capitalFirst centerText regMinPadding minWidth">
-                                        Quantity: <?= htmlspecialchars($inventoryQuantityMap[$inventory['id']] ?? 0) ?>
+                                        Quantity: <?= $itemQuantity ?>
                                     </h5>
                                 </div>
                             <?php endforeach; ?>
@@ -223,6 +242,9 @@
     const dayRangeInput = document.getElementById('dayRangeInput');
     const weekRangeInput = document.getElementById('weekRangeInput');
     const monthRangeInput = document.getElementById('monthRangeInput');
+
+    // REVIEW: Exposing the full inventory record list to the client. Only records relevant to the selected item
+    // should be passed, not all records for all items. This could expose unnecessary data.
     const inventoryRecordList = <?php echo json_encode($inventoryRecordList); ?>;
 
     // Permission flags from PHP
@@ -317,15 +339,15 @@
         currentSelected.name = elem.dataset.name;
         currentSelected.minQuantity = parseInt(elem.dataset.minQuantity) || 0;
         currentSelected.maxAvgConsumption = parseInt(elem.dataset.maxConsumption) || 0;
-        
+
         // Get current month range value
         const monthRange = parseInt(monthRangeInput.value, 10) || 12;
-        
-        // Reload page with selected item ID and month range
-        // This loads records server-side for this item only
+
+        // REVIEW: Setting window.location.href with user-controlled input (monthRange).
+        // Ensure the value is validated (positive integer) to prevent unintended redirect.
         window.location.href = `index.php?page=inventory&id=${elem.dataset.id}&months=${monthRange}`;
     }
-    
+
     // Process selected item after page reload
     function LoadSelectedItemData(elem) {
         currentSelected.id = elem.dataset.id;
@@ -334,6 +356,7 @@
         currentSelected.maxAvgConsumption = parseInt(elem.dataset.maxConsumption) || 0;
         currentSelected.records = [...(inventoryRecordMap[currentSelected.id] || [])];
 
+        // Use textContent instead of innerHTML – all values are plain text
         selectedTitle.textContent = currentSelected.name;
         updateButton.classList.remove("hidden");
         resetButton.classList.remove("hidden");
@@ -377,7 +400,7 @@
 
         RenderCharts();
     }
-    
+
     // Check if an item was selected on page load
     const urlParams = new URLSearchParams(window.location.search);
     const selectedID = urlParams.get('id');
@@ -395,9 +418,10 @@
     }
 
     function ShowUpdateBox() {
-        confirmationTitle.innerHTML = "Update Record";
+        // All confirmationTitle/Text assignments use textContent – content is hardcoded text, no HTML
+        confirmationTitle.textContent = "Update Record";
         confirmationForm.action = "index.php?page=inventory&action=updateRecord";
-        confirmationText.innerHTML = "Please update how much would you like this record's quantity to be changed.";
+        confirmationText.textContent = "Please update how much would you like this record's quantity to be changed.";
         confirmationSubmit.value = "Yes Update";
         confirmationCancel.value = "No Cancel";
         confirmationSubmit.classList.add("yellowBG", "noBorder");
@@ -421,9 +445,10 @@
     }
 
     function ShowResetBox() {
-        confirmationTitle.innerHTML = "Reset Record?";
+        confirmationTitle.textContent = "Reset Record?";
         confirmationForm.action = "index.php?page=inventory&action=resetRecord";
-        confirmationText.innerHTML = "Are you sure to reset the record of " + currentSelected.name + " for the day?";
+        // currentSelected.name is user-provided data – textContent prevents XSS
+        confirmationText.textContent = "Are you sure to reset the record of " + currentSelected.name + " for the day?";
         confirmationSubmit.value = "Yes Reset";
         confirmationCancel.value = "No Cancel";
         confirmationSubmit.classList.add("redBG", "noBorder");
@@ -439,9 +464,9 @@
     }
 
     function ShowCreateBox() {
-        confirmationTitle.innerHTML = "Create Item";
+        confirmationTitle.textContent = "Create Item";
         confirmationForm.action = "index.php?page=inventory&action=createItem";
-        confirmationText.innerHTML = "Please enter a unique item name, then enter the initial quantity for this item.";
+        confirmationText.textContent = "Please enter a unique item name, then enter the initial quantity for this item.";
         confirmationSubmit.value = "Create";
         confirmationCancel.value = "No Cancel";
         confirmationSubmit.classList.add("yellowBG", "noBorder");
@@ -467,9 +492,10 @@
     }
 
     function ShowDeleteBox() {
-        confirmationTitle.innerHTML = "Delete Item?";
+        confirmationTitle.textContent = "Delete Item?";
         confirmationForm.action = "index.php?page=inventory&action=deleteItem";
-        confirmationText.innerHTML = "Are you sure to delete " + currentSelected.name + "?";
+        // currentSelected.name is user-provided data – textContent prevents XSS
+        confirmationText.textContent = "Are you sure to delete " + currentSelected.name + "?";
         confirmationSubmit.value = "Yes Delete";
         confirmationCancel.value = "No Cancel";
         confirmationSubmit.classList.add("redBG", "noBorder");
@@ -485,9 +511,9 @@
     }
 
     function ShowEditMinQuantityBox() {
-        confirmationTitle.innerHTML = "Change Min Quantity";
+        confirmationTitle.textContent = "Change Min Quantity";
         confirmationForm.action = "index.php?page=inventory&action=changeMinQuantity";
-        confirmationText.innerHTML = "Input the number you want to change the minimum quantity to. Set to 0 if you don't want to have a minimum.";
+        confirmationText.textContent = "Input the number you want to change the minimum quantity to. Set to 0 if you don't want to have a minimum.";
         confirmationSubmit.value = "Update";
         confirmationCancel.value = "No Cancel";
         confirmationSubmit.classList.add("yellowBG", "noBorder");
@@ -512,9 +538,9 @@
     }
 
     function ShowEditMaxAvgConsumptionBox() {
-        confirmationTitle.innerHTML = "Change Max Avg Consumption";
+        confirmationTitle.textContent = "Change Max Avg Consumption";
         confirmationForm.action = "index.php?page=inventory&action=changeMaxAvgConsumption";
-        confirmationText.innerHTML = "Input the number you want to change the maximum average consumption to. Set to 0 if you don't want to have a maximum.";
+        confirmationText.textContent = "Input the number you want to change the maximum average consumption to. Set to 0 if you don't want to have a maximum.";
         confirmationSubmit.value = "Update";
         confirmationCancel.value = "No Cancel";
         confirmationSubmit.classList.add("yellowBG", "noBorder");
@@ -637,9 +663,10 @@
             const max = parseInt(this.max, 10) || 24;
             if (isNaN(val) || val < min) this.value = min;
             if (val > max) this.value = max;
-            
+
             // If an item is selected, reload page with new month range
             if (currentSelected.id) {
+                // REVIEW: setting window.location using user-supplied month range (same as above)
                 window.location.href = `index.php?page=inventory&id=${currentSelected.id}&months=${this.value}`;
             }
         });
@@ -993,12 +1020,22 @@
         const weeklyData = prepared.GenerateWeeklyData();
         const monthlyData = prepared.GenerateMonthlyData();
 
-        // Reuse or create chart instances
+        // Helper to rebuild chart heading using safe DOM methods.
+        function EnsureChartHeading(container, label) {
+            let heading = container.querySelector('h4');
+            if (!heading) {
+                heading = document.createElement('h4');
+                heading.className = 'norAbsolute closeCorner topZ';
+                heading.textContent = label;
+                container.insertBefore(heading, container.firstChild);
+            }
+        }
+
+        // Reuse or create chart instances.
+        // innerHTML is used only with hardcoded strings for initial chart container setup – safe.
         if (chartInstances.daily) {
             chartInstances.daily.updateOptions(prepared.CreateChartOptions(dailyData, 'daily'));
-            if (!daily.querySelector('h4')) {
-                daily.insertAdjacentHTML('afterbegin', '<h4 class="norAbsolute closeCorner topZ">Daily Data</h4>');
-            }
+            EnsureChartHeading(daily, 'Daily Data');
         } else {
             daily.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Daily Data</h4>';
             chartInstances.daily = new ApexCharts(daily, prepared.CreateChartOptions(dailyData, 'daily'));
@@ -1007,9 +1044,7 @@
 
         if (chartInstances.weekly) {
             chartInstances.weekly.updateOptions(prepared.CreateChartOptions(weeklyData, 'weekly'));
-            if (!weekly.querySelector('h4')) {
-                weekly.insertAdjacentHTML('afterbegin', '<h4 class="norAbsolute closeCorner topZ">Weekly Data</h4>');
-            }
+            EnsureChartHeading(weekly, 'Weekly Data');
         } else {
             weekly.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Weekly Data</h4>';
             chartInstances.weekly = new ApexCharts(weekly, prepared.CreateChartOptions(weeklyData, 'weekly'));
@@ -1018,9 +1053,7 @@
 
         if (chartInstances.monthly) {
             chartInstances.monthly.updateOptions(prepared.CreateChartOptions(monthlyData, 'monthly'));
-            if (!monthly.querySelector('h4')) {
-                monthly.insertAdjacentHTML('afterbegin', '<h4 class="norAbsolute closeCorner topZ">Monthly Data</h4>');
-            }
+            EnsureChartHeading(monthly, 'Monthly Data');
         } else {
             monthly.innerHTML = '<h4 class="norAbsolute closeCorner topZ">Monthly Data</h4>';
             chartInstances.monthly = new ApexCharts(monthly, prepared.CreateChartOptions(monthlyData, 'monthly'));

@@ -1,3 +1,11 @@
+<?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -89,26 +97,27 @@
             <div class="columnLayout midGap flexMax roundedMid">
                 <section class="centerColumnLayout roundedMid flexMax minHeight">
                     <div class="box fullHeight fullWidth roundedMid columnLayout minGap">
+                        <!-- GET filter form – read‑only search, no CSRF needed -->
                         <form method="GET" action="?page=orders&action=filter" class="rowLayout fullWidth minGap">
                             <input type="hidden" name="page" value="orders">
                             <input type="hidden" name="action" value="filter">
                             <div class="iconInput flexMax centerHoriRowLayout">
-                                <input type="search" name="search" placeholder="Search by order ID or customer name" class="fullWidth" value="<?= htmlspecialchars($search) ?>">
+                                <input type="search" name="search" placeholder="Search by order ID or customer name" class="fullWidth" value="<?= e($search ?? '') ?>">
                                 <img src="../../Shared/Img/MagnifierIcon.png" alt="Magnifier">
                             </div>
 
                             <select name="status">
-                                <option value="" <?= $status === '' ? 'selected' : '' ?>>Any Status</option>
-                                <option value="active" <?= $status === 'active' ? 'selected' : '' ?>>Active</option>
-                                <option value="idle" <?= $status === 'idle' ? 'selected' : '' ?>>Idle</option>
-                                <option value="unpaid" <?= $status === 'unpaid' ? 'selected' : '' ?>>Unpaid</option>
-                                <option value="for verification" <?= $status === 'for verification' ? 'selected' : '' ?>>For Verification</option>
+                                <option value="" <?= ($status ?? '') === '' ? 'selected' : '' ?>>Any Status</option>
+                                <option value="active" <?= ($status ?? '') === 'active' ? 'selected' : '' ?>>Active</option>
+                                <option value="idle" <?= ($status ?? '') === 'idle' ? 'selected' : '' ?>>Idle</option>
+                                <option value="unpaid" <?= ($status ?? '') === 'unpaid' ? 'selected' : '' ?>>Unpaid</option>
+                                <option value="for verification" <?= ($status ?? '') === 'for verification' ? 'selected' : '' ?>>For Verification</option>
                             </select>
 
                             <select name="serviceID">
-                                <option value="-1" <?= $serviceID < 1 ? 'selected' : '' ?>>All Services</option>
+                                <option value="-1" <?= ($serviceID ?? -1) < 1 ? 'selected' : '' ?>>All Services</option>
                                 <?php foreach ($serviceList as $service): ?>
-                                    <option value="<?= $service['id'] ?>" <?= $serviceID === (int)$service['id'] ? 'selected' : '' ?>><?= htmlspecialchars($service['name']) ?></option>
+                                    <option value="<?= e($service['id']) ?>" <?= ($serviceID ?? 0) === (int)$service['id'] ? 'selected' : '' ?>><?= e($service['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
 
@@ -124,7 +133,7 @@
                                         continue;
                                     }
 
-                                    $activeProcesses .= $process['processName'] . ", ";
+                                    $activeProcesses .= e($process['processName']) . ", ";
                                 }
                                 $activeProcesses = rtrim($activeProcesses, ", ");
 
@@ -138,23 +147,23 @@
                                         ? "yellowBG" : ($order['status'] === "Idle"
                                             ? "redBG"   : "greenBG clickable"));
                                 ?>
-                                <div class="fitHeight regMidPadding roundedMin centerHoriColumnLayout tinGap flexStatic orderElement shadowed clickable <?= $divBgClass ?>"
-                                    data-id="<?= $order['id'] ?>" data-due="<?= $order['deadlineAt'] ?>" data-customer="<?= $order['customerName'] ?>"
-                                    data-service="<?= $order['subserviceName'] . ' ' . $order['serviceName'] ?>"
-                                    data-code="<?= $order['orderCode'] ?>">
-                                    <h5 class="norEastAbsolute closeCorner transText">Order #<?= $order['id'] ?></h5>
-                                    <div class="orderStatusElement souEastAbsolute closeCorner minPadding roundedMin shadowed whiteText <?= $statusStyleClass ?>"
-                                        data-status="<?= $order['status'] ?>" data-id="<?= $order['id'] ?>">
-                                        <h4 class="outlineText"><?= $order['status'] ?></h4>
+                                <div class="fitHeight regMidPadding roundedMin centerHoriColumnLayout tinGap flexStatic orderElement shadowed clickable <?= e($divBgClass) ?>"
+                                    data-id="<?= e($order['id']) ?>" data-due="<?= e($order['deadlineAt']) ?>" data-customer="<?= e($order['customerName']) ?>"
+                                    data-service="<?= e($order['subserviceName'] . ' ' . $order['serviceName']) ?>"
+                                    data-code="<?= e($order['orderCode']) ?>">
+                                    <h5 class="norEastAbsolute closeCorner transText">Order #<?= e($order['id']) ?></h5>
+                                    <div class="orderStatusElement souEastAbsolute closeCorner minPadding roundedMin shadowed whiteText <?= e($statusStyleClass) ?>"
+                                        data-status="<?= e($order['status']) ?>" data-id="<?= e($order['id']) ?>">
+                                        <h4 class="outlineText"><?= e($order['status']) ?></h4>
                                     </div>
-                                    <h4 class="whiteText outlineText"><?= $order['subserviceName'] ?> <?= $order['serviceName'] ?></h4>
+                                    <h4 class="whiteText outlineText"><?= e($order['subserviceName']) ?> <?= e($order['serviceName']) ?></h4>
                                     <div class="columnLayout">
-                                        <h5>Customer: <?= $order['customerName'] ?></span></h5>
-                                        <h5>Due In: <span class="dueInText" data-due-date="<?= $order['deadlineAt'] ?>"></span></h5>
-                                        <h5>Value: ₱<?= $order['priceTotal'] ?></h5>
-                                        <h5>Current Process: <?= $activeProcesses ?></h5>
+                                        <h5>Customer: <?= e($order['customerName']) ?></h5>
+                                        <h5>Due In: <span class="dueInText" data-due-date="<?= e($order['deadlineAt']) ?>"></span></h5>
+                                        <h5>Value: ₱<?= e($order['priceTotal']) ?></h5>
+                                        <h5>Current Process: <?= $activeProcesses /* already escaped */ ?></h5>
                                         <h5 class="centerHoriRowLayout tinGap"><img src="../../Shared/Img/PeopleIcon.png" alt="People" class="unitHeight">
-                                            Assigned: <?= $assigneeCount ?></h5>
+                                            Assigned: <?= e($assigneeCount) ?></h5>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -182,9 +191,10 @@
 <script src="../.JS/CsrfHandler.js"></script>
 <script src="../.JS/TimeHelpers.js"></script>
 <script>
-    // Create a hidden container with CSRF token for cloning
+    // CSRF token template from page's token field (generated server‑side)
     const csrfTokenContainer = document.createElement("div");
     csrfTokenContainer.style.display = "none";
+    // SAFE: CsrfM::getTokenField() returns raw HTML, but it's generated by the server and trusted
     csrfTokenContainer.innerHTML = `<?php echo CsrfM::getTokenField(); ?>`;
     document.body.appendChild(csrfTokenContainer);
     const csrfTokenTemplate = csrfTokenContainer.querySelector('input[name="_csrf_token"]');
@@ -200,12 +210,10 @@
     const userProcessTasksList = <?php echo json_encode($userProcessTasksList); ?>;
 
     const orderProcessesMap = {};
-
     orderProcesses.forEach(item => {
         if (!orderProcessesMap[item.orderID]) {
             orderProcessesMap[item.orderID] = [];
         }
-
         orderProcessesMap[item.orderID].push({
             id: item.id,
             processID: item.processID,
@@ -221,12 +229,10 @@
     });
 
     const userProcessMap = {};
-
     userProcessList.forEach(item => {
         if (!userProcessMap[item.processID]) {
             userProcessMap[item.processID] = [];
         }
-
         userProcessMap[item.processID].push({
             userID: item.userID,
             name: item.firstName + " " + item.middleName[0] + ". " + item.lastName,
@@ -235,17 +241,14 @@
     });
 
     const taskAssigneeMap = {};
-
     taskAssigneeList.forEach(item => {
         if (!taskAssigneeMap[item.orderProcessID]) {
             taskAssigneeMap[item.orderProcessID] = [];
         }
-
         taskAssigneeMap[item.orderProcessID].push(item.userID);
     });
 
     const userTaskCountMap = {};
-
     userTaskCountTally.forEach(item => {
         userTaskCountMap[item.userID] = (item.taskCount);
     });
@@ -256,7 +259,6 @@
     const designList = <?php echo json_encode($designList); ?>;
     const variableListMap = <?php echo json_encode($variableListMap); ?>;
     const designMap = {};
-
     designList.forEach(item => {
         designMap[item.orderID] = {
             image: item.image,
@@ -273,7 +275,6 @@
         if (!userProcessTasksMap[item.orderProcessID]) {
             userProcessTasksMap[item.orderProcessID] = [];
         }
-
         userProcessTasksMap[item.orderProcessID].push({
             userID: item.userID,
             name: item.firstName + " " + item.middleName[0] + ". " + item.lastName,
@@ -297,15 +298,13 @@
     newDeadline.name = "newDeadline";
     confirmationForm.appendChild(newDeadline);
 
-    // Due time calculation
+    // Due time calculation – safe (textContent)
     document.querySelectorAll('.dueInText').forEach(function(elem) {
         if (elem.dataset.dueDate === '0000-00-00 00:00:00') {
             elem.textContent = "No due date";
             return;
         }
-
         let due = getDueTime(elem.dataset.dueDate);
-
         if (due.toString().startsWith('-')) {
             elem.textContent = "OVERDUE " + due.replace(/-/g, '') + " (" + formatDate(elem.dataset.dueDate) + ")";
             elem.classList.add("redText");
@@ -327,15 +326,13 @@
     document.querySelectorAll('.orderElement').forEach(function(elem) {
         elem.addEventListener('click', function() {
             selectedID.value = elem.dataset.id;
-
             showProcess(elem.dataset.id);
-
             selectedOrderProcesses = [...(orderProcessesMap[elem.dataset.id] || [])];
         });
     });
 
     function showProcess(orderID) {
-        orderProcess.innerHTML = '';
+        while (orderProcess.firstChild) orderProcess.removeChild(orderProcess.firstChild);
         hasFirstProcess = false;
 
         for (let i = 0; i < orderProcesses.length; i++) {
@@ -384,35 +381,37 @@
             processDiv.appendChild(processParagraph);
 
             if (!(orderProcesses[i].status == 'complete' || orderProcesses[i].status == 'pending')) {
-                tempElement = document.createElement('div');
-                tempElement.className = "centerHoriRowLayout tinGap unitHeight assignRange"
-                tempElement.innerHTML = `
-                    <img src="../../Shared/Img/PeopleIcon.png" alt="People" class="unitHeight">
-                    <div class="centerHoriRowLayout tinGap">
-                        <h5>Assigned: ${orderProcesses[i].assignedNum}/${orderProcesses[i].maxAssign}</h5>
-                    </div>
-                `;
-
-                processDiv.appendChild(tempElement);
+                // Rebuild assignee info safely (no innerHTML)
+                const assignDiv = document.createElement('div');
+                assignDiv.className = "centerHoriRowLayout tinGap unitHeight assignRange";
+                const peopleIcon = document.createElement('img');
+                peopleIcon.src = "../../Shared/Img/PeopleIcon.png";
+                peopleIcon.alt = "People";
+                peopleIcon.className = "unitHeight";
+                assignDiv.appendChild(peopleIcon);
+                const countDiv = document.createElement('div');
+                countDiv.className = "centerHoriRowLayout tinGap";
+                const h5 = document.createElement('h5');
+                h5.textContent = "Assigned: " + orderProcesses[i].assignedNum + "/" + orderProcesses[i].maxAssign;
+                countDiv.appendChild(h5);
+                assignDiv.appendChild(countDiv);
+                processDiv.appendChild(assignDiv);
             }
 
             orderProcess.appendChild(processDiv);
-
             hasFirstProcess = true;
         }
 
         document.querySelectorAll('.processElement').forEach(function(elem) {
             elem.addEventListener('click', function() {
-                confirmationTitle.innerHTML = "Order Process Assignees";
+                confirmationTitle.textContent = "Order Process Assignees";
 
                 if (elem.dataset.status == 'complete') {
-                    confirmationText.innerHTML = "The process has already been completed.";
+                    confirmationText.textContent = "The process has already been completed.";
                 } else {
                     const assignedEmployees = [...(userProcessTasksMap[elem.dataset.orderProcessID] || [])];
-                    let hasAssignees = false;
-
-                    confirmationText.innerHTML = "Here are the assignees for this order's " + elem.dataset.name +
-                        " process. You can unnassign employees by clicking on the X button next to them.";
+                    confirmationText.textContent = "Here are the assignees for this order's " + elem.dataset.name +
+                        " process. You can unassign employees by clicking on the X button next to them.";
 
                     tempDiv = document.createElement('div');
                     tempDiv.className = "columnLayout minGap tempElement maxHeight scrollable regMinPadding";
@@ -491,23 +490,18 @@
                         xForm.appendChild(xImg);
 
                         tempElement.appendChild(xForm);
-
                         tempDiv.appendChild(tempElement);
-
-                        hasAssignees = true;
                     });
 
-                    if (!hasAssignees) {
-                        tempDiv.innerHTML = `
-                            <b class="centerColumnLayout centerText regMinPadding shadowed roundedTin flexMax darkFadedBG bordered">
-                                <b>No employees assigned for this process.</b>
-                            </b>
-                        `;
+                    if (assignedEmployees.length === 0) {
+                        const noEmp = document.createElement("b");
+                        noEmp.className = "centerColumnLayout centerText regMinPadding shadowed roundedTin flexMax darkFadedBG bordered";
+                        noEmp.textContent = "No employees assigned for this process.";
+                        tempDiv.appendChild(noEmp);
                     }
                 }
 
                 confirmationSubmit.classList.add("hidden");
-
                 confirmation.style.display = 'flex';
             });
         });
@@ -687,8 +681,8 @@
             uploadedImage.id = "imageUploaded";
             tempDiv.appendChild(uploadedImage);
 
-            confirmationTitle.innerHTML = "Upload Design Image";
-            confirmationText.innerHTML = "Please upload a photo for this Order's design.";
+            confirmationTitle.textContent = "Upload Design Image";
+            confirmationText.textContent = "Please upload a photo for this Order's design.";
             confirmationSubmit.value = "Upload";
             confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
 
@@ -752,6 +746,7 @@
 
                 tempElement = document.createElement("button");
                 tempElement.type = "button";
+                // SAFE: hardcoded HTML for button content
                 tempElement.innerHTML = "<h4>Add Column</h4>";
                 tempElement.className = "darkBG whiteText bordered roundedTin minPadding shadowed";
                 tempElement.id = "addColumnButton";
@@ -842,15 +837,20 @@
 
                     tempElement = document.createElement("th");
                     tempElement.className = `${headerClass} bordered shadowed whiteText roundedTin noWrapText midHoriPadding duoHeight stickied topPos`;
-                    const removeBtnHtml = (!viewOnly && index !== 0) ?
-                        `<a class="squareSize unitHeight columnRemove"><img src="../../Shared/Img/XIcon.png" alt="X"></a>` :
-                        '';
-                    tempElement.innerHTML = `
-                    <div class="centerRowLayout tinGap">
-                        <h5 class='outlineText capitalFirst'>${col.columnName}</h5>
-                        ${removeBtnHtml}
-                    </div>
-                `;
+                    // Build header content safely
+                    const headerDiv = document.createElement("div");
+                    headerDiv.className = "centerRowLayout tinGap";
+                    const colNameH5 = document.createElement("h5");
+                    colNameH5.className = 'outlineText capitalFirst';
+                    colNameH5.textContent = col.columnName;
+                    headerDiv.appendChild(colNameH5);
+                    if (!viewOnly && index !== 0) {
+                        const removeA = document.createElement("a");
+                        removeA.className = "squareSize unitHeight columnRemove";
+                        removeA.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X">'; // safe
+                        headerDiv.appendChild(removeA);
+                    }
+                    tempElement.appendChild(headerDiv);
                     column.createTHead().insertRow().appendChild(tempElement);
                     columnHeaders[index] = tempElement;
 
@@ -882,14 +882,22 @@
 
                             tempElement = document.createElement("div");
                             tempElement.className = `bordered shadowed roundedTin marginTopMin regMinPadding duoHeight centerColumnLayout ${rowBgClass} ${rowBorderClass}`;
-                            tempElement.innerHTML = `<h5 class="capitalFirst whiteText centerText outlineText">${cell ? cell.valueText : ''}</h5>`;
+                            const cellValue = cell ? cell.valueText : '';
+                            const valueH5 = document.createElement("h5");
+                            valueH5.className = "capitalFirst whiteText centerText outlineText";
+                            valueH5.textContent = cellValue;
+                            tempElement.appendChild(valueH5);
                         } else {
                             const rowBorderClass = rowChecked ? "yellowBorder" : "redBorder";
 
                             if (viewOnly) {
                                 tempElement = document.createElement("div");
                                 tempElement.className = `bordered shadowed roundedTin marginTopMin regMinPadding duoHeight centerColumnLayout lightYellowBG ${rowBorderClass}`;
-                                tempElement.innerHTML = `<h5 class="capitalFirst whiteText centerText outlineText">${cell ? cell.valueText : ''}</h5>`;
+                                const cellValue = cell ? cell.valueText : '';
+                                const valueH5 = document.createElement("h5");
+                                valueH5.className = "capitalFirst whiteText centerText outlineText";
+                                valueH5.textContent = cellValue;
+                                tempElement.appendChild(valueH5);
                             } else {
                                 tempElement = document.createElement("input");
                                 tempElement.type = "text";
@@ -1095,179 +1103,251 @@
         };
     }
 
+    // Main order selection handler – rebuilt without innerHTML
     document.querySelectorAll('.orderElement').forEach(function(elem) {
         elem.addEventListener('click', function() {
             const today = new Date().toISOString().split('T')[0];
 
-            // Check user permissions
             const hasDeletePermission = userPermissions && userPermissions.includes('canDeleteOrders');
             const hasAlterPermission = userPermissions && userPermissions.includes('canAlterOrders');
             const hasAssignPermission = userPermissions && userPermissions.includes('canAssignStaffToOrders');
 
-            // Build HTML conditionally based on permissions
-            let htmlContent = `
-            <h4 class="centerHoriRowLayout tinGap centerText fullWidth">Order #${elem.dataset.id}</h4>
-            <div>
-                <h4 class="centerHoriRowLayout tinGap centerText fullWidth">Customer: ${elem.dataset.customer}</h4>
-                <h4 class="centerHoriRowLayout tinGap centerText fullWidth">Service: ${elem.dataset.service}</h4>
-                <a class="centerHoriRowLayout tinGap centerText fullWidth darkText underlineText boldenText"
-                    href="http://localhost/hontoria-oms/PublicWeb/Public/?page=order&code=${elem.dataset.code}">Order Page: ${elem.dataset.code}</a>
-            </div>
-            ${hasDeletePermission ? `<button type="button" class="criticalInput centerColumnLayout shadowed noBorder norEastAbsolute deleteOrderButton" data-selected-id="${elem.dataset.id}">
-                <img src="../../Shared/Img/GarbageIcon.png" alt="Garbage" class="invertColors">
-            </button>` : ''}
-            ${hasAlterPermission ? `<form method="POST" action="index.php?page=orders&action=changeDeadline" class="centerHoriRowLayout minGap">
-                <h6>Due Date</h6>
-                <input type="date" name="deadlineAt" class="flexMax deadlineAt" value="${elem.dataset.due.split(' ')[0]}" min="${today}">
-                <button type="button" class="importantInput shadowed noBorder changeDeadlineButton">Change</button>
-            </form>` : ''}
-            <div class="centerHoriRowLayout minGap orderObjectivesContainer">
-                <div id="designButton" class="bordered flexMin duoHeight roundedMin centerHoriRowLayout shadowed fixedScreen clickable hidden">
-                    <h4 class="flexMax centerText">Design</h4>
-                    <div class="squareSize fullHeight centerColumnLayout darkBG shadowed">
-                        <img src="../../Shared/Img/PhotoIcon.png" alt="Photo" class="invertColors">
-                    </div>
-                </div>
-                <div id="variableListButton" class="redBorder flexMin duoHeight roundedMin centerHoriRowLayout shadowed fixedScreen clickable hidden">
-                    <h4 class="flexMax centerText">Variable List</h4>
-                    <div class="squareSize fullHeight centerColumnLayout redBG shadowed">
-                        <img src="../../Shared/Img/BarsIcon.png" alt="Bars" class="invertColors">
-                    </div>
-                </div>
-            </div>
-            ${hasAssignPermission ? `<div class="centerColumnLayout roundedMin flexMax noFlexBasis noMinHeight">
-                <div class="assignEmployeesPanel columnLayout minGap fullDimensions whiteBG midZ roundedMin regMidPadding"></div>
-                <div class="gradientBorderDiag minZ"></div>
-            </div>` : ''}
-        `;
+            // Clear and rebuild the entire sidebar section safely
+            while (selectedOrderSection.firstChild) selectedOrderSection.removeChild(selectedOrderSection.firstChild);
 
-            selectedOrderSection.innerHTML = htmlContent;
+            // Order title
+            const h4Order = document.createElement('h4');
+            h4Order.className = 'centerHoriRowLayout tinGap centerText fullWidth';
+            h4Order.textContent = 'Order #' + elem.dataset.id;
+            selectedOrderSection.appendChild(h4Order);
 
-            // ----- Get fresh references -----
-            const deleteOrderButton = selectedOrderSection.querySelector('.deleteOrderButton');
-            const changeDeadlineButton = selectedOrderSection.querySelector('.changeDeadlineButton');
-            const deadlineAt = selectedOrderSection.querySelector('.deadlineAt');
-            const assignPanel = selectedOrderSection.querySelector('.assignEmployeesPanel');
+            // Details wrapper
+            const detailsDiv = document.createElement('div');
+            selectedOrderSection.appendChild(detailsDiv);
+
+            const custH4 = document.createElement('h4');
+            custH4.className = 'centerHoriRowLayout tinGap centerText fullWidth';
+            custH4.textContent = 'Customer: ' + elem.dataset.customer;
+            detailsDiv.appendChild(custH4);
+
+            const svcH4 = document.createElement('h4');
+            svcH4.className = 'centerHoriRowLayout tinGap centerText fullWidth';
+            svcH4.textContent = 'Service: ' + elem.dataset.service;
+            detailsDiv.appendChild(svcH4);
+
+            // Order page link (safe)
+            const linkA = document.createElement('a');
+            linkA.className = 'centerHoriRowLayout tinGap centerText fullWidth darkText underlineText boldenText';
+            // REVIEW: hardcoded localhost URL should be replaced by a configuration constant
+            linkA.href = 'http://localhost/hontoria-oms/PublicWeb/Public/?page=order&code=' + elem.dataset.code;
+            linkA.textContent = 'Order Page: ' + elem.dataset.code;
+            detailsDiv.appendChild(linkA);
+
+            // Delete button (conditional)
+            if (hasDeletePermission) {
+                const delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'criticalInput centerColumnLayout shadowed noBorder norEastAbsolute deleteOrderButton';
+                delBtn.setAttribute('data-selected-id', elem.dataset.id);
+                const delImg = document.createElement('img');
+                delImg.src = '../../Shared/Img/GarbageIcon.png';
+                delImg.alt = 'Garbage';
+                delImg.className = 'invertColors';
+                delBtn.appendChild(delImg);
+                selectedOrderSection.appendChild(delBtn);
+            }
+
+            // Change deadline form (conditional)
+            if (hasAlterPermission) {
+                const dlForm = document.createElement('form');
+                dlForm.method = 'POST';
+                dlForm.action = 'index.php?page=orders&action=changeDeadline';
+                dlForm.className = 'centerHoriRowLayout minGap';
+                // CSRF token
+                if (csrfTokenTemplate) {
+                    dlForm.appendChild(csrfTokenTemplate.cloneNode(true));
+                }
+                const dlH6 = document.createElement('h6');
+                dlH6.textContent = 'Due Date';
+                dlForm.appendChild(dlH6);
+                const dlInput = document.createElement('input');
+                dlInput.type = 'date';
+                dlInput.name = 'deadlineAt';
+                dlInput.className = 'flexMax deadlineAt';
+                dlInput.value = elem.dataset.due.split(' ')[0];
+                dlInput.min = today;
+                dlForm.appendChild(dlInput);
+                const dlBtn = document.createElement('button');
+                dlBtn.type = 'button';
+                dlBtn.className = 'importantInput shadowed noBorder changeDeadlineButton';
+                dlBtn.textContent = 'Change';
+                dlForm.appendChild(dlBtn);
+                selectedOrderSection.appendChild(dlForm);
+            }
+
+            // Objectives container (Design / Variable List)
+            const objContainer = document.createElement('div');
+            objContainer.className = 'centerHoriRowLayout minGap orderObjectivesContainer';
+            selectedOrderSection.appendChild(objContainer);
+
+            const designBtn = document.createElement('div');
+            designBtn.id = 'designButton';
+            designBtn.className = 'bordered flexMin duoHeight roundedMin centerHoriRowLayout shadowed fixedScreen clickable hidden';
+            const dH4 = document.createElement('h4');
+            dH4.className = 'flexMax centerText';
+            dH4.textContent = 'Design';
+            designBtn.appendChild(dH4);
+            const dDiv = document.createElement('div');
+            dDiv.className = 'squareSize fullHeight centerColumnLayout darkBG shadowed';
+            const dImg = document.createElement('img');
+            dImg.src = '../../Shared/Img/PhotoIcon.png';
+            dImg.alt = 'Photo';
+            dImg.className = 'invertColors';
+            dDiv.appendChild(dImg);
+            designBtn.appendChild(dDiv);
+            objContainer.appendChild(designBtn);
+
+            const varBtn = document.createElement('div');
+            varBtn.id = 'variableListButton';
+            varBtn.className = 'redBorder flexMin duoHeight roundedMin centerHoriRowLayout shadowed fixedScreen clickable hidden';
+            const vH4 = document.createElement('h4');
+            vH4.className = 'flexMax centerText';
+            vH4.textContent = 'Variable List';
+            varBtn.appendChild(vH4);
+            const vDiv = document.createElement('div');
+            vDiv.className = 'squareSize fullHeight centerColumnLayout redBG shadowed';
+            const vImg = document.createElement('img');
+            vImg.src = '../../Shared/Img/BarsIcon.png';
+            vImg.alt = 'Bars';
+            vImg.className = 'invertColors';
+            vDiv.appendChild(vImg);
+            varBtn.appendChild(vDiv);
+            objContainer.appendChild(varBtn);
+
+            // Assign panel (conditional)
+            if (hasAssignPermission) {
+                const assignOuter = document.createElement('div');
+                assignOuter.className = 'centerColumnLayout roundedMin flexMax noFlexBasis noMinHeight';
+                const assignPanel = document.createElement('div');
+                assignPanel.className = 'assignEmployeesPanel columnLayout minGap fullDimensions whiteBG midZ roundedMin regMidPadding';
+                assignOuter.appendChild(assignPanel);
+                const gbd = document.createElement('div');
+                gbd.className = 'gradientBorderDiag minZ';
+                assignOuter.appendChild(gbd);
+                selectedOrderSection.appendChild(assignOuter);
+            }
+
+            // Now query fresh references and wire up
+            const delBtnRef = selectedOrderSection.querySelector('.deleteOrderButton');
+            const chgBtnRef = selectedOrderSection.querySelector('.changeDeadlineButton');
+            const dlInputRef = selectedOrderSection.querySelector('.deadlineAt');
+            const assignPanelRef = selectedOrderSection.querySelector('.assignEmployeesPanel');
             designButton = selectedOrderSection.querySelector('#designButton');
             variableListButton = selectedOrderSection.querySelector('#variableListButton');
+
             selectedID.value = elem.dataset.id;
             selectedOrderProcesses = [...(orderProcessesMap[elem.dataset.id] || [])];
             selectedOrderDesign = designMap[elem.dataset.id] ? designMap[elem.dataset.id].image : '';
             selectedOrderDesignApproval = designMap[elem.dataset.id] ? designMap[elem.dataset.id].approved : -1;
-            if (designButton) {
-                designButton.dataset.id = elem.dataset.id;
-            }
-            if (variableListButton) {
-                variableListButton.dataset.id = elem.dataset.id;
-            }
+            if (designButton) designButton.dataset.id = elem.dataset.id;
+            if (variableListButton) variableListButton.dataset.id = elem.dataset.id;
             updateOrderObjectives();
             setupOrderObjectiveListeners();
 
-            // ----- Delete order listener (only if user has permission and button exists) -----
-            if (deleteOrderButton) {
-                deleteOrderButton.addEventListener('click', function() {
-                    confirmationTitle.innerHTML = "Delete Order?";
+            // Delete order listener
+            if (delBtnRef) {
+                delBtnRef.addEventListener('click', function() {
+                    confirmationTitle.textContent = "Delete Order?";
                     confirmationForm.action = "index.php?page=orders&action=delete";
-
-                    confirmationText.innerHTML = "Are you sure to delete Order #" + selectedID.value + "?";
+                    confirmationText.textContent = "Are you sure to delete Order #" + selectedID.value + "?";
                     confirmationSubmit.value = "Yes Delete";
                     confirmationSubmit.classList.remove("yellowBG", "whiteText", "noBorder");
-
                     confirmation.style.display = 'flex';
                 });
             }
 
-            // ----- Change deadline listener (only if user has permission and form exists) -----
-            if (changeDeadlineButton) {
-                changeDeadlineButton.addEventListener('click', function() {
-                    confirmationTitle.innerHTML = "Change Order Deadline?";
+            // Change deadline listener
+            if (chgBtnRef) {
+                chgBtnRef.addEventListener('click', function() {
+                    confirmationTitle.textContent = "Change Order Deadline?";
                     confirmationForm.action = "index.php?page=orders&action=changeDeadline";
-
-                    confirmationText.innerHTML = "Are you sure to change the deadline of Order #" + selectedID.value + "?";
+                    confirmationText.textContent = "Are you sure to change the deadline of Order #" + selectedID.value + "?";
                     confirmationSubmit.value = "Yes Change";
                     confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
-
                     confirmation.style.display = 'flex';
                 });
-
-                if (deadlineAt) {
-                    deadlineAt.addEventListener('change', function() {
-                        newDeadline.value = deadlineAt.value;
+                if (dlInputRef) {
+                    dlInputRef.addEventListener('change', function() {
+                        newDeadline.value = dlInputRef.value;
                     });
                 }
             }
 
-            // ----- Build Assign Employees UI inline (only if user has permission and panel exists) -----
-            if (assignPanel) {
+            // Build Assign Employees UI
+            if (assignPanelRef) {
                 buildAssignPanel();
             }
 
             function buildAssignPanel() {
-                assignPanel.innerHTML = '<h3>Assign Employees To Order</h3>'; // clear
+                while (assignPanelRef.firstChild) assignPanelRef.removeChild(assignPanelRef.firstChild);
+                const h3 = document.createElement('h3');
+                h3.textContent = 'Assign Employees To Order';
+                assignPanelRef.appendChild(h3);
 
                 tempDiv = document.createElement('div');
-                assignPanel.appendChild(tempDiv);
-
-                // Available Processes title
+                assignPanelRef.appendChild(tempDiv);
                 const procTitle = document.createElement('h4');
                 procTitle.textContent = "Available Processes:";
                 tempDiv.appendChild(procTitle);
 
-                // Container for process badges
-                const processListDiv = document.createElement('div');
-                processListDiv.className = "centerHoriRowLayout minGap regMinPadding scrollableX contentFlexEven";
-                let hasAvailableProcess = false;
-
+                const procListDiv = document.createElement('div');
+                procListDiv.className = "centerHoriRowLayout minGap regMinPadding scrollableX contentFlexEven";
+                let hasAvail = false;
                 selectedOrderProcesses.forEach(function(process) {
                     if (process.status == 'complete' || process.status == 'pending' ||
                         Number(process.maxAssign) <= Number(process.assignedNum)) return;
-
-                    const procBadge = document.createElement("h5");
-                    procBadge.textContent = process.name;
-                    procBadge.className = "centerText whiteText outlineText regMinPadding shadowed roundedTin yellowTransBG yellowBorder selectedProcessTaskAssignment clickable";
-                    procBadge.dataset.orderProcessID = process.id;
-                    procBadge.dataset.processID = process.processID;
-                    processListDiv.appendChild(procBadge);
-                    hasAvailableProcess = true;
+                    const badge = document.createElement('h5');
+                    badge.textContent = process.name;
+                    badge.className = "centerText whiteText outlineText regMinPadding shadowed roundedTin yellowTransBG yellowBorder selectedProcessTaskAssignment clickable";
+                    badge.dataset.orderProcessID = process.id;
+                    badge.dataset.processID = process.processID;
+                    procListDiv.appendChild(badge);
+                    hasAvail = true;
                 });
-
-                if (!hasAvailableProcess) {
-                    const noProc = document.createElement("h5");
-                    noProc.textContent = "No available process to assign.";
-                    noProc.className = "centerText whiteText outlineText regMinPadding shadowed roundedTin flexMax darkFadedBG bordered";
-                    processListDiv.appendChild(noProc);
+                if (!hasAvail) {
+                    const np = document.createElement('h5');
+                    np.textContent = "No available process to assign.";
+                    np.className = "centerText whiteText outlineText regMinPadding shadowed roundedTin flexMax darkFadedBG bordered";
+                    procListDiv.appendChild(np);
                 }
-
-                tempDiv.appendChild(processListDiv);
+                tempDiv.appendChild(procListDiv);
 
                 tempDiv = document.createElement('div');
                 tempDiv.className = "columnLayout flexMax";
-                assignPanel.appendChild(tempDiv);
-
-                // Assignable Employees area (will be filled when a process is clicked)
+                assignPanelRef.appendChild(tempDiv);
                 const empTitle = document.createElement('h4');
                 empTitle.textContent = "Assignable Employees:";
                 tempDiv.appendChild(empTitle);
 
-                const employeeContainer = document.createElement('div');
-                employeeContainer.className = "columnLayout minGap maxHeight scrollable regMinPadding flexMax noFlexBasis noMinHeight";
-                employeeContainer.id = "assignableEmployeesContainer";
-                // initial message
-                employeeContainer.innerHTML =
-                    '<div class="centerColumnLayout regMinPadding whiteText outlineText shadowed roundedTin flexMax darkFadedBG bordered"><b>No process selected.</b></div>';
-                tempDiv.appendChild(employeeContainer);
+                const empContainer = document.createElement('div');
+                empContainer.className = "columnLayout minGap maxHeight scrollable regMinPadding flexMax noFlexBasis noMinHeight";
+                empContainer.id = "assignableEmployeesContainer";
+                // initial safe message
+                const initMsg = document.createElement('div');
+                initMsg.className = "centerColumnLayout regMinPadding whiteText outlineText shadowed roundedTin flexMax darkFadedBG bordered";
+                const initB = document.createElement('b');
+                initB.textContent = "No process selected.";
+                initMsg.appendChild(initB);
+                empContainer.appendChild(initMsg);
+                tempDiv.appendChild(empContainer);
 
-                // Attach click events to process badges (after they are in the DOM)
                 document.querySelectorAll('.selectedProcessTaskAssignment').forEach(function(procElem) {
                     procElem.addEventListener('click', function() {
                         const container = document.getElementById('assignableEmployeesContainer');
-                        container.innerHTML = '';
-
+                        while (container.firstChild) container.removeChild(container.firstChild);
                         const assignableEmployees = [...(userProcessMap[procElem.dataset.processID] || [])];
                         const taskAssignees = [...(taskAssigneeMap[procElem.dataset.orderProcessID] || [])];
-
-                        let hasAssignableEmployee = false;
-
+                        let hasAny = false;
                         assignableEmployees.forEach(function(employee) {
                             if (taskAssignees.includes(employee.userID)) return;
 
@@ -1275,43 +1355,41 @@
                             form.method = "POST";
                             form.action = "index.php?page=orders&action=assignEmployeeToTask";
                             form.className = "centerText relatived centerHoriColumnLayout shadowed roundedTin yellowBorder selectedEmployeeAssign fixedScreen noShrink";
-
-                            // Add CSRF token
+                            // CSRF token
                             if (csrfTokenTemplate) {
-                                const tokenClone = csrfTokenTemplate.cloneNode(true);
-                                form.appendChild(tokenClone);
+                                form.appendChild(csrfTokenTemplate.cloneNode(true));
                             }
-
-                            const userIDInput = document.createElement("input");
-                            userIDInput.type = "hidden";
-                            userIDInput.name = "userID";
-                            userIDInput.value = employee.userID;
-                            form.appendChild(userIDInput);
-
-                            const orderProcessIDInput = document.createElement("input");
-                            orderProcessIDInput.type = "hidden";
-                            orderProcessIDInput.name = "orderProcessID";
-                            orderProcessIDInput.value = procElem.dataset.orderProcessID;
-                            form.appendChild(orderProcessIDInput);
+                            const uid = document.createElement("input");
+                            uid.type = "hidden";
+                            uid.name = "userID";
+                            uid.value = employee.userID;
+                            form.appendChild(uid);
+                            const opid = document.createElement("input");
+                            opid.type = "hidden";
+                            opid.name = "orderProcessID";
+                            opid.value = procElem.dataset.orderProcessID;
+                            form.appendChild(opid);
 
                             const rowDiv = document.createElement("div");
                             rowDiv.className = "rowLayout unitHeight";
-                            const h5Name = document.createElement("h5");
-                            h5Name.className = "flexMax yellowBG whiteText outlineText fullHeight centerColumnLayout skewedXNegBG";
-                            h5Name.innerHTML = `<span>${employee.name}</span>`;
-                            rowDiv.appendChild(h5Name);
-                            const h5Tasks = document.createElement("h5");
-                            h5Tasks.className = "midHoriPadding fullHeight centerColumnLayout";
-                            h5Tasks.textContent = `Tasks: ${userTaskCountMap[employee.userID] || 0}`;
-                            rowDiv.appendChild(h5Tasks);
+                            const h5n = document.createElement("h5");
+                            h5n.className = "flexMax yellowBG whiteText outlineText fullHeight centerColumnLayout skewedXNegBG";
+                            const span = document.createElement("span");
+                            span.textContent = employee.name; // safe
+                            h5n.appendChild(span);
+                            rowDiv.appendChild(h5n);
+                            const h5t = document.createElement("h5");
+                            h5t.className = "midHoriPadding fullHeight centerColumnLayout";
+                            h5t.textContent = "Tasks: " + (userTaskCountMap[employee.userID] || 0);
+                            rowDiv.appendChild(h5t);
                             form.appendChild(rowDiv);
 
                             const rolesDiv = document.createElement("div");
                             rolesDiv.className = "capitalFirst yellowTransBG centerColumnLayout";
-                            const h5Roles = document.createElement("h5");
-                            h5Roles.className = "whiteText outlineText";
-                            h5Roles.textContent = employee.roles;
-                            rolesDiv.appendChild(h5Roles);
+                            const h5r = document.createElement("h5");
+                            h5r.className = "whiteText outlineText";
+                            h5r.textContent = employee.roles;
+                            rolesDiv.appendChild(h5r);
                             form.appendChild(rolesDiv);
 
                             const submitInput = document.createElement("input");
@@ -1321,13 +1399,12 @@
                             form.appendChild(submitInput);
 
                             container.appendChild(form);
-                            hasAssignableEmployee = true;
+                            hasAny = true;
                         });
-
-                        if (!hasAssignableEmployee) {
+                        if (!hasAny) {
                             const msg = document.createElement("b");
-                            msg.innerHTML = "<b>No assignable employee for this process to assign.</b>";
                             msg.className = "centerColumnLayout centerText regMinPadding shadowed roundedTin flexMax darkFadedBG bordered";
+                            msg.textContent = "No assignable employee for this process to assign.";
                             container.appendChild(msg);
                         }
                     });
@@ -1336,7 +1413,7 @@
         });
     });
 
-    // Order Verifying Function Logic
+    // Order Verifying
     document.querySelectorAll('.orderStatusElement.clickable').forEach(function(elem) {
         elem.addEventListener('click', function() {
             ShowVerificationBox(elem.dataset.id);
@@ -1344,22 +1421,19 @@
     });
 
     function ShowVerificationBox(id) {
-        confirmationTitle.innerHTML = "Verify Order Completion?";
+        confirmationTitle.textContent = "Verify Order Completion?";
         confirmationForm.action = "index.php?page=orders&action=verifyComplete";
-
-        confirmationText.innerHTML = "Are you sure to verify the completion of Order #" + id + "? You are fully held responsible for false reporting.";
+        confirmationText.textContent = "Are you sure to verify the completion of Order #" + id + "? You are fully held responsible for false reporting.";
         confirmationSubmit.value = "Yes Verify";
         confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
-
         confirmation.style.display = 'flex';
     }
 
-    // Added cancellation events
+    // Cancellation cleanup
     confirmationCancel.addEventListener('click', function() {
         document.querySelectorAll('.tempElement').forEach(function(elem) {
             elem.remove();
         });
-
         confirmationForm.removeAttribute("enctype");
         confirmationContent.classList.add("maxWidth");
         confirmationSubmit.classList.remove("hidden", "yellowBG", "whiteText", "noBorder");
@@ -1369,7 +1443,6 @@
         document.querySelectorAll('.tempElement').forEach(function(elem) {
             elem.remove();
         });
-
         confirmationForm.removeAttribute("enctype");
         confirmationContent.classList.add("maxWidth");
         confirmationSubmit.classList.remove("hidden", "yellowBG", "whiteText", "noBorder");

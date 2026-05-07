@@ -1,3 +1,11 @@
+<?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -5,7 +13,6 @@
     <title>Tasks Panel - Hontoria OMS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../../Shared/CSS/Main.css">
-
     <style>
         @media (max-width: 500px) {
             .asideLayout>main>section {
@@ -56,10 +63,12 @@
         </h1>
         <?php include("../Views/.Components/MessageBox.php"); ?>
         <?php
+        // Hides the available-tasks section if the user lacks self-assign permission
         $hideClass = in_array('canSelfAssignToTasks', $_SESSION['permissions']) ? '' : 'hidden';
         ?>
         <section class="rowLayout flexMax midGap">
-            <section class="flexMid roundedMid centerColumnLayout <?= $hideClass ?>">
+            <!-- Available tasks to self-assign (hidden if no permission) -->
+            <section class="flexMid roundedMid centerColumnLayout <?= e($hideClass) ?>">
                 <div class="columnLayout minGap box roundedMid fullHeight fullWidth">
                     <h3>Available Tasks</h3>
                     <div class="gridFlex minGrids minGap scrollable flexMax noFlexBasis noMinHeight contentFlexStart regTinPadding">
@@ -67,24 +76,24 @@
                             <?php if (!$task['isAssigned'] && !$task['isFull']): ?>
                                 <div class="darkFadedBG centerHoriColumnLayout regMidPadding roundedMin shadowed bordered">
                                     <h3 class="centerHoriRowLayout whiteText outlineText">
-                                        <span class="flexMax"><?= $task['processName'] ?> Order #<?= $task['orderID'] ?></span>
+                                        <span class="flexMax"><?= e($task['processName']) ?> Order #<?= e($task['orderID']) ?></span>
                                     </h3>
-
+                                    <!-- POST form to assign self to task, includes CSRF token -->
                                     <form method="POST" action="index.php?page=tasks&action=assignToTask" class="norEastAbsolute closeCorner">
                                         <?php echo CsrfM::getTokenField(); ?>
-                                        <input type="hidden" name="orderProcessID" value="<?= $task['id'] ?>">
+                                        <input type="hidden" name="orderProcessID" value="<?= e($task['id']) ?>">
                                         <input type="submit" name="submit" value="Assign" class="importantInput shadowed noBorder">
                                     </form>
-                                    <h5>Service: <?= $task['subserviceName'] ?> <?= $task['serviceName'] ?></h5>
-                                    <h5>Customer: <?= $task['customerName'] ?></h5>
-                                    <h5>Due In: <span class="dueInText" data-due-date="<?= $task['deadlineAt'] ?>">4d 2h (March 31, 2026)</span></h5>
+                                    <h5>Service: <?= e($task['subserviceName']) ?> <?= e($task['serviceName']) ?></h5>
+                                    <h5>Customer: <?= e($task['customerName']) ?></h5>
+                                    <h5>Due In: <span class="dueInText" data-due-date="<?= e($task['deadlineAt']) ?>">4d 2h (March 31, 2026)</span></h5>
                                     <div class="rowLayout minGap">
                                         <h5 class="centerHoriRowLayout tinGap">
-                                            Assigned: <?= $task['assignedNum'] ?>/<?= $task['maxAssign'] ?>
+                                            Assigned: <?= e($task['assignedNum']) ?>/<?= e($task['maxAssign']) ?>
                                             <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
                                         </h5>
                                         <h5 class="centerHoriRowLayout tinGap">
-                                            Required: <?= $task['minAssign'] ?>
+                                            Required: <?= e($task['minAssign']) ?>
                                             <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
                                         </h5>
                                     </div>
@@ -105,32 +114,33 @@
                                     <?php
                                     $statusClass = $task['taskStatus'] === 'pending' ? "redTransBG redBorder" : ($task['taskStatus'] === 'complete' ?
                                         "greenTransBG greenBorder" : "yellowTransBG yellowBorder");
+                                    // Replace the Messenger domain in the GC link for compatibility
                                     $gcLink = str_replace('https://m.me', 'https://messenger.com', $task['messengerGCLink']);
                                     ?>
-                                    <div class="<?= $statusClass ?> columnLayout tinGap regMidPadding roundedMin shadowed assignedTaskElement clickable"
-                                        data-id="<?= $task['id'] ?>" data-order-id="<?= $task['orderID'] ?>" data-status="<?= $task['taskStatus'] ?>"
-                                        data-design-access="<?= $task['designAccess'] ?>" data-variable-list-access="<?= $task['variableListAccess'] ?>"
-                                        data-design-use="<?= $task['hasDesign'] ?>" data-variable-list-use="<?= $task['hasVariableList'] ?>">
+                                    <div class="<?= e($statusClass) ?> columnLayout tinGap regMidPadding roundedMin shadowed assignedTaskElement clickable"
+                                        data-id="<?= e($task['id']) ?>" data-order-id="<?= e($task['orderID']) ?>" data-status="<?= e($task['taskStatus']) ?>"
+                                        data-design-access="<?= e($task['designAccess']) ?>" data-variable-list-access="<?= e($task['variableListAccess']) ?>"
+                                        data-design-use="<?= e($task['hasDesign']) ?>" data-variable-list-use="<?= e($task['hasVariableList']) ?>">
                                         <div class="centerHoriRowLayout minGap">
                                             <div class="flexMax">
-                                                <h3 class="whiteText outlineText"><?= $task['processName'] ?> Order #<?= $task['orderID'] ?></h3>
-                                                <h5>Service: <?= $task['subserviceName'] ?> <?= $task['serviceName'] ?></h5>
-                                                <h5>Customer: <?= $task['customerName'] ?></h5>
-                                                <h5>Due In: <span class="dueInText" data-due-date="<?= $task['deadlineAt'] ?>">4d 2h (March 31, 2026)</span></h5>
+                                                <h3 class="whiteText outlineText"><?= e($task['processName']) ?> Order #<?= e($task['orderID']) ?></h3>
+                                                <h5>Service: <?= e($task['subserviceName']) ?> <?= e($task['serviceName']) ?></h5>
+                                                <h5>Customer: <?= e($task['customerName']) ?></h5>
+                                                <h5>Due In: <span class="dueInText" data-due-date="<?= e($task['deadlineAt']) ?>">4d 2h (March 31, 2026)</span></h5>
                                                 <div class="rowLayout minGap">
                                                     <h5 class="centerHoriRowLayout tinGap">
-                                                        Assigned: <?= $task['assignedNum'] ?>/<?= $task['maxAssign'] ?>
+                                                        Assigned: <?= e($task['assignedNum']) ?>/<?= e($task['maxAssign']) ?>
                                                         <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
                                                     </h5>
                                                     <h5 class="centerHoriRowLayout tinGap">
-                                                        Required: <?= $task['minAssign'] ?>
+                                                        Required: <?= e($task['minAssign']) ?>
                                                         <img src="../../Shared/Img/PersonIcon.png" alt="Person" class="unitHeight">
                                                     </h5>
                                                 </div>
                                             </div>
                                         </div>
                                         <?php if ($task['hasGCAccess'] == 1): ?>
-                                            <a href="<?= $gcLink ?>" target="_blank"
+                                            <a href="<?= e($gcLink) ?>" target="_blank"
                                                 class="duoHeight squareSize regMinPadding blueBG roundedMin centerColumnLayout circle shadowed norEastAbsolute closeCorner">
                                                 <img src="../../Shared/Img/MessengerIcon.png" alt="Messenger" class="invertColors">
                                             </a>
@@ -184,13 +194,14 @@
             </section>
         </section>
         <?php if (!empty($miscTaskAssigned)): ?>
+            <!-- Overlay blocking task interaction while a misc task is assigned -->
             <div class="fullDimensions darkTransBG noMargin centerColumnLayout norWestAbsolute edgeCorner">
                 <div class="centerColumnLayout roundedMid maxWidth">
                     <div class="box centerColumnLayout roundedMid fullWidth fullHeight minGap midZ">
                         <h1>You cannot do other tasks</h1>
                         <h3 class="centerText">
                             You are currently assigned to a miscellaneous task described as
-                            "<?= htmlspecialchars($miscTaskAssigned['description']) ?>".
+                            "<?= e($miscTaskAssigned['description']) ?>".
                         </h3>
                     </div>
                     <div class="gradientBorderDiag minZ"></div>
@@ -214,6 +225,9 @@
     const designButton = document.getElementById('designButton');
     const variableListButton = document.getElementById('variableListButton');
     const orderGroupsContainer = document.getElementById('orderGroupsContainer');
+
+    // REVIEW: Full assignee/design/variable‑list data is exposed to JavaScript.
+    // Ensure only authorized users can access this page.
     const assigneeList = <?php echo json_encode($assigneeList); ?>;
     const designList = <?php echo json_encode($designList); ?>;
     const variableListMap = <?php echo json_encode($variableListMap); ?>;
@@ -267,7 +281,7 @@
     let tempDiv;
     let tempElement;
 
-    // Due time calculation
+    // Due time calculation – safe (textContent)
     document.querySelectorAll('.dueInText').forEach(function(elem) {
         elem.textContent = elem.dataset.dueDate == '0000-00-00 00:00:00' ? "No due date" : getDueTime(elem.dataset.dueDate) + " (" + formatDate(elem.dataset.dueDate) + ")";
     });
@@ -294,7 +308,7 @@
                     selectedTaskDesignApproval = -1;
                 }
 
-                assigneesContainer.innerHTML = '';
+                assigneesContainer.innerHTML = ''; // safe clear
                 selectedTaskAssignees.forEach(function(assignee) {
                     tempElement = document.createElement("h5");
                     tempElement.textContent = assignee.name;
@@ -556,8 +570,9 @@
         if (currentIndex >= 2 || listNotComplete) tempElement.classList.add("hidden");
         confirmationForm.appendChild(tempElement);
 
-        confirmationTitle.innerHTML = "Update Task Status";
-        confirmationText.innerHTML = 'Click on the status you want your task to update to.';
+        // Safe: hardcoded title/text
+        confirmationTitle.textContent = "Update Task Status";
+        confirmationText.textContent = 'Click on the status you want your task to update to.';
         confirmationSubmit.classList.add("hidden");
 
         confirmation.style.display = 'flex';
@@ -604,8 +619,9 @@
         uploadedImage.id = "imageUploaded";
         tempDiv.appendChild(uploadedImage);
 
-        confirmationTitle.innerHTML = "Upload Design Image";
-        confirmationText.innerHTML = "Please upload a photo for this Order's design.";
+        // Safe: hardcoded titles
+        confirmationTitle.textContent = "Upload Design Image";
+        confirmationText.textContent = "Please upload a photo for this Order's design.";
         confirmationSubmit.value = "Upload";
         confirmationSubmit.classList.add("yellowBG", "whiteText", "noBorder");
 
@@ -640,9 +656,9 @@
         });
     });
 
-    // Show order groups function logic
+    // Show order groups function logic – safe (textContent)
     function showOrderGroups() {
-        orderGroupsContainer.innerHTML = '';
+        orderGroupsContainer.innerHTML = ''; // safe clear
 
         selectedTaskGroups.forEach(group => {
             tempElement = document.createElement("h5");
@@ -679,6 +695,7 @@
 
             tempElement = document.createElement("button");
             tempElement.type = "button";
+            // safe: hardcoded HTML
             tempElement.innerHTML = "<h4>Add Column</h4>";
             tempElement.className = "darkBG whiteText bordered roundedTin minPadding shadowed";
             tempElement.id = "addColumnButton";
@@ -770,16 +787,24 @@
 
                 tempElement = document.createElement("th");
                 tempElement.className = `${headerClass} bordered shadowed whiteText roundedTin noWrapText midHoriPadding duoHeight stickied topPos`;
-                // Remove the column‑remove X button if view only
-                const removeBtnHtml = (!viewOnly && index !== 0) ?
-                    `<a class="squareSize unitHeight columnRemove"><img src="../../Shared/Img/XIcon.png" alt="X"></a>` :
-                    '';
-                tempElement.innerHTML = `
-                <div class="centerRowLayout tinGap">
-                    <h5 class='outlineText capitalFirst'>${col.columnName}</h5>
-                    ${removeBtnHtml}
-                </div>
-            `;
+
+                // Build header safely – no innerHTML with user data
+                const headerDiv = document.createElement("div");
+                headerDiv.className = "centerRowLayout tinGap";
+                const colNameH5 = document.createElement("h5");
+                colNameH5.className = 'outlineText capitalFirst';
+                colNameH5.textContent = col.columnName; // safe: textContent
+                headerDiv.appendChild(colNameH5);
+
+                if (!viewOnly && index !== 0) {
+                    const xLink = document.createElement("a");
+                    xLink.className = "squareSize unitHeight columnRemove";
+                    // safe: hardcoded icon
+                    xLink.innerHTML = '<img src="../../Shared/Img/XIcon.png" alt="X">';
+                    headerDiv.appendChild(xLink);
+                }
+                tempElement.appendChild(headerDiv);
+
                 column.createTHead().insertRow().appendChild(tempElement);
                 columnHeaders[index] = tempElement;
 
@@ -811,7 +836,11 @@
 
                         tempElement = document.createElement("div");
                         tempElement.className = `bordered shadowed roundedTin marginTopMin regMinPadding duoHeight centerColumnLayout ${rowBgClass} ${rowBorderClass}`;
-                        tempElement.innerHTML = `<h5 class="capitalFirst whiteText centerText outlineText">${cell ? cell.valueText : ''}</h5>`;
+                        // Safe: use textContent for cell value
+                        const valueH5 = document.createElement("h5");
+                        valueH5.className = "capitalFirst whiteText centerText outlineText";
+                        valueH5.textContent = cell ? cell.valueText : '';
+                        tempElement.appendChild(valueH5);
                     } else {
                         const rowBorderClass = rowChecked ? "yellowBorder" : "redBorder";
 
@@ -819,7 +848,10 @@
                             // Read‑only display, not an input
                             tempElement = document.createElement("div");
                             tempElement.className = `bordered shadowed roundedTin marginTopMin regMinPadding duoHeight centerColumnLayout lightYellowBG ${rowBorderClass}`;
-                            tempElement.innerHTML = `<h5 class="capitalFirst whiteText centerText outlineText">${cell ? cell.valueText : ''}</h5>`;
+                            const valueH5 = document.createElement("h5");
+                            valueH5.className = "capitalFirst whiteText centerText outlineText";
+                            valueH5.textContent = cell ? cell.valueText : '';
+                            tempElement.appendChild(valueH5);
                         } else {
                             tempElement = document.createElement("input");
                             tempElement.type = "text";
