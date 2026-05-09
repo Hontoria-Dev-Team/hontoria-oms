@@ -30,6 +30,40 @@ class AuthorizationC {
     // ==================== AUTHENTICATION METHODS ====================
 
     /**
+     * SECURITY: Verify hCaptcha token from user submission.
+     * Returns true if valid, false otherwise.
+     */
+    private function verifyCaptcha(): bool {
+        $token = $_POST['h-captcha-response'] ?? '';
+        if (empty($token)) return false;
+
+        $response = file_get_contents(
+            'https://api.hcaptcha.com/siteverify',
+            false,
+            stream_context_create([
+                'http' => [
+                    'method'  => 'POST',
+                    'header'  => 'Content-Type: application/x-www-form-urlencoded',
+                    'content' => http_build_query([
+                        'secret'   => HCAPTCHA_SECRET_KEY,
+                        'response' => $token,
+                        'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
+                        'sitekey'  => HCAPTCHA_SITE_KEY,
+                    ])
+                ]
+            ])
+        );
+
+        if ($response === false) {
+            error_log("hCaptcha API request failed");
+            return false;
+        }
+
+        $result = json_decode($response, true);
+        return ($result['success'] ?? false) === true;
+    }
+
+    /**
      * Display the login page
      *
      * Renders the login view with necessary variables.
@@ -49,6 +83,14 @@ class AuthorizationC {
     public function login() {
         $username = trim($_POST['name'] ?? '');
         $password = $_POST['password'] ?? '';
+
+        // SECURITY: Verify hCaptcha before password verification
+        if (!$this->verifyCaptcha()) {
+            $_SESSION['message'] = "Error: CAPTCHA verification failed. Please try again.";
+            $page = "login";
+            require __DIR__ . '/../Views/Login/Page.php';
+            return;
+        }
 
         $userRecord = $this->staffModel->findSingleStaff($username);
         $error = null;

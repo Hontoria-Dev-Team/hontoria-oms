@@ -37,6 +37,9 @@ if (!function_exists('e')) {
                     <label for="password" class="leftStart">Password</label>
                     <input type="password" name="password" required="true">
                 </div>
+                <!-- hCaptcha widget for login verification -->
+                <div class="h-captcha" data-sitekey="<?= e(HCAPTCHA_SITE_KEY) ?>"></div>
+                <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
                 <input type="submit" name="submit" value="Login" class="fullWidth importantInput">
             </form>
             <div class="box"></div>
