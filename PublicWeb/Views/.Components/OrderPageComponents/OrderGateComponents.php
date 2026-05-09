@@ -52,6 +52,9 @@ $passwordVerified = $passwordVerified ?? false;
                             autofocus />
                     </div>
                 </div>
+                <!-- hCaptcha widget for password verification -->
+                <div class="h-captcha" data-sitekey="<?= e(HCAPTCHA_SITE_KEY) ?>"></div>
+                <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
                 <button type="submit" class="op-btn op-btn-primary op-btn-full" style="margin-top: 1rem;">
                     <i class="fas fa-unlock-alt"></i> Verify Password
                 </button>

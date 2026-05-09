@@ -9,6 +9,40 @@ class PublicC {
     }
 
     /**
+     * SECURITY: Verify hCaptcha token from user submission.
+     * Returns true if valid, false otherwise.
+     */
+    private function verifyCaptcha(): bool {
+        $token = $_POST['h-captcha-response'] ?? '';
+        if (empty($token)) return false;
+
+        $response = file_get_contents(
+            'https://api.hcaptcha.com/siteverify',
+            false,
+            stream_context_create([
+                'http' => [
+                    'method'  => 'POST',
+                    'header'  => 'Content-Type: application/x-www-form-urlencoded',
+                    'content' => http_build_query([
+                        'secret'   => HCAPTCHA_SECRET_KEY,
+                        'response' => $token,
+                        'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
+                        'sitekey'  => HCAPTCHA_SITE_KEY,
+                    ])
+                ]
+            ])
+        );
+
+        if ($response === false) {
+            error_log("hCaptcha API request failed");
+            return false;
+        }
+
+        $result = json_decode($response, true);
+        return ($result['success'] ?? false) === true;
+    }
+
+    /**
      * STRUCTURE: Private helper to render the order page with consistent variable scope.
      * Eliminates 8+ repeated require calls throughout the method.
      */
@@ -195,6 +229,23 @@ class PublicC {
 
             // STRUCTURE: Route to private action handlers
             if ($action === 'verifyPassword') {
+                // SECURITY: Verify hCaptcha before password verification
+                if (!$this->verifyCaptcha()) {
+                    $error = "CAPTCHA verification failed. Please try again.";
+                    $this->renderOrderView(compact(
+                        'page',
+                        'error',
+                        'message',
+                        'orderPageData',
+                        'orderData',
+                        'orderProcesses',
+                        'variableList',
+                        'requiresPassword',
+                        'passwordVerified'
+                    ));
+                    return;
+                }
+
                 $result = $this->handleVerifyPassword($code);
                 if (isset($result['error'])) {
                     $error = $result['error'];
