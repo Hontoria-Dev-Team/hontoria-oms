@@ -1,16 +1,12 @@
-<?php
-/* OwnerComponents.php */
-?>
 <section class="section owner-section" id="owner">
     <div class="section-inner">
         <div class="owner-layout">
 
             <div class="owner-img-wrap">
-                <img 
+                <img
                     src="/hontoria-oms/PublicWeb/.Images/Owner.png"
-                    alt="Jhong Hontoria - Founder & Owner" 
-                    class="owner-img"
-                >
+                    alt="Jhong Hontoria - Founder & Owner"
+                    class="owner-img">
                 <span class="owner-tag">Owner</span>
             </div>
 

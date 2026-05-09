@@ -1,5 +1,3 @@
-// Js code here
-
 // =============================================
 //   HONTORIA — services.js
 //   Services-specific: filter, modal, scroll reveal.
@@ -247,15 +245,21 @@ document.addEventListener('DOMContentLoaded', () => {
             orderButton.style.display = 'inline-flex';
         }
 
-        // Manage Variants
+        // Manage Variants – safe DOM creation (no innerHTML)
         const variantRow = document.getElementById('modalVariantRow');
         const variantSelect = document.getElementById('modalVariantSelect');
 
         if (variants.length > 0 && variantRow && variantSelect) {
             variantRow.style.display = 'flex';
-            variantSelect.innerHTML = variants.map(variant =>
-                `<option value="${variant.price}">${variant.name} — ₱${variant.price.toLocaleString()}</option>`
-            ).join('');
+            // Clear existing options safely
+            while (variantSelect.firstChild) variantSelect.removeChild(variantSelect.firstChild);
+            variants.forEach(variant => {
+                const option = document.createElement('option');
+                option.value = variant.price;
+                // Use textContent to safely display variant name and price
+                option.textContent = variant.name + ' — ₱' + variant.price.toLocaleString();
+                variantSelect.appendChild(option);
+            });
 
             currentPrice = variants[0].price;
             if (modalPrice) modalPrice.textContent = '₱' + currentPrice.toLocaleString() + ' per unit';
@@ -274,35 +278,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateTotal();
 
-        // Manage Main Image
+        // Manage Main Image – safe DOM creation (no innerHTML with variables)
         function renderMainImage(index) {
             currentPhotoIdx = index;
+            // Clear existing content safely
+            while (modalMainImg.firstChild) modalMainImg.removeChild(modalMainImg.firstChild);
 
             if (photos.length > 0) {
-                modalMainImg.innerHTML = `
-                    <img src="${photos[index]}"
-                         alt="${productName}"
-                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; cursor: zoom-in;"
-                         id="mainModalImg"
-                         title="Click to expand" />
-                `;
-
-                const mainModalImg = document.getElementById('mainModalImg');
-                if (mainModalImg) {
-                    mainModalImg.addEventListener('click', () => {
-                        openLightbox(photos, currentPhotoIdx, productName);
-                    });
-                }
+                const img = document.createElement('img');
+                img.src = photos[index];
+                img.alt = productName;
+                img.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; cursor: zoom-in;';
+                img.id = 'mainModalImg';
+                img.title = 'Click to expand';
+                img.addEventListener('click', () => {
+                    openLightbox(photos, currentPhotoIdx, productName);
+                });
+                modalMainImg.appendChild(img);
             } else {
                 modalMainImg.style.background = bg;
-                modalMainImg.innerHTML = `
-                    <i class="fas ${icon} modal-ph-icon"></i>
-                    <span class="modal-ph-label">${productName}</span>
-                `;
+                const iconEl = document.createElement('i');
+                iconEl.className = 'fas ' + icon + ' modal-ph-icon';
+                modalMainImg.appendChild(iconEl);
+                const labelEl = document.createElement('span');
+                labelEl.className = 'modal-ph-label';
+                labelEl.textContent = productName;
+                modalMainImg.appendChild(labelEl);
             }
         }
 
-        // Manage Thumbnails
+        // Manage Thumbnails – safe DOM creation (no innerHTML with variables)
         function updateThumbActive(index) {
             document.querySelectorAll('#modalThumbs .thumb').forEach((thumb, i) => {
                 thumb.classList.toggle('active', i === index);
@@ -311,25 +316,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const thumbsContainer = document.getElementById('modalThumbs');
         if (thumbsContainer) {
-            if (photos.length > 0) {
-                thumbsContainer.innerHTML = photos.map((src, i) => `
-                    <div class="thumb ${i === 0 ? 'active' : ''}" data-idx="${i}" data-src="${src}">
-                        <img src="${src}" style="width: 100%; height: 100%; object-fit: cover;" />
-                    </div>
-                `).join('');
+            // Clear existing thumbnails safely
+            while (thumbsContainer.firstChild) thumbsContainer.removeChild(thumbsContainer.firstChild);
 
-                thumbsContainer.querySelectorAll('.thumb').forEach((thumb, i) => {
-                    thumb.addEventListener('click', () => {
+            if (photos.length > 0) {
+                photos.forEach((src, i) => {
+                    const thumbDiv = document.createElement('div');
+                    thumbDiv.className = 'thumb' + (i === 0 ? ' active' : '');
+                    thumbDiv.setAttribute('data-idx', i);
+                    thumbDiv.setAttribute('data-src', src);
+                    const thumbImg = document.createElement('img');
+                    thumbImg.src = src;
+                    thumbImg.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+                    thumbDiv.appendChild(thumbImg);
+                    thumbDiv.addEventListener('click', () => {
                         renderMainImage(i);
                         updateThumbActive(i);
                     });
+                    thumbsContainer.appendChild(thumbDiv);
                 });
             } else {
-                thumbsContainer.innerHTML = Array.from({ length: 8 }, (_, i) => `
-                    <div class="thumb ${i === 0 ? 'active' : ''}" data-idx="${i}">
-                        <i class="fas fa-image"></i>
-                    </div>
-                `).join('');
+                // SAFE: Hardcoded fallback thumbnails – no user data
+                for (let i = 0; i < 8; i++) {
+                    const thumbDiv = document.createElement('div');
+                    thumbDiv.className = 'thumb' + (i === 0 ? ' active' : '');
+                    thumbDiv.setAttribute('data-idx', i);
+                    const iconEl = document.createElement('i');
+                    iconEl.className = 'fas fa-image';
+                    thumbDiv.appendChild(iconEl);
+                    thumbsContainer.appendChild(thumbDiv);
+                }
             }
         }
 
@@ -339,45 +355,59 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.overflow = 'hidden';
     }
 
-    // Lightbox Logic
+    // Lightbox Logic – safe DOM creation (no innerHTML with variables)
     function openLightbox(photos, startIdx, name) {
         let currentIndex = startIdx;
         const lightboxElement = document.createElement('div');
         lightboxElement.id = 'lightbox';
-        lightboxElement.style.cssText = `
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95);
-            z-index: 9999; display: flex; align-items: center;
-            justify-content: center; flex-direction: column;
-        `;
+        lightboxElement.style.cssText = 'position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column;';
 
         function renderLightboxContent() {
-            lightboxElement.innerHTML = `
-                <button id="lbClose" style="position: absolute; top: 16px; right: 20px; background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; z-index: 10;">
-                    <i class="fas fa-times"></i>
-                </button>
-                <button id="lbPrev" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.15); border: none; color: #fff; font-size: 22px; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <img src="${photos[currentIndex]}" alt="${name}" style="max-width: 92vw; max-height: 88vh; object-fit: contain; border-radius: 8px; box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);" />
-                <button id="lbNext" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.15); border: none; color: #fff; font-size: 22px; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-                <span style="color: rgba(255, 255, 255, 0.6); font-size: 13px; margin-top: 12px;">
-                    ${currentIndex + 1} / ${photos.length}
-                </span>
-            `;
+            // Clear existing content safely
+            while (lightboxElement.firstChild) lightboxElement.removeChild(lightboxElement.firstChild);
 
-            lightboxElement.querySelector('#lbClose').addEventListener('click', () => lightboxElement.remove());
+            // Close button
+            const closeBtn = document.createElement('button');
+            closeBtn.id = 'lbClose';
+            closeBtn.style.cssText = 'position: absolute; top: 16px; right: 20px; background: none; border: none; color: #fff; font-size: 28px; cursor: pointer; z-index: 10;';
+            closeBtn.innerHTML = '<i class="fas fa-times"></i>'; // safe: hardcoded icon
+            closeBtn.addEventListener('click', () => lightboxElement.remove());
+            lightboxElement.appendChild(closeBtn);
 
-            lightboxElement.querySelector('#lbPrev').addEventListener('click', () => {
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.id = 'lbPrev';
+            prevBtn.style.cssText = 'position: absolute; left: 16px; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.15); border: none; color: #fff; font-size: 22px; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;';
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>'; // safe: hardcoded icon
+            prevBtn.addEventListener('click', () => {
                 currentIndex = (currentIndex - 1 + photos.length) % photos.length;
                 renderLightboxContent();
             });
+            lightboxElement.appendChild(prevBtn);
 
-            lightboxElement.querySelector('#lbNext').addEventListener('click', () => {
+            // Main image – safe: src set via attribute, alt via property
+            const img = document.createElement('img');
+            img.src = photos[currentIndex];
+            img.alt = name;
+            img.style.cssText = 'max-width: 92vw; max-height: 88vh; object-fit: contain; border-radius: 8px; box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);';
+            lightboxElement.appendChild(img);
+
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.id = 'lbNext';
+            nextBtn.style.cssText = 'position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.15); border: none; color: #fff; font-size: 22px; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;';
+            nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>'; // safe: hardcoded icon
+            nextBtn.addEventListener('click', () => {
                 currentIndex = (currentIndex + 1) % photos.length;
                 renderLightboxContent();
             });
+            lightboxElement.appendChild(nextBtn);
+
+            // Counter text – safe: numbers only
+            const counter = document.createElement('span');
+            counter.style.cssText = 'color: rgba(255, 255, 255, 0.6); font-size: 13px; margin-top: 12px;';
+            counter.textContent = (currentIndex + 1) + ' / ' + photos.length;
+            lightboxElement.appendChild(counter);
         }
 
         lightboxElement.addEventListener('click', event => {

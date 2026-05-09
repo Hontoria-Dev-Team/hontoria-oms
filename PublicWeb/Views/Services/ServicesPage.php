@@ -1,4 +1,11 @@
 <?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+
 /**
  * ServicesPage.php
  * Location: publicWeb/public/Views/Services/ServicesPage.php
@@ -25,42 +32,45 @@ $navItems = [
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    
-    <title>Services — <?php echo htmlspecialchars($siteName); ?></title>
-    <link rel="icon" type="image/png" href="<?php echo htmlspecialchars($logoPath); ?>"/>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-    
-    <link rel="stylesheet" href="../.CSS/Shared.css"/>
-    <link rel="stylesheet" href="../.CSS/ServicesPage.css"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Services — <?= e($siteName) ?></title>
+    <link rel="icon" type="image/png" href="<?= e($logoPath) ?>" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="../.CSS/Shared.css" />
+    <link rel="stylesheet" href="../.CSS/ServicesPage.css" />
 </head>
+
 <body>
-    
+
     <?php include __DIR__ . '/../.Components/SharedComponents/HeaderComponents.php'; ?>
-    
+
     <div class="page-body">
-        
+
         <aside class="services-sidebar">
             <?php include __DIR__ . '/../.Components/ServicesComponents/ServicesSidebarComponents.php'; ?>
         </aside>
-        
+
         <main class="services-content">
             <?php include __DIR__ . '/../.Components/ServicesComponents/ServicesContentComponents.php'; ?>
         </main>
-        
+
     </div>
-    
+
     <?php include __DIR__ . '/../.Components/SharedComponents/FooterComponents.php'; ?>
-    
+
     <div class="services-modal-wrapper">
         <?php include __DIR__ . '/../.Components/ServicesComponents/ServicesModalComponents.php'; ?>
     </div>
-    
+
     <script src="../.JS/Shared.js"></script>
     <script src="../.JS/ServicesPage.js"></script>
-    
+
 </body>
+
 </html>

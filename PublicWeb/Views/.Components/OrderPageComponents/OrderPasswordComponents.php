@@ -1,4 +1,11 @@
 <?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+
 /**
  * OrderPasswordComponents.php
  * Renders: set/update order password form with strength meter.
@@ -19,6 +26,7 @@
     </p>
 
     <form method="POST" class="op-password-form" id="passwordForm">
+        <?php echo CsrfM::getTokenField(); ?>
         <input type="hidden" name="action" value="setPassword" />
 
         <div class="op-form-row">
@@ -28,11 +36,11 @@
                 <div class="op-input-wrap">
                     <i class="fas fa-lock op-input-icon"></i>
                     <input type="password"
-                           name="password"
-                           id="newPassword"
-                           class="op-input"
-                           placeholder="At least 10 characters with 1 number"
-                           required />
+                        name="password"
+                        id="newPassword"
+                        class="op-input"
+                        placeholder="At least 10 characters with 1 number"
+                        required />
                     <button type="button" class="op-eye-btn" data-target="newPassword">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -44,11 +52,11 @@
                 <div class="op-input-wrap">
                     <i class="fas fa-lock op-input-icon"></i>
                     <input type="password"
-                           name="passwordConfirm"
-                           id="confirmPassword"
-                           class="op-input"
-                           placeholder="Confirm password"
-                           required />
+                        name="passwordConfirm"
+                        id="confirmPassword"
+                        class="op-input"
+                        placeholder="Confirm password"
+                        required />
                     <button type="button" class="op-eye-btn" data-target="confirmPassword">
                         <i class="fas fa-eye"></i>
                     </button>

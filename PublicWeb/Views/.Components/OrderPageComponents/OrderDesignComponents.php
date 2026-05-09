@@ -1,4 +1,11 @@
 <?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+
 /**
  * OrderDesignComponents.php
  * Renders: design image preview, zoom button, approval status + form.
@@ -20,8 +27,8 @@ $orderData += [
     <div class="op-card-head">
         <div class="op-card-icon"><i class="fas fa-image"></i></div>
         <span>Design Preview</span>
-        <span class="op-approval-pill <?php echo $orderData['designApproved'] ? 'pill-approved' : 'pill-pending'; ?>">
-            <?php echo $orderData['designApproved'] ? 'Approved' : 'Pending'; ?>
+        <span class="op-approval-pill <?= $orderData['designApproved'] ? 'pill-approved' : 'pill-pending' ?>">
+            <?= $orderData['designApproved'] ? 'Approved' : 'Pending' ?>
         </span>
     </div>
 
@@ -29,10 +36,11 @@ $orderData += [
 
         <!-- Image -->
         <div class="op-design-img-wrap">
-            <img src="../../Storage/Designs/<?php echo htmlspecialchars(rawurlencode($orderData['designImage'])); ?>"
-                 alt="Design Preview"
-                 class="op-design-img"
-                 id="designImg" />
+            <!-- The image filename is URL-encoded then HTML-escaped for safety -->
+            <img src="../../Storage/Designs/<?= e(rawurlencode($orderData['designImage'])) ?>"
+                alt="Design Preview"
+                class="op-design-img"
+                id="designImg" />
             <button class="op-zoom-btn" id="zoomBtn" title="View full size">
                 <i class="fas fa-expand"></i>
             </button>
@@ -43,9 +51,9 @@ $orderData += [
 
             <div class="op-design-status">
                 <span class="op-info-label">Design Approval</span>
-                <span class="op-approval-pill <?php echo $orderData['designApproved'] ? 'pill-approved' : 'pill-pending'; ?>"
-                      style="margin-left: 0; margin-top: .4rem; display: inline-block;">
-                    <?php echo $orderData['designApproved'] ? 'Approved' : 'Pending Approval'; ?>
+                <span class="op-approval-pill <?= $orderData['designApproved'] ? 'pill-approved' : 'pill-pending' ?>"
+                    style="margin-left: 0; margin-top: .4rem; display: inline-block;">
+                    <?= $orderData['designApproved'] ? 'Approved' : 'Pending Approval' ?>
                 </span>
             </div>
 
@@ -56,6 +64,7 @@ $orderData += [
 
             <?php if (!$orderData['designApproved'] && !$orderData['isArchived']): ?>
                 <form method="POST" class="op-approval-form">
+                    <?php echo CsrfM::getTokenField(); ?>
                     <input type="hidden" name="action" value="approveDesign">
                     <button type="submit" class="op-btn op-btn-primary">
                         <i class="fas fa-check"></i> Approve Design

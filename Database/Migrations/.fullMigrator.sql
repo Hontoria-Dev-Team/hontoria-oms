@@ -344,5 +344,7 @@ CREATE TABLE miscellaneousTasks (
 CREATE TABLE publicOrderPages (
     orderCode VARCHAR(255) PRIMARY KEY,
     orderID BIGINT UNSIGNED UNIQUE,
-    passwordHash VARCHAR(255)
+    passwordHash VARCHAR(255),
+    failedAttempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    lockedUntil DATETIME NULL
 );

@@ -1,4 +1,11 @@
 <?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+
 $fbLink = 'https://www.facebook.com/jhong.hontoria.3';
 $servicesCatalog = $servicesCatalog ?? [];
 ?>
@@ -16,11 +23,11 @@ $servicesCatalog = $servicesCatalog ?? [];
         <?php if ($service['isActive'] == 0) continue; ?>
 
         <section class="product-section"
-            id="<?php echo strtolower(str_replace(' ', '-', $service['name'])); ?>">
+            id="<?= e(strtolower(str_replace(' ', '-', $service['name']))) ?>">
 
             <div class="section-label">
                 <div class="section-badge sublim-badge">
-                    <?php echo strtoupper($service['name']); ?>
+                    <?= e(strtoupper($service['name'])) ?>
                 </div>
                 <div class="section-line"></div>
             </div>
@@ -30,38 +37,27 @@ $servicesCatalog = $servicesCatalog ?? [];
                 <?php foreach ($service['subservices'] as $subservice): ?>
 
                     <div class="product-card"
-
-                        data-name="<?php echo htmlspecialchars($subservice['name']); ?>"
-
-                        data-category="<?php echo htmlspecialchars($service['name']); ?>"
-
-                        data-price="<?php echo htmlspecialchars($subservice['pricePerUnit']); ?>"
-
-                        data-description="<?php echo htmlspecialchars($subservice['description']); ?>"
-
-                        data-is-active="<?php echo htmlspecialchars($subservice['isActive']); ?>"
-
-                        data-photos='<?php echo json_encode(array_map(
+                        data-name="<?= e($subservice['name']) ?>"
+                        data-category="<?= e($service['name']) ?>"
+                        data-price="<?= e($subservice['pricePerUnit']) ?>"
+                        data-description="<?= e($subservice['description']) ?>"
+                        data-is-active="<?= e($subservice['isActive']) ?>"
+                        data-photos='<?= e(json_encode(array_map(
                                             fn($img) => "../../Storage/SubserviceImages/" . $img['imageName'],
                                             $subservice['images'] ?? []
-                                        )); ?>'>
+                                        ))) ?>'>
 
                         <!-- IMAGE -->
                         <div class="card-img">
-
                             <?php if (!empty($subservice['images'])): ?>
-
                                 <img
-                                    src="../../Storage/SubserviceImages/<?php echo htmlspecialchars($subservice['images'][0]['imageName']); ?>"
+                                    src="../../Storage/SubserviceImages/<?= e($subservice['images'][0]['imageName']) ?>"
                                     class="card-photo">
-
                             <?php else: ?>
-
                                 <div class="img-placeholder">
                                     <i class="fas fa-image ph-icon"></i>
                                     <span class="ph-label">No Image</span>
                                 </div>
-
                             <?php endif; ?>
 
                             <!-- VIEW BUTTON -->
@@ -70,14 +66,12 @@ $servicesCatalog = $servicesCatalog ?? [];
                                     <i class="fas fa-eye"></i> View Details
                                 </button>
                             </div>
-
                         </div>
 
                         <!-- INFO -->
                         <div class="card-info">
-
                             <h3 class="card-name">
-                                <?php echo htmlspecialchars($subservice['name']); ?>
+                                <?= e($subservice['name']) ?>
                             </h3>
 
                             <?php if ($subservice['isActive'] == 0 || $service['isActive'] == 0): ?>
@@ -85,11 +79,11 @@ $servicesCatalog = $servicesCatalog ?? [];
                             <?php endif; ?>
 
                             <p class="card-desc">
-                                <?php echo htmlspecialchars($subservice['description']); ?>
+                                <?= e($subservice['description']) ?>
                             </p>
 
                             <?php if ($subservice['isActive'] == 1 && $service['isActive'] == 1): ?>
-                                <a href="<?php echo htmlspecialchars($fbLink); ?>"
+                                <a href="<?= e($fbLink) ?>"
                                     target="_blank"
                                     class="order-btn">
                                     Order Now
@@ -113,6 +107,8 @@ $servicesCatalog = $servicesCatalog ?? [];
     $count = count($inactiveServices);
     if ($count > 0):
         $names = array_column($inactiveServices, 'name');
+        // Escape all names before building the list
+        $names = array_map('e', $names);
         if ($count === 1) {
             $serviceList = '<span style="text-transform: capitalize;">' . $names[0] . '</span>';
         } elseif ($count === 2) {

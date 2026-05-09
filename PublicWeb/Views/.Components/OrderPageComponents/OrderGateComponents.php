@@ -1,4 +1,11 @@
 <?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+
 /**
  * OrderGateComponents.php
  * Renders: password gate form OR error state.
@@ -26,22 +33,23 @@ $passwordVerified = $passwordVerified ?? false;
             <?php if ($error): ?>
                 <div class="op-alert op-alert-error">
                     <i class="fas fa-circle-exclamation"></i>
-                    <?php echo htmlspecialchars($error); ?>
+                    <?= e($error) ?>
                 </div>
             <?php endif; ?>
 
             <form method="POST" class="op-gate-form">
+                <?php echo CsrfM::getTokenField(); ?>
                 <input type="hidden" name="action" value="verifyPassword" />
                 <div class="op-field-group">
                     <label class="op-label">Password</label>
                     <div class="op-input-wrap">
                         <i class="fas fa-key op-input-icon"></i>
                         <input type="password"
-                               name="password"
-                               class="op-input"
-                               placeholder="Enter order password"
-                               required
-                               autofocus />
+                            name="password"
+                            class="op-input"
+                            placeholder="Enter order password"
+                            required
+                            autofocus />
                     </div>
                 </div>
                 <button type="submit" class="op-btn op-btn-primary op-btn-full" style="margin-top: 1rem;">
@@ -63,7 +71,7 @@ $passwordVerified = $passwordVerified ?? false;
             </div>
 
             <h1 class="op-gate-title">Order Not Found</h1>
-            <p class="op-gate-sub"><?php echo htmlspecialchars($error); ?></p>
+            <p class="op-gate-sub"><?= e($error) ?></p>
 
             <a href="?page=home" class="op-btn op-btn-primary op-btn-full" style="margin-top: 1rem;">
                 <i class="fas fa-house"></i> Back to Home

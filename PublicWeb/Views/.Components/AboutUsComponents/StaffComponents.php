@@ -1,4 +1,11 @@
 <?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+
 /**
  * StaffComponents.php
  * Renders the Meet Our Staff section grouped by role.
@@ -16,7 +23,7 @@ $roleConfig = [
 
 // Fallback just in case $employees isn't defined in AboutusPage.php before including this
 if (!isset($employees)) {
-    $employees = []; 
+    $employees = [];
 }
 
 // ── Group employees by role ───────────────────────────────────────
@@ -41,8 +48,8 @@ foreach ($employees as $emp) {
                 <div class="staff-group">
 
                     <div class="staff-role-header">
-                        <i class="fas <?php echo $roleMeta['icon']; ?> staff-role-icon"></i>
-                        <span class="staff-role-label"><?php echo htmlspecialchars($roleMeta['label']); ?></span>
+                        <i class="fas <?= e($roleMeta['icon']) ?> staff-role-icon"></i>
+                        <span class="staff-role-label"><?= e($roleMeta['label']) ?></span>
                         <div class="staff-role-line"></div>
                     </div>
 
@@ -51,15 +58,15 @@ foreach ($employees as $emp) {
                             <?php foreach ($staffInRole as $emp): ?>
                                 <div class="staff-card">
                                     <?php if (!empty($emp['photo'])): ?>
-                                        <img src="<?php echo htmlspecialchars($emp['photo']); ?>"
-                                             alt="<?php echo htmlspecialchars($emp['name']); ?>"
-                                             class="staff-photo"/>
+                                        <img src="<?= e($emp['photo']) ?>"
+                                            alt="<?= e($emp['name']) ?>"
+                                            class="staff-photo" />
                                     <?php else: ?>
                                         <div class="staff-photo-placeholder">
                                             <i class="fas fa-user"></i>
                                         </div>
                                     <?php endif; ?>
-                                    <div class="staff-name"><?php echo htmlspecialchars($emp['name']); ?></div>
+                                    <div class="staff-name"><?= e($emp['name']) ?></div>
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>

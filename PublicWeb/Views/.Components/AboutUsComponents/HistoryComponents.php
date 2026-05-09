@@ -1,5 +1,10 @@
 <?php
-/* HistoryComponents.php */
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
 ?>
 <section class="section history-section" id="history">
     <div class="section-inner">
@@ -19,8 +24,7 @@
                     src="../.Images/historyPhoto.jpg"
                     alt="Hontoria Printing Services Shop"
                     class="history-img"
-                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-                />
+                    onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
                 <div class="history-img-placeholder" style="display:none;">
                     <i class="fas fa-store"></i>
                     <span>SHOP PHOTO</span>

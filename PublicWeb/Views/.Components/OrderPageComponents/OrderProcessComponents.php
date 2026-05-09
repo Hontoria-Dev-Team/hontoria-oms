@@ -1,4 +1,11 @@
 <?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+
 /**
  * OrderProcessComponents.php
  * Renders: process phase steps with status icons and connectors.
@@ -6,8 +13,7 @@
  */
 
 if (!function_exists('getProcessStateClass')) {
-    function getProcessStateClass(string $status): string
-    {
+    function getProcessStateClass(string $status): string {
         switch (strtolower($status)) {
             case 'completed':
                 return 'completed';
@@ -25,8 +31,7 @@ if (!function_exists('getProcessStateClass')) {
 }
 
 if (!function_exists('getProcessIcon')) {
-    function getProcessIcon(string $status): string
-    {
+    function getProcessIcon(string $status): string {
         switch (strtolower($status)) {
             case 'completed':
                 return 'fa-check-circle';
@@ -58,17 +63,17 @@ if (!function_exists('getProcessIcon')) {
         <div class="op-process-track">
             <?php foreach ($orderProcesses as $index => $process): ?>
 
-                <div class="op-process-step <?php echo getProcessStateClass($process['status']); ?>">
+                <div class="op-process-step <?= e(getProcessStateClass($process['status'])) ?>">
                     <div class="op-step-icon">
-                        <i class="fas <?php echo getProcessIcon($process['status']); ?>"></i>
+                        <i class="fas <?= e(getProcessIcon($process['status'])) ?>"></i>
                     </div>
                     <div class="op-step-body">
-                        <span class="op-step-phase">Phase <?php echo htmlspecialchars($process['phase']); ?></span>
-                        <h3 class="op-step-name"><?php echo htmlspecialchars($process['processName']); ?></h3>
-                        <span class="op-step-status"><?php echo ucfirst(htmlspecialchars($process['status'])); ?></span>
+                        <span class="op-step-phase">Phase <?= e($process['phase']) ?></span>
+                        <h3 class="op-step-name"><?= e($process['processName']) ?></h3>
+                        <span class="op-step-status"><?= e(ucfirst($process['status'])) ?></span>
                         <span class="op-step-assigned">
                             <i class="fas fa-user-gear"></i>
-                            <?php echo htmlspecialchars($process['assignedNum']); ?> assigned
+                            <?= e($process['assignedNum']) ?> assigned
                         </span>
                     </div>
                 </div>

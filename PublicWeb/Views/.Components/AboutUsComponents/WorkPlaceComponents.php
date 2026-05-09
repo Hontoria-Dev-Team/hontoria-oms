@@ -1,6 +1,3 @@
-<?php
-/* WorkPlaceComponents.php */
-?>
 <section class="section workplace-section" id="workplace">
     <div class="section-inner">
         <p class="section-eyebrow">Our Workspace</p>

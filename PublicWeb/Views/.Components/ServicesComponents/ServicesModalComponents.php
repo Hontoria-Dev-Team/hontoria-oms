@@ -1,4 +1,11 @@
 <?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+
 $fbLink = 'https://www.facebook.com/jhong.hontoria.3';
 ?>
 
@@ -58,14 +65,14 @@ $fbLink = 'https://www.facebook.com/jhong.hontoria.3';
                 <span class="modal-field-label">Note:</span>
                 <p class="modal-desc">
                     Screenshot your preferred design and send it directly to our
-                    <a href="<?php echo htmlspecialchars($fbLink); ?>"
+                    <a href="<?= e($fbLink) ?>"
                         target="_blank"
                         class="modal-fb-link">Facebook Messenger</a>.
                     We&rsquo;ll get back to you with the details!
                 </p>
             </div>
 
-            <a href="<?php echo htmlspecialchars($fbLink); ?>"
+            <a href="<?= e($fbLink) ?>"
                 target="_blank"
                 class="modal-order"
                 id="orderButton">

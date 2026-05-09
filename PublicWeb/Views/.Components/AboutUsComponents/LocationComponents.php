@@ -1,5 +1,10 @@
 <?php
-/* LocationComponents.php */
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
 ?>
 <section class="section location-section" id="location">
     <div class="section-inner">
@@ -26,7 +31,7 @@
                     <i class="fas fa-map-marker-alt"></i>
                     <div class="location-item-text">
                         <strong>Address</strong>
-                        <span><?php echo htmlspecialchars($address ?? 'Feeder Road 2, Brgy. Tibal-og Santo Tomas, Davao del Norte'); ?></span>
+                        <span><?= e($address ?? 'Feeder Road 2, Brgy. Tibal-og Santo Tomas, Davao del Norte') ?></span>
                     </div>
                 </div>
 
@@ -35,7 +40,7 @@
                     <div class="location-item-text">
                         <strong>Facebook Page</strong>
                         <span>
-                            <a href="<?php echo htmlspecialchars($fbLink ?? 'https://www.facebook.com/jhong.hontoria.3'); ?>" target="_blank" style="color:var(--red)">
+                            <a href="<?= e($fbLink ?? 'https://www.facebook.com/jhong.hontoria.3') ?>" target="_blank" style="color:var(--red)">
                                 Hontoria Printing Services
                             </a>
                         </span>

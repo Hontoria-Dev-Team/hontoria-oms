@@ -13,13 +13,13 @@
                 <h4>Premium Quality</h4>
                 <p>We use only the best materials and inks for long-lasting, vibrant prints.</p>
             </div>
-            
+
             <div class="why-item" data-delay="200">
                 <div class="why-icon"><i class="fas fa-bolt"></i></div>
                 <h4>Fast Turnaround</h4>
                 <p>Quick processing so your orders are ready when you need them.</p>
             </div>
-            
+
             <div class="why-item" data-delay="300">
                 <div class="why-icon"><i class="fas fa-peso-sign"></i></div>
                 <h4>Affordable Prices</h4>

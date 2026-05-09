@@ -1,4 +1,11 @@
 <?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+
 /**
  * Page.php
  * Location: publicWeb/Views/Order/Page.php
@@ -27,28 +34,40 @@ function formatAmount($amount) {
 
 function formatStatusClass($status) {
     switch (strtolower($status)) {
-        case 'active':           return 'status-active';
-        case 'idle':             return 'status-idle';
-        case 'unpaid':           return 'status-unpaid';
-        case 'for verification': return 'status-verification';
-        case 'complete':         return 'status-complete';
-        default:                 return 'status-default';
+        case 'active':
+            return 'status-active';
+        case 'idle':
+            return 'status-idle';
+        case 'unpaid':
+            return 'status-unpaid';
+        case 'for verification':
+            return 'status-verification';
+        case 'complete':
+            return 'status-complete';
+        default:
+            return 'status-default';
     }
 }
 
 function getProcessStateClass($status) {
     switch (strtolower($status)) {
-        case 'complete': return 'step-complete';
-        case 'active':   return 'step-active';
-        default:         return 'step-pending';
+        case 'complete':
+            return 'step-complete';
+        case 'active':
+            return 'step-active';
+        default:
+            return 'step-pending';
     }
 }
 
 function getProcessIcon($status) {
     switch (strtolower($status)) {
-        case 'complete': return 'fa-check';
-        case 'active':   return 'fa-spinner fa-spin';
-        default:         return 'fa-clock';
+        case 'complete':
+            return 'fa-check';
+        case 'active':
+            return 'fa-spinner fa-spin';
+        default:
+            return 'fa-clock';
     }
 }
 
@@ -62,11 +81,12 @@ $address  = $address  ?? 'Feeder Road 2, Brgy. Tibal-og Santo tomas, Davao del N
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Order Status — <?php echo htmlspecialchars($siteName); ?></title>
-    <link rel="icon" type="image/png" href="<?php echo htmlspecialchars($logoPath); ?>"/>
+    <title>Order Status — <?= e($siteName) ?></title>
+    <link rel="icon" type="image/png" href="<?= e($logoPath) ?>" />
 
     <link rel="stylesheet" href="../.CSS/Shared.css" />
     <link rel="stylesheet" href="../.CSS/OrderPage.css" />
@@ -75,11 +95,19 @@ $address  = $address  ?? 'Feeder Road 2, Brgy. Tibal-og Santo tomas, Davao del N
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,700&display=swap" rel="stylesheet" />
 </head>
+
 <body class="op-body">
 
     <?php include __DIR__ . '/../.Components/SharedComponents/HeaderComponents.php'; ?>
 
     <main class="op-page">
+
+        <?php if ($message): ?>
+            <div class="alert alert-success" style="background-color: #d4edda; border: 3px solid #28a745; border-radius: 8px; padding: 20px 24px; margin: 20px 0; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <i class="fas fa-check-circle" style="font-size: 28px; color: #28a745; flex-shrink: 0;"></i>
+                <span style="font-size: 16px; font-weight: 600; color: #155724; flex: 1;"><?= e($message) ?></span>
+            </div>
+        <?php endif; ?>
 
         <?php if (($requiresPassword && !$passwordVerified) || $error): ?>
 
@@ -115,7 +143,9 @@ $address  = $address  ?? 'Feeder Road 2, Brgy. Tibal-og Santo tomas, Davao del N
     <?php include __DIR__ . '/../.Components/SharedComponents/FooterComponents.php'; ?>
 
     <script src="../.JS/Shared.js"></script>
+    <script src="../.JS/CsrfHandler.js"></script>
     <script src="../.JS/OrderPage.js"></script>
 
 </body>
+
 </html>

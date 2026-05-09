@@ -1,4 +1,11 @@
 <?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+
 /* AboutUsSidebarComponents.php */
 
 $sectionItems = [
@@ -8,7 +15,7 @@ $sectionItems = [
     ['id' => 'owner',     'icon' => 'fa-user-tie',       'label' => 'The Owner'],
 
     /**['id' => 'employees', 'icon' => 'fa-users',          'label' => 'Our Team'],
-     */
+ */
 ];
 
 // UPDATED: Changed the direct file paths to use your index.php routing
@@ -23,12 +30,12 @@ $pageLinks = [
     <div class="about-sidebar-brand">
         <span class="about-sidebar-title">ABOUT US</span>
     </div>
-    
+
     <nav class="about-sidebar-pages">
         <?php foreach ($pageLinks as $link): ?>
-            <a href="<?php echo $link['url']; ?>" class="about-sidebar-page-link">
-                <i class="fas <?php echo $link['icon']; ?> about-sidebar-icon"></i>
-                <span><?php echo $link['label']; ?></span>
+            <a href="<?= e($link['url']) ?>" class="about-sidebar-page-link">
+                <i class="fas <?= e($link['icon']) ?> about-sidebar-icon"></i>
+                <span><?= e($link['label']) ?></span>
             </a>
         <?php endforeach; ?>
     </nav>
@@ -37,11 +44,11 @@ $pageLinks = [
 
     <nav class="about-sidebar-nav">
         <?php foreach ($sectionItems as $item): ?>
-            <a href="#<?php echo $item['id']; ?>"
-               class="about-sidebar-link"
-               data-section="<?php echo $item['id']; ?>">
-                <i class="fas <?php echo $item['icon']; ?> about-sidebar-icon"></i>
-                <span><?php echo $item['label']; ?></span>
+            <a href="#<?= e($item['id']) ?>"
+                class="about-sidebar-link"
+                data-section="<?= e($item['id']) ?>">
+                <i class="fas <?= e($item['icon']) ?> about-sidebar-icon"></i>
+                <span><?= e($item['label']) ?></span>
             </a>
         <?php endforeach; ?>
     </nav>

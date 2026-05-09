@@ -1,4 +1,11 @@
 <?php
+// XSS escape helper – define once across the application
+if (!function_exists('e')) {
+    function e($str) {
+        return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
+    }
+}
+
 /**
  * OrderInfoComponents.php
  * Renders: full order summary — order number, status, service,
@@ -22,18 +29,18 @@ $pct = $orderData['priceTotal'] > 0
             <!-- Order Number + Status -->
             <div class="op-order-heading">
                 <h1 class="op-order-number">
-                    Order #<?php echo htmlspecialchars($orderData['id']); ?>
+                    Order #<?= e($orderData['id']) ?>
                 </h1>
-                <span class="op-status-pill status-<?php echo strtolower(str_replace(' ', '-', $orderData['status'])); ?>">
-                    <?php echo htmlspecialchars($orderData['status']); ?>
+                <span class="op-status-pill status-<?= e(strtolower(str_replace(' ', '-', $orderData['status']))) ?>">
+                    <?= e($orderData['status']) ?>
                 </span>
             </div>
 
             <!-- Service & Subservice -->
             <p class="op-service-line">
-                Service: <strong><?php echo htmlspecialchars($orderData['serviceName']); ?></strong>
+                Service: <strong><?= e($orderData['serviceName']) ?></strong>
                 &mdash;
-                Subservice: <strong><?php echo htmlspecialchars($orderData['subserviceName']); ?></strong>
+                Subservice: <strong><?= e($orderData['subserviceName']) ?></strong>
             </p>
 
             <!-- Fields Grid -->
@@ -41,29 +48,29 @@ $pct = $orderData['priceTotal'] > 0
 
                 <div class="op-info-item">
                     <span class="op-info-label">Customer</span>
-                    <span class="op-info-value"><?php echo htmlspecialchars($orderData['customerName']); ?></span>
+                    <span class="op-info-value"><?= e($orderData['customerName']) ?></span>
                 </div>
 
                 <div class="op-info-item">
                     <span class="op-info-label">Due Date</span>
                     <span class="op-info-value">
-                        <?php echo $orderData['deadlineAt']
-                            ? htmlspecialchars(date('M j, Y', strtotime($orderData['deadlineAt'])))
-                            : '<span class="op-muted">No due date</span>'; ?>
+                        <?= $orderData['deadlineAt']
+                            ? e(date('M j, Y', strtotime($orderData['deadlineAt'])))
+                            : '<span class="op-muted">No due date</span>' ?>
                     </span>
                 </div>
 
                 <div class="op-info-item">
                     <span class="op-info-label">Order Date</span>
                     <span class="op-info-value">
-                        <?php echo htmlspecialchars(date('M j, Y', strtotime($orderData['createdAt']))); ?>
+                        <?= e(date('M j, Y', strtotime($orderData['createdAt']))) ?>
                     </span>
                 </div>
 
                 <div class="op-info-item">
                     <span class="op-info-label">Days Running</span>
                     <span class="op-info-value">
-                        <?php echo (new DateTime($orderData['createdAt']))->diff(new DateTime())->days; ?> days
+                        <?= (new DateTime($orderData['createdAt']))->diff(new DateTime())->days ?> days
                     </span>
                 </div>
 
@@ -81,18 +88,18 @@ $pct = $orderData['priceTotal'] > 0
 
                 <div class="op-info-item">
                     <span class="op-info-label">Total Price</span>
-                    <span class="op-info-value op-fw-bold"><?php echo formatAmount($orderData['priceTotal']); ?></span>
+                    <span class="op-info-value op-fw-bold"><?= e(formatAmount($orderData['priceTotal'])) ?></span>
                 </div>
 
                 <div class="op-info-item">
                     <span class="op-info-label">Paid Amount</span>
-                    <span class="op-info-value op-paid op-fw-bold"><?php echo formatAmount($orderData['pricePaid']); ?></span>
+                    <span class="op-info-value op-paid op-fw-bold"><?= e(formatAmount($orderData['pricePaid'])) ?></span>
                 </div>
 
                 <div class="op-info-item" style="grid-column: 1 / -1;">
                     <span class="op-info-label">Outstanding</span>
                     <span class="op-info-value op-outstanding op-fw-bold">
-                        <?php echo formatAmount(max(0, $orderData['priceTotal'] - $orderData['pricePaid'])); ?>
+                        <?= e(formatAmount(max(0, $orderData['priceTotal'] - $orderData['pricePaid']))) ?>
                     </span>
                 </div>
 
@@ -100,9 +107,9 @@ $pct = $orderData['priceTotal'] > 0
 
             <div class="op-progress-wrap" style="margin-top: 1rem;">
                 <div class="op-progress-bar">
-                    <div class="op-progress-fill" style="width: <?php echo $pct; ?>%"></div>
+                    <div class="op-progress-fill" style="width: <?= (int)$pct ?>%"></div>
                 </div>
-                <span class="op-progress-label"><?php echo $pct; ?>% paid</span>
+                <span class="op-progress-label"><?= (int)$pct ?>% paid</span>
             </div>
 
             <p class="op-note" style="margin-top: 1rem;">

@@ -1,14 +1,14 @@
 <header class="header" id="header">
     <div class="header-inner">
-        
+
         <div class="logo">
-            <img src="../.Images/Logo.png" alt="Hontoria Logo" class="logo-img" onerror="this.style.display='none'"/>
+            <img src="../.Images/Logo.png" alt="Hontoria Logo" class="logo-img" onerror="this.style.display='none'" />
             <div class="logo-text">
                 <span class="logo-name">HONTORIA</span>
                 <span class="logo-sub">PRINTING SERVICES</span>
             </div>
         </div>
-        
+
         <nav class="nav-desktop">
             <a href="?page=home" class="nav-link">Home</a>
             <span class="nav-sep">|</span>
@@ -16,7 +16,7 @@
             <span class="nav-sep">|</span>
             <a href="?page=about" class="nav-link">About Us</a>
         </nav>
-        
+
         <div class="header-right">
             <button class="hamburger" id="hamburger" aria-label="Open menu">
                 <span></span><span></span><span></span>
@@ -24,7 +24,7 @@
         </div>
 
     </div>
-    
+
     <div class="order-bar">
         <span class="order-bar-text">
             <i class="fab fa-facebook-f"></i>
@@ -34,13 +34,13 @@
             </a>
         </span>
     </div>
-    
+
     <div class="mobile-nav" id="mobileNav">
         <button class="close-nav" id="closeNav"><i class="fas fa-times"></i></button>
         <a href="?page=home" class="mob-link">Home</a>
         <a href="?page=services" class="mob-link">Services</a>
         <a href="?page=about" class="mob-link">About Us</a>
     </div>
-    
+
     <div class="overlay" id="overlay"></div>
 </header>
