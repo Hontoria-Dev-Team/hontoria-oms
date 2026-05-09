@@ -7,3 +7,7 @@ composer.phar
 
 # Ignore storage folder (user uploaded images, etc.)
 Storage/
+
+/Config
+
+Config/config.php
